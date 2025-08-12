@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Fanta Laghèe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #d1d5db; /* text-gray-300 */
+        }
+        .login-card {
+            background-color: #1f2937; /* bg-gray-800 */
+            border: 1px solid #374151; /* border-gray-700 */
+        }
+        .form-input {
+            background-color: #374151; /* bg-gray-700 */
+            border: 1px solid #4b5563; /* border-gray-600 */
+            color: #f3f4f6; /* text-gray-100 */
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* bg-indigo-600 */
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* hover:bg-indigo-700 */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-md p-8 space-y-6 rounded-lg login-card">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-white" style="font-family: 'Oswald', sans-serif;">Accesso Area Riservata</h1>
+            <p class="text-gray-400">Inserisci le tue credenziali</p>
+        </div>
+
+        <form id="login-form" class="space-y-6">
+            <div>
+                <label for="username" class="text-sm font-medium text-gray-300 block mb-2">Username</label>
+                <input type="text" id="username" name="username" class="w-full px-4 py-2 rounded-md form-input focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            </div>
+            <div>
+                <label for="password" class="text-sm font-medium text-gray-300 block mb-2">Password</label>
+                <input type="password" id="password" name="password" class="w-full px-4 py-2 rounded-md form-input focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            </div>
+            <div>
+                <button type="submit" id="submit-btn" class="w-full py-2 px-4 rounded-md font-semibold btn-primary">
+                    Accedi
+                </button>
+            </div>
+        </form>
+        <div id="error-message" class="text-center text-red-400 text-sm hidden"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('login-form');
+            const errorMessage = document.getElementById('error-message');
+            const submitBtn = document.getElementById('submit-btn');
+
+            // Redirect if already logged in
+            if (localStorage.getItem('authToken_fantafc')) {
+                window.location.href = '/admin/manage-articles.html';
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                errorMessage.classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Accesso in corso...';
+
+                const username = form.username.value;
+                const password = form.password.value;
+
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        localStorage.setItem('authToken_fantafc', data.token);
+                        window.location.href = '/admin/manage-articles.html';
+                    } else {
+                        throw new Error(data.message || 'Credenziali non valide.');
+                    }
+                } catch (error) {
+                    errorMessage.textContent = error.message;
+                    errorMessage.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Accedi';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

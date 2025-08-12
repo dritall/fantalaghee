@@ -28,6 +28,7 @@
             <!-- Desktop Nav -->
             <nav class="hidden md:flex items-center gap-1">
                 <a href="index.html" class="nav-button px-4 py-2 rounded-full text-sm">Panoramica</a>
+                <a href="gazzetta-del-laghee.html" class="nav-button px-4 py-2 rounded-full text-sm">Gazzetta</a>
                 <a href="index.html#novita" class="nav-button px-4 py-2 rounded-full text-sm">Novità</a>
                 <a href="index.html#regole" class="nav-button px-4 py-2 rounded-full text-sm">Regolamento</a>
                 <div class="relative dropdown">
@@ -62,6 +63,7 @@
     <div id="mobile-menu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-lg fixed top-16 left-0 w-full h-[calc(100vh-4rem)] z-40">
         <div class="container mx-auto p-4 flex flex-col gap-4">
             <a href="index.html" class="nav-button text-center w-full py-3 rounded-full">Panoramica</a>
+            <a href="gazzetta-del-laghee.html" class="nav-button text-center w-full py-3 rounded-full">Gazzetta</a>
             <a href="index.html#novita" class="nav-button text-center w-full py-3 rounded-full">Novità</a>
             <a href="index.html#regole" class="nav-button text-center w-full py-3 rounded-full">Regolamento</a>
             <div class="relative dropdown-mobile w-full">
@@ -192,10 +194,27 @@
             const hamburgerOpenIcon = document.getElementById('hamburger-open');
             const hamburgerCloseIcon = document.getElementById('hamburger-close');
 
-            hamburgerBtn.addEventListener('click', () => {
+            const toggleMenu = () => {
                 mobileMenu.classList.toggle('hidden');
                 hamburgerOpenIcon.classList.toggle('hidden');
                 hamburgerCloseIcon.classList.toggle('hidden');
+            };
+
+            hamburgerBtn.addEventListener('click', toggleMenu);
+
+            // Close mobile menu when a link is clicked
+            const mobileNavLinks = document.querySelectorAll('#mobile-menu a, #mobile-menu button');
+            mobileNavLinks.forEach(link => {
+                const isDropdownToggle = link.parentElement.classList.contains('dropdown-mobile');
+
+                if (!isDropdownToggle) {
+                    link.addEventListener('click', () => {
+                        // Only close if the menu is currently open
+                        if (!mobileMenu.classList.contains('hidden')) {
+                            toggleMenu();
+                        }
+                    });
+                }
             });
 
             // Desktop Dropdown
