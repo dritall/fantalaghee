@@ -1,24 +1,33 @@
 import Papa from 'papaparse';
 
 // Helper function to fetch and parse CSV data
-const fetchAndParseCSV = (url) => {
-    return new Promise((resolve, reject) => {
-        Papa.parse(url, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                if (results.errors.length) {
-                    reject(new Error(results.errors.map(e => e.message).join(', ')));
-                } else {
-                    resolve(results.data);
+const fetchAndParseCSV = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch CSV from ${url}: ${response.statusText}`);
+        }
+        const csvText = await response.text();
+
+        return new Promise((resolve, reject) => {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    if (results.errors.length) {
+                        reject(new Error(results.errors.map(e => e.message).join(', ')));
+                    } else {
+                        resolve(results.data);
+                    }
+                },
+                error: (error) => {
+                    reject(new Error(`Error parsing CSV from ${url}: ${error.message}`));
                 }
-            },
-            error: (error) => {
-                reject(new Error(`Errore durante il fetch o il parsing del CSV da ${url}: ${error.message}`));
-            }
+            });
         });
-    });
+    } catch (error) {
+        throw new Error(`Network or parsing error for ${url}: ${error.message}`);
+    }
 };
 
 export default async function handler(req, res) {
