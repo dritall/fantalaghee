@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gazzetta del Laghee</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Gazzetta del Laghee</h1>
+  </header>
+  <main id="articles-container">
+    <p>Caricamento articoli in corso...</p>
+  </main>
+  <script>
+    async function fetchArticles() {
+      const container = document.getElementById('articles-container');
+      try {
+        const response = await fetch('/api/articles');
+        if (!response.ok) {
+          throw new Error('Errore nel caricamento degli articoli');
+        }
+        const articles = await response.json();
+        container.innerHTML = '';
+        if (articles.length === 0) {
+          container.innerHTML = '<p>Nessun articolo trovato.</p>';
+        } else {
+          articles.forEach(article => {
+            const articleElement = document.createElement('article');
+            articleElement.innerHTML = `
+              <h2>${article.title}</h2>
+              <p>${article.body}</p>
+            `;
+            container.appendChild(articleElement);
+          });
+        }
+      } catch (error) {
+        container.innerHTML = `<p>${error.message}</p>`;
+      }
+    }
+
+    fetchArticles();
+  </script>
+</body>
+</html>
