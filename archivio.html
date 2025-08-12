@@ -57,7 +57,7 @@
 
         const populateDropdown = async () => {
             try {
-                const response = await fetch('/api/get-archivio');
+                const response = await fetch('/api/getArchivio');
                 if (!response.ok) throw new Error('Failed to fetch giornate list');
                 const giornate = await response.json();
 
@@ -87,7 +87,7 @@
             container.innerHTML = `<div class="text-center py-16"><div class="text-4xl sm:text-6xl mb-4 animate-spin">⏳</div><h3 class="text-xl font-semibold text-stone-300">Caricamento classifica per la giornata ${giornata}...</h3></div>`;
 
             try {
-                const response = await fetch(`/api/get-archivio?giornata=${giornata}`);
+                const response = await fetch(`/api/getArchivio?giornata=${giornata}`);
                 if (!response.ok) throw new Error(`Classifica per la giornata ${giornata} non trovata.`);
 
                 const classificaData = await response.json();
