@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/update-archivio",
+      "schedule": "30 23 * * 6"
+    }
+  ]
+}
