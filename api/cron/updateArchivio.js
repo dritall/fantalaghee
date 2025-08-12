@@ -2,16 +2,25 @@ import { kv } from '@vercel/kv';
 import Papa from 'papaparse';
 
 // Helper to fetch and parse CSV data
-const fetchAndParseCSV = (url) => {
-    return new Promise((resolve, reject) => {
-        Papa.parse(url, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => results.errors.length ? reject(results.errors) : resolve(results.data),
-            error: (error) => reject(error),
+const fetchAndParseCSV = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch CSV from ${url}: ${response.statusText}`);
+        }
+        const csvText = await response.text();
+
+        return new Promise((resolve, reject) => {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => results.errors.length ? reject(results.errors) : resolve(results.data),
+                error: (error) => reject(new Error(`Error parsing CSV from ${url}: ${error.message}`)),
+            });
         });
-    });
+    } catch (error) {
+        throw new Error(`Network or parsing error for ${url}: ${error.message}`);
+    }
 };
 
 export default async function handler(request, response) {
