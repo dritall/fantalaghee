@@ -1,5 +1,5 @@
 // api/getClassifica_2425.js
-const API_KEY = '123';
+const API_KEY = '1';
 const LEAGUE_ID = '4332';
 const SEASON = '2024-2025';
 

@@ -1,23 +1,19 @@
 // api/login.js
 
-export default function handler(request, response) {
-    // Only allow POST requests
+export default async function handler(request, response) {
     if (request.method !== 'POST') {
+        response.setHeader('Allow', ['POST']);
         return response.status(405).json({ message: 'Method Not Allowed' });
     }
 
-    // It's common for Vercel to not parse JSON bodies automatically.
-    // We'll handle both object and stringified JSON.
-    let body;
     try {
-        body = typeof request.body === 'string' ? JSON.parse(request.body) : request.body;
-    } catch (e) {
-        return response.status(400).json({ message: 'Invalid JSON body' });
-    }
+        const { username, password } = request.body;
 
-    const { username, password } = body;
+        if (!username || !password) {
+            return response.status(400).json({ message: 'Username and password are required.' });
+        }
 
-    const adminUser = process.env.ADMIN_USER;
+        const adminUser = process.env.ADMIN_USER;
     const adminPass = process.env.ADMIN_PASS;
 
     // This is a simple, insecure, hardcoded token for demonstration.
@@ -37,5 +33,9 @@ export default function handler(request, response) {
     } else {
         // Failed login
         return response.status(401).json({ success: false, message: 'Invalid username or password' });
+    }
+    } catch (error) {
+        console.error("Error in login handler:", error);
+        return response.status(500).json({ message: 'An unexpected error occurred.' });
     }
 }

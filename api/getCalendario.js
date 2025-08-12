@@ -1,5 +1,5 @@
 // api/getCalendario.js
-const API_KEY = '123'; // Free public API key from TheSportsDB
+const API_KEY = '1'; // Free public API key from TheSportsDB
 const LEAGUE_ID = '4332'; // Serie A
 
 export default async function handler(request, response) {
