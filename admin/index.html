@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header>
+    <h1>Admin Panel</h1>
+    <button id="logout-button">Logout</button>
+  </header>
+  <main>
+    <h2>Crea un nuovo articolo</h2>
+    <form id="create-article-form">
+      <div>
+        <label for="title">Titolo:</label>
+        <input type="text" id="title" name="title" required>
+      </div>
+      <div>
+        <label for="body">Corpo:</label>
+        <textarea id="body" name="body" required></textarea>
+      </div>
+      <button type="submit">Crea Articolo</button>
+    </form>
+    <h2>Articoli Esistenti</h2>
+    <div id="articles-list"></div>
+  </main>
+
+  <script>
+    async function checkAuth() {
+      // This is a simplified check. In a real app, you'd have a dedicated /api/auth/status endpoint.
+      // We'll assume if the cookie is not present, the user is not logged in.
+      if (!document.cookie.includes('auth=')) {
+        window.location.href = '/admin/login.html';
+      }
+    }
+
+    async function fetchArticles() {
+      const list = document.getElementById('articles-list');
+      list.innerHTML = '<p>Caricamento...</p>';
+      try {
+        const response = await fetch('/api/articles');
+        const articles = await response.json();
+        list.innerHTML = '';
+        if (articles.length === 0) {
+          list.innerHTML = '<p>Nessun articolo.</p>';
+        } else {
+          articles.forEach(article => {
+            const articleEl = document.createElement('div');
+            articleEl.innerHTML = `
+              <h3>${article.title}</h3>
+              <p>${article.body.substring(0, 100)}...</p>
+              <button onclick="deleteArticle('${article.id}')">Elimina</button>
+            `;
+            list.appendChild(articleEl);
+          });
+        }
+      } catch (error) {
+        list.innerHTML = '<p>Errore nel caricamento articoli.</p>';
+      }
+    }
+
+    async function deleteArticle(id) {
+      if (!confirm('Sei sicuro di voler eliminare questo articolo?')) return;
+      try {
+        const response = await fetch(`/api/articles?id=${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          fetchArticles();
+        } else {
+          alert('Errore durante l'eliminazione.');
+        }
+      } catch (error) {
+        alert('Si è verificato un errore.');
+      }
+    }
+
+    document.getElementById('create-article-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const title = event.target.title.value;
+      const body = event.target.body.value;
+      try {
+        const response = await fetch('/api/articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, body }),
+        });
+        if (response.ok) {
+          event.target.reset();
+          fetchArticles();
+        } else {
+          alert('Errore nella creazione dell'articolo.');
+        }
+      } catch (error) {
+        alert('Si è verificato un errore.');
+      }
+    });
+
+    document.getElementById('logout-button').addEventListener('click', async () => {
+        const response = await fetch('/api/logout', { method: 'POST' });
+        if(response.ok) {
+            window.location.href = '/admin/login.html';
+        } else {
+            alert('Logout fallito');
+        }
+    });
+
+    checkAuth();
+    fetchArticles();
+  </script>
+</body>
+</html>
