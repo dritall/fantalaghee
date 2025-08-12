@@ -13,6 +13,12 @@ const safeJsonParse = (str) => {
 };
 
 export default async function handler(request, response) {
+    if (!kv) {
+        return response.status(503).json({
+            message: 'KV store is not connected. Please check your Vercel project environment.'
+        });
+    }
+
     const { method } = request;
 
     // --- Authentication Check for Protected Routes ---

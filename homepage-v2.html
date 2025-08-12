@@ -12,7 +12,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css">
+    <style>
+        html, body {
+            height: auto !important;
+            overflow-y: auto !important;
+        }
+    </style>
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css">
@@ -79,41 +84,46 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const createCard = (title, value, subtitle = '') => {
+            if (!value) return ''; // Don't render a card if the value is missing
+            return `
+                <div class="info-card text-center p-4 sm:p-6">
+                    <h4 class="font-bold text-lg text-indigo-400">${title}</h4>
+                    <p class="text-4xl font-bold text-white my-2">${value}</p>
+                    <p class="text-xs text-stone-400">${subtitle}</p>
+                </div>
+            `;
+        };
+
         async function fetchData() {
             const dashboardContainer = document.getElementById('dashboard-container');
             const standingsContainer = document.getElementById('standings-container');
 
             try {
                 const response = await fetch('/api/getClassificaV2');
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`La richiesta al server ha fallito: ${response.status} - ${errorText}`);
-                }
+                if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
+
                 const data = await response.json();
+                if (data.error) throw new Error(data.details);
 
-                if (data.error) throw new Error(data.error);
-
-                // Render Dashboard Cards
-                if (data.dashboard && data.dashboard.length > 0) {
+                // --- Render Dashboard ---
+                const { dashboard } = data;
+                if (dashboard && Object.keys(dashboard).length > 0) {
                     let dashboardHTML = '';
-                    data.dashboard.forEach(item => {
-                        dashboardHTML += `
-                            <div class="info-card text-center p-4 sm:p-6">
-                                <h4 class="font-bold text-lg text-indigo-400">${item.label}</h4>
-                                <p class="text-4xl font-bold text-white my-2">${item.value}</p>
-                                <p class="text-xs text-stone-400">${item.description || ''}</p>
-                            </div>
-                        `;
-                    });
-                    dashboardContainer.innerHTML = dashboardHTML;
+                    if(dashboard.leaderAttuale) dashboardHTML += createCard('Leader Attuale', dashboard.leaderAttuale.team, `Punteggio: ${dashboard.leaderAttuale.punteggio}`);
+                    if(dashboard.recordAssoluto) dashboardHTML += createCard('Record Assoluto', dashboard.recordAssoluto.team, `Punteggio: ${dashboard.recordAssoluto.punteggio}`);
+                    if(dashboard.campioneDellaGiornata) dashboardHTML += createCard(dashboard.campioneDellaGiornata.giornata, dashboard.campioneDellaGiornata.team, `Punteggio: ${dashboard.campioneDellaGiornata.punteggio}`);
+                    if(dashboard.cucchiaioDiLegno) dashboardHTML += createCard('Cucchiaio di Legno', dashboard.cucchiaioDiLegno.team, `Punteggio: ${dashboard.cucchiaioDiLegno.punteggio}`);
+                    dashboardContainer.innerHTML = dashboardHTML || '<p class="text-center col-span-full text-amber-400">Dati dashboard non disponibili.</p>';
                 } else {
                     dashboardContainer.innerHTML = '<p class="text-center col-span-full text-amber-400">Nessun dato disponibile per la dashboard.</p>';
                 }
 
-                // Render Standings Table
-                if (data.classifica && data.classifica.length > 0) {
-                    // Assuming the first row of CSV data contains headers
-                    const headers = Object.keys(data.classifica[0]);
+                // --- Render Standings Table ---
+                const { classifica } = data;
+                if (classifica && classifica.length > 0) {
+                    const headers = Object.keys(classifica[0]);
+
                     let tableHTML = `
                         <table id="classifica-table" class="display w-full" style="width:100%">
                             <thead>
@@ -122,31 +132,26 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${data.classifica.map(row => `
+                                ${classifica.map(row => `
                                     <tr>
-                                        ${headers.map(h => `<td>${row[h]}</td>`).join('')}
+                                        ${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}
                                     </tr>
                                 `).join('')}
                             </tbody>
-                        </table>
-                    `;
+                        </table>`;
                     standingsContainer.innerHTML = tableHTML;
 
-                    // Initialize DataTables
                     new DataTable('#classifica-table', {
                         responsive: true,
-                        language: {
-                            url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/it-IT.json',
-                        }
+                        language: { url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/it-IT.json' }
                     });
-
                 } else {
                     standingsContainer.innerHTML = '<p class="text-center text-amber-400">Nessun dato disponibile per la classifica.</p>';
                 }
 
             } catch (error) {
                 console.error('Errore nel caricamento dei dati:', error);
-                dashboardContainer.innerHTML = '<p class="text-center col-span-full text-red-400">Impossibile caricare i dati della dashboard.</p>';
+                dashboardContainer.innerHTML = `<p class="text-center col-span-full text-red-400">Impossibile caricare i dati della dashboard. Dettaglio: ${error.message}</p>`;
                 standingsContainer.innerHTML = `<p class="text-center text-red-400">Impossibile caricare la classifica. Dettaglio: ${error.message}</p>`;
             }
         }
