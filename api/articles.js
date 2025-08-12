@@ -24,21 +24,37 @@ export default async function handler(request, response) {
         switch (method) {
             case 'GET': {
                 const { id } = request.query;
-                console.log(`[GET] Received request. ID: ${id || 'all'}`);
                 if (id) {
-                    const article = await kv.get(`article:${id}`);
-                    console.log(`[GET] KV response for article:${id}:`, article);
-                    return article
-                        ? response.status(200).json(article)
-                        : response.status(404).json({ message: 'Article not found.' });
+                    try {
+                        const article = await kv.get(`article:${id}`);
+                        if (!article) {
+                            return response.status(404).json({ message: 'Article not found.' });
+                        }
+                        return response.status(200).json(article);
+                    } catch (kvError) {
+                        console.error(`[KV ERROR] Failed to kv.get('article:${id}'):`, kvError);
+                        return response.status(500).json({ message: 'Database read error.', error: kvError.message });
+                    }
                 } else {
-                    const articleKeys = await kv.keys('article:*');
-                    console.log(`[GET] Found keys:`, articleKeys);
-                    if (articleKeys.length === 0) return response.status(200).json([]);
-                    const articles = await kv.mget(...articleKeys);
-                    articles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                    console.log(`[GET] Returning ${articles.length} articles.`);
-                    return response.status(200).json(articles);
+                    let articleKeys = [];
+                    try {
+                        articleKeys = await kv.keys('article:*');
+                        if (articleKeys.length === 0) {
+                            return response.status(200).json([]);
+                        }
+                    } catch (kvError) {
+                        console.error('[KV ERROR] Failed to kv.keys("article:*"):', kvError);
+                        return response.status(500).json({ message: 'Database key scan error.', error: kvError.message });
+                    }
+
+                    try {
+                        const articles = await kv.mget(...articleKeys);
+                        articles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                        return response.status(200).json(articles);
+                    } catch (kvError) {
+                        console.error('[KV ERROR] Failed to kv.mget() with keys:', articleKeys, kvError);
+                        return response.status(500).json({ message: 'Database multi-read error.', error: kvError.message });
+                    }
                 }
             }
 
@@ -49,8 +65,13 @@ export default async function handler(request, response) {
                 }
                 const newId = `art_${Date.now()}`;
                 const newArticle = { id: newId, title, content, createdAt: new Date().toISOString() };
-                await kv.set(`article:${newId}`, newArticle);
-                return response.status(201).json(newArticle);
+                try {
+                    await kv.set(`article:${newId}`, newArticle);
+                    return response.status(201).json(newArticle);
+                } catch (kvError) {
+                    console.error(`[KV ERROR] Failed to kv.set('article:${newId}'):`, kvError);
+                    return response.status(500).json({ message: 'Database write error.', error: kvError.message });
+                }
             }
 
             case 'PUT': {
@@ -58,26 +79,35 @@ export default async function handler(request, response) {
                 if (!id || !title || !content) {
                     return response.status(400).json({ message: 'Article ID, title, and content are required.' });
                 }
-                const existingArticle = await kv.get(`article:${id}`);
-                if (!existingArticle) {
-                    return response.status(404).json({ message: 'Article not found.' });
+                try {
+                    const existingArticle = await kv.get(`article:${id}`);
+                    if (!existingArticle) {
+                        return response.status(404).json({ message: 'Article not found.' });
+                    }
+                    const updatedArticle = { ...existingArticle, title, content, updatedAt: new Date().toISOString() };
+                    await kv.set(`article:${id}`, updatedArticle);
+                    return response.status(200).json(updatedArticle);
+                } catch (kvError) {
+                    console.error(`[KV ERROR] Failed to get or set article ('article:${id}'):`, kvError);
+                    return response.status(500).json({ message: 'Database read/write error during update.', error: kvError.message });
                 }
-                const updatedArticle = { ...existingArticle, title, content, updatedAt: new Date().toISOString() };
-                await kv.set(`article:${id}`, updatedArticle);
-                return response.status(200).json(updatedArticle);
             }
 
             case 'DELETE': {
-                const idToDelete = request.query.id;
-                console.log(`[DELETE] Received request for ID: ${idToDelete}`);
-                if (!idToDelete) {
+                const { id } = request.query;
+                if (!id) {
                     return response.status(400).json({ message: 'Article ID is required as a query parameter.' });
                 }
-                const delResult = await kv.del(`article:${idToDelete}`);
-                console.log(`[DELETE] KV deletion result for article:${idToDelete}: ${delResult}`);
-                return delResult > 0
-                    ? response.status(200).json({ message: 'Article deleted successfully.' })
-                    : response.status(404).json({ message: 'Article not found.' });
+                try {
+                    const delResult = await kv.del(`article:${id}`);
+                    if (delResult === 0) {
+                         return response.status(404).json({ message: 'Article not found.' });
+                    }
+                    return response.status(200).json({ message: 'Article deleted successfully.' });
+                } catch (kvError) {
+                    console.error(`[KV ERROR] Failed to kv.del('article:${id}'):`, kvError);
+                    return response.status(500).json({ message: 'Database delete error.', error: kvError.message });
+                }
             }
 
             default:
