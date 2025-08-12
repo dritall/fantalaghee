@@ -1,0 +1,252 @@
+:root {
+    --background-color: #010409;
+    --primary-text: #c9d1d9;
+    --card-bg: #161B22;
+    --border-color: #30363d;
+    --accent-blue: #4f46e5;
+    --accent-orange: #f59e0b;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--primary-text);
+}
+.background-container {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -2;
+    background-image: url('image/stadium-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+.background-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    background-color: rgba(1, 4, 9, 0.75);
+}
+#main-header {
+    background-color: rgba(1, 4, 9, 0.8); /* Reverted transparency */
+}
+.nav-button {
+    transition: all 0.3s ease;
+    color: #9ca3af;
+    background-color: rgba(31, 41, 59, 0.5);
+    border: 1px solid #374151;
+}
+.nav-button.active {
+    background-color: var(--accent-blue);
+    color: #ffffff;
+    font-weight: 600;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.5);
+}
+.nav-button:not(.active):hover {
+    background-color: #374151;
+    color: #f9fafb;
+}
+.external-link-button {
+    transition: all 0.3s ease;
+    color: var(--accent-orange);
+    background-color: rgba(245, 158, 11, 0.1);
+    border: 1px solid var(--accent-orange);
+}
+.external-link-button:hover {
+    background-color: rgba(245, 158, 11, 0.2);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+}
+.content-section { display: none; }
+.content-section.active { display: block; }
+.fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-element.is-visible {
+    opacity: 1;
+    transform: translateY(0px);
+}
+.info-card {
+    background-color: var(--card-bg);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+.rule-card {
+    background-color: var(--card-bg);
+    border-left: 4px solid var(--accent-blue);
+}
+.example-card {
+    background-color: rgba(245, 158, 11, 0.05);
+    border-left: 4px solid var(--accent-orange);
+}
+.accordion-item {
+     background-color: var(--card-bg);
+     border: 1px solid var(--border-color);
+}
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+}
+.btn-iscriviti {
+    background-color: var(--accent-orange);
+    color: #111827;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+.btn-iscriviti:hover {
+    background-color: #fbbf24;
+    transform: scale(1.05);
+}
+.punteggio-card {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.punteggio-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 0 25px rgba(79, 70, 229, 0.3);
+}
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+.team-card {
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+}
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+.team-card-header {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.team-card-body {
+    padding: 1rem;
+    text-align: center;
+}
+.standings-table {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+.standings-table th {
+    background-color: rgba(31, 41, 59, 0.5);
+    color: var(--primary-text);
+}
+.standings-table td, .standings-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+.standings-table tbody tr:nth-child(even) {
+    background-color: rgba(1, 4, 9, 0.2);
+}
+ .standings-table tbody tr:hover {
+    background-color: #374151;
+}
+.team-logo {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.75rem;
+}
+#match-modal {
+    background-color: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+}
+.modal-content {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+.tab-button {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--primary-text);
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+.tab-button.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+    font-weight: 600;
+}
+.tab-content {
+    display: none;
+    padding: 1.5rem 0;
+}
+.tab-content.active {
+    display: block;
+}
+.round-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    overflow: hidden;
+}
+.match-row-link {
+    display: block;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: #1c232f;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-decoration: none;
+    color: var(--primary-text);
+}
+.match-row-link:hover {
+    background-color: #2a3447;
+    transform: scale(1.02);
+}
+.match-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.125rem;
+}
+.team {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 40%;
+}
+.team.away {
+    justify-content: flex-end;
+}
+.team-name {
+    font-weight: 600;
+}
+.score {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--accent-orange);
+    width: 20%;
+    text-align: center;
+}
+.match-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 0.25rem;
+}
+.team-logo-small {
+    width: 28px;
+    height: 28px;
+}
