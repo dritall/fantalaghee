@@ -86,7 +86,7 @@
             const standingsContainer = document.getElementById('standings-container');
 
             try {
-                const response = await fetch('/api/get-classifica-v2');
+                const response = await fetch('/api/getClassificaV2');
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(`La richiesta al server ha fallito: ${response.status} - ${errorText}`);
