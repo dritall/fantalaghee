@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruscotto - Fantalaghee</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        #dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        ul li:last-child {
+            border-bottom: none;
+        }
+        ul li strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; align-items: center; padding: 20px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <img src="/image/logo-compact.png" alt="Logo Fantalaghee" style="height: 50px; margin-right: 20px;">
+        <h1 style="margin: 0;">Cruscotto Fantalaghee</h1>
+    </div>
+    <div id="dashboard-container" style="padding: 20px;">
+        <div class="card">
+            <h2>Caricamento in corso...</h2>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('dashboard-container');
+
+            fetch('/api/getDashboard')
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error || 'Errore di rete'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    container.innerHTML = ''; // Pulisci il container
+
+                    if (!data || Object.keys(data).length === 0) {
+                        container.innerHTML = '<div class="card"><p>Nessun dato da visualizzare al momento.</p></div>';
+                        return;
+                    }
+
+                    for (const blockTitle in data) {
+                        const blockData = data[blockTitle];
+                        if (!blockData) continue;
+
+                        const card = document.createElement('div');
+                        card.className = 'card';
+
+                        const title = document.createElement('h2');
+                        title.textContent = blockTitle;
+                        card.appendChild(title);
+
+                        const content = document.createElement('div');
+                        content.className = 'card-content';
+
+                        if (Array.isArray(blockData) && blockData.length > 0) {
+                            // Render as a table
+                            const table = document.createElement('table');
+                            const thead = document.createElement('thead');
+                            const tbody = document.createElement('tbody');
+                            const headers = Object.keys(blockData[0] || {});
+
+                            const headerRow = document.createElement('tr');
+                            headers.forEach(headerText => {
+                                const th = document.createElement('th');
+                                th.textContent = headerText;
+                                headerRow.appendChild(th);
+                            });
+                            thead.appendChild(headerRow);
+
+                            blockData.forEach(item => {
+                                const row = document.createElement('tr');
+                                headers.forEach(header => {
+                                    const td = document.createElement('td');
+                                    td.textContent = item[header] || '';
+                                    row.appendChild(td);
+                                });
+                                tbody.appendChild(row);
+                            });
+
+                            table.appendChild(thead);
+                            table.appendChild(tbody);
+                            content.appendChild(table);
+
+                        } else if (typeof blockData === 'object' && !Array.isArray(blockData) && Object.keys(blockData).length > 0) {
+                            // Render as a definition list
+                            const list = document.createElement('ul');
+                            for (const key in blockData) {
+                                const listItem = document.createElement('li');
+                                listItem.innerHTML = `<strong>${key}:</strong> ${blockData[key]}`;
+                                list.appendChild(listItem);
+                            }
+                            content.appendChild(list);
+                        } else {
+                            content.innerHTML = '<p>Dati non disponibili per questa sezione.</p>';
+                        }
+
+                        card.appendChild(content);
+                        container.appendChild(card);
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore nel caricamento della dashboard:', error);
+                    container.innerHTML = `<div class="card"><h2>Errore</h2><p>Impossibile caricare i dati della dashboard. ${error.message}</p></div>`;
+                });
+        });
+    </script>
+</body>
+</html>
