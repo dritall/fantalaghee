@@ -19,7 +19,7 @@
 }
 
 .article-link-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Merriweather', serif;
     font-size: 2.2rem;
     font-weight: 700;
     color: #000000;
@@ -28,7 +28,7 @@
 }
 
 .article-link-date {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 0.9rem;
     color: #666;
     text-transform: uppercase;
@@ -42,7 +42,7 @@
     max-width: 800px;
     margin: 2rem auto;
     padding: 2rem;
-    background-color: #fdfdfa;
+    background-color: #E6F2FF; /* Azzurro pastello */
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
     border: 1px solid #ccc;
 }
@@ -55,7 +55,7 @@
 }
 
 .gazzetta-header h1 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Merriweather', serif;
     font-size: 3.5rem;
     font-weight: 700;
     margin: 0;
@@ -63,7 +63,7 @@
 }
 
 .gazzetta-header .slogan {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 1rem;
     color: #666;
     margin-top: 0.5rem;
@@ -75,14 +75,14 @@
 }
 
 .article-date {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 0.9rem;
     color: #888;
     text-transform: uppercase;
 }
 
 .article-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Merriweather', serif;
     font-size: 2.8rem;
     font-weight: 700;
     margin: 0.5rem 0;
@@ -90,10 +90,12 @@
 }
 
 .article-body {
-    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 1.1rem;
     line-height: 1.7;
     text-align: justify;
+    column-count: 2;
+    column-gap: 2.5rem;
 }
 
 .article-body .opening-paragraph {
@@ -112,7 +114,7 @@
     padding-top: 1rem;
     border-top: 1px solid #ccc;
     text-align: right;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-style: italic;
     color: #555;
 }
@@ -123,7 +125,7 @@
 }
 
 .back-link {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     color: #3498db;
     text-decoration: none;
     transition: color 0.2s;
