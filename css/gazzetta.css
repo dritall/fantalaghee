@@ -1,38 +1,52 @@
 /* --- Stili per la pagina Elenco Articoli (gazzetta-del-laghee.html) --- */
 
-.article-link-card {
-    display: block;
-    padding: 1.5rem 2rem;
-    background-color: #f9f6f1; /* Un avorio "carta antica" */
-    border: 1px solid #dcdcdc;
-    border-top: 3px solid #333;
-    border-bottom: 3px solid #333;
-    text-decoration: none;
-    color: #000000;
+.article-card {
+    padding: 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem; /* Bordi arrotondati */
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Ombra leggera */
 }
 
-.article-link-card:hover {
+.article-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
-.article-link-title {
-    font-family: 'Merriweather', serif;
-    font-size: 2.2rem;
+.article-card .article-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.75rem;
     font-weight: 700;
-    color: #000000;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
+    color: var(--accent-orange);
+    margin-bottom: 0.25rem;
 }
 
-.article-link-date {
-    font-family: 'Roboto', sans-serif;
-    font-size: 0.9rem;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.article-card .article-meta {
+    font-size: 0.8rem;
+    color: #9ca3af; /* text-stone-400 */
+    margin-bottom: 1rem;
+}
+
+.article-card .article-preview {
+    font-size: 1rem;
+    color: var(--primary-text);
+    margin-bottom: 1.5rem;
+}
+
+.article-card .article-read-more {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: var(--accent-blue);
+    color: white;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.article-card .article-read-more:hover {
+    background-color: #3730a3; /* Un blu più scuro */
 }
 
 
@@ -42,30 +56,31 @@
     max-width: 800px;
     margin: 2rem auto;
     padding: 2rem;
-    background-color: #E6F2FF; /* Azzurro pastello */
+    background-color: var(--card-bg);
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
 }
 
 .gazzetta-header {
     text-align: center;
-    border-bottom: 4px double #333;
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: 1rem;
     margin-bottom: 2rem;
 }
 
 .gazzetta-header h1 {
-    font-family: 'Merriweather', serif;
-    font-size: 3.5rem;
+    font-family: 'Oswald', sans-serif;
+    font-size: 2.5rem;
     font-weight: 700;
     margin: 0;
     letter-spacing: 1px;
+    color: var(--accent-orange);
 }
 
 .gazzetta-header .slogan {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1rem;
-    color: #666;
+    color: #9ca3af;
     margin-top: 0.5rem;
 }
 
@@ -75,27 +90,26 @@
 }
 
 .article-date {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
-    color: #888;
+    color: #9ca3af;
     text-transform: uppercase;
 }
 
 .article-title {
-    font-family: 'Merriweather', serif;
-    font-size: 2.8rem;
+    font-family: 'Oswald', sans-serif;
+    font-size: 2.5rem;
     font-weight: 700;
     margin: 0.5rem 0;
     line-height: 1.2;
+    color: var(--primary-text);
 }
 
 .article-body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.1rem;
     line-height: 1.7;
-    text-align: justify;
-    column-count: 2;
-    column-gap: 2.5rem;
+    color: #c9d1d9;
 }
 
 .article-body .opening-paragraph {
@@ -103,6 +117,7 @@
     font-style: italic;
     font-size: 1.2rem;
     margin-bottom: 1.5rem;
+    color: #e5e7eb;
 }
 
 .article-body p {
@@ -112,11 +127,11 @@
 .article-footer {
     margin-top: 3rem;
     padding-top: 1rem;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--border-color);
     text-align: right;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-style: italic;
-    color: #555;
+    color: #9ca3af;
 }
 
 .back-link-container {
@@ -125,28 +140,28 @@
 }
 
 .back-link {
-    font-family: 'Roboto', sans-serif;
-    color: #3498db;
+    font-family: 'Inter', sans-serif;
+    color: var(--accent-blue);
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .back-link:hover {
-    color: #2980b9;
+    text-decoration: underline;
 }
 
 /* --- Animazione di Apertura --- */
 @keyframes newspaper-open-animation {
     from {
         opacity: 0;
-        transform: perspective(1000px) rotateY(20deg) scale(0.95);
+        transform: scale(0.95);
     }
     to {
         opacity: 1;
-        transform: perspective(1000px) rotateY(0deg) scale(1);
+        transform: scale(1);
     }
 }
 
 .newspaper-open {
-    animation: newspaper-open-animation 0.7s ease-out forwards;
+    animation: newspaper-open-animation 0.5s ease-out forwards;
 }
