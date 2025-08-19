@@ -25,68 +25,72 @@ const fetchAndParseCSV = async (url, options = { header: true }) => {
 // Custom parser for the complex Dashboard sheet structure
 const parseDashboardData = (data) => {
     const dashboard = {};
-    const findRowIndex = (label, col = 0) => data.findIndex(row => row && row[col] && row[col].trim().toLowerCase() === label.toLowerCase());
 
-    // LEADER ATTUALE
+    // Funzioni di utilità per trovare le righe
+    const findRowIndex = (label, col = 0) => data.findIndex(row => row && row[col] && row[col].trim().toLowerCase() === label.toLowerCase());
+    const findRowIndexStartsWith = (label, col = 0) => data.findIndex(row => row && row[col] && row[col].trim().toLowerCase().startsWith(label.toLowerCase()));
+
+    // --- LEADER ATTUALE (Colonna A/B) ---
     let rowIndex = findRowIndex("LEADER ATTUALE");
     if (rowIndex !== -1 && data[rowIndex + 1]) {
-        dashboard.leaderAttuale = { team: data[rowIndex + 1][0], punteggio: data[rowIndex + 1][1] };
+        dashboard.leaderAttuale = { team: data[rowIndex + 1][0] };
     }
 
-    // RECORD ASSOLUTO
-    rowIndex = findRowIndex("RECORD ASSOLUTO");
-    if (rowIndex !== -1 && data[rowIndex + 1]) {
-        dashboard.recordAssoluto = { team: data[rowIndex + 1][0], punteggio: data[rowIndex + 1][1] };
-    }
-
-    // Campione della Giornata X
-    const campioneRowIndex = data.findIndex(row => row && row[0] && row[0].trim().toLowerCase().startsWith("campione della giornata"));
-    if (campioneRowIndex !== -1 && data[campioneRowIndex + 1]) {
-        dashboard.campioneDellaGiornata = {
-            giornata: data[campioneRowIndex][0],
-            team: data[campioneRowIndex + 1][0],
-            punteggio: data[campioneRowIndex + 1][1]
-        };
-    }
-
-    // Cucchiaio di Legno
-    rowIndex = findRowIndex("Cucchiaio di Legno");
-    if (rowIndex !== -1 && data[rowIndex + 1]) {
-        dashboard.cucchiaioDiLegno = { team: data[rowIndex + 1][0], punteggio: data[rowIndex + 1][1] };
-    }
-
-    // Podio della Giornata X
-    const podioRowIndex = data.findIndex(row => row && row[0] && row[0].trim().toLowerCase().startsWith("podio della giornata"));
-    if (podioRowIndex !== -1) {
-        dashboard.podioDellaGiornata = {
-            giornata: data[podioRowIndex][0],
-            primo: data[podioRowIndex + 1] ? { team: data[podioRowIndex + 1][0], punteggio: data[podioRowIndex + 1][1] } : {},
-            secondo: data[podioRowIndex + 2] ? { team: data[podioRowIndex + 2][0], punteggio: data[podioRowIndex + 2][1] } : {},
-            terzo: data[podioRowIndex + 3] ? { team: data[podioRowIndex + 3][0], punteggio: data[podioRowIndex + 3][1] } : {},
-        };
-    }
-
-    // Miglior Punteggio
-    rowIndex = findRowIndex("Miglior Punteggio");
-     if (rowIndex !== -1 && data[rowIndex + 1]) {
-        dashboard.migliorPunteggio = { team: data[rowIndex + 1][0], punteggio: data[rowIndex + 1][1] };
-    }
-
-    // PREMI
-    rowIndex = findRowIndex("PREMI");
+    // --- RECORD ASSOLUTO (Colonna E/F) ---
+    rowIndex = findRowIndex("RECORD ASSOLUTO", 4); // Cerca nella colonna E (indice 4)
     if (rowIndex !== -1) {
-        dashboard.premi = { classificaGenerale: [], totali: [] };
-        let premiRowIndex = data.findIndex(row => row && row[1] && row[1].trim() === "Premi Classifica Generale");
-        if (premiRowIndex !== -1) {
-            for (let i = premiRowIndex + 1; i < data.length && data[i][1] && data[i][1].trim() !== "Premi Totali"; i++) {
-                dashboard.premi.classificaGenerale.push({ posizione: data[i][1], premio: data[i][2] });
-            }
-        }
-        premiRowIndex = data.findIndex(row => row && row[1] && row[1].trim() === "Premi Totali");
-        if (premiRowIndex !== -1) {
-            for (let i = premiRowIndex + 1; i < data.length && data[i][1]; i++) {
-                dashboard.premi.totali.push({ posizione: data[i][1], premio: data[i][2] });
-            }
+        dashboard.recordAssoluto = {
+            punteggio: data[rowIndex + 1] ? data[rowIndex + 1][5] : '', // Punteggio in colonna F
+            team: data[rowIndex + 2] ? data[rowIndex + 2][5] : '',      // Squadra in colonna F
+            giornata: data[rowIndex + 3] ? data[rowIndex + 3][5] : ''   // Giornata in colonna F
+        };
+    }
+
+    // --- CAMPIONE DELLA GIORNATA (Colonna A/B) ---
+    rowIndex = findRowIndexStartsWith("campione della giornata");
+    if (rowIndex !== -1) {
+        dashboard.campioneDellaGiornata = {
+            giornata: data[rowIndex][0],
+            punteggio: data[rowIndex + 1] ? data[rowIndex + 1][1] : '', // Punteggio in colonna B
+            team: data[rowIndex + 2] ? data[rowIndex + 2][1] : ''      // Squadra in colonna B
+        };
+    }
+
+    // --- CUCCHIAIO DI LEGNO (Colonna E/F) ---
+    rowIndex = findRowIndex("Cucchiaio di Legno", 4); // Cerca nella colonna E
+    if (rowIndex !== -1) {
+        dashboard.cucchiaioDiLegno = {
+            punteggio: data[rowIndex + 1] ? data[rowIndex + 1][5] : '', // Punteggio in colonna F
+            team: data[rowIndex + 2] ? data[rowIndex + 2][5] : '',      // Squadra in colonna F
+            giornata: data[rowIndex + 3] ? data[rowIndex + 3][5] : ''   // Giornata in colonna F
+        };
+    }
+
+    // --- MIGLIOR PUNTEGGIO (Colonna B/C) ---
+    rowIndex = findRowIndex("Miglior Punteggio");
+    if (rowIndex !== -1 && data[rowIndex + 1]) {
+        const fullText = data[rowIndex + 1][0] || '';
+        const teamMatch = fullText.match(/^(.*?)\s*->/);
+        const pointsMatch = fullText.match(/->\s*(\d+(\.\d+)?)\s*Punti/);
+
+        dashboard.migliorPunteggio = {
+            team: teamMatch ? teamMatch[1].trim() : 'N/D',
+            punteggio: pointsMatch ? pointsMatch[1] : 'N/D'
+        };
+    }
+
+    // --- NUOVO: PREMI DI GIORNATA (Dinamico, Colonne F/G) ---
+    let premiRowIndex = findRowIndex("Premi di Giornata", 6); // Cerca "Premi di Giornata" nella colonna G (indice 6)
+    if (premiRowIndex !== -1) {
+        dashboard.premiDiGiornata = [];
+        let i = premiRowIndex + 1; // Inizia dalla riga successiva all'etichetta
+        // Continua a leggere finché c'è un nome squadra valido nella colonna F
+        while (i < data.length && data[i] && data[i][5] && data[i][5].trim() !== '') {
+            dashboard.premiDiGiornata.push({
+                squadra: data[i][5],
+                premio: data[i][6] || ''
+            });
+            i++;
         }
     }
 

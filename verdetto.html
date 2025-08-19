@@ -82,84 +82,102 @@
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script src="/js/main.js" defer></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const loader = document.getElementById('loader-container');
-            const wrapper = document.getElementById('dashboard-content-wrapper');
-            const info = document.getElementById('giornata-info');
-            const dashboardContainer = wrapper.querySelector('.grid');
-            const standingsContainer = document.getElementById('standings-container');
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const loader = document.getElementById('loader-container');
+        const wrapper = document.getElementById('dashboard-content-wrapper');
+        const info = document.getElementById('giornata-info');
+        const dashboardContainer = wrapper.querySelector('.grid');
+        const standingsContainer = document.getElementById('standings-container');
 
-            const createCard = (title, value, subtitle = '', icon = '', customClass = '') => {
-                if (!value) return '';
-                return `<div class="widget text-center ${customClass}"><h2 class="text-sm font-bold uppercase">${icon} ${title}</h2><p class="text-4xl font-bold">${value}</p><p class="text-md text-stone-400">${subtitle}</p></div>`;
-            };
+        const createCard = (title, value, subtitle = '', icon = '', customClass = '') => {
+            if (!value) return '';
+            return `<div class="widget text-center ${customClass}"><h2 class="text-sm font-bold uppercase">${icon} ${title}</h2><p class="text-4xl font-bold">${value}</p><p class="text-md text-stone-400">${subtitle}</p></div>`;
+        };
 
-            try {
-                const response = await fetch('/api/getClassificaV2');
-                if (!response.ok) throw new Error(`Errore API: ${response.statusText}`);
-                const data = await response.json();
-                if(data.error) throw new Error(data.details);
+        try {
+            const response = await fetch('/api/getClassificaV2');
+            if (!response.ok) throw new Error(`Errore API: ${response.statusText}`);
+            const data = await response.json();
+            if(data.error) throw new Error(data.details);
 
-                // --- Render Dashboard ---
-                const { dashboard, classifica } = data;
-                if (dashboard && Object.keys(dashboard).length > 0) {
+            const { dashboard, classifica } = data;
+
+            // --- Render Dashboard (più robusto) ---
+            if (dashboard && Object.keys(dashboard).length > 0) {
+                if (dashboard.campioneDellaGiornata && dashboard.campioneDellaGiornata.giornata) {
                     info.textContent = `Dati aggiornati alla ${dashboard.campioneDellaGiornata.giornata}`;
-                    let dashboardHTML = '';
-                    dashboardHTML += createCard('Leader Attuale', dashboard.leaderAttuale.team, `Punteggio: ${dashboard.leaderAttuale.punteggio}`, '🏆');
-                    dashboardHTML += createCard('Record Assoluto', dashboard.recordAssoluto.team, `Punteggio: ${dashboard.recordAssoluto.punteggio}`, '🔥', 'premio-punteggio');
-                    dashboardHTML += createCard('Campione della Giornata', dashboard.campioneDellaGiornata.team, `Punteggio: ${dashboard.campioneDellaGiornata.punteggio}`, '🥇');
-                    dashboardHTML += createCard('Cucchiaio di Legno', dashboard.cucchiaioDiLegno.team, `Punteggio: ${dashboard.cucchiaioDiLegno.punteggio}`, '🥄', 'cucchiaio-legno');
-                    dashboardContainer.innerHTML = dashboardHTML;
                 } else {
-                    info.textContent = 'Dati non disponibili';
-                    dashboardContainer.innerHTML = '<p class="text-center col-span-full text-amber-400">Nessun dato disponibile per la dashboard.</p>';
+                    info.textContent = 'Verdetto della settimana';
                 }
 
-                // --- Render Standings Table ---
-                if (classifica && classifica.length > 0) {
-                    const headers = Object.keys(classifica[0]);
-                    const tableHTML = `
-                        <table id="classifica-table" class="display compact stripe" style="width:100%">
-                            <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-                        </table>`;
-                    standingsContainer.innerHTML = tableHTML;
+                let dashboardHTML = '';
+                if (dashboard.leaderAttuale) dashboardHTML += createCard('Leader Attuale', dashboard.leaderAttuale.team, ``, '🏆');
+                if (dashboard.recordAssoluto) dashboardHTML += createCard('Record Assoluto', dashboard.recordAssoluto.team, `Punteggio: ${dashboard.recordAssoluto.punteggio}`, '🔥', 'premio-punteggio');
+                if (dashboard.campioneDellaGiornata) dashboardHTML += createCard('Campione della Giornata', dashboard.campioneDellaGiornata.team, `Punteggio: ${dashboard.campioneDellaGiornata.punteggio}`, '🥇');
+                if (dashboard.cucchiaioDiLegno) dashboardHTML += createCard('Cucchiaio di Legno', dashboard.cucchiaioDiLegno.team, `Punteggio: ${dashboard.cucchiaioDiLegno.punteggio}`, '🥄', 'cucchiaio-legno');
+                if (dashboard.migliorPunteggio) dashboardHTML += createCard('Miglior Punteggio', dashboard.migliorPunteggio.team, `Punti: ${dashboard.migliorPunteggio.punteggio}`, '🎯', 'premio-punteggio');
+                dashboardContainer.innerHTML = dashboardHTML;
 
-                    new DataTable('#classifica-table', {
-                        data: classifica,
-                        columns: headers.map(h => ({ data: h, title: h })),
-                        responsive: true,
-                        language: { url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/it-IT.json' },
-                        order: [[0, 'asc']],
-                        createdRow: function(row, data, dataIndex) {
-                            const pos = parseInt(data.POS);
-                            if (pos <= 3) $(row).css('background-color', 'rgba(34, 197, 94, 0.1)'); // Zona Champions
-                            if (pos >= 8) $(row).css('background-color', 'rgba(239, 68, 68, 0.1)'); // Zona Retrocessione
-                        },
-                        columnDefs: [{
-                            targets: '_all',
-                            render: function(data, type, row, meta) {
-                                if (type === 'display' && meta.col > 0) { // Escludi la prima colonna (POS)
-                                    return `<div class="tooltip-container">${data}<span class="tooltip-text">Clicca per dettagli</span></div>`;
-                                }
-                                return data;
-                            }
-                        }]
+                // --- NUOVO: Render Premi di Giornata ---
+                if (dashboard.premiDiGiornata && dashboard.premiDiGiornata.length > 0) {
+                    let premiHTML = `<div class="col-span-full mt-8"><h3 class="text-2xl font-bold text-amber-400 mb-4 text-center" style="font-family: 'Oswald', sans-serif;">PREMI DI GIORNATA</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">`;
+                    dashboard.premiDiGiornata.forEach(premio => {
+                        premiHTML += createCard(premio.squadra, `${premio.premio} 🍆`, 'Premio Giornata', '⭐');
                     });
-                } else {
-                    standingsContainer.innerHTML = '<p class="text-center text-amber-400">Nessun dato disponibile per la classifica.</p>';
+                    premiHTML += `</div></div>`;
+                    dashboardContainer.insertAdjacentHTML('afterend', premiHTML);
                 }
 
-                loader.style.display = 'none';
-                wrapper.classList.remove('hidden');
-
-            } catch (error) {
-                console.error("Errore caricamento Verdetto:", error);
-                info.textContent = 'Dati non disponibili. Riprova più tardi.';
-                loader.style.display = 'none';
-                standingsContainer.innerHTML = `<p class="text-center text-red-400">Impossibile caricare la classifica. Dettaglio: ${error.message}</p>`;
+            } else {
+                info.textContent = 'Dati non disponibili';
+                dashboardContainer.innerHTML = '<p class="text-center col-span-full text-amber-400">Nessun dato disponibile per la dashboard.</p>';
             }
-        });
-    </script>
+
+            // --- Render Standings Table (invariato) ---
+            if (classifica && classifica.length > 0) {
+                const headers = Object.keys(classifica[0]);
+                const tableHTML = `
+                    <table id="classifica-table" class="display compact stripe" style="width:100%">
+                        <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+                    </table>`;
+                standingsContainer.innerHTML = tableHTML;
+
+                new DataTable('#classifica-table', {
+                    data: classifica,
+                    columns: headers.map(h => ({ data: h, title: h })),
+                    responsive: true,
+                    language: { url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/it-IT.json' },
+                    order: [[0, 'asc']],
+                    createdRow: function(row, data, dataIndex) {
+                        const pos = parseInt(data.POS);
+                        if (pos <= 3) $(row).css('background-color', 'rgba(34, 197, 94, 0.1)');
+                        if (pos >= 8) $(row).css('background-color', 'rgba(239, 68, 68, 0.1)');
+                    },
+                    columnDefs: [{
+                        targets: '_all',
+                        render: function(data, type, row, meta) {
+                            if (type === 'display' && meta.col > 0) {
+                                return `<div class="tooltip-container">${data}<span class="tooltip-text">Clicca per dettagli</span></div>`;
+                            }
+                            return data;
+                        }
+                    }]
+                });
+            } else {
+                standingsContainer.innerHTML = '<p class="text-center text-amber-400">Nessun dato disponibile per la classifica.</p>';
+            }
+
+            loader.style.display = 'none';
+            wrapper.classList.remove('hidden');
+
+        } catch (error) {
+            console.error("Errore caricamento Verdetto:", error);
+            info.textContent = 'Dati non disponibili. Riprova più tardi.';
+            loader.style.display = 'none';
+            wrapper.innerHTML = `<p class="text-center col-span-full text-red-400">Impossibile caricare la pagina. Dettaglio: ${error.message}</p>`;
+        }
+    });
+</script>
 </body>
 </html>
