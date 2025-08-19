@@ -1,57 +1,36 @@
 // js/main.js
 document.addEventListener('DOMContentLoaded', () => {
-    // Carica l'header in tutte le pagine tranne la index
-    const headerPlaceholder = document.querySelector('div[data-include-header]');
-    if (headerPlaceholder) {
-        fetch('/components/_header.html')
-            .then(response => response.ok ? response.text() : Promise.reject('Header not found'))
-            .then(data => {
-                headerPlaceholder.innerHTML = data;
-                initializeHeaderLogic();
-                setActiveNavlink();
-            })
-            .catch(error => console.error('Error loading header:', error));
-    } else {
-        // Se siamo sulla index, inizializza comunque la logica dell'header e dei tab
-        initializeHeaderLogic();
-        setActiveNavlink();
-        if (window.location.pathname === '/' || window.location.pathname.endsWith('/index.html')) {
-            setupHomepageTabs();
-        }
-    }
+    // --- Logica Comune a Tutte le Pagine ---
+    const header = document.getElementById('main-header');
+    if (!header) return;
 
-    function initializeHeaderLogic() {
-        const header = document.getElementById('main-header');
-        if (!header) return;
+    const hamburgerBtn = header.querySelector('#hamburger-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
 
-        const hamburgerBtn = header.querySelector('#hamburger-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        if (hamburgerBtn && mobileMenu) {
-            hamburgerBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-                header.querySelector('#hamburger-open')?.classList.toggle('hidden');
-                header.querySelector('#hamburger-close')?.classList.toggle('hidden');
-            });
-
-            const desktopNav = header.querySelector('nav');
-            if (desktopNav) {
-                mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col items-center gap-4">${desktopNav.innerHTML}</div>`;
-            }
-        }
-    }
-
-    function setActiveNavlink() {
-        const currentPage = window.location.pathname;
-        document.querySelectorAll('#main-header a.nav-button').forEach(link => {
-            const linkUrl = new URL(link.href);
-            if (linkUrl.pathname === currentPage && !linkUrl.hash) {
-                link.classList.add('active');
-            }
+    // Gestione Menu Mobile
+    if (hamburgerBtn && mobileMenu) {
+        hamburgerBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            header.querySelector('#hamburger-open')?.classList.toggle('hidden');
+            header.querySelector('#hamburger-close')?.classList.toggle('hidden');
         });
+        const desktopNav = header.querySelector('nav');
+        if (desktopNav) {
+            mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col items-center gap-4">${desktopNav.innerHTML}</div>`;
+        }
     }
 
-    function setupHomepageTabs() {
+    // Evidenzia il link della pagina attiva
+    const currentPage = window.location.pathname;
+    header.querySelectorAll('a.nav-button').forEach(link => {
+        const linkUrl = new URL(link.href);
+        if (linkUrl.pathname === currentPage && !linkUrl.hash) {
+            link.classList.add('active');
+        }
+    });
+
+    // --- Logica Specifica per la Homepage ---
+    if (window.location.pathname === '/' || window.location.pathname.endsWith('/index.html')) {
         const tabButtons = document.querySelectorAll('button[data-target]');
         const contentSections = document.querySelectorAll('.content-section');
 
@@ -76,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
             }, 100);
         } else {
-            switchTab('panoramica');
+            switchTab('panoramica'); // Mostra la panoramica di default
         }
     }
 });
