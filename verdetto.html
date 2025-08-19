@@ -1,107 +1,107 @@
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Il Verdetto del Laghèe - Fanta Laghèe</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        .widget { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1.5rem; }
-        .chart-container { height: 450px; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-blue); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body class="antialiased">
-    <div class="background-container"></div>
-    <div class="background-overlay"></div>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const loader = document.getElementById('loader-container');
+    const wrapper = document.getElementById('dashboard-content-wrapper');
+    const info = document.getElementById('giornata-info');
 
-    <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
-        <div class="container mx-auto px-4 flex justify-between items-center h-16">
-            <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
-            <nav class="hidden md:flex items-center gap-1">
-                <a href="/index.html#panoramica" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Panoramica</a>
-                <a href="/index.html#novita" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Novità</a>
-                <a href="/index.html#regole" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Regolamento</a>
-                <a href="/index.html#mercato" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Mercato</a>
-                <a href="/index.html#bonus-malus" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Bonus/Malus</a>
-                <a href="/index.html#partecipanti" class="nav-button nav-link px-4 py-2 rounded-full text-sm">I Protagonisti</a>
-                <a href="/gazzetta-del-laghee.html" class="nav-button nav-link nav-gazzetta px-4 py-2 rounded-full text-sm">Gazzetta</a>
-                <a href="/verdetto.html" class="nav-button nav-link nav-verdetto px-4 py-2 rounded-full text-sm">Il Verdetto</a>
-            </nav>
-            <div class="flex items-center gap-2">
-                <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
-                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
-                <button id="hamburger-btn" class="md:hidden p-2"><svg id="hamburger-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg><svg id="hamburger-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    try {
+        // CHIAMIAMO LA NUOVA API INTELLIGENTE
+        const response = await fetch('/api/getVerdettoV2');
+        if (!response.ok) throw new Error(`Errore API: ${response.statusText}`);
+        
+        const data = await response.json();
+        if (data.error) throw new Error(data.details);
+
+        const { dashboard, classifica } = data;
+
+        // Aggiorniamo il titolo con le info sulla giornata
+        info.textContent = dashboard.giornataInfo ? `Dati aggiornati a: ${dashboard.giornataInfo}` : 'Dati non disponibili';
+
+        // Ricostruiamo l'HTML con il layout corretto
+        wrapper.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="widget text-center"><h2 class="text-sm font-bold uppercase text-indigo-400">🏆 Leader Attuale</h2><p class="text-4xl font-bold">${dashboard.leaderAttuale?.team || 'N/D'}</p></div>
+                <div class="widget text-center"><h2 class="text-sm font-bold uppercase text-indigo-400">🔥 Record Assoluto</h2><p class="text-4xl font-bold">${dashboard.recordAssoluto?.punteggio || 'N/D'}</p><p class="text-md text-stone-400">${dashboard.recordAssoluto?.team || ''} (${dashboard.recordAssoluto?.giornata || ''})</p></div>
+                <div class="widget text-center"><h2 class="text-sm font-bold uppercase text-indigo-400">🥇 Campione di Giornata</h2><p class="text-4xl font-bold">${dashboard.campioneDellaGiornata?.team || 'N/D'}</p><p class="text-md text-stone-400">Punti: ${dashboard.campioneDellaGiornata?.punteggio || ''}</p></div>
             </div>
-        </div>
-    </header>
-    <div id="mobile-menu" class="hidden"></div>
-
-    <main class="container mx-auto p-4 md:p-8 relative z-10">
-        <header class="text-center py-8">
-            <h1 class="text-4xl lg:text-5xl font-bold text-white mb-2" style="font-family: 'Oswald', sans-serif;">IL VERDETTO DEL LAGHÈE</h1>
-            <p id="giornata-info" class="text-lg text-amber-400 font-semibold">Dati in caricamento...</p>
-        </header>
-        <div id="loader-container" class="flex justify-center items-center py-24"><div class="loader"></div></div>
-        <div id="dashboard-content-wrapper" class="hidden">
-            </div>
-    </main>
-
-    <script src="/js/main.js" defer></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const loader = document.getElementById('loader-container');
-            const wrapper = document.getElementById('dashboard-content-wrapper');
-            const info = document.getElementById('giornata-info');
-
-            try {
-                // Assumiamo che SPREADSHEET_URL sia già configurato come Environment Variable su Vercel
-                const response = await fetch('/api/getVerdetto');
-                if (!response.ok) throw new Error(`Errore API: ${response.statusText}`);
-                const data = await response.json();
-
-                // Logica di estrazione dati e render HTML...
-                const giornataText = data[28][0];
-                const giornataNumero = parseInt(giornataText.match(/\d+/)[0]);
-                info.textContent = `Dati aggiornati alla Giornata ${giornataNumero}`;
-
-                wrapper.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="widget text-center"><h2 class="text-sm font-bold uppercase text-indigo-400">🏆 Leader Attuale</h2><p class="text-4xl font-bold">${data[24][0]}</p></div>
-                        <div class="widget text-center"><h2 class="text-sm font-bold uppercase text-indigo-400">🔥 Record Assoluto</h2><p class="text-4xl font-bold">${data[24][5]}</p><p class="text-md text-stone-400">${data[25][5]} (${data[26][5]})</p></div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 widget">
+                    <h2 class="text-xl font-bold mb-4">CLASSIFICA GENERALE - TOP 5</h2>
+                    <div class="chart-container"><canvas id="classificaChart"></canvas></div>
+                </div>
+                <div class="space-y-6">
+                    <div class="widget">
+                        <h2 class="text-xl font-bold mb-4">PODIO DELLA GIORNATA</h2>
+                        <div id="podio-container" class="space-y-3"></div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2 widget"><h2 class="text-xl font-bold mb-4">CLASSIFICA GENERALE - TOP 10</h2><div class="chart-container"><canvas id="classificaChart"></canvas></div></div>
-                        <div class="space-y-6">
-                            <div class="widget"><h2 class="text-xl font-bold mb-4">PODIO DELLA GIORNATA</h2><div class="space-y-3"><div class="flex items-center gap-4">🥇 <p><strong>${data[33][1]}</strong> - ${data[33][0]}</p></div><div class="flex items-center gap-4">🥈 <p><strong>${data[34][1]}</strong> - ${data[34][0]}</p></div><div class="flex items-center gap-4">🥉 <p><strong>${data[35][1]}</strong> - ${data[35][0]}</p></div></div></div>
-                            <div class="widget"><h2 class="text-xl font-bold mb-4">💰 PREMI CLASSIFICA</h2><div id="premi-container" class="space-y-2"></div></div>
-                        </div>
-                    </div>`;
+                </div>
+            </div>`;
 
-                const premiContainer = document.getElementById('premi-container');
-                data.slice(41, 46).forEach((row, index) => {
-                    premiContainer.innerHTML += `<div class="flex justify-between"><p><strong>${index + 1}.</strong> ${row[0]}</p><p class="font-bold text-amber-400">${row[3] ? row[3].trim() : '0'} 🍆</p></div>`;
-                });
+        // Popoliamo il widget del podio
+        const podioContainer = document.getElementById('podio-container');
+        if (dashboard.podio && dashboard.podio.length > 0) {
+            dashboard.podio.forEach(p => {
+                podioContainer.innerHTML += `<div class="flex items-center gap-4">${p.pos} <p><strong>${p.team}</strong> - ${p.punteggio}</p></div>`;
+            });
+        }
 
-                const classificaData = data.slice(41, 51).filter(r => r[0] && r[1]).map(r => ({ squadra: r[0], punteggio: parseFloat(r[1]) }));
-                new Chart('classificaChart', {
-                    type: 'bar',
-                    data: { labels: classificaData.map(d => d.squadra), datasets: [{ data: classificaData.map(d => d.punteggio), borderWidth: 1, backgroundColor: '#4f46e5' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                });
-
-                loader.style.display = 'none';
-                wrapper.classList.remove('hidden');
-
-            } catch (error) {
-                console.error("Errore caricamento Verdetto:", error);
-                info.textContent = 'Dati non disponibili. Riprova più tardi.';
-                loader.style.display = 'none';
+        // Prepariamo i dati per il grafico (SOLO TOP 5)
+        const top5Classifica = classifica.slice(0, 5);
+        
+        // Creiamo il grafico con i tooltip interattivi
+        new Chart('classificaChart', {
+            type: 'bar',
+            data: {
+                labels: top5Classifica.map(d => d.SQUADRA),
+                datasets: [{
+                    data: top5Classifica.map(d => d.PUNTI),
+                    backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#1c1917',
+                        titleFont: { size: 16, weight: 'bold' },
+                        bodyFont: { size: 14 },
+                        padding: 12,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                const teamData = classifica.find(t => t.SQUADRA === context.label);
+                                if (!teamData) return '';
+                                return [
+                                    `Punti Totali: ${teamData.PUNTI}`,
+                                    `Media Punti: ${teamData.MEDIA}`,
+                                    `Posizione: ${teamData.POS}°`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
             }
         });
-    </script>
-</body>
-</html>
+
+        loader.style.display = 'none';
+        wrapper.classList.remove('hidden');
+
+    } catch (error) {
+        console.error("Errore caricamento Verdetto:", error);
+        info.textContent = 'Dati non disponibili. Riprova più tardi.';
+        wrapper.innerHTML = `<p class="text-center col-span-full text-red-400">Impossibile caricare i dati. Dettaglio: ${error.message}</p>`;
+        loader.style.display = 'none';
+        wrapper.classList.remove('hidden');
+    }
+});
+</script>
