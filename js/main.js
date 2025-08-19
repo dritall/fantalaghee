@@ -1,10 +1,11 @@
 // js/main.js
 document.addEventListener('DOMContentLoaded', () => {
+    // --- PARTE 1: CARICAMENTO HEADER ---
     const headerPlaceholder = document.querySelector('div[data-include-header]');
     if (headerPlaceholder) {
         fetch('/components/_header.html')
             .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('Header component not found');
                 return response.text();
             })
             .then(data => {
@@ -12,97 +13,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 initializeHeaderLogic();
                 setActiveNavlink();
             })
-            .catch(error => {
-                console.error('Failed to fetch header:', error);
-                headerPlaceholder.innerHTML = '<p class="text-red-500 text-center">Error loading header.</p>';
-            });
+            .catch(error => console.error('Error loading header:', error));
     }
 
+    // --- PARTE 2: LOGICA INTERATTIVA DELL'HEADER (MENU MOBILE, ETC.) ---
     function initializeHeaderLogic() {
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const mobileMenu = document.getElementById('mobile-menu');
-        const hamburgerOpenIcon = document.getElementById('hamburger-open');
-        const hamburgerCloseIcon = document.getElementById('hamburger-close');
+        if (!hamburgerBtn || !mobileMenu) return;
 
-        if (hamburgerBtn) {
-            hamburgerBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-                hamburgerOpenIcon.classList.toggle('hidden');
-                hamburgerCloseIcon.classList.toggle('hidden');
-            });
-        }
+        hamburgerBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            document.getElementById('hamburger-open')?.classList.toggle('hidden');
+            document.getElementById('hamburger-close')?.classList.toggle('hidden');
+        });
 
-        // Popola il menu mobile con i link del menu desktop per coerenza
         const desktopNav = document.querySelector('header nav');
-        if (desktopNav && mobileMenu) {
-            mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col gap-4">${desktopNav.innerHTML}</div>`;
+        if (desktopNav) {
+            mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col items-center gap-4">${desktopNav.innerHTML}</div>`;
         }
-
-        document.querySelectorAll('.dropdown').forEach(dropdown => {
-            dropdown.addEventListener('click', (e) => {
-                e.stopPropagation();
-                closeAllDropdowns(dropdown);
-                dropdown.querySelector('.dropdown-menu')?.classList.toggle('hidden');
-            });
-        });
-
-        document.addEventListener('click', () => closeAllDropdowns());
     }
 
-    function closeAllDropdowns(exceptThisOne = null) {
-        document.querySelectorAll('.dropdown').forEach(dropdown => {
-            if (dropdown !== exceptThisOne) {
-                dropdown.querySelector('.dropdown-menu')?.classList.add('hidden');
-            }
-        });
-    }
-
+    // --- PARTE 3: GESTIONE LINK ATTIVO ---
     function setActiveNavlink() {
         const currentPage = window.location.pathname;
-        const navLinks = document.querySelectorAll('#main-header .nav-link, #main-header .dropdown a');
-
-        navLinks.forEach(link => {
+        document.querySelectorAll('#main-header a.nav-button').forEach(link => {
             const linkPath = new URL(link.href).pathname;
             if (linkPath === currentPage && currentPage !== '/' && currentPage !== '/index.html') {
                 link.classList.add('active');
-            } else {
-                link.classList.remove('active');
             }
         });
     }
 
+    // --- PARTE 4: LOGICA PER LE SEZIONI DELLA HOMEPAGE ---
     function setupHomepageTabs() {
-        const tabButtons = document.querySelectorAll('a.nav-link[href^="/index.html#"], button[data-target]');
         const contentSections = document.querySelectorAll('.content-section');
+        if (contentSections.length === 0) return;
 
         function switchTab(targetId) {
-            if (!targetId) targetId = 'panoramica'; // Default
+            if (!targetId) targetId = 'panoramica';
+
             contentSections.forEach(section => {
                 section.style.display = section.id === targetId ? 'block' : 'none';
             });
-            document.querySelectorAll('button[data-target]').forEach(button => {
-                 button.classList.toggle('active', button.dataset.target === targetId);
+
+            // Aggiorna lo stato "active" dei bottoni originali della homepage
+            document.querySelectorAll('a.nav-button[href*="#"]').forEach(button => {
+                 const linkHash = new URL(button.href).hash.substring(1);
+                 button.classList.toggle('active', linkHash === targetId);
             });
         }
 
-        tabButtons.forEach(button => {
+        // Gestisce l'arrivo da un'altra pagina con un #link
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            setTimeout(() => {
+                switchTab(hash);
+                document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        } else {
+            // Mostra la sezione di default
+            switchTab('panoramica');
+        }
+
+        // Aggiungi event listener per i click sui link di navigazione della homepage
+        document.querySelectorAll('a.nav-button[href*="#"]').forEach(button => {
             button.addEventListener('click', (e) => {
-                const targetId = button.dataset.target || new URL(button.href).hash.substring(1);
-                if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                const targetId = new URL(e.currentTarget.href).hash.substring(1);
+                 if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
                    e.preventDefault();
                    switchTab(targetId);
                    history.pushState(null, null, `#${targetId}`);
+                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             });
         });
-
-        const hash = window.location.hash.substring(1);
-        setTimeout(() => {
-            switchTab(hash);
-            if(hash) document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
     }
 
+    // Esegui la logica delle sezioni SOLO se siamo sulla homepage
     if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
         setupHomepageTabs();
     }
