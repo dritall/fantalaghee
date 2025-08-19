@@ -10,11 +10,15 @@ export const config = {
 
 export default async function handler(req) {
   try {
-    const cachedData = await kv.get('squadre');
+    const cachedData = await kv.get('squadre_protagonisti');
     if (cachedData) {
       return new Response(JSON.stringify(cachedData), {
         headers: { 'Content-Type': 'application/json' },
       });
+    }
+
+    if (!SPREADSHEET_URL) {
+      throw new Error("SPREADSHEET_URL is not defined");
     }
 
     const response = await fetch(SPREADSHEET_URL);
@@ -22,17 +26,18 @@ export default async function handler(req) {
     const csvData = await response.text();
     const parsed = Papa.parse(csvData).data;
 
-    // Estrai i nomi delle squadre dalle righe corrette (es. 41-60)
-    const squadre = parsed.slice(40, 60).map(row => row[0]).filter(Boolean);
+    // Estrai i nomi delle squadre dalle righe da 2 a 21 (che corrispondono alle celle A3-A22)
+    // e filtra eventuali righe vuote.
+    const squadre = parsed.slice(2, 22).map(row => row[0]).filter(Boolean);
 
     // Salva in cache per 1 ora
-    await kv.set('squadre', squadre, { ex: 3600 });
+    await kv.set('squadre_protagonisti', squadre, { ex: 3600 });
 
     return new Response(JSON.stringify(squadre), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+    console.error('Error in /api/getSquadre:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error', message: error.message }), { status: 500 });
   }
 }

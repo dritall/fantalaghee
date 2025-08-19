@@ -1,3 +1,4 @@
+// js/main.js
 document.addEventListener('DOMContentLoaded', () => {
     // --- Logica Comune a Tutte le Pagine ---
     const header = document.getElementById('main-header');
@@ -6,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hamburgerBtn = header.querySelector('#hamburger-btn');
     const mobileMenu = document.getElementById('mobile-menu');
 
+    // Gestione Menu Mobile
     if (hamburgerBtn && mobileMenu) {
         hamburgerBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
@@ -18,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Evidenzia il link della pagina attiva
     const currentPage = window.location.pathname;
     header.querySelectorAll('a.nav-button').forEach(link => {
         const linkUrl = new URL(link.href, window.location.origin);
@@ -43,16 +46,36 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
+        const scrollToSection = (targetId) => {
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                const headerOffset = header.offsetHeight;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }
+        };
+
         // Attiva i bottoni interni alla pagina
         tabButtons.forEach(button => {
-            button.addEventListener('click', () => switchTab(button.dataset.target));
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.target;
+                switchTab(targetId);
+            });
         });
 
         // Gestisce i click sui link dell'header che puntano alle ancore
         navLinks.forEach(link => {
             link.addEventListener('click', (event) => {
+                event.preventDefault(); // Previene il comportamento di default del link
                 const targetId = new URL(link.href).hash.substring(1);
                 switchTab(targetId);
+                scrollToSection(targetId);
+                window.history.pushState(null, null, `#${targetId}`); // Aggiorna l'URL
             });
         });
 
@@ -60,9 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const handleHashChange = () => {
             const hash = window.location.hash.substring(1);
             switchTab(hash || 'panoramica');
+            if (hash) {
+                setTimeout(() => scrollToSection(hash), 100); // Leggero ritardo per assicurarsi che tutto sia visibile
+            }
         };
 
-        window.addEventListener('hashchange', handleHashChange);
         handleHashChange(); // Esegui al caricamento iniziale
 
         // Carica i nomi dei protagonisti
@@ -71,9 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch('/api/getSquadre')
                 .then(res => res.json())
                 .then(squadre => {
-                    protagonistiContainer.innerHTML = squadre.map(squadra =>
-                        `<div class="p-4 bg-gray-800 rounded-lg text-center">${squadra}</div>`
-                    ).join('');
+                    if (squadre && squadre.length > 0) {
+                        protagonistiContainer.innerHTML = squadre.map(squadra =>
+                            `<div class="p-4 bg-gray-800 rounded-lg text-center font-semibold">${squadra}</div>`
+                        ).join('');
+                    } else {
+                        protagonistiContainer.innerHTML = '<p>Nomi delle squadre non disponibili.</p>';
+                    }
                 })
                 .catch(err => {
                     console.error("Errore caricamento squadre:", err);
