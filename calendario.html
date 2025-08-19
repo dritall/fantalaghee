@@ -15,9 +15,9 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body class="antialiased">
-<div class="w-full">
-    <div data-include-header></div>
+<div data-include-header></div>
 
+<div class="w-full">
     <main class="container mx-auto p-4 md:p-8 relative z-10">
         
         <div class="text-center mb-8 sm:mb-12">
@@ -34,94 +34,93 @@
 
     </main>
 </div>
+<script src="/js/main.js" defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        async function fetchSchedule() {
+            const container = document.getElementById('schedule-container');
+            try {
+                const response = await fetch('/api/getCalendario');
 
-    <script src="/js/main.js" defer></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            async function fetchSchedule() {
-                const container = document.getElementById('schedule-container');
-                try {
-                    const response = await fetch('/api/getCalendario');
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`La richiesta al server ha fallito: ${response.status} - ${errorText}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (data.error) throw new Error(data.error);
-
-                    if (!data.fixtures || data.fixtures.length === 0) {
-                        container.innerHTML = `
-                            <div class="text-center py-16 bg-gray-800/50 rounded-lg">
-                                <h3 class="text-2xl font-semibold text-amber-400">Nessun dato disponibile!</h3>
-                                <p class="text-stone-400 mt-2">L'API non ha fornito dati per il calendario. Potrebbe non essere ancora disponibile.</p>
-                            </div>`;
-                        return;
-                    }
-
-                    const fixtures = data.fixtures;
-                    // Raggruppa le partite per giornata (intRound)
-                    const rounds = fixtures.reduce((acc, fixture) => {
-                        const round = fixture.intRound;
-                        if (!acc[round]) {
-                            acc[round] = [];
-                        }
-                        acc[round].push(fixture);
-                        return acc;
-                    }, {});
-
-                    let tableHTML = '';
-
-                    for (const round in rounds) {
-                        tableHTML += `
-                            <div class="round-card mb-8">
-                                <h3 class="text-2xl font-bold text-center text-indigo-300 mb-4" style="font-family: 'Oswald', sans-serif;">GIORNATA ${round}</h3>
-                                <div class="space-y-2">
-                        `;
-
-                        rounds[round].forEach(fixture => {
-                            const eventDate = new Date(fixture.dateEvent);
-                            const localDate = eventDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                            const localTime = new Date(`1970-01-01T${fixture.strTime}Z`).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
-
-                            tableHTML += `
-                                <a href="dettaglio_partita.html?id=${fixture.idEvent}" class="match-row-link">
-                                    <div class="match-info">
-                                        <div class="team">
-                                            <img src="${fixture.strHomeTeamBadge}/preview" alt="" class="team-logo-small">
-                                            <span class="team-name">${fixture.strHomeTeam}</span>
-                                        </div>
-                                        <div class="score">${fixture.intHomeScore ?? ''} - ${fixture.intAwayScore ?? ''}</div>
-                                        <div class="team away">
-                                            <span class="team-name">${fixture.strAwayTeam}</span>
-                                            <img src="${fixture.strAwayTeamBadge}/preview" alt="" class="team-logo-small">
-                                        </div>
-                                    </div>
-                                    <div class="match-date">${localDate} - ${localTime}</div>
-                                </a>
-                            `;
-                        });
-
-                        tableHTML += `</div></div>`;
-                    }
-
-                    container.innerHTML = tableHTML;
-
-                } catch (error) {
-                    console.error('Errore nel caricamento del calendario:', error);
-                    container.innerHTML = `
-                        <div class="text-center py-16 bg-red-900/50 rounded-lg">
-                            <h3 class="text-2xl font-semibold text-red-300">Oops! Qualcosa è andato storto.</h3>
-                            <p class="text-stone-400 mt-2">Impossibile caricare i dati del calendario. Riprova più tardi.</p>
-                            <p class="text-xs text-stone-500 mt-4">Dettaglio errore: ${error.message}</p>
-                        </div>`;
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`La richiesta al server ha fallito: ${response.status} - ${errorText}`);
                 }
-            }
 
-            fetchSchedule();
-        });
-    </script>
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                if (!data.fixtures || data.fixtures.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-16 bg-gray-800/50 rounded-lg">
+                            <h3 class="text-2xl font-semibold text-amber-400">Nessun dato disponibile!</h3>
+                            <p class="text-stone-400 mt-2">L'API non ha fornito dati per il calendario. Potrebbe non essere ancora disponibile.</p>
+                        </div>`;
+                    return;
+                }
+
+                const fixtures = data.fixtures;
+                // Raggruppa le partite per giornata (intRound)
+                const rounds = fixtures.reduce((acc, fixture) => {
+                    const round = fixture.intRound;
+                    if (!acc[round]) {
+                        acc[round] = [];
+                    }
+                    acc[round].push(fixture);
+                    return acc;
+                }, {});
+
+                let tableHTML = '';
+
+                for (const round in rounds) {
+                    tableHTML += `
+                        <div class="round-card mb-8">
+                            <h3 class="text-2xl font-bold text-center text-indigo-300 mb-4" style="font-family: 'Oswald', sans-serif;">GIORNATA ${round}</h3>
+                            <div class="space-y-2">
+                    `;
+
+                    rounds[round].forEach(fixture => {
+                        const eventDate = new Date(fixture.dateEvent);
+                        const localDate = eventDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const localTime = new Date(`1970-01-01T${fixture.strTime}Z`).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
+
+                        tableHTML += `
+                            <a href="dettaglio_partita.html?id=${fixture.idEvent}" class="match-row-link">
+                                <div class="match-info">
+                                    <div class="team">
+                                        <img src="${fixture.strHomeTeamBadge}/preview" alt="" class="team-logo-small">
+                                        <span class="team-name">${fixture.strHomeTeam}</span>
+                                    </div>
+                                    <div class="score">${fixture.intHomeScore ?? ''} - ${fixture.intAwayScore ?? ''}</div>
+                                    <div class="team away">
+                                        <span class="team-name">${fixture.strAwayTeam}</span>
+                                        <img src="${fixture.strAwayTeamBadge}/preview" alt="" class="team-logo-small">
+                                    </div>
+                                </div>
+                                <div class="match-date">${localDate} - ${localTime}</div>
+                            </a>
+                        `;
+                    });
+
+                    tableHTML += `</div></div>`;
+                }
+
+                container.innerHTML = tableHTML;
+
+            } catch (error) {
+                console.error('Errore nel caricamento del calendario:', error);
+                container.innerHTML = `
+                    <div class="text-center py-16 bg-red-900/50 rounded-lg">
+                        <h3 class="text-2xl font-semibold text-red-300">Oops! Qualcosa è andato storto.</h3>
+                        <p class="text-stone-400 mt-2">Impossibile caricare i dati del calendario. Riprova più tardi.</p>
+                        <p class="text-xs text-stone-500 mt-4">Dettaglio errore: ${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        fetchSchedule();
+    });
+</script>
 </body>
 </html>

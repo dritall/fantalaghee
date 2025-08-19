@@ -5,6 +5,8 @@
     --border-color: #30363d;
     --accent-blue: #4f46e5;
     --accent-orange: #f59e0b;
+    --verdetto-color: #00A36C; /* Verde Verdetto */
+    --gazzetta-color: #FFD700; /* Oro Gazzetta */
 }
 body {
     font-family: 'Inter', sans-serif;
@@ -26,7 +28,7 @@ body {
     background-color: rgba(1, 4, 9, 0.75);
 }
 #main-header {
-    background-color: rgba(1, 4, 9, 0.8); /* Reverted transparency */
+    background-color: rgba(1, 4, 9, 0.8);
 }
 .nav-button {
     transition: all 0.3s ease;
@@ -34,29 +36,44 @@ body {
     background-color: rgba(31, 41, 59, 0.5);
     border: 1px solid #374151;
 }
-.nav-button.active {
-    background-color: var(--accent-blue);
-    color: #ffffff;
-    font-weight: 600;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 15px rgba(79, 70, 229, 0.5);
-}
-.nav-button:not(.active):hover {
+.nav-button.active, .nav-button:not(.active):hover {
     background-color: #374151;
     color: #f9fafb;
 }
-.external-link-button {
-    transition: all 0.3s ease;
-    color: var(--accent-orange);
-    background-color: rgba(245, 158, 11, 0.1);
-    border: 1px solid var(--accent-orange);
+/* Stili specifici per i link colorati */
+.nav-verdetto.active {
+    background-color: var(--verdetto-color);
+    color: #ffffff;
+    border-color: var(--verdetto-color);
 }
-.external-link-button:hover {
-    background-color: rgba(245, 158, 11, 0.2);
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+.nav-gazzetta.active {
+    background-color: var(--gazzetta-color);
+    color: #111827;
+    border-color: var(--gazzetta-color);
+}
+.btn-secondary {
+    color: #9ca3af;
+    background-color: transparent;
+    border: 1px solid #4b5563;
+    transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+    background-color: #374151;
+    color: #f9fafb;
 }
 .content-section { display: none; }
 .content-section.active { display: block; }
+.btn-iscriviti {
+    background-color: var(--accent-orange);
+    color: #111827;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+.btn-iscriviti:hover {
+    background-color: #fbbf24;
+    transform: scale(1.05);
+}
+/* ... (mantieni tutti gli altri stili precedenti di style.css) ... */
 .fade-in-element {
     opacity: 0;
     transform: translateY(30px);
@@ -93,17 +110,6 @@ body {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s ease-out;
-}
-.btn-iscriviti {
-    background-color: var(--accent-orange);
-    color: #111827;
-    font-weight: 700;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
-}
-.btn-iscriviti:hover {
-    background-color: #fbbf24;
-    transform: scale(1.05);
 }
 .punteggio-card {
     background: linear-gradient(145deg, #1e293b, #0f172a);
