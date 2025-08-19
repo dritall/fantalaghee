@@ -1,15 +1,20 @@
-// js/main.js (CORRETTO)
+// js/main.js
 document.addEventListener('DOMContentLoaded', () => {
     const headerPlaceholder = document.querySelector('div[data-include-header]');
-
     if (headerPlaceholder) {
         fetch('/components/_header.html')
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
             .then(data => {
                 headerPlaceholder.innerHTML = data;
                 initializeHeaderLogic();
                 setActiveNavlink();
-                handleInitialScroll();
+            })
+            .catch(error => {
+                console.error('Failed to fetch header:', error);
+                headerPlaceholder.innerHTML = '<p class="text-red-500 text-center">Error loading header.</p>';
             });
     }
 
@@ -58,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         navLinks.forEach(link => {
             const linkPath = new URL(link.href).pathname;
-            if (linkPath === currentPage && currentPage !== '/index.html') {
+            if (linkPath === currentPage && currentPage !== '/' && currentPage !== '/index.html') {
                 link.classList.add('active');
             } else {
                 link.classList.remove('active');
@@ -66,19 +71,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function handleInitialScroll() {
-        const hash = window.location.hash;
-        if (hash) {
-            const targetId = hash.substring(1);
-            const targetElement = document.getElementById(targetId);
-            if (targetElement) {
-                setTimeout(() => {
-                    targetElement.scrollIntoView({ behavior: 'smooth' });
-                    // Se l'elemento target usa un sistema a tab, aprilo
-                    const tabButton = document.querySelector(`button[data-target='${targetId}']`);
-                    if(tabButton) tabButton.click();
-                }, 100);
-            }
+    function setupHomepageTabs() {
+        const tabButtons = document.querySelectorAll('a.nav-link[href^="/index.html#"], button[data-target]');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        function switchTab(targetId) {
+            if (!targetId) targetId = 'panoramica'; // Default
+            contentSections.forEach(section => {
+                section.style.display = section.id === targetId ? 'block' : 'none';
+            });
+            document.querySelectorAll('button[data-target]').forEach(button => {
+                 button.classList.toggle('active', button.dataset.target === targetId);
+            });
         }
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const targetId = button.dataset.target || new URL(button.href).hash.substring(1);
+                if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                   e.preventDefault();
+                   switchTab(targetId);
+                   history.pushState(null, null, `#${targetId}`);
+                }
+            });
+        });
+
+        const hash = window.location.hash.substring(1);
+        setTimeout(() => {
+            switchTab(hash);
+            if(hash) document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    }
+
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+        setupHomepageTabs();
     }
 });
