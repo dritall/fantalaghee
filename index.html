@@ -26,8 +26,83 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="antialiased">
+<div class="background-container"></div>
+<div class="background-overlay"></div>
+
 <div class="w-full">
-    <div data-include-header></div>
+
+    <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
+        <div class="container mx-auto px-4 flex justify-between items-center h-16">
+            <a href="index.html">
+                <img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12">
+            </a>
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center gap-1">
+                <button data-target="panoramica" class="nav-button nav-link active px-4 py-2 rounded-full text-sm">Panoramica</button>
+                <a href="gazzetta-del-laghee.html" class="nav-button px-4 py-2 rounded-full text-sm">Gazzetta</a>
+                <button data-target="novita" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Novità</button>
+                <button data-target="regole" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Regolamento</button>
+                <button data-target="mercato" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Mercato</button>
+                <button data-target="bonus-malus" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Bonus/Malus</button>
+                <button data-target="partecipanti" class="nav-button nav-link px-4 py-2 rounded-full text-sm">I Protagonisti</button>
+                <div class="relative dropdown">
+                    <button class="nav-button px-4 py-2 rounded-full text-sm flex items-center gap-1">
+                        Campionato Serie A <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="dropdown-menu absolute top-full mt-2 w-56 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 hidden">
+                        <div class="px-4 py-2 text-xs text-gray-400">Stagione 2025/2026</div>
+                        <a href="classifica.html" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Classifica</a>
+                        <a href="calendario.html" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Calendario</a>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <div class="px-4 py-2 text-xs text-gray-400">Archivio</div>
+                        <a href="classifica_2425.html" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Classifica 2024/2025</a>
+                        <a href="calendario_2425.html" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Calendario 2024/2025</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="flex items-center gap-2">
+                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" rel="noopener noreferrer" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
+                <a href="https://drive.google.com/file/d/17821ovoRg0-fae8D-QeVpOAJGHfoWyyg/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="external-link-button p-2 rounded-full hidden sm:flex items-center" title="Scarica Regolamento PDF">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                </a>
+                <button id="hamburger-btn" class="md:hidden p-2 rounded-md text-gray-400 hover:bg-gray-700">
+                    <svg id="hamburger-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    <svg id="hamburger-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Nav -->
+    <div id="mobile-menu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-lg fixed top-16 left-0 w-full h-[calc(100vh-4rem)] z-40">
+        <div class="container mx-auto p-4 flex flex-col gap-4">
+            <button data-target="panoramica" class="nav-button nav-link active text-center w-full py-3 rounded-full">Panoramica</button>
+            <a href="gazzetta-del-laghee.html" class="nav-button nav-link text-center w-full py-3 rounded-full">Gazzetta</a>
+            <button data-target="novita" class="nav-button nav-link text-center w-full py-3 rounded-full">Novità</button>
+            <button data-target="regole" class="nav-button nav-link text-center w-full py-3 rounded-full">Regolamento</button>
+            <button data-target="mercato" class="nav-button nav-link text-center w-full py-3 rounded-full">Mercato</button>
+            <button data-target="bonus-malus" class="nav-button nav-link text-center w-full py-3 rounded-full">Bonus/Malus</button>
+            <button data-target="partecipanti" class="nav-button nav-link text-center w-full py-3 rounded-full">I Protagonisti</button>
+            <div class="relative dropdown-mobile w-full">
+                <button class="nav-button w-full py-3 rounded-full flex items-center justify-center gap-1">
+                    Campionato Serie A <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="dropdown-menu-mobile mt-2 w-full bg-gray-800 border border-gray-700 rounded-md shadow-lg hidden">
+                    <div class="px-4 py-2 text-xs text-gray-400">Stagione 2025/2026</div>
+                    <a href="classifica.html" class="block text-center px-4 py-3 text-sm text-gray-300 hover:bg-gray-700">Classifica</a>
+                    <a href="calendario.html" class="block text-center px-4 py-3 text-sm text-gray-300 hover:bg-gray-700">Calendario</a>
+                    <div class="border-t border-gray-700 my-1"></div>
+                    <div class="px-4 py-2 text-xs text-gray-400">Archivio</div>
+                    <a href="classifica_2425.html" class="block text-center px-4 py-3 text-sm text-gray-300 hover:bg-gray-700">Classifica 2024/2025</a>
+                    <a href="calendario_2425.html" class="block text-center px-4 py-3 text-sm text-gray-300 hover:bg-gray-700">Calendario 2024/2025</a>
+                </div>
+            </div>
+            <a href="https://drive.google.com/file/d/17821ovoRg0-fae8D-QeVpOAJGHfoWyyg/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="nav-button text-center w-full py-3 rounded-full flex items-center justify-center gap-2">
+                Scarica PDF <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            </a>
+            <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" rel="noopener noreferrer" class="btn-iscriviti text-center w-full py-3 rounded-full uppercase sm:hidden">Iscriviti</a>
+        </div>
+    </div>
 
     <main class="container mx-auto p-4 md:p-8 overflow-hidden relative z-10">
         
@@ -385,173 +460,7 @@
 
     </main>
 </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const contentSections = document.querySelectorAll('.content-section');
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            document.querySelectorAll('.fade-in-element').forEach(el => observer.observe(el));
-
-            const setActiveTab = (targetId) => {
-                navLinks.forEach(btn => btn.classList.toggle('active', btn.dataset.target === targetId));
-                contentSections.forEach(section => section.classList.toggle('active', section.id === targetId));
-            };
-
-            navLinks.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetId = button.dataset.target;
-                    if (targetId) {
-                        setActiveTab(targetId);
-                        if (!button.classList.contains('internal-link')) {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }
-                    }
-                });
-            });
-
-            document.querySelectorAll('.accordion-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    const content = header.nextElementSibling;
-                    const icon = header.querySelector('svg');
-                    
-                    if (content.style.maxHeight) {
-                        content.style.maxHeight = null;
-                        icon.style.transform = 'rotate(0deg)';
-                    } else {
-                        content.style.maxHeight = content.scrollHeight + 'px';
-                        icon.style.transform = 'rotate(180deg)';
-                    }
-                });
-            });
-            
-            const calculateButton = document.getElementById('calculateBtn');
-            if(calculateButton) {
-                calculateButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    calculateThreshold();
-                });
-            }
-
-            const teams = [
-                'Ac Alcapian', 'Arrosticini', 'Atletico Selva', 'Bayer Nargen', 'BNG Milan', 'Bollicine25', 'Brianza Boys', 'Cippalippa1418', 'Cuccioloni', 'Delta9', 'Fantagiulia', 'Fattore C', 'FC Mamadu', 'FC Ultimo', 'Gli 883', 'I Senatori', 'Il Gigante', 'Maltrainsemm', 'Mojito FC', 'Napolicchio1926', 'OdioAlserio', 'Old Lions', 'Raga di Oporto', 'Rdds', 'SkibidiBoppy', 'Sove1907', 'SSC Appella', 'Stoke Azzo', 'Stratosvarius', 'The Porks', 'Ul Buscion', 'WLF', 'Caniggia Vola'
-            ];
-            const teamGrid = document.querySelector('.team-grid');
-            const colors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#d946ef', '#84cc16'];
-            const icons = [
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`,
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`,
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>`,
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6.364-3.636l-1.414 1.414M21 12h-2M4 12H2m15.636-6.364l-1.414-1.414M6.364 6.364L4.95 4.95M12 3v2m6.364 3.636l1.414-1.414" /></svg>`,
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1.01L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3.99z" /></svg>`,
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7" /></svg>`
-            ];
-
-            if(teamGrid) {
-                teams.sort().forEach((team, index) => {
-                    const card = document.createElement('div');
-                    card.className = 'team-card';
-                    const color = colors[index % colors.length];
-                    const icon = icons[index % icons.length];
-                    
-                    card.innerHTML = `
-                        <div class="team-card-header" style="background-color: ${color}20;">
-                            <div style="color: ${color};">${icon}</div>
-                        </div>
-                        <div class="team-card-body">
-                            <span class="font-semibold text-lg text-stone-200">${team}</span>
-                        </div>
-                    `;
-                    teamGrid.appendChild(card);
-                });
-            }
-
-            function calculateThreshold() {
-                const input = document.getElementById('teamCountInput');
-                const resultContainer = document.getElementById('thresholdResultContainer');
-                const resultEl = document.getElementById('thresholdResult');
-                const teamCount = parseInt(input.value);
-
-                if (teamCount > 0) {
-                    resultEl.textContent = Math.floor(teamCount / 6);
-                    resultContainer.classList.remove('hidden');
-                } else {
-                    resultContainer.classList.add('hidden');
-                }
-            }
-        });
-
-        // Mobile Menu & Dropdown Logic
-        document.addEventListener('DOMContentLoaded', () => {
-            // Hamburger Menu
-            const hamburgerBtn = document.getElementById('hamburger-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const hamburgerOpenIcon = document.getElementById('hamburger-open');
-            const hamburgerCloseIcon = document.getElementById('hamburger-close');
-
-            const toggleMenu = () => {
-                mobileMenu.classList.toggle('hidden');
-                hamburgerOpenIcon.classList.toggle('hidden');
-                hamburgerCloseIcon.classList.toggle('hidden');
-            };
-
-            hamburgerBtn.addEventListener('click', toggleMenu);
-
-            // Close mobile menu when a link is clicked
-            const mobileNavLinks = document.querySelectorAll('#mobile-menu a, #mobile-menu button');
-            mobileNavLinks.forEach(link => {
-                const isDropdownToggle = link.parentElement.classList.contains('dropdown-mobile');
-
-                if (!isDropdownToggle) {
-                    link.addEventListener('click', () => {
-                        // Only close if the menu is currently open
-                        if (!mobileMenu.classList.contains('hidden')) {
-                            toggleMenu();
-                        }
-                    });
-                }
-            });
-
-            // Desktop Dropdown
-            const dropdown = document.querySelector('.dropdown');
-            if (dropdown) {
-                dropdown.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const menu = dropdown.querySelector('.dropdown-menu');
-                    menu.classList.toggle('hidden');
-                });
-            }
-
-            // Mobile Dropdown
-            const dropdownMobile = document.querySelector('.dropdown-mobile');
-            if (dropdownMobile) {
-                dropdownMobile.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const menu = dropdownMobile.querySelector('.dropdown-menu-mobile');
-                    menu.classList.toggle('hidden');
-                });
-            }
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.dropdown')) {
-                    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.add('hidden'));
-                }
-                if (!e.target.closest('.dropdown-mobile')) {
-                    document.querySelectorAll('.dropdown-menu-mobile').forEach(menu => menu.classList.add('hidden'));
-                }
-            });
-        });
-    </script>
-
+<script src="/js/main.js" defer></script>
 </body>
 </html>
 
