@@ -1,13 +1,11 @@
-// js/main.js
 document.addEventListener('DOMContentLoaded', () => {
     // --- Logica Comune a Tutte le Pagine ---
     const header = document.getElementById('main-header');
     if (!header) return;
 
+    // Gestione Menu Mobile
     const hamburgerBtn = header.querySelector('#hamburger-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-
-    // Gestione Menu Mobile
     if (hamburgerBtn && mobileMenu) {
         hamburgerBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
@@ -15,99 +13,55 @@ document.addEventListener('DOMContentLoaded', () => {
             header.querySelector('#hamburger-close')?.classList.toggle('hidden');
         });
         const desktopNav = header.querySelector('nav');
-        if (desktopNav) {
-            mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col items-center gap-4">${desktopNav.innerHTML}</div>`;
-        }
+        if (desktopNav) mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col items-center gap-4">${desktopNav.innerHTML}</div>`;
     }
 
     // Evidenzia il link della pagina attiva
     const currentPage = window.location.pathname;
     header.querySelectorAll('a.nav-button').forEach(link => {
-        const linkUrl = new URL(link.href, window.location.origin);
-        if (linkUrl.pathname === currentPage && !linkUrl.hash) {
+        if (new URL(link.href, window.location.origin).pathname === currentPage && !link.href.includes('#')) {
             link.classList.add('active');
         }
     });
 
     // --- Logica Specifica per la Homepage ---
-    const isHomepage = currentPage === '/' || currentPage.endsWith('/index.html');
-    if (isHomepage) {
-        const tabButtons = document.querySelectorAll('button[data-target]');
-        const contentSections = document.querySelectorAll('.content-section');
-        const navLinks = document.querySelectorAll('a.nav-link[href*="#"]');
-
-        const switchTab = (targetId) => {
-            if (!targetId) targetId = 'panoramica';
-            contentSections.forEach(section => {
-                section.style.display = section.id === targetId ? 'block' : 'none';
-            });
-            tabButtons.forEach(button => {
-                button.classList.toggle('active', button.dataset.target === targetId);
-            });
-        };
-
-        const scrollToSection = (targetId) => {
-            const targetElement = document.getElementById(targetId);
-            if (targetElement) {
-                const headerOffset = header.offsetHeight;
-                const elementPosition = targetElement.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: "smooth"
-                });
-            }
-        };
-
-        // Attiva i bottoni interni alla pagina
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const targetId = button.dataset.target;
-                switchTab(targetId);
+    if (currentPage === '/' || currentPage.endsWith('/index.html')) {
+        // Gestione Accordion per Regolamento e Mercato
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('svg');
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
             });
         });
 
-        // Gestisce i click sui link dell'header che puntano alle ancore
-        navLinks.forEach(link => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault(); // Previene il comportamento di default del link
-                const targetId = new URL(link.href).hash.substring(1);
-                switchTab(targetId);
-                scrollToSection(targetId);
-                window.history.pushState(null, null, `#${targetId}`); // Aggiorna l'URL
-            });
-        });
-
-        // Controlla l'URL all'arrivo per mostrare la sezione corretta
-        const handleHashChange = () => {
-            const hash = window.location.hash.substring(1);
-            switchTab(hash || 'panoramica');
-            if (hash) {
-                setTimeout(() => scrollToSection(hash), 100); // Leggero ritardo per assicurarsi che tutto sia visibile
-            }
-        };
-
-        handleHashChange(); // Esegui al caricamento iniziale
-
-        // Carica i nomi dei protagonisti
+        // Carica i nomi dei protagonisti con emoji
         const protagonistiContainer = document.getElementById('protagonisti-container');
         if (protagonistiContainer) {
+            // Mappa Squadra -> Emoji
+            const emojiMap = {
+                "Real Como": "👑", "Aston Birra": "🍺", "Borussia Tradate": "🟡",
+                "Lokomotiv Fagnano": "🚂", "Scarsenal": "💣", "Fc Crotone": "🦈",
+                "US Appianese": "🦅", "Armata Brancaleone": "🦁", "Fc Puteolana": "👹",
+                "Red Bull Lurate": "🐂", "Paris San Gennar": "⚜️", "Virtus Bugiroga": "🐞",
+                "Longobarda": "🛡️", "Apoel frontalieri": "🛂", "Deportivo La Carogna": "💀",
+                "F.C. Barella": "🍻", "Real maledetti": "😈", "As lessona": "🍷",
+                "U.S.D. Cacciatori": "🎯", "F.C. Malinatese": "🍑"
+                // Aggiungi altre squadre se necessario
+            };
+
             fetch('/api/getSquadre')
                 .then(res => res.json())
                 .then(squadre => {
                     if (squadre && squadre.length > 0) {
-                        protagonistiContainer.innerHTML = squadre.map(squadra =>
-                            `<div class="p-4 bg-gray-800 rounded-lg text-center font-semibold">${squadra}</div>`
-                        ).join('');
-                    } else {
-                        protagonistiContainer.innerHTML = '<p>Nomi delle squadre non disponibili.</p>';
+                        protagonistiContainer.innerHTML = squadre.map(squadra => {
+                            const emoji = emojiMap[squadra] || '⚽'; // Emoji di default
+                            return `<div class="p-4 bg-gray-800 rounded-lg text-center font-semibold flex items-center justify-center gap-2">${emoji} ${squadra}</div>`
+                        }).join('');
                     }
                 })
-                .catch(err => {
-                    console.error("Errore caricamento squadre:", err);
-                    protagonistiContainer.innerHTML = '<p>Impossibile caricare i nomi delle squadre.</p>';
-                });
+                .catch(err => console.error("Errore caricamento squadre:", err));
         }
     }
 });
