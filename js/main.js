@@ -90,16 +90,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         handleHashChange(); // Esegui al caricamento iniziale
 
+        // Logica Accordion
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const svg = header.querySelector('svg');
+
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    svg.style.transform = 'rotate(0deg)';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    svg.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+
         // Carica i nomi dei protagonisti
         const protagonistiContainer = document.getElementById('protagonisti-container');
         if (protagonistiContainer) {
+            const teamEmojis = {
+                'Ac Alcapian': '👑',
+                'Atletico Selva': '🦁',
+                'Aston Birra': '🍺',
+                'Team Amblar': '🏃‍♂️',
+                'Borussia Porcmund': '🐷',
+                'Real Como': '🦢',
+                'Scarsenal': '🚽',
+                'I Gufi': '🦉'
+            };
+
             fetch('/api/getSquadre')
                 .then(res => res.json())
                 .then(squadre => {
                     if (squadre && squadre.length > 0) {
-                        protagonistiContainer.innerHTML = squadre.map(squadra =>
-                            `<div class="p-4 bg-gray-800 rounded-lg text-center font-semibold">${squadra}</div>`
-                        ).join('');
+                        protagonistiContainer.innerHTML = squadre.map(squadra => {
+                            const emoji = teamEmojis[squadra] || '⚽️';
+                            return `<div class="p-4 bg-gray-800 rounded-lg text-center font-semibold">${emoji} ${squadra}</div>`;
+                        }).join('');
                     } else {
                         protagonistiContainer.innerHTML = '<p>Nomi delle squadre non disponibili.</p>';
                     }

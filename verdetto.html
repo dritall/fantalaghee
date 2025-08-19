@@ -2,16 +2,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Il Verdetto del Laghèe - Fanta Laghèe</title>
+    <title>Fantalaghèe 25/26 - Il Fanta dei Laghèe</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .widget { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1.5rem; }
-        .chart-container { height: 450px; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-blue); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .cucchiaio-legno { border-color: #854d0e; background-color: #854d0e20; }
+        .cucchiaio-legno h2 { color: #facc15; }
+        .cucchiaio-legno p { color: #fefce8; }
+
+        .premio-punteggio { border-color: #facc15; background-color: #facc1520; }
+        .premio-punteggio h2 { color: #facc15; }
+        .premio-punteggio p { color: #fefce8; }
+
+        /* Stili per DataTables */
+        #classifica-table_wrapper { background-color: var(--card-bg); padding: 1rem; border-radius: 0.5rem; }
+        #classifica-table { color: var(--primary-text); }
+        #classifica-table th, #classifica-table td { border-bottom: 1px solid var(--border-color); }
+        .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { color: #9ca3af; }
+        .dataTables_paginate .paginate_button { color: #9ca3af !important; }
+        .dataTables_paginate .paginate_button.disabled { color: #4b5563 !important; }
     </style>
 </head>
 <body class="antialiased">
@@ -47,51 +62,93 @@
         </header>
         <div id="loader-container" class="flex justify-center items-center py-24"><div class="loader"></div></div>
         <div id="dashboard-content-wrapper" class="hidden">
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- I widget verranno inseriti qui da JS -->
             </div>
+            <section id="classifica-section">
+                <h3 class="text-2xl font-bold text-indigo-400 mb-4 text-center" style="font-family: 'Oswald', sans-serif;">CLASSIFICA GENERALE</h3>
+                <div id="standings-container" class="overflow-x-auto rounded-lg border border-gray-700 p-4 bg-gray-900/50">
+                     <div class="text-center py-16">
+                        <div class="loader mx-auto"></div>
+                        <h3 class="text-xl sm:text-2xl font-semibold text-stone-300 mt-4">Caricamento classifica...</h3>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
+    <!-- jQuery (Dependency for DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script src="/js/main.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const loader = document.getElementById('loader-container');
             const wrapper = document.getElementById('dashboard-content-wrapper');
             const info = document.getElementById('giornata-info');
+            const dashboardContainer = wrapper.querySelector('.grid');
+            const standingsContainer = document.getElementById('standings-container');
+
+            const createCard = (title, value, subtitle = '', icon = '', customClass = '') => {
+                if (!value) return '';
+                return `<div class="widget text-center ${customClass}"><h2 class="text-sm font-bold uppercase">${icon} ${title}</h2><p class="text-4xl font-bold">${value}</p><p class="text-md text-stone-400">${subtitle}</p></div>`;
+            };
 
             try {
-                // Assumiamo che SPREADSHEET_URL sia già configurato come Environment Variable su Vercel
-                const response = await fetch('/api/getVerdetto');
+                const response = await fetch('/api/getClassificaV2');
                 if (!response.ok) throw new Error(`Errore API: ${response.statusText}`);
                 const data = await response.json();
+                if(data.error) throw new Error(data.details);
 
-                // Logica di estrazione dati e render HTML...
-                const giornataText = data[28][0];
-                const giornataNumero = parseInt(giornataText.match(/\d+/)[0]);
-                info.textContent = `Dati aggiornati alla Giornata ${giornataNumero}`;
+                // --- Render Dashboard ---
+                const { dashboard, classifica } = data;
+                if (dashboard && Object.keys(dashboard).length > 0) {
+                    info.textContent = `Dati aggiornati alla ${dashboard.campioneDellaGiornata.giornata}`;
+                    let dashboardHTML = '';
+                    dashboardHTML += createCard('Leader Attuale', dashboard.leaderAttuale.team, `Punteggio: ${dashboard.leaderAttuale.punteggio}`, '🏆');
+                    dashboardHTML += createCard('Record Assoluto', dashboard.recordAssoluto.team, `Punteggio: ${dashboard.recordAssoluto.punteggio}`, '🔥', 'premio-punteggio');
+                    dashboardHTML += createCard('Campione della Giornata', dashboard.campioneDellaGiornata.team, `Punteggio: ${dashboard.campioneDellaGiornata.punteggio}`, '🥇');
+                    dashboardHTML += createCard('Cucchiaio di Legno', dashboard.cucchiaioDiLegno.team, `Punteggio: ${dashboard.cucchiaioDiLegno.punteggio}`, '🥄', 'cucchiaio-legno');
+                    dashboardContainer.innerHTML = dashboardHTML;
+                } else {
+                    info.textContent = 'Dati non disponibili';
+                    dashboardContainer.innerHTML = '<p class="text-center col-span-full text-amber-400">Nessun dato disponibile per la dashboard.</p>';
+                }
 
-                wrapper.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="widget text-center"><h2 class="text-sm font-bold uppercase text-indigo-400">🏆 Leader Attuale</h2><p class="text-4xl font-bold">${data[24][0]}</p></div>
-                        <div class="widget text-center"><h2 class="text-sm font-bold uppercase text-indigo-400">🔥 Record Assoluto</h2><p class="text-4xl font-bold">${data[24][5]}</p><p class="text-md text-stone-400">${data[25][5]} (${data[26][5]})</p></div>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2 widget"><h2 class="text-xl font-bold mb-4">CLASSIFICA GENERALE - TOP 10</h2><div class="chart-container"><canvas id="classificaChart"></canvas></div></div>
-                        <div class="space-y-6">
-                            <div class="widget"><h2 class="text-xl font-bold mb-4">PODIO DELLA GIORNATA</h2><div class="space-y-3"><div class="flex items-center gap-4">🥇 <p><strong>${data[33][1]}</strong> - ${data[33][0]}</p></div><div class="flex items-center gap-4">🥈 <p><strong>${data[34][1]}</strong> - ${data[34][0]}</p></div><div class="flex items-center gap-4">🥉 <p><strong>${data[35][1]}</strong> - ${data[35][0]}</p></div></div></div>
-                            <div class="widget"><h2 class="text-xl font-bold mb-4">💰 PREMI CLASSIFICA</h2><div id="premi-container" class="space-y-2"></div></div>
-                        </div>
-                    </div>`;
+                // --- Render Standings Table ---
+                if (classifica && classifica.length > 0) {
+                    const headers = Object.keys(classifica[0]);
+                    const tableHTML = `
+                        <table id="classifica-table" class="display compact stripe" style="width:100%">
+                            <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+                        </table>`;
+                    standingsContainer.innerHTML = tableHTML;
 
-                const premiContainer = document.getElementById('premi-container');
-                data.slice(41, 46).forEach((row, index) => {
-                    premiContainer.innerHTML += `<div class="flex justify-between"><p><strong>${index + 1}.</strong> ${row[0]}</p><p class="font-bold text-amber-400">${row[3] ? row[3].trim() : '0'} 🍆</p></div>`;
-                });
-
-                const classificaData = data.slice(41, 51).filter(r => r[0] && r[1]).map(r => ({ squadra: r[0], punteggio: parseFloat(r[1]) }));
-                new Chart('classificaChart', {
-                    type: 'bar',
-                    data: { labels: classificaData.map(d => d.squadra), datasets: [{ data: classificaData.map(d => d.punteggio), borderWidth: 1, backgroundColor: '#4f46e5' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                });
+                    new DataTable('#classifica-table', {
+                        data: classifica,
+                        columns: headers.map(h => ({ data: h, title: h })),
+                        responsive: true,
+                        language: { url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/it-IT.json' },
+                        order: [[0, 'asc']],
+                        createdRow: function(row, data, dataIndex) {
+                            const pos = parseInt(data.POS);
+                            if (pos <= 3) $(row).css('background-color', 'rgba(34, 197, 94, 0.1)'); // Zona Champions
+                            if (pos >= 8) $(row).css('background-color', 'rgba(239, 68, 68, 0.1)'); // Zona Retrocessione
+                        },
+                        columnDefs: [{
+                            targets: '_all',
+                            render: function(data, type, row, meta) {
+                                if (type === 'display' && meta.col > 0) { // Escludi la prima colonna (POS)
+                                    return `<div class="tooltip-container">${data}<span class="tooltip-text">Clicca per dettagli</span></div>`;
+                                }
+                                return data;
+                            }
+                        }]
+                    });
+                } else {
+                    standingsContainer.innerHTML = '<p class="text-center text-amber-400">Nessun dato disponibile per la classifica.</p>';
+                }
 
                 loader.style.display = 'none';
                 wrapper.classList.remove('hidden');
@@ -100,6 +157,7 @@
                 console.error("Errore caricamento Verdetto:", error);
                 info.textContent = 'Dati non disponibili. Riprova più tardi.';
                 loader.style.display = 'none';
+                standingsContainer.innerHTML = `<p class="text-center text-red-400">Impossibile caricare la classifica. Dettaglio: ${error.message}</p>`;
             }
         });
     </script>
