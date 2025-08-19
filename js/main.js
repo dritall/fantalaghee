@@ -1,4 +1,3 @@
-// js/main.js
 document.addEventListener('DOMContentLoaded', () => {
     // --- Logica Comune a Tutte le Pagine ---
     const header = document.getElementById('main-header');
@@ -7,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const hamburgerBtn = header.querySelector('#hamburger-btn');
     const mobileMenu = document.getElementById('mobile-menu');
 
-    // Gestione Menu Mobile
     if (hamburgerBtn && mobileMenu) {
         hamburgerBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
@@ -20,19 +18,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Evidenzia il link della pagina attiva
     const currentPage = window.location.pathname;
     header.querySelectorAll('a.nav-button').forEach(link => {
-        const linkUrl = new URL(link.href);
+        const linkUrl = new URL(link.href, window.location.origin);
         if (linkUrl.pathname === currentPage && !linkUrl.hash) {
             link.classList.add('active');
         }
     });
 
     // --- Logica Specifica per la Homepage ---
-    if (window.location.pathname === '/' || window.location.pathname.endsWith('/index.html')) {
+    const isHomepage = currentPage === '/' || currentPage.endsWith('/index.html');
+    if (isHomepage) {
         const tabButtons = document.querySelectorAll('button[data-target]');
         const contentSections = document.querySelectorAll('.content-section');
+        const navLinks = document.querySelectorAll('a.nav-link[href*="#"]');
 
         const switchTab = (targetId) => {
             if (!targetId) targetId = 'panoramica';
@@ -44,18 +43,42 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
+        // Attiva i bottoni interni alla pagina
         tabButtons.forEach(button => {
             button.addEventListener('click', () => switchTab(button.dataset.target));
         });
 
-        const hash = window.location.hash.substring(1);
-        if (hash) {
-            setTimeout(() => {
-                switchTab(hash);
-                document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-        } else {
-            switchTab('panoramica'); // Mostra la panoramica di default
+        // Gestisce i click sui link dell'header che puntano alle ancore
+        navLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                const targetId = new URL(link.href).hash.substring(1);
+                switchTab(targetId);
+            });
+        });
+
+        // Controlla l'URL all'arrivo per mostrare la sezione corretta
+        const handleHashChange = () => {
+            const hash = window.location.hash.substring(1);
+            switchTab(hash || 'panoramica');
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        handleHashChange(); // Esegui al caricamento iniziale
+
+        // Carica i nomi dei protagonisti
+        const protagonistiContainer = document.getElementById('protagonisti-container');
+        if (protagonistiContainer) {
+            fetch('/api/getSquadre')
+                .then(res => res.json())
+                .then(squadre => {
+                    protagonistiContainer.innerHTML = squadre.map(squadra =>
+                        `<div class="p-4 bg-gray-800 rounded-lg text-center">${squadra}</div>`
+                    ).join('');
+                })
+                .catch(err => {
+                    console.error("Errore caricamento squadre:", err);
+                    protagonistiContainer.innerHTML = '<p>Impossibile caricare i nomi delle squadre.</p>';
+                });
         }
     }
 });
