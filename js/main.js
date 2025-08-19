@@ -1,13 +1,10 @@
-// js/main.js
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Logica Comune a Tutte le Pagine ---
     const header = document.getElementById('main-header');
     if (!header) return;
 
+    // --- LOGICA COMUNE (MENU MOBILE E LINK ATTIVO) ---
     const hamburgerBtn = header.querySelector('#hamburger-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-
-    // Gestione Menu Mobile
     if (hamburgerBtn && mobileMenu) {
         hamburgerBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
@@ -15,99 +12,62 @@ document.addEventListener('DOMContentLoaded', () => {
             header.querySelector('#hamburger-close')?.classList.toggle('hidden');
         });
         const desktopNav = header.querySelector('nav');
-        if (desktopNav) {
-            mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col items-center gap-4">${desktopNav.innerHTML}</div>`;
-        }
+        if (desktopNav) mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col items-center gap-4">${desktopNav.innerHTML}</div>`;
     }
-
-    // Evidenzia il link della pagina attiva
     const currentPage = window.location.pathname;
     header.querySelectorAll('a.nav-button').forEach(link => {
-        const linkUrl = new URL(link.href, window.location.origin);
-        if (linkUrl.pathname === currentPage && !linkUrl.hash) {
+        if (new URL(link.href, window.location.origin).pathname === currentPage && !link.href.includes('#')) {
             link.classList.add('active');
         }
     });
 
-    // --- Logica Specifica per la Homepage ---
-    const isHomepage = currentPage === '/' || currentPage.endsWith('/index.html');
-    if (isHomepage) {
-        const tabButtons = document.querySelectorAll('button[data-target]');
+    // --- LOGICA SPECIFICA PER LA HOMEPAGE ---
+    if (currentPage === '/' || currentPage.endsWith('/index.html')) {
+        // Gestione Accordion
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('svg');
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+                icon.classList.toggle('rotate-180');
+            });
+        });
+
+        // Gestione Navigazione Sezioni
         const contentSections = document.querySelectorAll('.content-section');
-        const navLinks = document.querySelectorAll('a.nav-link[href*="#"]');
-
         const switchTab = (targetId) => {
-            if (!targetId) targetId = 'panoramica';
-            contentSections.forEach(section => {
-                section.style.display = section.id === targetId ? 'block' : 'none';
-            });
-            tabButtons.forEach(button => {
-                button.classList.toggle('active', button.dataset.target === targetId);
-            });
+             if (!targetId) targetId = 'panoramica';
+             contentSections.forEach(section => {
+                 section.style.display = section.id === targetId ? 'block' : 'none';
+             });
         };
-
-        const scrollToSection = (targetId) => {
-            const targetElement = document.getElementById(targetId);
-            if (targetElement) {
-                const headerOffset = header.offsetHeight;
-                const elementPosition = targetElement.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: "smooth"
-                });
-            }
-        };
-
-        // Attiva i bottoni interni alla pagina
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const targetId = button.dataset.target;
+        document.querySelectorAll('a.nav-link[href^="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
                 switchTab(targetId);
+                history.pushState(null, null, `#${targetId}`);
             });
         });
+        const hash = window.location.hash.substring(1);
+        switchTab(hash || 'panoramica');
 
-        // Gestisce i click sui link dell'header che puntano alle ancore
-        navLinks.forEach(link => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault(); // Previene il comportamento di default del link
-                const targetId = new URL(link.href).hash.substring(1);
-                switchTab(targetId);
-                scrollToSection(targetId);
-                window.history.pushState(null, null, `#${targetId}`); // Aggiorna l'URL
-            });
-        });
-
-        // Controlla l'URL all'arrivo per mostrare la sezione corretta
-        const handleHashChange = () => {
-            const hash = window.location.hash.substring(1);
-            switchTab(hash || 'panoramica');
-            if (hash) {
-                setTimeout(() => scrollToSection(hash), 100); // Leggero ritardo per assicurarsi che tutto sia visibile
-            }
-        };
-
-        handleHashChange(); // Esegui al caricamento iniziale
-
-        // Carica i nomi dei protagonisti
+        // Caricamento Protagonisti con Emoji
         const protagonistiContainer = document.getElementById('protagonisti-container');
         if (protagonistiContainer) {
-            fetch('/api/getSquadre')
-                .then(res => res.json())
-                .then(squadre => {
-                    if (squadre && squadre.length > 0) {
-                        protagonistiContainer.innerHTML = squadre.map(squadra =>
-                            `<div class="p-4 bg-gray-800 rounded-lg text-center font-semibold">${squadra}</div>`
-                        ).join('');
-                    } else {
-                        protagonistiContainer.innerHTML = '<p>Nomi delle squadre non disponibili.</p>';
-                    }
-                })
-                .catch(err => {
-                    console.error("Errore caricamento squadre:", err);
-                    protagonistiContainer.innerHTML = '<p>Impossibile caricare i nomi delle squadre.</p>';
-                });
+            const emojiMap = { "Real Como": "👑", "Aston Birra": "🍺", "F.C. Malinatese": "🍑" /* ... ecc ... */ };
+            fetch('/api/getSquadre').then(res => res.json()).then(squadre => {
+                if (squadre && squadre.length > 0) {
+                    protagonistiContainer.innerHTML = squadre.map(squadra => {
+                        const emoji = emojiMap[squadra] || '⚽';
+                        return `<div class="p-4 bg-gray-800 rounded-lg text-center font-semibold flex items-center justify-center gap-2">${emoji} ${squadra}</div>`
+                    }).join('');
+                }
+            }).catch(err => console.error("Errore caricamento squadre:", err));
         }
     }
 });
