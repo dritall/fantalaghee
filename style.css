@@ -4,7 +4,7 @@
     --verdetto-color: #00A36C; --gazzetta-color: #FFD700;
 }
 body { font-family: 'Inter', sans-serif; background-color: var(--background-color); color: var(--primary-text); }
-.background-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background-image: url('image/stadium-bg.jpg'); background-size: cover; background-position: center; }
+.background-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background-image: url('/image/stadium-bg.jpg'); background-size: cover; background-position: center; }
 .background-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-color: rgba(1, 4, 9, 0.75); }
 #main-header { background-color: rgba(1, 4, 9, 0.8); }
 .nav-button { transition: all 0.3s ease; color: #9ca3af; background-color: rgba(31, 41, 59, 0.5); border: 1px solid #374151; }

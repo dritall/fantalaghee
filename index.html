@@ -1,11 +1,10 @@
-<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fantalaghèe 25/26 - Il Fanta dei Laghèe</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="antialiased">
@@ -14,7 +13,7 @@
 
     <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
         <div class="container mx-auto px-4 flex justify-between items-center h-16">
-            <a href="index.html"><img src="image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
+            <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
             <nav class="hidden md:flex items-center gap-1">
                 <a href="#panoramica" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Panoramica</a>
                 <a href="#novita" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Novità</a>
@@ -22,96 +21,74 @@
                 <a href="#mercato" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Mercato</a>
                 <a href="#bonus-malus" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Bonus/Malus</a>
                 <a href="#partecipanti" class="nav-button nav-link px-4 py-2 rounded-full text-sm">I Protagonisti</a>
-                <a href="gazzetta-del-laghee.html" class="nav-button nav-gazzetta px-4 py-2 rounded-full text-sm">Gazzetta</a>
-                <a href="verdetto.html" class="nav-button nav-verdetto px-4 py-2 rounded-full text-sm">Il Verdetto</a>
+                <a href="/gazzetta-del-laghee.html" class="nav-button nav-link nav-gazzetta px-4 py-2 rounded-full text-sm">Gazzetta</a>
+                <a href="/verdetto.html" class="nav-button nav-link nav-verdetto px-4 py-2 rounded-full text-sm">Il Verdetto</a>
             </nav>
             <div class="flex items-center gap-2">
-                <button id="hamburger-btn" class="md:hidden p-2"><svg id="hamburger-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg><svg id="hamburger-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
+                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
+                <button id="hamburger-btn" class="md:hidden p-2"><svg id="hamburger-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7"></path></svg><svg id="hamburger-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
         </div>
     </header>
     <div id="mobile-menu" class="hidden"></div>
 
     <main class="container mx-auto p-4 md:p-8 relative z-10">
-        <section id="panoramica" class="content-section" style="display: block;">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-indigo-400 mb-2" style="font-family: 'Oswald', sans-serif;">BENVENUTI AL FANTA LAGHÈE 🏆</h2>
-                <p class="max-w-3xl mx-auto text-stone-400 text-sm sm:text-base">La stagione 2025/2026 è alle porte. Qui trovi una visione d'insieme delle regole e dei numeri chiave della lega. Usa le schede in alto per esplorare ogni dettaglio.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                <div class="info-card text-center p-4 sm:p-6">
-                    <h3 class="font-bold text-lg sm:text-xl text-indigo-400">Quota Iscrizione</h3>
-                    <p class="text-4xl sm:text-5xl font-bold text-white my-2">100 🍆</p>
-                    <p class="text-xs sm:text-sm text-stone-400">Da saldare entro la 3ª giornata.</p>
-                </div>
-                <div class="info-card text-center p-4 sm:p-6">
-                    <h3 class="font-bold text-lg sm:text-xl text-indigo-400">Budget Iniziale</h3>
-                    <p class="text-4xl sm:text-5xl font-bold text-white my-2">600</p>
-                    <p class="text-xs sm:text-sm text-stone-400">Fantamilioni (quotazioni Fantaclub).</p>
-                </div>
-                <div class="info-card text-center p-4 sm:p-6">
-                    <h3 class="font-bold text-lg sm:text-xl text-indigo-400">Composizione Rosa</h3>
-                    <p class="text-3xl sm:text-4xl font-bold text-white my-2">3-8-8-5</p>
-                    <p class="text-xs sm:text-sm text-stone-400">P - D - C - A</p>
-                </div>
-            </div>
-        </section>
+    <section id="panoramica" class="content-section">
+        <div class="text-center">
+            <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4" style="font-family: 'Oswald', sans-serif;">BENVENUTI AL FANTALAGHÈE 25/26</h1>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">La lega di fantacalcio più competitiva e appassionante del Lario è tornata. Preparati a una stagione di sfide, tattica e colpi di scena.</p>
+        </div>
+    </section>
 
-        <section id="novita" class="content-section">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-amber-400 mb-2" style="font-family: 'Oswald', sans-serif;">NOVITÀ E CHIARIMENTI 2025/2026</h2>
-                 <div class="space-y-6 max-w-4xl mx-auto">
-                    <div class="p-4 sm:p-6 rounded-lg rule-card">
-                        <h3 class="text-lg sm:text-xl font-semibold text-indigo-400">💣 Introdotto: Il Colpo Proibito</h3>
-                        <p class="mt-2 text-stone-300 text-sm sm:text-base">Una nuova mossa strategica che permette di acquistare un giocatore normalmente "bloccato".</p>
-                    </div>
-                </div>
+    <section id="novita" class="content-section">
+        <h2 class="text-3xl font-bold text-center mb-8">Novità della Stagione</h2>
+        <div class="max-w-4xl mx-auto space-y-4">
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-amber-400">Nuovo Sistema Premi</h3>
+                <p class="text-gray-400 mt-2">Quest'anno abbiamo introdotto nuovi premi settimanali per il miglior punteggio e una revisione completa dei premi finali. La competizione non è mai stata così ricca!</p>
             </div>
-        </section>
-
-        <section id="regole" class="content-section">
-            <h2 class="text-3xl font-bold text-center mb-8">Regolamento</h2>
-            <div class="space-y-4 max-w-4xl mx-auto">
-                <div class="accordion-item bg-gray-800 rounded-lg">
-                    <button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold">
-                        Iscrizione e Partecipazione
-                        <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <div class="accordion-content p-4 border-t border-gray-700">
-                        <p>Contenuto della sezione Iscrizione e Partecipazione...</p>
-                    </div>
-                </div>
-                 <div class="accordion-item bg-gray-800 rounded-lg">
-                    <button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold">
-                        Mercato Estivo
-                        <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <div class="accordion-content p-4 border-t border-gray-700">
-                        <p>Contenuto della sezione Mercato Estivo...</p>
-                    </div>
-                </div>
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-amber-400">App Ufficiale</h3>
+                <p class="text-gray-400 mt-2">È in fase di sviluppo l'app ufficiale del Fantalaghèe per gestire la tua squadra, il mercato e rimanere sempre aggiornato in tempo reale.</p>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="mercato" class="content-section">
-             <h2 class="text-3xl font-bold text-center mb-8">Mercato</h2>
-             <p>Contenuto sul mercato...</p>
-        </section>
-
-        <section id="bonus-malus" class="content-section">
-             <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-indigo-400 mb-2" style="font-family: 'Oswald', sans-serif;">BONUS & MALUS</h2>
-                <p>Contenuto su bonus e malus...</p>
+    <section id="regole" class="content-section">
+        <h2 class="text-3xl font-bold text-center mb-8">Regolamento</h2>
+        <div class="space-y-4 max-w-4xl mx-auto">
+            <div class="accordion-item bg-gray-800 rounded-lg">
+                <button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold">Iscrizione e Partecipazione<svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                <div class="accordion-content p-4 border-t border-gray-700"><p>Dettagli su come iscriversi e partecipare alla lega...</p></div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="partecipanti" class="content-section">
-            <h2 class="text-3xl font-bold text-center mb-8">I Protagonisti</h2>
-            <div id="protagonisti-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                <p>Caricamento...</p>
+    <section id="mercato" class="content-section">
+        <h2 class="text-3xl font-bold text-center mb-8">Mercato</h2>
+        <div class="space-y-4 max-w-4xl mx-auto">
+            <div class="accordion-item bg-gray-800 rounded-lg">
+                <button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold">Mercato Estivo<svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                <div class="accordion-content p-4 border-t border-gray-700"><p>Regole e scadenze per il mercato estivo...</p></div>
             </div>
-        </section>
-    </main>
-    <script src="js/main.js" defer></script>
+        </div>
+    </section>
+
+    <section id="bonus-malus" class="content-section">
+        <h2 class="text-3xl font-bold text-center mb-8">Bonus & Malus</h2>
+        <div class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg">
+            <p>Elenco completo di tutti i bonus e malus applicati in questa stagione...</p>
+        </div>
+    </section>
+
+    <section id="partecipanti" class="content-section">
+        <h2 class="text-3xl font-bold text-center mb-8">I Protagonisti</h2>
+        <div id="protagonisti-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <p class="col-span-full text-center">Caricamento squadre...</p>
+        </div>
+    </section>
+</main>
+    <script src="/js/main.js" defer></script>
 </body>
 </html>

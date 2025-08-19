@@ -45,12 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
                  section.style.display = section.id === targetId ? 'block' : 'none';
              });
         };
-        document.querySelectorAll('a.nav-link[href^="#"]').forEach(link => {
+        document.querySelectorAll('a.nav-link[href*="#"]').forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href').substring(1);
+                const targetId = new URL(link.href).hash.substring(1);
                 switchTab(targetId);
-                history.pushState(null, null, `#${targetId}`);
             });
         });
         const hash = window.location.hash.substring(1);
@@ -59,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Caricamento Protagonisti con Emoji
         const protagonistiContainer = document.getElementById('protagonisti-container');
         if (protagonistiContainer) {
-            const emojiMap = { "Real Como": "👑", "Aston Birra": "🍺", "F.C. Malinatese": "🍑" /* ... ecc ... */ };
+            const emojiMap = { "Real Como": "👑", "Aston Birra": "🍺", "F.C. Malinatese": "🍑" /* Aggiungi qui altre squadre */ };
             fetch('/api/getSquadre').then(res => res.json()).then(squadre => {
                 if (squadre && squadre.length > 0) {
                     protagonistiContainer.innerHTML = squadre.map(squadra => {
