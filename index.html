@@ -386,10 +386,11 @@
     </main>
 </div>
 
-    <script src="/js/main.js"></script>
     <script>
-        // Specific script for index.html page logic
         document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -399,6 +400,23 @@
             }, { threshold: 0.1 });
 
             document.querySelectorAll('.fade-in-element').forEach(el => observer.observe(el));
+
+            const setActiveTab = (targetId) => {
+                navLinks.forEach(btn => btn.classList.toggle('active', btn.dataset.target === targetId));
+                contentSections.forEach(section => section.classList.toggle('active', section.id === targetId));
+            };
+
+            navLinks.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.target;
+                    if (targetId) {
+                        setActiveTab(targetId);
+                        if (!button.classList.contains('internal-link')) {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    }
+                });
+            });
 
             document.querySelectorAll('.accordion-header').forEach(header => {
                 header.addEventListener('click', () => {
@@ -470,7 +488,70 @@
                 }
             }
         });
+
+        // Mobile Menu & Dropdown Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hamburger Menu
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const hamburgerOpenIcon = document.getElementById('hamburger-open');
+            const hamburgerCloseIcon = document.getElementById('hamburger-close');
+
+            const toggleMenu = () => {
+                mobileMenu.classList.toggle('hidden');
+                hamburgerOpenIcon.classList.toggle('hidden');
+                hamburgerCloseIcon.classList.toggle('hidden');
+            };
+
+            hamburgerBtn.addEventListener('click', toggleMenu);
+
+            // Close mobile menu when a link is clicked
+            const mobileNavLinks = document.querySelectorAll('#mobile-menu a, #mobile-menu button');
+            mobileNavLinks.forEach(link => {
+                const isDropdownToggle = link.parentElement.classList.contains('dropdown-mobile');
+
+                if (!isDropdownToggle) {
+                    link.addEventListener('click', () => {
+                        // Only close if the menu is currently open
+                        if (!mobileMenu.classList.contains('hidden')) {
+                            toggleMenu();
+                        }
+                    });
+                }
+            });
+
+            // Desktop Dropdown
+            const dropdown = document.querySelector('.dropdown');
+            if (dropdown) {
+                dropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    menu.classList.toggle('hidden');
+                });
+            }
+
+            // Mobile Dropdown
+            const dropdownMobile = document.querySelector('.dropdown-mobile');
+            if (dropdownMobile) {
+                dropdownMobile.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const menu = dropdownMobile.querySelector('.dropdown-menu-mobile');
+                    menu.classList.toggle('hidden');
+                });
+            }
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.add('hidden'));
+                }
+                if (!e.target.closest('.dropdown-mobile')) {
+                    document.querySelectorAll('.dropdown-menu-mobile').forEach(menu => menu.classList.add('hidden'));
+                }
+            });
+        });
     </script>
+
 </body>
 </html>
 
