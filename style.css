@@ -1,47 +1,21 @@
 :root {
-    --background-color: #010409;
-    --primary-text: #c9d1d9;
-    --card-bg: #161B22;
-    --border-color: #30363d;
-    --accent-blue: #4f46e5;
-    --accent-orange: #f59e0b;
-    --verdetto-color: #00A36C; /* Verde Verdetto */
-    --gazzetta-color: #FFD700; /* Oro Gazzetta */
+    --background-color: #010409; --primary-text: #c9d1d9; --card-bg: #161B22;
+    --border-color: #30363d; --accent-blue: #4f46e5; --accent-orange: #f59e0b;
+    --verdetto-color: #00A36C; --gazzetta-color: #FFD700;
 }
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--background-color);
-    color: var(--primary-text);
-}
-.background-container {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-    background-image: url('/image/stadium-bg.jpg');
-    background-size: cover; background-position: center;
-}
-.background-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-    background-color: rgba(1, 4, 9, 0.75);
-}
+body { font-family: 'Inter', sans-serif; background-color: var(--background-color); color: var(--primary-text); }
+.background-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background-image: url('image/stadium-bg.jpg'); background-size: cover; background-position: center; }
+.background-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-color: rgba(1, 4, 9, 0.75); }
 #main-header { background-color: rgba(1, 4, 9, 0.8); }
-.nav-button {
-    transition: all 0.3s ease; color: #9ca3af;
-    background-color: rgba(31, 41, 59, 0.5); border: 1px solid #374151;
-}
-.nav-button.active, .nav-button:not(.active):hover {
-    background-color: #374151; color: #f9fafb;
-}
-.nav-verdetto.active {
-    background-color: var(--verdetto-color); color: #ffffff; border-color: var(--verdetto-color);
-}
-.nav-gazzetta.active {
-    background-color: var(--gazzetta-color); color: #111827; border-color: var(--gazzetta-color);
-}
-.btn-secondary {
-    color: #9ca3af; background-color: transparent; border: 1px solid #4b5563; transition: all 0.3s ease;
-}
+.nav-button { transition: all 0.3s ease; color: #9ca3af; background-color: rgba(31, 41, 59, 0.5); border: 1px solid #374151; }
+.nav-button.active, .nav-button:not(.active):hover { background-color: #374151; color: #f9fafb; }
+.nav-verdetto.active { background-color: var(--verdetto-color); color: #ffffff; border-color: var(--verdetto-color); }
+.nav-gazzetta.active { background-color: var(--gazzetta-color); color: #111827; border-color: var(--gazzetta-color); }
+.btn-secondary { color: #9ca3af; background-color: transparent; border: 1px solid #4b5563; transition: all 0.3s ease; }
 .btn-secondary:hover { background-color: #374151; color: #f9fafb; }
 .content-section { display: none; }
-.btn-iscriviti {
-    background-color: var(--accent-orange); color: #111827; font-weight: 700; transition: all 0.3s ease;
-}
+.btn-iscriviti { background-color: var(--accent-orange); color: #111827; font-weight: 700; transition: all 0.3s ease; }
 .btn-iscriviti:hover { background-color: #fbbf24; transform: scale(1.05); }
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+.gazzetta-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0.75rem; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.gazzetta-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
