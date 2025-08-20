@@ -1,0 +1,137 @@
+/* /css/gazzetta.css */
+
+/* --- IMPOSTAZIONI GENERALI --- */
+body {
+    background-color: #FFF9F9; /* Sfondo rosa tenue */
+    font-family: 'Merriweather', serif;
+    color: #1a1a1a; /* Grigio scuro per il testo */
+    line-height: 1.8;
+    font-size: 18px;
+    padding: 2rem 1rem;
+}
+
+/* --- CONTENITORE PRINCIPALE DELL'ARTICOLO --- */
+.article-container {
+    max-width: 750px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* --- HEADER ARTICOLO --- */
+.article-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 1.5rem;
+}
+
+.article-date {
+    font-family: 'Oswald', sans-serif;
+    color: #888;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.article-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #000000;
+    margin-top: 0.5rem;
+    line-height: 1.2;
+}
+
+/* --- IMMAGINE DI COPERTINA --- */
+.article-cover-image {
+    margin-bottom: 2rem;
+}
+.article-cover-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    background-color: #f0f0f0; /* Placeholder color */
+}
+
+/* --- CORPO DELL'ARTICOLO --- */
+.article-body p {
+    margin-bottom: 1.5rem;
+}
+
+.article-body .opening-paragraph {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.article-body h3 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+}
+
+.article-body strong {
+    color: #A90000; /* Rosso scuro/bordeaux */
+    font-weight: 700;
+}
+
+.article-body a {
+    color: #A90000;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.article-body a:hover {
+    color: #000000;
+}
+
+/* --- FOOTER ARTICOLO --- */
+.article-footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-style: italic;
+    color: #555;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 1.5rem;
+}
+
+/* --- LINK PER TORNARE INDIETRO --- */
+.back-link-container {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.back-link {
+    font-family: 'Oswald', sans-serif;
+    color: #A90000;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #000000;
+}
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem 0.5rem;
+    }
+    .article-container {
+        padding: 1.5rem;
+        max-width: 100%;
+    }
+    .article-title {
+        font-size: 2.2rem;
+    }
+    .article-body h3 {
+        font-size: 1.5rem;
+    }
+}
