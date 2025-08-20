@@ -51,3 +51,29 @@ body {
 .nav-menu ul > li.active-link > a {
   color: #00ffff; /* Blu elettrico */
 }
+
+/* Mobile Menu Active State */
+body.mobile-menu-active #mobile-menu-container {
+    pointer-events: auto;
+}
+
+body.mobile-menu-active #mobile-menu-overlay {
+    opacity: 1;
+}
+
+body.mobile-menu-active #mobile-menu-panel {
+    transform: translateX(0);
+}
+
+/* Style for active link in mobile menu */
+.nav-button-mobile.active-link {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+/* Accordion Styles */
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease-in-out;
+}
