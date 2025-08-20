@@ -210,7 +210,7 @@ body.mobile-menu-active #mobile-menu-overlay {
 /* Stile per la colonna bloccata (Fixed Column) */
 table.dataTable.dt-fixed-start,
 table.dataTable.dt-fixed-end {
-    background-color: var(--card-bg);
+    background-color: #111827; /* gray-900, a darker shade than card-bg */
 }
 
 .dataTables_wrapper .dt-fixedcolumns-fixed-left {

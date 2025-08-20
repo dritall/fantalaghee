@@ -124,10 +124,11 @@
                             </tbody>
                         </table>`;
                     standingsContainer.innerHTML = tableHTML;
-                    // Find column indices dynamically
-                    const misterIndex = headers.indexOf('Mister');
-                    const nicknameIndex = headers.indexOf('Nickname');
-                    const teamIndex = headers.indexOf('Team');
+                    // Find column indices dynamically and case-insensitively
+                    const lowerCaseHeaders = headers.map(h => h.toLowerCase());
+                    const misterIndex = lowerCaseHeaders.indexOf('mister');
+                    const nicknameIndex = lowerCaseHeaders.indexOf('nickname');
+                    const teamIndex = lowerCaseHeaders.indexOf('team');
 
                     // Define column definitions
                     let columnDefs = [];
