@@ -78,11 +78,7 @@ body.mobile-menu-active #mobile-menu-panel {
     transition: max-height 0.35s ease-in-out;
 }
 
-/* --- CSS Checkbox Hack per Menu Mobile --- */
-#menu-toggle {
-    display: none; /* Nasconde la checkbox */
-}
-
+/* --- Mobile Menu --- */
 .mobile-menu-panel {
     position: fixed;
     top: 0;
@@ -95,23 +91,20 @@ body.mobile-menu-active #mobile-menu-panel {
     transition: transform 0.3s ease-in-out;
     border-right: 1px solid #374151; /* gray-700 */
     padding-top: 4rem; /* Aumentato per dare spazio sopra */
-    z-index: 99;
+    z-index: 100;
 }
 
-/* Mostra il menu quando la checkbox è spuntata */
-#menu-toggle:checked ~ .mobile-menu-panel {
+body.mobile-menu-active .mobile-menu-panel {
     transform: translateX(0);
 }
 
-/* Gestione icone hamburger */
-#hamburger-open-icon { display: block; }
-#hamburger-close-icon { display: none; }
-
-#menu-toggle:checked ~ #hamburger-label #hamburger-open-icon {
-    display: none;
+#mobile-menu-overlay {
+    transition: opacity 0.3s ease-in-out;
 }
-#menu-toggle:checked ~ #hamburger-label #hamburger-close-icon {
-    display: block;
+
+body.mobile-menu-active #mobile-menu-overlay {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* Stili link menu mobile */
@@ -295,9 +288,8 @@ table.dataTable.dt-fixed-end {
     color: var(--gazzetta-color);
 }
 
-/* Allarga la prima colonna della classifica */
-#classifica-table th:first-child,
-#classifica-table td:first-child {
+/* Allarga la colonna del Team */
+#classifica-table .team-column {
     width: 150px !important;
     min-width: 150px !important;
 }
