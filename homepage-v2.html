@@ -17,9 +17,9 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/5.0.1/css/fixedColumns.dataTables.css">
 </head>
 <body class="antialiased">
-    <div id="mobile-menu-overlay"></div>
     <div class="background-container"></div>
     <div class="background-overlay"></div>
+
     <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
         <div class="container mx-auto px-4 flex justify-between items-center h-16">
             <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
@@ -143,7 +143,7 @@
                     }
 
 
-                    new DataTable('#classifica-table', {
+                    const table = new DataTable('#classifica-table', {
                         language: { url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/it-IT.json' },
                         paging: false,
                         scrollX: true,
@@ -151,6 +151,11 @@
                             left: 1
                         },
                         columnDefs: columnDefs
+                    });
+
+                    // Force background color on fixed column on every draw
+                    table.on('draw', function () {
+                        $('#classifica-table th.dt-fixed-left, #classifica-table td.dt-fixed-left').css('background-color', '#111827');
                     });
                 } else {
                     standingsContainer.innerHTML = '<p class="text-center text-amber-400">Nessun dato disponibile per la classifica.</p>';
