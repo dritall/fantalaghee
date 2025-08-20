@@ -36,8 +36,14 @@ export default async function handler(req) {
 }
 
 const parseSheetData = (data) => {
+    // Helper function to safely access data
+    const get = (row, col) => (data && data[row] && data[row][col]) ? data[row][col] : 'N/D';
+
+    // Dynamic finders for data that might move
     const findRowIndex = (label, col = 0) => data.findIndex(row => row && row[col] && row[col].trim().toLowerCase() === label.toLowerCase());
     const findRowStartsWith = (label, col = 0) => data.findIndex(row => row && row[col] && row[col].trim().toLowerCase().startsWith(label.toLowerCase()));
+
+    // --- Static & Dynamic Data Extraction ---
 
     const giornataInfoRow = findRowStartsWith("campione della giornata");
     const giornataText = giornataInfoRow !== -1 ? data[giornataInfoRow][0] : "N/D";
@@ -58,15 +64,8 @@ const parseSheetData = (data) => {
         }
     }
 
-    const leaderAttualeRow = findRowIndex("LEADER ATTUALE");
-    const recordAssolutoRow = findRowIndex("RECORD ASSOLUTO", 5);
-    const cucchiaioDiLegnoRow = findRowIndex("Cucchiaio di Legno", 5);
-    const podioRow = findRowStartsWith("podio della giornata");
-
     const premiClassificaRow = findRowIndex("Premi Classifica Generale", 0);
-    const premiDiGiornataRow = findRowIndex("Premi di Giornata", 6);
     const migliorPunteggioRow = findRowIndex("Miglior Punteggio", 0);
-
     const premi = { classifica: [], giornata: [], migliorPunteggio: {} };
     if (premiClassificaRow !== -1) {
         for (let i = premiClassificaRow + 2; i < premiClassificaRow + 7; i++) {
@@ -74,28 +73,34 @@ const parseSheetData = (data) => {
             if (row && row[0]) premi.classifica.push({ squadra: row[0], premio: row[3] });
         }
     }
-    if (premiDiGiornataRow !== -1) {
-        for (let i = premiDiGiornataRow + 1; i < premiDiGiornataRow + 4; i++) {
-             const row = data[i];
-             if (row && row[5]) premi.giornata.push({ squadra: row[5], premio: row[6] });
-        }
+     for (let i = 71; i <= 73; i++) { // Premi di giornata: F e G dalla 72 in giù
+        const row = data[i];
+        if (row && row[5]) premi.giornata.push({ squadra: row[5], premio: row[6] });
     }
     if (migliorPunteggioRow !== -1 && data[migliorPunteggioRow+1]) {
-        premi.migliorPunteggio = { info: data[migliorPunteggioRow+1][0], premio: data[migliorPunteggioRow+1][2] };
+        premi.migliorPunteggio = { info: get(migliorPunteggioRow+1, 0), premio: get(migliorPunteggioRow+1, 2) };
     }
 
     return {
         numeroGiornata,
         classifica,
-        leaderAttuale: leaderAttualeRow !== -1 ? data[leaderAttualeRow + 1][0] : 'N/D',
-        campioneDiGiornata: giornataInfoRow !== -1 ? data[giornataInfoRow + 2][1] : 'N/D',
-        podio: podioRow !== -1 ? [
-            { squadra: data[podioRow + 1][0], punteggio: data[podioRow + 1][1] },
-            { squadra: data[podioRow + 2][0], punteggio: data[podioRow + 2][1] },
-            { squadra: data[podioRow + 3][0], punteggio: data[podioRow + 3][1] }
-        ] : [],
-        recordAssoluto: recordAssolutoRow !== -1 ? { punteggio: data[recordAssolutoRow + 1][6], squadra: data[recordAssolutoRow + 2][6], giornata: data[recordAssolutoRow + 3][6] } : {},
-        cucchiaioDiLegno: cucchiaioDiLegnoRow !== -1 ? { punteggio: data[cucchiaioDiLegnoRow + 1][6], squadra: data[cucchiaioDiLegnoRow + 2][6], giornata: data[cucchiaioDiLegnoRow + 3][6] } : {},
+        leaderAttuale: get(55, 0), // A56
+        campioneDiGiornata: get(61, 1), // B62
+        podio: [ // A e B 65, 66 e 67
+            { squadra: get(64, 0), punteggio: get(64, 1) },
+            { squadra: get(65, 0), punteggio: get(65, 1) },
+            { squadra: get(66, 0), punteggio: get(66, 1) }
+        ],
+        recordAssoluto: { // F57, F56
+            punteggio: get(56, 5),
+            squadra: get(55, 5),
+            giornata: '' // Not provided
+        },
+        cucchiaioDiLegno: { // F62, F61
+            punteggio: get(61, 5),
+            squadra: get(60, 5),
+            giornata: '' // Not provided
+        },
         premi
     };
 };

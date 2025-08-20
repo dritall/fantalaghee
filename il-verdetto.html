@@ -86,8 +86,8 @@
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
-                    scales: { y: { grid: { display: false }, ticks: { color: '#c9d1d9', font: { size: 12 } } }, x: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#c9d1d9' } } },
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { x: { grid: { display: false }, ticks: { color: '#c9d1d9', font: { size: 12 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#c9d1d9' } } },
                     plugins: { legend: { display: false }, tooltip: {
                         callbacks: { label: (c) => `Punteggio: ${c.raw} | Media: ${data.classifica[c.dataIndex].mediaPunti.toFixed(2)}` }
                     }}
