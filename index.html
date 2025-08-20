@@ -38,7 +38,7 @@
                 <div class="hidden md:flex items-center gap-1">
 
                     <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
-                        Panoramica
+                        Classifica
                     </a>
 
                     <div class="relative group">
@@ -66,11 +66,27 @@
             <div class="flex items-center gap-2">
                 <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
                 <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
-                <button id="hamburger-btn" class="md:hidden p-2"><svg id="hamburger-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg><svg id="hamburger-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="hamburger-btn" class="md:hidden p-2">
+                    <svg class="w-6 h-6 hamburger-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    <svg class="w-6 h-6 hamburger-close" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
         </div>
     </header>
-    <div id="mobile-menu" class="hidden"></div>
+    <div id="mobile-menu">
+        <div class="mobile-menu-overlay"></div>
+        <div class="mobile-menu-panel">
+            <nav class="flex flex-col p-4 gap-2">
+                <a href="/homepage-v2.html" class="nav-button-mobile">Classifica</a>
+                <a href="/info-complete.html" class="nav-button-mobile">Regolamento</a>
+                <a href="/gazzetta-del-laghee.html" class="nav-button-mobile">La Gazzetta</a>
+                <a href="/verdetto.html" class="nav-button-mobile">Il Verdetto</a>
+                <hr class="border-gray-700 my-2"/>
+                <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="nav-button-mobile">Scarica PDF</a>
+                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti Ora</a>
+            </nav>
+        </div>
+    </div>
 
     <main class="container mx-auto p-4 md:p-8 overflow-hidden relative z-10">
         

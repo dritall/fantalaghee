@@ -21,22 +21,18 @@
                 <div class="hidden md:flex items-center gap-1">
 
                     <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
-                        Panoramica
+                        Classifica
                     </a>
 
-                    <div class="flex items-center">
-                        <a href="/info-complete.html" class="nav-button rounded-l-md px-4 py-2 text-sm font-medium border-r-0">
-                            Regolamento
+                    <div class="relative group">
+                        <a href="/info-complete.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium inline-flex items-center">
+                            <span>Regolamento</span>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </a>
-                        <div class="relative group">
-                            <button class="nav-button rounded-r-md px-2 py-2 text-sm font-medium h-full">
-                                <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                            <div class="absolute top-full right-0 mt-1 z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
-                                <a href="/info-complete.html#novita" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
-                                <a href="/info-complete.html#mercato" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
-                                <a href="/info-complete.html#bonus-malus" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
-                            </div>
+                        <div class="absolute z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
+                            <a href="/info-complete.html#novita" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
+                            <a href="/info-complete.html#mercato" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
+                            <a href="/info-complete.html#bonus-malus" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
                         </div>
                     </div>
 
@@ -53,37 +49,25 @@
             <div class="flex items-center gap-2">
                 <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
                 <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
-                <button id="hamburger-btn" class="md:hidden p-2"><svg id="hamburger-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg><svg id="hamburger-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="hamburger-btn" class="md:hidden p-2">
+                    <svg class="w-6 h-6 hamburger-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    <svg class="w-6 h-6 hamburger-close" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
         </div>
     </header>
-    <!-- Mobile Menu (Off-Canvas) -->
-    <div id="mobile-menu-container" class="fixed inset-0 z-50 flex pointer-events-none md:hidden">
-        <!-- Overlay -->
-        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-75 opacity-0 transition-opacity duration-300 ease-in-out"></div>
-
-        <!-- Panel -->
-        <div id="mobile-menu-panel" class="relative z-10 w-4/5 max-w-xs h-full bg-gray-900 shadow-xl p-4 flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out">
-            <!-- Menu Header -->
-            <div class="flex justify-between items-center mb-8">
-                <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-10"></a>
-                <button id="mobile-menu-close-btn" class="p-2 -mr-2">
-                    <svg class="w-6 h-6 text-stone-300 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <!-- Navigation Links -->
-            <nav class="flex flex-col gap-4">
-                <a href="/homepage-v2.html" class="nav-button-mobile block px-4 py-3 rounded-md text-base font-medium text-stone-300 hover:bg-gray-700 hover:text-white">Panoramica</a>
-                <a href="/info-complete.html" class="nav-button-mobile block px-4 py-3 rounded-md text-base font-medium text-stone-300 hover:bg-gray-700 hover:text-white">Regolamento</a>
-                <a href="/gazzetta-del-laghee.html" class="nav-button-mobile block px-4 py-3 rounded-md text-base font-medium text-stone-300 hover:bg-gray-700 hover:text-white">La Gazzetta</a>
-                <a href="/verdetto.html" class="nav-button-mobile block px-4 py-3 rounded-md text-base font-medium text-stone-300 hover:bg-gray-700 hover:text-white">Il Verdetto</a>
+    <div id="mobile-menu">
+        <div class="mobile-menu-overlay"></div>
+        <div class="mobile-menu-panel">
+            <nav class="flex flex-col p-4 gap-2">
+                <a href="/homepage-v2.html" class="nav-button-mobile">Classifica</a>
+                <a href="/info-complete.html" class="nav-button-mobile">Regolamento</a>
+                <a href="/gazzetta-del-laghee.html" class="nav-button-mobile">La Gazzetta</a>
+                <a href="/verdetto.html" class="nav-button-mobile">Il Verdetto</a>
+                <hr class="border-gray-700 my-2"/>
+                <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="nav-button-mobile">Scarica PDF</a>
+                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti Ora</a>
             </nav>
-
-            <div class="mt-auto border-t border-gray-700 pt-4 flex items-center gap-2">
-                 <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary flex-1 text-center px-4 py-2 rounded-full text-xs uppercase">PDF</a>
-                 <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti flex-1 text-center px-4 py-2 rounded-full text-xs uppercase">Iscriviti</a>
-            </div>
         </div>
     </div>
 

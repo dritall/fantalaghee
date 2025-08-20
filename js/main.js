@@ -5,27 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!header) return;
 
     const hamburgerBtn = header.querySelector('#hamburger-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
 
-    // --- New Mobile Menu Logic ---
-    const mobileMenuCloseBtn = document.getElementById('mobile-menu-close-btn');
-    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-
-    const openMenu = () => {
-        document.body.classList.add('mobile-menu-active');
-        header.querySelector('#hamburger-open')?.classList.add('hidden');
-        header.querySelector('#hamburger-close')?.classList.remove('hidden');
-    };
-
-    const closeMenu = () => {
-        document.body.classList.remove('mobile-menu-active');
-        header.querySelector('#hamburger-open')?.classList.remove('hidden');
-        header.querySelector('#hamburger-close')?.classList.add('hidden');
-    };
-
-    if (hamburgerBtn && mobileMenuCloseBtn && mobileMenuOverlay) {
-        hamburgerBtn.addEventListener('click', openMenu);
-        mobileMenuCloseBtn.addEventListener('click', closeMenu);
-        mobileMenuOverlay.addEventListener('click', closeMenu);
+    if (hamburgerBtn && mobileMenu) {
+        hamburgerBtn.addEventListener('click', () => {
+            // Toggle a class on the body
+            document.body.classList.toggle('is-open');
+        });
     }
 
     // --- Active Nav Link Highlighter (Vanilla JS - No jQuery) ---
