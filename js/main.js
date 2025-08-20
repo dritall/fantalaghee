@@ -6,12 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hamburgerBtn = header.querySelector('#hamburger-btn');
     const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+
+    const toggleMenu = () => {
+        document.body.classList.toggle('is-open');
+    };
 
     if (hamburgerBtn && mobileMenu) {
-        hamburgerBtn.addEventListener('click', () => {
-            // Toggle a class on the body
-            document.body.classList.toggle('is-open');
-        });
+        hamburgerBtn.addEventListener('click', toggleMenu);
+    }
+
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', toggleMenu);
     }
 
     // --- Active Nav Link Highlighter (Vanilla JS - No jQuery) ---
