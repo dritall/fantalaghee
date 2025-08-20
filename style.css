@@ -208,9 +208,9 @@ body.mobile-menu-active #mobile-menu-overlay {
 }
 
 /* Stile per la colonna bloccata (Fixed Column) */
-table.dataTable.dt-fixed-start,
-table.dataTable.dt-fixed-end {
-    background-color: #111827; /* gray-900, a darker shade than card-bg */
+#classifica-table th.dt-fixed-left,
+#classifica-table td.dt-fixed-left {
+    background-color: #111827; /* gray-900 */
 }
 
 .dataTables_wrapper .dt-fixedcolumns-fixed-left {
@@ -290,6 +290,6 @@ table.dataTable.dt-fixed-end {
 
 /* Allarga la colonna del Team */
 #classifica-table .team-column {
-    width: 150px !important;
-    min-width: 150px !important;
+    width: 200px !important;
+    min-width: 200px !important;
 }
