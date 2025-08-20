@@ -22,19 +22,34 @@
     <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
         <div class="container mx-auto px-4 flex justify-between items-center h-16">
             <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
-            <nav class="nav-menu d-none d-lg-block">
-              <ul>
-                <li><a href="homepage-v2.html">Panoramica</a></li>
-                <li class="drop-down"><a href="info-complete.html">Regolamento</a>
-                  <ul>
-                    <li><a href="#">Novità</a></li>
-                    <li><a href="#">Mercato</a></li>
-                    <li><a href="#">Bonus/Malus</a></li>
-                  </ul>
-                </li>
-                <li><a href="gazzetta-del-laghee.html">La Gazzetta</a></li>
-                <li><a href="verdetto.html">Il Verdetto</a></li>
-              </ul>
+            <nav class="nav-menu">
+                <div class="hidden md:flex items-center gap-1">
+
+                    <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
+                        Panoramica
+                    </a>
+
+                    <div class="relative group">
+                        <a href="/info-complete.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium inline-flex items-center">
+                            <span>Regolamento</span>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </a>
+                        <div class="absolute z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
+                            <a href="#" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
+                        </div>
+                    </div>
+
+                    <a href="/gazzetta-del-laghee.html" class="nav-button nav-gazzetta rounded-md px-4 py-2 text-sm font-medium">
+                        La Gazzetta
+                    </a>
+
+                    <a href="/verdetto.html" class="nav-button nav-verdetto rounded-md px-4 py-2 text-sm font-medium">
+                        Il Verdetto
+                    </a>
+
+                </div>
             </nav>
             <div class="flex items-center gap-2">
                 <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
