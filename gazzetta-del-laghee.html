@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="/css/gazzetta.css">
 
     <!-- Favicon -->
-    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJ+SURBVHgB7ZfRddswEEDfBv//aCTYJsEMEGyCZhPEJkgyQZgJwhkgbBC2g2ATBBsQJ2jcxpZlS/I48t25IuKxZFnWfDoVAAAA8A/wv4gA/jEABuB/gA3gAKiK0aUeS0eAC+D5fM4An8bkvLM8A84A16PZ3N4A30fzeQc8A8pSj/sBfC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5108B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/sBvC/N5118B8pSj/s-AAAAAElFTkSuQmCC">
+    <link href="/image/logo-compact.png" rel="icon">
 
     <!-- Scripts & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,15 +30,19 @@
     <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
         <div class="container mx-auto px-4 flex justify-between items-center h-16">
             <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
-            <nav class="hidden md:flex items-center gap-1">
-                <a href="/index.html#panoramica" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Panoramica</a>
-                <a href="/index.html#novita" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Novità</a>
-                <a href="/index.html#regole" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Regolamento</a>
-                <a href="/index.html#mercato" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Mercato</a>
-                <a href="/index.html#bonus-malus" class="nav-button nav-link px-4 py-2 rounded-full text-sm">Bonus/Malus</a>
-                <a href="/index.html#partecipanti" class="nav-button nav-link px-4 py-2 rounded-full text-sm">I Protagonisti</a>
-                <a href="/gazzetta-del-laghee.html" class="nav-button nav-link nav-gazzetta px-4 py-2 rounded-full text-sm">Gazzetta</a>
-                <a href="/verdetto.html" class="nav-button nav-link nav-verdetto px-4 py-2 rounded-full text-sm">Il Verdetto</a>
+            <nav class="nav-menu d-none d-lg-block">
+              <ul>
+                <li><a href="homepage-v2.html">Panoramica</a></li>
+                <li class="drop-down"><a href="info-complete.html">Regolamento</a>
+                  <ul>
+                    <li><a href="#">Novità</a></li>
+                    <li><a href="#">Mercato</a></li>
+                    <li><a href="#">Bonus/Malus</a></li>
+                  </ul>
+                </li>
+                <li><a href="gazzetta-del-laghee.html">La Gazzetta</a></li>
+                <li><a href="verdetto.html">Il Verdetto</a></li>
+              </ul>
             </nav>
             <div class="flex items-center gap-2">
                 <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
