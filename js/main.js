@@ -4,22 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.getElementById('main-header');
     if (!header) return;
 
-    const hamburgerBtn = header.querySelector('#hamburger-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-
-    const toggleMenu = () => {
-        document.body.classList.toggle('is-open');
-    };
-
-    if (hamburgerBtn && mobileMenu) {
-        hamburgerBtn.addEventListener('click', toggleMenu);
-    }
-
-    if (mobileMenuOverlay) {
-        mobileMenuOverlay.addEventListener('click', toggleMenu);
-    }
-
     // --- Active Nav Link Highlighter (Vanilla JS - No jQuery) ---
     // Ottieni il nome del file della pagina corrente (es. "verdetto.html")
     let currentPage = window.location.pathname.split("/").pop();
