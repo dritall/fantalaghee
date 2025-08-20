@@ -77,3 +77,149 @@ body.mobile-menu-active #mobile-menu-panel {
     overflow: hidden;
     transition: max-height 0.35s ease-in-out;
 }
+
+/* --- New Mobile Menu --- */
+#mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    pointer-events: none;
+}
+.mobile-menu-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.mobile-menu-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80%;
+    max-width: 300px;
+    height: 100%;
+    background-color: #111827; /* gray-900 */
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    border-right: 1px solid #374151; /* gray-700 */
+    padding-top: 2rem;
+}
+
+/* Stato aperto del menu */
+body.is-open #mobile-menu {
+    pointer-events: auto;
+}
+body.is-open .mobile-menu-overlay {
+    opacity: 1;
+}
+body.is-open .mobile-menu-panel {
+    transform: translateX(0);
+}
+
+/* Stili link menu mobile */
+.nav-button-mobile {
+    display: block;
+    padding: 12px 16px;
+    color: #d1d5db; /* gray-300 */
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+.nav-button-mobile:hover {
+    background-color: #374151; /* gray-700 */
+    color: white;
+}
+.nav-button-mobile.active-link {
+     background-color: var(--accent-blue);
+     color: white;
+}
+.nav-button-mobile-primary {
+    display: block;
+    padding: 12px 16px;
+    margin: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 9999px;
+    background-color: var(--accent-orange);
+    color: #111827;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+.nav-button-mobile-primary:hover {
+    background-color: #fbbf24;
+}
+
+/* Gestione icone hamburger */
+.hamburger-open { display: block; }
+.hamburger-close { display: none; }
+body.is-open .hamburger-open { display: none; }
+body.is-open .hamburger-close { display: block; }
+
+/* DataTables Stili Custom */
+#classifica-table_wrapper {
+    background-color: var(--card-bg);
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+#classifica-table {
+    color: #d6d3d1; /* stone-300 */
+    border-collapse: collapse;
+}
+#classifica-table th, #classifica-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+#classifica-table thead {
+    background-color: #1f2937; /* gray-800 */
+    color: #ffffff;
+}
+#classifica-table tbody tr:hover {
+    background-color: #374151; /* gray-700 */
+}
+.dt-length, .dt-search, .dt-info, .dt-paging {
+    color: #9ca3af; /* gray-400 */
+    padding-bottom: 1rem;
+}
+.dt-input {
+    background-color: #374151;
+    border: 1px solid #4b5563;
+    color: white;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+}
+.dt-paging .dt-paging-button {
+    color: #9ca3af !important;
+    border: 1px solid #4b5563 !important;
+    margin: 0 0.25rem;
+}
+.dt-paging .dt-paging-button.current, .dt-paging .dt-paging-button:hover {
+    background: var(--accent-blue) !important;
+    color: white !important;
+    border-color: var(--accent-blue) !important;
+}
+
+/* Miglioramenti Stile Tabella Classifica */
+#classifica-table thead th {
+    font-weight: bold;
+}
+
+#classifica-table th,
+#classifica-table td {
+    border: 1px solid #374151;
+}
+
+#classifica-table tbody tr:nth-child(odd) {
+    background-color: #1f2937; /* gray-800 per un leggero contrasto */
+}
+
+#classifica-table tbody tr:nth-child(odd):hover {
+    background-color: #374151; /* Mantieni l'hover standard */
+}
