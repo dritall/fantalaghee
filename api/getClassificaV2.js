@@ -1,23 +1,38 @@
 import Papa from 'papaparse';
 
 // Helper function to fetch and parse CSV data
-const fetchAndParseCSV = async (url, options = { header: true }) => {
+const fetchAndParseCSV = async (url, options = { header: true }, timeout = 10000) => {
     try {
-        const response = await fetch(url);
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+        const response = await fetch(url, { signal });
+
+        clearTimeout(timeoutId);
+
         if (!response.ok) throw new Error(`Failed to fetch CSV from ${url}: ${response.statusText}`);
+
         const csvText = await response.text();
+
         return new Promise((resolve, reject) => {
             Papa.parse(csvText, {
                 ...options,
                 skipEmptyLines: true,
                 complete: (results) => {
-                    if (results.errors.length) reject(new Error(results.errors.map(e => e.message).join(', ')));
-                    else resolve(results.data);
+                    if (results.errors.length) {
+                        reject(new Error(results.errors.map(e => e.message).join(', ')));
+                    } else {
+                        resolve(results.data);
+                    }
                 },
                 error: (error) => reject(new Error(`Error parsing CSV from ${url}: ${error.message}`)),
             });
         });
     } catch (error) {
+        if (error.name === 'AbortError') {
+            throw new Error(`Request timed out after ${timeout / 1000} seconds for ${url}`);
+        }
         throw new Error(`Network or parsing error for ${url}: ${error.message}`);
     }
 };

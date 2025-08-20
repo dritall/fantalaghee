@@ -5,19 +5,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!header) return;
 
     const hamburgerBtn = header.querySelector('#hamburger-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
 
-    // Gestione Menu Mobile
-    if (hamburgerBtn && mobileMenu) {
-        hamburgerBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            header.querySelector('#hamburger-open')?.classList.toggle('hidden');
-            header.querySelector('#hamburger-close')?.classList.toggle('hidden');
-        });
-        const desktopNav = header.querySelector('nav');
-        if (desktopNav) {
-            mobileMenu.innerHTML = `<div class="container mx-auto p-4 flex flex-col items-center gap-4">${desktopNav.innerHTML}</div>`;
-        }
+    // --- New Mobile Menu Logic ---
+    const mobileMenuCloseBtn = document.getElementById('mobile-menu-close-btn');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+
+    const openMenu = () => {
+        document.body.classList.add('mobile-menu-active');
+        header.querySelector('#hamburger-open')?.classList.add('hidden');
+        header.querySelector('#hamburger-close')?.classList.remove('hidden');
+    };
+
+    const closeMenu = () => {
+        document.body.classList.remove('mobile-menu-active');
+        header.querySelector('#hamburger-open')?.classList.remove('hidden');
+        header.querySelector('#hamburger-close')?.classList.add('hidden');
+    };
+
+    if (hamburgerBtn && mobileMenuCloseBtn && mobileMenuOverlay) {
+        hamburgerBtn.addEventListener('click', openMenu);
+        mobileMenuCloseBtn.addEventListener('click', closeMenu);
+        mobileMenuOverlay.addEventListener('click', closeMenu);
     }
 
     // --- Active Nav Link Highlighter (Vanilla JS - No jQuery) ---
@@ -29,8 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPage = 'homepage-v2.html';
     }
 
-    // Seleziona tutti i link nella navigazione principale
-    const navLinks = document.querySelectorAll('.nav-menu a');
+    // Seleziona tutti i link nella navigazione principale e mobile
+    const navLinks = document.querySelectorAll('.nav-menu a, .nav-button-mobile');
 
     navLinks.forEach(function(link) {
         const linkPage = link.getAttribute('href').split("/").pop();
@@ -130,5 +138,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     protagonistiContainer.innerHTML = '<p>Impossibile caricare i nomi delle squadre.</p>';
                 });
         }
+    }
+
+    // --- Accordion Logic for info-complete.html ---
+    const accordionContainer = document.getElementById('info-accordion');
+    if (accordionContainer) {
+        // Open the first accordion item by default
+        const firstItem = accordionContainer.querySelector('.accordion-item');
+        if (firstItem) {
+            const firstContent = firstItem.querySelector('.accordion-content');
+            const firstIcon = firstItem.querySelector('.accordion-header svg');
+            firstContent.style.maxHeight = firstContent.scrollHeight + "px";
+            firstIcon.classList.add('rotate-180');
+        }
+
+        const accordionItems = accordionContainer.querySelectorAll('.accordion-item');
+        accordionItems.forEach(item => {
+            const header = item.querySelector('.accordion-header');
+            const content = item.querySelector('.accordion-content');
+            const icon = header.querySelector('svg');
+
+            header.addEventListener('click', () => {
+                const isOpen = content.style.maxHeight;
+
+                // Close all items
+                accordionItems.forEach(otherItem => {
+                    otherItem.querySelector('.accordion-content').style.maxHeight = null;
+                    otherItem.querySelector('.accordion-header svg')?.classList.remove('rotate-180');
+                });
+
+                // If the clicked item was not already open, open it
+                if (!isOpen) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon?.classList.add('rotate-180');
+                }
+            });
+        });
     }
 });

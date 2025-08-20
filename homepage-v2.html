@@ -28,15 +28,19 @@
                         Panoramica
                     </a>
 
-                    <div class="relative group">
-                        <a href="/info-complete.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium inline-flex items-center">
-                            <span>Regolamento</span>
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <div class="flex items-center">
+                        <a href="/info-complete.html" class="nav-button rounded-l-md px-4 py-2 text-sm font-medium border-r-0">
+                            Regolamento
                         </a>
-                        <div class="absolute z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
-                            <a href="/info-complete.html#novita" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
-                            <a href="/info-complete.html#mercato" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
-                            <a href="/info-complete.html#bonus-malus" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
+                        <div class="relative group">
+                            <button class="nav-button rounded-r-md px-2 py-2 text-sm font-medium h-full">
+                                <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="absolute top-full right-0 mt-1 z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
+                                <a href="/info-complete.html#novita" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
+                                <a href="/info-complete.html#mercato" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
+                                <a href="/info-complete.html#bonus-malus" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
+                            </div>
                         </div>
                     </div>
 
@@ -57,7 +61,35 @@
             </div>
         </div>
     </header>
-    <div id="mobile-menu" class="hidden"></div>
+    <!-- Mobile Menu (Off-Canvas) -->
+    <div id="mobile-menu-container" class="fixed inset-0 z-50 flex pointer-events-none md:hidden">
+        <!-- Overlay -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-75 opacity-0 transition-opacity duration-300 ease-in-out"></div>
+
+        <!-- Panel -->
+        <div id="mobile-menu-panel" class="relative z-10 w-4/5 max-w-xs h-full bg-gray-900 shadow-xl p-4 flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out">
+            <!-- Menu Header -->
+            <div class="flex justify-between items-center mb-8">
+                <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-10"></a>
+                <button id="mobile-menu-close-btn" class="p-2 -mr-2">
+                    <svg class="w-6 h-6 text-stone-300 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex flex-col gap-4">
+                <a href="/homepage-v2.html" class="nav-button-mobile block px-4 py-3 rounded-md text-base font-medium text-stone-300 hover:bg-gray-700 hover:text-white">Panoramica</a>
+                <a href="/info-complete.html" class="nav-button-mobile block px-4 py-3 rounded-md text-base font-medium text-stone-300 hover:bg-gray-700 hover:text-white">Regolamento</a>
+                <a href="/gazzetta-del-laghee.html" class="nav-button-mobile block px-4 py-3 rounded-md text-base font-medium text-stone-300 hover:bg-gray-700 hover:text-white">La Gazzetta</a>
+                <a href="/verdetto.html" class="nav-button-mobile block px-4 py-3 rounded-md text-base font-medium text-stone-300 hover:bg-gray-700 hover:text-white">Il Verdetto</a>
+            </nav>
+
+            <div class="mt-auto border-t border-gray-700 pt-4 flex items-center gap-2">
+                 <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary flex-1 text-center px-4 py-2 rounded-full text-xs uppercase">PDF</a>
+                 <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti flex-1 text-center px-4 py-2 rounded-full text-xs uppercase">Iscriviti</a>
+            </div>
+        </div>
+    </div>
 
 <div class="w-full">
     <main class="container mx-auto p-4 md:p-8 relative z-10">
@@ -82,13 +114,7 @@
 <script src="/js/main.js" defer></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const createCard = (title, value, subtitle = '') => {
-            if (!value) return '';
-            return `<div class="info-card text-center p-4 sm:p-6" style="border: 1px solid #374151; background-color: #1f2937; border-radius: 0.5rem;"><h4 class="font-bold text-lg text-indigo-400">${title}</h4><p class="text-4xl font-bold text-white my-2">${value}</p><p class="text-xs text-stone-400">${subtitle}</p></div>`;
-        };
-
         async function fetchData() {
-            const dashboardContainer = document.getElementById('dashboard-container');
             const standingsContainer = document.getElementById('standings-container');
 
             try {
@@ -96,19 +122,6 @@
                 if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
                 const data = await response.json();
                 if (data.error) throw new Error(data.details);
-
-                // --- Render Dashboard ---
-                const { dashboard } = data;
-                if (dashboard && Object.keys(dashboard).length > 0) {
-                    let dashboardHTML = '';
-                    if(dashboard.leaderAttuale) dashboardHTML += createCard('Leader Attuale', dashboard.leaderAttuale.team, `Punteggio: ${dashboard.leaderAttuale.punteggio}`);
-                    if(dashboard.recordAssoluto) dashboardHTML += createCard('Record Assoluto', dashboard.recordAssoluto.team, `Punteggio: ${dashboard.recordAssoluto.punteggio}`);
-                    if(dashboard.campioneDellaGiornata) dashboardHTML += createCard(dashboard.campioneDellaGiornata.giornata, dashboard.campioneDellaGiornata.team, `Punteggio: ${dashboard.campioneDellaGiornata.punteggio}`);
-                    if(dashboard.cucchiaioDiLegno) dashboardHTML += createCard('Cucchiaio di Legno', dashboard.cucchiaioDiLegno.team, `Punteggio: ${dashboard.cucchiaioDiLegno.punteggio}`);
-                    dashboardContainer.innerHTML = dashboardHTML || '<p class="text-center col-span-full text-amber-400">Dati dashboard non disponibili.</p>';
-                } else {
-                    dashboardContainer.innerHTML = '<p class="text-center col-span-full text-amber-400">Nessun dato disponibile per la dashboard.</p>';
-                }
 
                 // --- Render Standings Table ---
                 const { classifica } = data;
@@ -128,8 +141,13 @@
                 }
             } catch (error) {
                 console.error('Errore nel caricamento dei dati:', error);
-                dashboardContainer.innerHTML = `<p class="text-center col-span-full text-red-400">Impossibile caricare i dati della dashboard. Dettaglio: ${error.message}</p>`;
-                standingsContainer.innerHTML = `<p class="text-center text-red-400">Impossibile caricare la classifica. Dettaglio: ${error.message}</p>`;
+                standingsContainer.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="text-4xl sm:text-6xl mb-4">⚠️</div>
+                        <h3 class="text-xl sm:text-2xl font-semibold text-amber-400">Impossibile caricare la classifica</h3>
+                        <p class="text-stone-400 mt-2">Si è verificato un errore durante il recupero dei dati. Riprova più tardi.</p>
+                    </div>
+                `;
             }
         }
         fetchData();
