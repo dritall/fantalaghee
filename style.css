@@ -78,7 +78,11 @@ body.mobile-menu-active #mobile-menu-panel {
     transition: max-height 0.35s ease-in-out;
 }
 
-/* --- Mobile Menu --- */
+/* --- CSS Checkbox Hack per Menu Mobile --- */
+#menu-toggle {
+    display: none; /* Nasconde la checkbox */
+}
+
 .mobile-menu-panel {
     position: fixed;
     top: 0;
@@ -91,20 +95,23 @@ body.mobile-menu-active #mobile-menu-panel {
     transition: transform 0.3s ease-in-out;
     border-right: 1px solid #374151; /* gray-700 */
     padding-top: 4rem; /* Aumentato per dare spazio sopra */
-    z-index: 100;
+    z-index: 99;
 }
 
-body.mobile-menu-active .mobile-menu-panel {
+/* Mostra il menu quando la checkbox è spuntata */
+#menu-toggle:checked ~ .mobile-menu-panel {
     transform: translateX(0);
 }
 
-#mobile-menu-overlay {
-    transition: opacity 0.3s ease-in-out;
-}
+/* Gestione icone hamburger */
+#hamburger-open-icon { display: block; }
+#hamburger-close-icon { display: none; }
 
-body.mobile-menu-active #mobile-menu-overlay {
-    opacity: 1;
-    pointer-events: auto;
+#menu-toggle:checked ~ #hamburger-label #hamburger-open-icon {
+    display: none;
+}
+#menu-toggle:checked ~ #hamburger-label #hamburger-close-icon {
+    display: block;
 }
 
 /* Stili link menu mobile */
@@ -208,9 +215,9 @@ body.mobile-menu-active #mobile-menu-overlay {
 }
 
 /* Stile per la colonna bloccata (Fixed Column) */
-#classifica-table th.dt-fixed-left,
-#classifica-table td.dt-fixed-left {
-    background-color: #111827; /* gray-900 */
+table.dataTable.dt-fixed-start,
+table.dataTable.dt-fixed-end {
+    background-color: var(--card-bg);
 }
 
 .dataTables_wrapper .dt-fixedcolumns-fixed-left {
@@ -288,8 +295,9 @@ body.mobile-menu-active #mobile-menu-overlay {
     color: var(--gazzetta-color);
 }
 
-/* Allarga la colonna del Team */
-#classifica-table .team-column {
-    width: 200px !important;
-    min-width: 200px !important;
+/* Allarga la prima colonna della classifica */
+#classifica-table th:first-child,
+#classifica-table td:first-child {
+    width: 150px !important;
+    min-width: 150px !important;
 }
