@@ -20,12 +20,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Evidenzia il link della pagina attiva
-    const currentPage = window.location.pathname;
-    header.querySelectorAll('a.nav-button').forEach(link => {
-        const linkUrl = new URL(link.href, window.location.origin);
-        if (linkUrl.pathname === currentPage && !linkUrl.hash) {
-            link.classList.add('active');
+    // --- Active Nav Link Highlighter (Vanilla JS - No jQuery) ---
+    // Ottieni il nome del file della pagina corrente (es. "verdetto.html")
+    let currentPage = window.location.pathname.split("/").pop();
+
+    // Se la pagina è la root, mappala sulla homepage
+    if (currentPage === '' || currentPage === 'index.html') {
+        currentPage = 'homepage-v2.html';
+    }
+
+    // Seleziona tutti i link nella navigazione principale
+    const navLinks = document.querySelectorAll('.nav-menu a');
+
+    navLinks.forEach(function(link) {
+        const linkPage = link.getAttribute('href').split("/").pop();
+
+        if (linkPage === currentPage) {
+            // Aggiungi la classe al link attivo
+            link.classList.add('active-link');
+
+            // Aggiungi la classe al genitore <li> per un targeting più facile
+            link.parentElement.classList.add('active-link');
+
+            // Se il link è dentro un dropdown, evidenzia anche la voce principale del menu
+            const dropdownParent = link.closest('.drop-down');
+            if (dropdownParent) {
+                dropdownParent.querySelector('a').classList.add('active-link');
+            }
         }
     });
 

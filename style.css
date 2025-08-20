@@ -45,3 +45,9 @@ body {
     background-color: var(--accent-orange); color: #111827; font-weight: 700; transition: all 0.3s ease;
 }
 .btn-iscriviti:hover { background-color: #fbbf24; transform: scale(1.05); }
+
+/* Stile per la voce di menu attiva */
+.nav-menu ul > li > a.active-link,
+.nav-menu ul > li.active-link > a {
+  color: #00ffff; /* Blu elettrico */
+}
