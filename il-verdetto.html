@@ -72,26 +72,26 @@
 
         <div id="dashboard-content" class="hidden space-y-6">
 
-            <div class="widget">
+            <div class="widget widget-chart">
                 <h2 class="text-xl font-bold text-white mb-4" style="font-family: 'Oswald', sans-serif;">CLASSIFICA GENERALE - TOP 5</h2>
                 <div class="chart-container" style="height: 400px;"><canvas id="classificaChart"></canvas></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="widget">
+                <div class="widget widget-leader">
                     <h2 class="text-sm font-bold uppercase text-indigo-400 tracking-wider mb-2">🏆 LEADER ATTUALE</h2>
                     <p id="leader-squadra" class="text-3xl font-bold text-white">-</p>
                 </div>
-                <div class="widget">
+                <div class="widget widget-podium">
                     <h2 class="text-xl font-bold text-white mb-4" style="font-family: 'Oswald', sans-serif;">PODIO DI GIORNATA</h2>
                     <div id="podio-container" class="space-y-3"></div>
                 </div>
-                <div class="widget">
+                <div class="widget widget-record">
                     <h2 class="text-sm font-bold uppercase text-amber-400 tracking-wider mb-2">🔥 RECORD ASSOLUTO</h2>
                     <p id="record-info-riga1" class="text-2xl sm:text-3xl font-bold text-white">-</p>
                     <p id="record-info-riga2" class="text-md text-stone-400">-</p>
                 </div>
-                <div class="widget">
+                <div class="widget widget-cucchiaio">
                     <h2 class="text-sm font-bold uppercase text-red-400 tracking-wider mb-2">🥄 CUCCHIAIO DI LEGNO</h2>
                     <p id="cucchiaio-info-riga1" class="text-2xl sm:text-3xl font-bold text-white">-</p>
                     <p id="cucchiaio-info-riga2" class="text-md text-stone-400">-</p>
@@ -103,15 +103,15 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="widget">
+                <div class="widget widget-premi-classifica">
                     <h3 class="text-lg font-semibold text-indigo-400 mb-3 text-center">Classifica Generale</h3>
                     <div id="premi-classifica-container" class="space-y-2"></div>
                 </div>
-                <div class="widget">
+                <div class="widget widget-premi-giornata">
                     <h3 class="text-lg font-semibold text-indigo-400 mb-3 text-center">Premi di Giornata</h3>
                     <div id="premi-giornata-container" class="space-y-2"></div>
                 </div>
-                <div class="widget">
+                <div class="widget widget-premi-migliore">
                     <h3 class="text-lg font-semibold text-indigo-400 mb-3 text-center">Miglior Punteggio</h3>
                     <div id="miglior-punteggio-container" class="text-center pt-4"></div>
                 </div>
