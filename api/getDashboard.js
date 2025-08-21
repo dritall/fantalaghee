@@ -94,10 +94,10 @@ const parseSheetData = (data) => {
             squadra: get(56, 4),
             giornata: get(57, 4)
         },
-        cucchiaioDiLegno: { // F62, F61
+        cucchiaioDiLegno: { // F62, F61, F63
             punteggio: get(61, 5),
             squadra: get(60, 5),
-            giornata: '' // Not provided
+            giornata: get(62, 5) // Inferred
         },
         premi
     };

@@ -66,7 +66,7 @@
             giornataInfo.textContent = `Risultati aggiornati alla Giornata ${data.numeroGiornata}`;
             document.getElementById('leader-squadra').textContent = data.leaderAttuale;
             document.getElementById('campione-squadra').textContent = data.campioneDiGiornata;
-            document.getElementById('record-punteggio').textContent = `${data.recordAssoluto.punteggio} Punti`;
+            document.getElementById('record-punteggio').textContent = data.recordAssoluto.punteggio;
             document.getElementById('record-info').textContent = `${data.recordAssoluto.squadra} (${data.recordAssoluto.giornata})`;
             document.getElementById('cucchiaio-squadra').textContent = data.cucchiaioDiLegno.squadra;
             document.getElementById('cucchiaio-info').textContent = `${data.cucchiaioDiLegno.punteggio} Punti (${data.cucchiaioDiLegno.giornata})`;
