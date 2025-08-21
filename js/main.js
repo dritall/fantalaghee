@@ -151,4 +151,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenuPanel = document.getElementById('mobile-menu-panel');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const openIcon = document.getElementById('hamburger-open-icon');
+    const closeIcon = document.getElementById('hamburger-close-icon');
+
+    if (mobileMenuButton && mobileMenuPanel && mobileMenuOverlay) {
+        const toggleMenu = () => {
+            mobileMenuPanel.classList.toggle('translate-x-0');
+            mobileMenuPanel.classList.toggle('-translate-x-full');
+            mobileMenuOverlay.classList.toggle('hidden');
+            openIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        };
+
+        mobileMenuButton.addEventListener('click', toggleMenu);
+        mobileMenuOverlay.addEventListener('click', toggleMenu);
+    }
 });
