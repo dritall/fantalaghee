@@ -89,15 +89,15 @@ const parseSheetData = (data) => {
             { squadra: get(65, 0), punteggio: get(65, 1) },
             { squadra: get(66, 0), punteggio: get(66, 1) }
         ],
-        recordAssoluto: { // E56, E57, E58
-            punteggio: get(55, 4),
-            squadra: get(56, 4),
-            giornata: get(57, 4)
+        recordAssoluto: { // Punteggio: F56, Squadra: F57, Giornata: F58
+            punteggio: get(55, 5),
+            squadra: get(56, 5),
+            giornata: get(57, 5)
         },
-        cucchiaioDiLegno: { // F62, F61, F63
-            punteggio: get(61, 5),
-            squadra: get(60, 5),
-            giornata: get(62, 5) // Inferred
+        cucchiaioDiLegno: { // Punteggio: F61, Squadra: F62, Giornata: F63
+            punteggio: get(60, 5),
+            squadra: get(61, 5),
+            giornata: get(62, 5)
         },
         premi
     };

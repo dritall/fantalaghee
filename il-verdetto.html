@@ -40,8 +40,8 @@
                     <div class="widget"><h2 class="text-sm font-bold uppercase text-indigo-400 tracking-wider mb-2">🏆 LEADER ATTUALE</h2><p id="leader-squadra" class="text-3xl font-bold text-white">-</p></div>
                     <div class="widget"><h2 class="text-sm font-bold uppercase text-indigo-400 tracking-wider mb-2">🥇 CAMPIONE DI GIORNATA</h2><p id="campione-squadra" class="text-3xl font-bold text-white">-</p></div>
                     <div class="widget"><h2 class="text-xl font-bold text-white mb-4" style="font-family: 'Oswald', sans-serif;">PODIO DI GIORNATA</h2><div id="podio-container" class="space-y-3"></div></div>
-                    <div class="widget"><h2 class="text-sm font-bold uppercase text-amber-400 tracking-wider mb-2">🔥 RECORD ASSOLUTO</h2><p id="record-punteggio" class="text-3xl font-bold text-white">-</p><p id="record-info" class="text-md text-stone-400">-</p></div>
-                    <div class="widget"><h2 class="text-sm font-bold uppercase text-red-400 tracking-wider mb-2">🥄 CUCCHIAIO DI LEGNO</h2><p id="cucchiaio-squadra" class="text-3xl font-bold text-white">-</p><p id="cucchiaio-info" class="text-md text-stone-400">-</p></div>
+                    <div class="widget"><h2 class="text-sm font-bold uppercase text-amber-400 tracking-wider mb-2">🔥 RECORD ASSOLUTO</h2><p id="record-punteggio" class="text-xl font-bold text-white">-</p><p id="record-info" class="text-md text-stone-400">-</p></div>
+                    <div class="widget"><h2 class="text-sm font-bold uppercase text-red-400 tracking-wider mb-2">🥄 CUCCHIAIO DI LEGNO</h2><p id="cucchiaio-squadra" class="text-xl font-bold text-white">-</p><p id="cucchiaio-info" class="text-md text-stone-400">-</p></div>
                 </div>
             </div>
             <div class="mt-8 widget">
@@ -66,10 +66,17 @@
             giornataInfo.textContent = `Risultati aggiornati alla Giornata ${data.numeroGiornata}`;
             document.getElementById('leader-squadra').textContent = data.leaderAttuale;
             document.getElementById('campione-squadra').textContent = data.campioneDiGiornata;
-            document.getElementById('record-punteggio').textContent = data.recordAssoluto.punteggio;
-            document.getElementById('record-info').textContent = `${data.recordAssoluto.squadra} (${data.recordAssoluto.giornata})`;
-            document.getElementById('cucchiaio-squadra').textContent = data.cucchiaioDiLegno.squadra;
-            document.getElementById('cucchiaio-info').textContent = `${data.cucchiaioDiLegno.punteggio} Punti (${data.cucchiaioDiLegno.giornata})`;
+
+            // Record Assoluto
+            const record = data.recordAssoluto;
+            document.getElementById('record-punteggio').textContent = `${record.squadra} - ${record.punteggio}`;
+            document.getElementById('record-info').textContent = record.giornata;
+
+            // Cucchiaio di Legno
+            const cucchiaio = data.cucchiaioDiLegno;
+            document.getElementById('cucchiaio-squadra').textContent = `${cucchiaio.squadra} - ${cucchiaio.punteggio}`;
+            document.getElementById('cucchiaio-info').textContent = cucchiaio.giornata;
+
             document.getElementById('podio-container').innerHTML = data.podio.map((p, i) => `<div class="flex items-center gap-4"><span class="text-2xl">${['🥇','🥈','🥉'][i]}</span><p><strong class="text-white">${p.squadra}</strong> - ${p.punteggio}</p></div>`).join('');
             document.getElementById('premi-classifica-container').innerHTML = data.premi.classifica.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
             document.getElementById('premi-giornata-container').innerHTML = data.premi.giornata.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
