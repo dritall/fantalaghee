@@ -130,23 +130,40 @@
                         borderRadius: 4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'x',
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: 'var(--text-color)', font: { size: 12 } } },
-                        y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'var(--text-color)' } }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (c) => `Punteggio: ${c.raw} | Media: ${data.classifica[c.dataIndex].mediaPunti.toFixed(2)}`
-                            }
-                        }
-                    }
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'x',
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#e5e7eb' // <-- COLORE TESTO BIANCO/GRIGIO CHIARO
                 }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                    color: '#e5e7eb' // <-- COLORE TESTO BIANCO/GRIGIO CHIARO
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: (c) => `Punteggio: ${c.raw} | Media: ${data.classifica[c.dataIndex].mediaPunti.toFixed(2)}`
+                }
+            }
+        }
+    }
             });
             loader.style.display = 'none';
             dashboardContent.classList.remove('hidden');
