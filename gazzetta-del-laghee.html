@@ -89,35 +89,61 @@
     <main class="container mx-auto p-4 md:p-8 relative z-10">
         <div class="text-center mb-12">
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-amber-400 mb-2" style="font-family: 'Carrois Gothic', sans-serif;">LA GAZZETTA DEL LAGHÈE</h1>
-            <p class="max-w-3xl mx-auto text-stone-300" style="font-family: 'Merriweather', serif;">L'unica testata che non ha paura di prendere 2 in pagella.</p>
+            <p class="max-w-3xl mx-auto text-stone-300" style="font-family: 'Merriweather', serif;">L'unica testata che non ha paura di prendere 65.5</p>
         </div>
 
         <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            <!-- Articolo 1 -->
-            <a href="/articoli/benvenuto-stagione-2526.html"
-               class="article-card-new group"
-               style="background-image: url('https://i.ibb.co/9vwyx6Q/placeholder-gazzetta.jpg');">
-                <div class="card-overlay"></div>
-                <div class="card-content">
-                    <p class="text-sm text-amber-400 mb-2" style="font-family: 'Merriweather', serif; font-weight: 700;">19 Agosto 2025</p>
-                    <h3 class="text-xl font-bold text-white transition-colors duration-300 mb-4" style="font-family: 'Carrois Gothic', sans-serif; line-height: 1.3;">
-                        ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!
-                    </h3>
-                    <span class="read-article-btn">Leggi Articolo</span>
-                </div>
-            </a>
-
-            <!-- Altri articoli verranno aggiunti qui -->
-            <div class="article-card-placeholder flex items-center justify-center bg-gray-800/60 border-2 border-dashed border-gray-700 rounded-lg min-h-[320px]">
-                <p class="text-stone-500" style="font-family: 'Carrois Gothic', sans-serif;">Prossimamente...</p>
-            </div>
-             <div class="article-card-placeholder hidden md:flex items-center justify-center bg-gray-800/60 border-2 border-dashed border-gray-700 rounded-lg min-h-[320px]">
-                <p class="text-stone-500" style="font-family: 'Carrois Gothic', sans-serif;">Prossimamente...</p>
-            </div>
-
+            <!-- Articles will be loaded here dynamically -->
         </div>
     </main>
 <script src="/js/main.js" defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const grid = document.getElementById('articles-grid');
+
+        try {
+            const response = await fetch('/data/articles.json');
+            if (!response.ok) throw new Error('Failed to load articles data.');
+
+            const articles = await response.json();
+            let articlesHtml = '';
+
+            articles.forEach(article => {
+                if (article.placeholder) {
+                    articlesHtml += `
+                        <div class="article-card-placeholder flex items-center justify-center bg-gray-800/60 border-2 border-dashed border-gray-700 rounded-lg min-h-[320px]">
+                            <p class="text-stone-500" style="font-family: 'Carrois Gothic', sans-serif;">Prossimamente...</p>
+                        </div>`;
+                } else {
+                    articlesHtml += `
+                        <a href="/articolo.html?id=${article.id}"
+                           class="article-card-new group"
+                           style="background-image: url('${article.imageUrl}');">
+                            <div class="card-overlay"></div>
+                            <div class="card-content">
+                                <p class="text-sm text-amber-400 mb-2" style="font-family: 'Merriweather', serif; font-weight: 700;">${article.date}</p>
+                                <h3 class="text-xl font-bold text-white transition-colors duration-300 mb-4" style="font-family: 'Carrois Gothic', sans-serif; line-height: 1.3;">
+                                    ${article.title}
+                                </h3>
+                                <span class="read-article-btn">Leggi Articolo</span>
+                            </div>
+                        </a>`;
+                }
+            });
+
+            grid.innerHTML = articlesHtml;
+            // Un-hide any placeholders that were hidden for specific screen sizes if needed
+            const hiddenPlaceholders = document.querySelectorAll('.article-card-placeholder.hidden');
+            if (hiddenPlaceholders.length > 0) {
+                 // Logic to decide whether to show them, for now we remove the 'hidden' class for simplicity
+                 hiddenPlaceholders.forEach(p => p.classList.remove('hidden'));
+            }
+
+        } catch (error) {
+            console.error('Error loading articles:', error);
+            grid.innerHTML = '<p class="text-red-400">Impossibile caricare gli articoli.</p>';
+        }
+    });
+</script>
 </body>
 </html>
