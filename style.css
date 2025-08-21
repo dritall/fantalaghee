@@ -275,13 +275,6 @@ table.dataTable.dt-fixed-end {
     color: var(--gazzetta-color);
 }
 
-/* Allarga la prima colonna della classifica */
-#classifica-table th:first-child,
-#classifica-table td:first-child {
-    width: 150px !important;
-    min-width: 150px !important;
-}
-
 /* Colori specifici per le card */
 .card-classifica:hover {
     border-color: #34d399; /* emerald-400 */
@@ -304,29 +297,40 @@ table.dataTable.dt-fixed-end {
 }
 
 /*
-==============================================
-Correzione finale per la tabella classifica
-==============================================
+==========================================================
+  BLOCCO DEFINITIVO - Stile colonna fissa classifica
+==========================================================
 */
 
-/* 1. Allarga la colonna fissa per i nomi delle squadre */
-#classifica-table th.dt-fixed-left,
-#classifica-table td.dt-fixed-left {
-    width: 160px !important;       /* Imposta una larghezza fissa più comoda */
-    min-width: 160px !important;    /* Forza la larghezza minima */
+/* Aumenta la specificità per sovrascrivere gli stili di DataTables */
+.dataTables_wrapper .dataTables_scroll .dataTables_scrollBody {
+    background-color: transparent !important; /* Rimuove sfondi indesiderati dal contenitore principale */
 }
 
-/* 2. Scurisce lo sfondo della colonna fissa per allinearlo al tema */
-#classifica-table tr td.dt-fixed-left {
-    background-color: #1f2937; /* Colore di base scuro per le righe dispari */
+/* Stile per la cella di intestazione (TH) della colonna fissa */
+.dataTables_wrapper .dt-fixed-columns-left th.dt-fixed-left {
+    width: 170px !important;       /* Aumentiamo la larghezza per sicurezza */
+    min-width: 170px !important;
+    background-color: #1f2937;     /* Sfondo scuro per l'header, come il resto */
 }
 
-/* 3. Mantiene l'effetto a righe alternate anche sulla colonna fissa */
-#classifica-table tr:nth-child(even) td.dt-fixed-left {
-    background-color: #111827; /* Sfondo ancora più scuro per le righe pari */
+/* Stile per le celle del corpo (TD) della colonna fissa */
+.dataTables_wrapper .dt-fixed-columns-left td.dt-fixed-left {
+    width: 170px !important;
+    min-width: 170px !important;
+    font-weight: 600;              /* Rendiamo il nome del team un po' più visibile */
 }
 
-/* 4. Garantisce che il colore cambi correttamente anche al passaggio del mouse */
-#classifica-table tr:hover td.dt-fixed-left {
-    background-color: #374151; /* Colore standard di hover */
+/*
+ * Forziamo lo sfondo scuro su TUTTE le righe della colonna fissa,
+ * ignorando l'effetto alternato che qui crea il problema del colore chiaro.
+ * Questo darà un look più pulito e intenzionale.
+*/
+.dataTables_wrapper .dataTables_scrollBody tbody tr td.dt-fixed-left {
+    background-color: #111827; /* Sfondo scuro base, uguale per tutte le righe */
+}
+
+/* Garantisce che il colore scuro rimanga anche al passaggio del mouse */
+.dataTables_wrapper .dataTables_scrollBody tbody tr:hover td.dt-fixed-left {
+    background-color: #374151; /* Colore di hover standard */
 }
