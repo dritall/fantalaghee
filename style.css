@@ -312,45 +312,5 @@ table.dataTable.dt-fixed-end {
     border: 1px solid var(--border-color);
     border-radius: 0.75rem;
     padding: 1.5rem;
-    width: 100%;
-    height: 100%;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    border-top-width: 4px;
-}
-
-.widget-chart { border-top-color: var(--accent-blue); }
-.widget-leader { border-top-color: var(--accent-orange); }
-.widget-podium { border-top-color: var(--verdetto-color); }
-.widget-record { border-top-color: #f43f5e; } /* rose-500 */
-.widget-cucchiaio { border-top-color: #78716c; } /* stone-500 */
-.widget-premi-classifica { border-top-color: var(--accent-blue); }
-.widget-premi-giornata { border-top-color: var(--accent-orange); }
-.widget-premi-migliore { border-top-color: var(--verdetto-color); }
-
-.verdetto-grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 1.5rem;
-}
-
-.montepremi-title {
-    grid-column: 1 / -1; /* Full width */
-    margin-top: 1rem;
-}
-
-@media (min-width: 1024px) {
-    .verdetto-grid {
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: auto;
-    }
-
-    .widget-chart { grid-column: 1 / 3; grid-row: 1 / 4; }
-    .widget-leader { grid-column: 3 / 4; grid-row: 1 / 2; }
-    .widget-podium { grid-column: 3 / 4; grid-row: 2 / 4; }
-    .widget-record { grid-column: 1 / 2; grid-row: 4 / 5; }
-    .widget-cucchiaio { grid-column: 2 / 4; grid-row: 4 / 5; }
-    .montepremi-title { grid-column: 1 / -1; grid-row: 5 / 6; }
-    .widget-premi-classifica { grid-column: 1 / 2; grid-row: 6 / 7; }
-    .widget-premi-giornata { grid-column: 2 / 3; grid-row: 6 / 7; }
-    .widget-premi-migliore { grid-column: 3 / 4; grid-row: 6 / 7; }
 }
