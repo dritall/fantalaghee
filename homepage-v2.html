@@ -119,9 +119,23 @@
                         </table>`;
                     standingsContainer.innerHTML = tableHTML;
 
+                    // Trova gli indici delle colonne da nascondere (case-insensitive)
+                    const lowerCaseHeaders = headers.map(h => h.toLowerCase());
+                    const misterIndex = lowerCaseHeaders.indexOf('mister');
+                    const nicknameIndex = lowerCaseHeaders.indexOf('nickname');
+
+                    let columnDefs = [];
+                    if (misterIndex !== -1) {
+                        columnDefs.push({ targets: misterIndex, visible: false });
+                    }
+                    if (nicknameIndex !== -1) {
+                        columnDefs.push({ targets: nicknameIndex, visible: false });
+                    }
+
                     new DataTable('#classifica-table', {
                         data: classifica,
                         columns: headers.map(h => ({ data: h, title: h })),
+                        columnDefs: columnDefs,
                         language: { url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/it-IT.json' },
                         paging: false,
                         scrollX: true,
@@ -133,19 +147,19 @@
                         fixedColumns: {
                             left: 1 // Applica il "freeze" alla prima colonna
                         },
-                        // QUESTA È LA FUNZIONE CHE SISTEMA LO STILE
                         initComplete: function() {
                             const fixedColumn = $('.dt-fixed-left');
-
-                            // 1. Forza la larghezza corretta
+                            // Forza la larghezza una sola volta all'inizializzazione
                             fixedColumn.css('width', '170px');
                             fixedColumn.find('th, td').css('width', '170px');
-
-                            // 2. Forza uno sfondo scuro e solido, risolvendo il problema dei colori
-                            fixedColumn.css('background-color', '#111827');
-
-                            // 3. Aggiunge un bordo per separare la colonna dal resto
-                            fixedColumn.css('border-right', '1px solid #4b5563');
+                        },
+                        drawCallback: function() {
+                            // Applica lo stile ad ogni ridisegno per evitare override
+                            $('.dt-fixed-left, .dt-fixed-left th, .dt-fixed-left td').css({
+                                'background-color': '#111827',
+                                'border-right': '1px solid #4b5563'
+                            });
+                            $('.dt-fixed-left').css('border-right', '1px solid #4b5563');
                         }
                     });
 
