@@ -302,3 +302,61 @@ table.dataTable.dt-fixed-end {
     border-color: #60a5fa; /* blue-400 */
     box-shadow: 0 10px 15px -3px rgba(96, 165, 250, 0.1), 0 4px 6px -2px rgba(96, 165, 250, 0.05);
 }
+
+/* ================================================= */
+/* == STILE FINALE E "FOGO" PER LE SCHEDE VERDETTO == */
+/* ================================================= */
+
+.widget {
+    background-color: rgba(20, 20, 30, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    border-image: linear-gradient(to bottom right, rgba(129, 140, 248, 0.7), rgba(30, 41, 59, 0.3)) 1;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    height: 100%; /* Aggiunto per allineare le altezze nelle grid */
+}
+
+.widget:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+}
+
+.widget-record {
+    border-image: linear-gradient(to bottom right, #f59e0b, #92400e) 1;
+}
+
+.widget-cucchiaio {
+    border-image: linear-gradient(to bottom right, #ef4444, #991b1b) 1;
+}
+
+.widget-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #FFFFFF;
+    margin-bottom: 1rem;
+}
+
+.widget-subtitle {
+    font-size: 0.875rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #a5b4fc;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.widget-data {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+.widget-text-secondary {
+    font-size: 1rem;
+    color: #9ca3af;
+}

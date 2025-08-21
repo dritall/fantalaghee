@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Verdetto del Laghèe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="antialiased">
+    <div class="background-container"></div>
+    <div class="background-overlay"></div>
+
+    <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
+        <div class="container mx-auto px-4 flex justify-between items-center h-16">
+            <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
+            <nav class="nav-menu">
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">Classifica</a>
+                    <a href="/info-complete.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">Regolamento</a>
+                    <a href="/gazzetta-del-laghee.html" class="nav-button nav-gazzetta rounded-md px-4 py-2 text-sm font-medium">La Gazzetta</a>
+                    <a href="/il-verdetto.html" class="nav-button nav-verdetto rounded-md px-4 py-2 text-sm font-medium">Il Verdetto</a>
+                </div>
+            </nav>
+            <div class="flex items-center gap-2">
+                <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
+                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
+                <button id="mobile-menu-button" class="md:hidden p-2 cursor-pointer"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7"></path></svg></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8 relative z-10">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-white uppercase" style="font-family: 'Oswald', sans-serif;">IL VERDETTO DEL LAGHÈE</h1>
+            <p id="giornata-info" class="text-indigo-400 text-lg mt-2">Dati in caricamento...</p>
+        </div>
+        <div class="text-center mb-8">
+            <p class="text-gray-400">Per i Nostalgici dell'excel:
+                <a href="https://docs.google.com/spreadsheets/d/1lHQEZoQT3TmgA-mPwExzorjxv6ub-xvFW-9WTm5805Y/edit?usp=sharing" target="_blank" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Guardalo Qui</a>
+            </p>
+        </div>
+        <div id="loader-container" class="flex justify-center items-center py-24"><div class="loader"></div></div>
+
+        <div id="dashboard-content" class="hidden space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 widget">
+                    <h2 class="widget-title">CLASSIFICA GENERALE - TOP 5</h2>
+                    <div class="chart-container" style="height: 400px;"><canvas id="classificaChart"></canvas></div>
+                </div>
+                <div class="space-y-6">
+                    <div class="widget"><h2 class="widget-subtitle">🏆 LEADER ATTUALE</h2><p id="leader-squadra" class="widget-data">-</p></div>
+                    <div class="widget"><h2 class="widget-subtitle">🥇 CAMPIONE DI GIORNATA</h2><p id="campione-squadra" class="widget-data">-</p></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="widget"><h2 class="widget-title">PODIO DI GIORNATA</h2><div id="podio-container" class="space-y-3 mt-4"></div></div>
+                <div class="widget widget-record"><h2 class="widget-subtitle text-amber-400">🔥 RECORD ASSOLUTO</h2><p id="record-info-riga1" class="widget-data">-</p><p id="record-info-riga2" class="widget-text-secondary">-</p></div>
+                <div class="widget widget-cucchiaio"><h2 class="widget-subtitle text-red-400">🥄 CUCCHIAIO DI LEGNO</h2><p id="cucchiaio-info-riga1" class="widget-data">-</p><p id="cucchiaio-info-riga2" class="widget-text-secondary">-</p></div>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-center text-amber-400 mb-6" style="font-family: 'Oswald', sans-serif;">💰 MONTEPREMI 💰</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="widget"><h3 class="widget-title text-center">Classifica Generale</h3><div id="premi-classifica-container" class="space-y-2 mt-4"></div></div>
+                    <div class="widget"><h3 class="widget-title text-center">Premi di Giornata</h3><div id="premi-giornata-container" class="space-y-2 mt-4"></div></div>
+                    <div class="widget"><h3 class="widget-title text-center">Miglior Punteggio</h3><div id="miglior-punteggio-container" class="text-center mt-4"></div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const loader = document.getElementById('loader-container');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const giornataInfo = document.getElementById('giornata-info');
+        try {
+            const response = await fetch('/api/getDashboard');
+            if (!response.ok) { throw new Error(`API Error: ${(await response.json()).details}`); }
+            const data = await response.json();
+            giornataInfo.textContent = `Risultati aggiornati alla Giornata ${data.numeroGiornata}`;
+            document.getElementById('leader-squadra').textContent = data.leaderAttuale;
+            document.getElementById('campione-squadra').textContent = data.campioneDiGiornata;
+            document.getElementById('record-info-riga1').textContent = `${data.recordAssoluto.squadra} - ${data.recordAssoluto.punteggio}`;
+            document.getElementById('record-info-riga2').textContent = data.recordAssoluto.giornata;
+            document.getElementById('cucchiaio-info-riga1').textContent = `${data.cucchiaioDiLegno.squadra} - ${data.cucchiaioDiLegno.punteggio}`;
+            document.getElementById('cucchiaio-info-riga2').textContent = data.cucchiaioDiLegno.giornata;
+            document.getElementById('podio-container').innerHTML = data.podio.map((p, i) => `<div class="flex items-center gap-4"><span class="text-2xl">${['🥇','🥈','🥉'][i]}</span><p><strong class="text-white">${p.squadra}</strong> - ${p.punteggio}</p></div>`).join('');
+            document.getElementById('premi-classifica-container').innerHTML = data.premi.classifica.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
+            document.getElementById('premi-giornata-container').innerHTML = data.premi.giornata.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
+            document.getElementById('miglior-punteggio-container').innerHTML = `<p class="font-semibold text-white">${data.premi.migliorPunteggio.info}</p><p class="font-bold text-2xl text-amber-300">${data.premi.migliorPunteggio.premio} 🍆</p>`;
+
+            new Chart('classificaChart', {
+                type: 'bar',
+                data: {
+                    labels: data.classifica.map(item => item.squadra),
+                    datasets: [{
+                        data: data.classifica.map(item => item.punti),
+                        backgroundColor: (c) => ['rgba(255, 215, 0, 0.7)', 'rgba(192, 192, 192, 0.7)', 'rgba(205, 127, 50, 0.7)'][c.dataIndex] || 'rgba(79, 70, 229, 0.6)',
+                        borderColor: (c) => ['#FFD700', '#C0C0C0', '#CD7F32'][c.dataIndex] || '#4F46E5',
+                        borderWidth: 2, borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, indexAxis: 'x',
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#e5e7eb' } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#e5e7eb' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (c) => `Punteggio: ${c.raw} | Media: ${data.classifica[c.dataIndex].mediaPunti.toFixed(2)}` } }
+                    }
+                }
+            });
+
+            loader.style.display = 'none';
+            dashboardContent.classList.remove('hidden');
+        } catch (error) {
+            console.error("Errore Verdetto:", error);
+            giornataInfo.textContent = `Errore nel caricamento dei dati.`;
+            loader.style.display = 'none';
+        }
+    });
+    </script>
+</body>
+</html>
