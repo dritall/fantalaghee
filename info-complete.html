@@ -47,26 +47,28 @@
                 </div>
             </nav>
             <div class="flex items-center gap-2">
-                <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
+                <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
                 <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
 
-                <!-- Mobile Menu Checkbox Hack -->
-                <input type="checkbox" id="menu-toggle" class="hidden">
-                <label for="menu-toggle" class="md:hidden p-2 cursor-pointer" id="hamburger-label">
+                <!-- Mobile Menu Trigger -->
+                <button id="mobile-menu-button" class="md:hidden p-2 cursor-pointer">
                     <svg class="w-6 h-6" id="hamburger-open-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                     <svg class="w-6 h-6 hidden" id="hamburger-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </label>
+                </button>
             </div>
         </div>
     </header>
-    <div id="mobile-menu-panel" class="mobile-menu-panel">
+
+    <!-- Mobile Menu Panel -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+    <div id="mobile-menu-panel" class="mobile-menu-panel transform -translate-x-full transition-transform duration-300 ease-in-out">
         <nav class="flex flex-col p-4 gap-2">
             <a href="/homepage-v2.html" class="nav-button-mobile">Classifica</a>
             <a href="/info-complete.html" class="nav-button-mobile">Regolamento</a>
             <a href="/gazzetta-del-laghee.html" class="nav-button-mobile">La Gazzetta</a>
             <a href="/il-verdetto.html" class="nav-button-mobile">Il Verdetto</a>
             <hr class="border-gray-700 my-2"/>
-            <a href="/docs/regolamento-fantalaghee-2526.pdf" download class="nav-button-mobile">Scarica PDF</a>
+            <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="nav-button-mobile">Scarica PDF</a>
             <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti Ora</a>
         </nav>
     </div>
@@ -77,6 +79,15 @@
             <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-indigo-400 mb-2" style="font-family: 'Oswald', sans-serif;">INFOPOINT COMPLETO</h2>
             <p class="max-w-3xl mx-auto text-stone-400">Tutto quello che devi sapere, in un unico posto.</p>
         </div>
+
+<div class="text-center my-8">
+    <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300">
+        Scarica il Regolamento in PDF
+    </a>
+</div>
 
         <div class="max-w-4xl mx-auto bg-gray-900/80 border border-indigo-500/50 rounded-lg p-4 md:p-6 shadow-2xl backdrop-blur-sm">
             <div class="space-y-4" id="info-accordion">
@@ -165,6 +176,19 @@
                     </button>
                     <div class="accordion-content">
                         <div class="p-4 md:p-6 border-t border-gray-700 space-y-8">
+                            <div class="rule-item mb-8 border-b border-gray-700/50 pb-8">
+                                <h3 class="text-2xl font-bold text-white mb-2">Finestre di Mercato e Cambi</h3>
+                                <p class="text-stone-300">
+                                    Durante la stagione sono previste due finestre di mercato principali. Inoltre, ogni squadra ha a disposizione:
+                                </p>
+                                <ul class="list-disc list-inside text-stone-300 mt-2 pl-4">
+                                    <li><strong>15 cambi</strong> per il girone di andata.</li>
+                                    <li><strong>15 cambi</strong> per il girone di ritorno.</li>
+                                </ul>
+                                <p class="text-stone-400 mt-2 text-sm">
+                                    I cambi non utilizzati in un girone non sono cumulabili con quelli del girone successivo.
+                                </p>
+                            </div>
                             <div>
                                 <h3 class="text-xl sm:text-2xl font-bold text-center text-white mb-4">Casi Pratici di Mercato</h3>
                                 <p class="text-center text-stone-400 mb-6 text-sm sm:text-base">Per evitare ogni dubbio, ecco come funzionano le situazioni più comuni.</p>
@@ -269,3 +293,5 @@
     </main>
 </div>
 <script src="/js/main.js" defer></script>
+</body>
+</html>

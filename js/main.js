@@ -1,28 +1,5 @@
 // js/main.js
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Mobile Menu Logic ---
-    const menuButton = document.getElementById('mobile-menu-button');
-    const menuPanel = document.getElementById('mobile-menu-panel');
-    const menuOverlay = document.getElementById('mobile-menu-overlay');
-    const openIcon = document.getElementById('hamburger-open-icon');
-    const closeIcon = document.getElementById('hamburger-close-icon');
-
-    const toggleMenu = () => {
-        const isActive = document.body.classList.toggle('mobile-menu-active');
-        menuPanel.classList.toggle('hidden', !isActive);
-        menuPanel.classList.toggle('block', isActive);
-        menuOverlay.classList.toggle('hidden', !isActive);
-        openIcon.classList.toggle('hidden', isActive);
-        closeIcon.classList.toggle('hidden', !isActive);
-    };
-
-    if (menuButton) {
-        menuButton.addEventListener('click', toggleMenu);
-    }
-    if (menuOverlay) {
-        menuOverlay.addEventListener('click', toggleMenu);
-    }
-
     // --- Logica Comune a Tutte le Pagine ---
     const header = document.getElementById('main-header');
     if (!header) return;
@@ -173,5 +150,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+    }
+
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenuPanel = document.getElementById('mobile-menu-panel');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const openIcon = document.getElementById('hamburger-open-icon');
+    const closeIcon = document.getElementById('hamburger-close-icon');
+
+    if (mobileMenuButton && mobileMenuPanel && mobileMenuOverlay) {
+        const toggleMenu = () => {
+            mobileMenuPanel.classList.toggle('translate-x-0');
+            mobileMenuPanel.classList.toggle('-translate-x-full');
+            mobileMenuOverlay.classList.toggle('hidden');
+            openIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        };
+
+        mobileMenuButton.addEventListener('click', toggleMenu);
+        mobileMenuOverlay.addEventListener('click', toggleMenu);
     }
 });

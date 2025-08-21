@@ -71,10 +71,13 @@ const parseSheetData = (data) => {
             if (row && row[0]) premi.classifica.push({ squadra: row[0], premio: row[3] });
         }
     }
-     for (let i = 71; i <= 73; i++) { // Premi di giornata: F e G dalla 72 in giù
-        const row = data[i];
-        if (row && row[5]) premi.giornata.push({ squadra: row[5], premio: row[6] });
+
+    let i = 71; // Starts at row 72 (F72, G72)
+    while (data[i] && data[i][5]) { // Check if row and cell F exist
+        premi.giornata.push({ squadra: data[i][5], premio: data[i][6] });
+        i++;
     }
+
     if (migliorPunteggioRow !== -1 && data[migliorPunteggioRow+1]) {
         premi.migliorPunteggio = { info: get(migliorPunteggioRow+1, 0), premio: get(migliorPunteggioRow+1, 2) };
     }

@@ -118,14 +118,23 @@ export default async function handler(req, res) {
             fetchAndParseCSV(DASHBOARD_URL, { header: false })
         ]);
 
-        // Filter out empty rows from classifica before slicing
-        const validClassificaData = classificaData.filter(row => row.Team && row.Team.trim() !== '');
-        const classificaLimited = validClassificaData.slice(0, 49);
+        // --- INIZIO BLOCCO DI PULIZIA DATI ---
+
+        // 1. Filtra via le righe non valide: quelle senza nome del team,
+        //    quelle vuote o quella specifica con il "7".
+        const datiFiltrati = classificaData.filter(riga =>
+            riga.Team && riga.Team.trim() !== '' && riga.Team.trim() !== '7'
+        );
+
+        // 2. Prendi solo un massimo di 51 squadre valide per sicurezza.
+        const classifica = datiFiltrati.slice(0, 51);
+
+        // --- FINE BLOCCO DI PULIZIA DATI ---
 
         const dashboardParsed = parseDashboardData(rawDashboardData);
 
         res.status(200).json({
-            classifica: classificaLimited,
+            classifica: classifica,
             dashboard: dashboardParsed
         });
 
