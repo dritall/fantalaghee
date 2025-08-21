@@ -5,299 +5,39 @@
     --border-color: #30363d;
     --accent-blue: #4f46e5;
     --accent-orange: #f59e0b;
-    --verdetto-color: #00A36C; /* Verde Verdetto */
-    --gazzetta-color: #FFD700; /* Oro Gazzetta */
 }
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--background-color);
     color: var(--primary-text);
 }
-.background-container {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-    background-image: url('/image/stadium-bg.jpg');
-    background-size: cover; background-position: center;
-}
-.background-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-    background-color: rgba(1, 4, 9, 0.75);
-}
+.background-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background-image: url('/image/stadium-bg.jpg'); background-size: cover; background-position: center; }
+.background-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-color: rgba(1, 4, 9, 0.75); }
 #main-header { background-color: rgba(1, 4, 9, 0.8); }
-.nav-button {
-    transition: all 0.3s ease; color: #9ca3af;
-    background-color: rgba(31, 41, 59, 0.5); border: 1px solid #374151;
-}
-.nav-button.active, .nav-button:not(.active):hover {
-    background-color: #374151; color: #f9fafb;
-}
-.nav-verdetto.active {
-    background-color: var(--verdetto-color); color: #ffffff; border-color: var(--verdetto-color);
-}
-.nav-gazzetta.active {
-    background-color: var(--gazzetta-color); color: #111827; border-color: var(--gazzetta-color);
-}
-.btn-secondary {
-    color: #9ca3af; background-color: transparent; border: 1px solid #4b5563; transition: all 0.3s ease;
-}
+.nav-button { transition: all 0.3s ease; color: #9ca3af; background-color: rgba(31, 41, 59, 0.5); border: 1px solid #374151; }
+.nav-button.active, .nav-button:not(.active):hover, .nav-button-mobile:hover { background-color: #374151; color: #f9fafb; }
+.nav-button-mobile.active-link { background-color: var(--accent-blue); color: white; }
+.btn-secondary { color: #9ca3af; background-color: transparent; border: 1px solid #4b5563; transition: all 0.3s ease; }
 .btn-secondary:hover { background-color: #374151; color: #f9fafb; }
-.content-section { display: none; }
-.btn-iscriviti {
-    background-color: var(--accent-orange); color: #111827; font-weight: 700; transition: all 0.3s ease;
-}
+.btn-iscriviti { background-color: var(--accent-orange); color: #111827; font-weight: 700; transition: all 0.3s ease; }
 .btn-iscriviti:hover { background-color: #fbbf24; transform: scale(1.05); }
 
-/* Stile per la voce di menu attiva */
-.nav-menu ul > li > a.active-link,
-.nav-menu ul > li.active-link > a {
-  color: #00ffff; /* Blu elettrico */
-}
+/* Mobile Menu */
+.mobile-menu-panel { position: fixed; top: 0; left: 0; width: 80%; max-width: 300px; height: 100%; background-color: #111827; transform: translateX(-100%); transition: transform 0.3s ease-in-out; border-right: 1px solid #374151; padding-top: 4rem; z-index: 100; }
+body.mobile-menu-active .mobile-menu-panel { transform: translateX(0); }
+#mobile-menu-overlay { transition: opacity 0.3s ease-in-out; }
+body.mobile-menu-active #mobile-menu-overlay { opacity: 1; pointer-events: auto; }
+.nav-button-mobile { display: block; padding: 12px 16px; color: #d1d5db; font-size: 1rem; font-weight: 500; border-radius: 6px; transition: background-color 0.2s; text-decoration: none; }
+.nav-button-mobile-primary { display: block; padding: 12px 16px; margin: 1rem; font-size: 1rem; font-weight: 600; text-align: center; border-radius: 9999px; background-color: var(--accent-orange); color: #111827; transition: background-color 0.2s; text-decoration: none; }
+.nav-button-mobile-primary:hover { background-color: #fbbf24; }
 
-/* Mobile Menu Active State */
-body.mobile-menu-active #mobile-menu-container {
-    pointer-events: auto;
-}
-
-body.mobile-menu-active #mobile-menu-overlay {
-    opacity: 1;
-}
-
-body.mobile-menu-active #mobile-menu-panel {
-    transform: translateX(0);
-}
-
-/* Style for active link in mobile menu */
-.nav-button-mobile.active-link {
-    background-color: var(--accent-blue);
-    color: white;
-}
-
-/* Accordion Styles */
-.accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.35s ease-in-out;
-}
-
-/* --- CSS Checkbox Hack per Menu Mobile --- */
-#menu-toggle {
-    display: none; /* Nasconde la checkbox */
-}
-
-.mobile-menu-panel {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 80%;
-    max-width: 300px;
-    height: 100%;
-    background-color: #111827; /* gray-900 */
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
-    border-right: 1px solid #374151; /* gray-700 */
-    padding-top: 4rem; /* Aumentato per dare spazio sopra */
-    z-index: 99;
-}
-
-/* Mostra il menu quando la checkbox è spuntata */
-#menu-toggle:checked ~ .mobile-menu-panel {
-    transform: translateX(0);
-}
-
-/* Gestione icone hamburger */
-#hamburger-open-icon { display: block; }
-#hamburger-close-icon { display: none; }
-
-#menu-toggle:checked ~ #hamburger-label #hamburger-open-icon {
-    display: none;
-}
-#menu-toggle:checked ~ #hamburger-label #hamburger-close-icon {
-    display: block;
-}
-
-/* Stili link menu mobile */
-.nav-button-mobile {
-    display: block;
-    padding: 12px 16px;
-    color: #d1d5db; /* gray-300 */
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 6px;
-    transition: background-color 0.2s;
-    text-decoration: none;
-}
-.nav-button-mobile:hover {
-    background-color: #374151; /* gray-700 */
-    color: white;
-}
-.nav-button-mobile.active-link {
-     background-color: var(--accent-blue);
-     color: white;
-}
-.nav-button-mobile-primary {
-    display: block;
-    padding: 12px 16px;
-    margin: 1rem;
-    font-size: 1rem;
-    font-weight: 600;
-    text-align: center;
-    border-radius: 9999px;
-    background-color: var(--accent-orange);
-    color: #111827;
-    transition: background-color 0.2s;
-    text-decoration: none;
-}
-.nav-button-mobile-primary:hover {
-    background-color: #fbbf24;
-}
-
-
-/* DataTables Stili Custom */
-#classifica-table_wrapper {
-    background-color: var(--card-bg);
-    padding: 1rem;
-    border-radius: 0.5rem;
-}
-#classifica-table {
-    color: #d6d3d1; /* stone-300 */
-    border-collapse: collapse;
-    table-layout: fixed;
-    width: 100%;
-}
-#classifica-table th, #classifica-table td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-}
-#classifica-table thead {
-    background-color: #1f2937; /* gray-800 */
-    color: #ffffff;
-}
-#classifica-table tbody tr:hover {
-    background-color: #374151; /* gray-700 */
-}
-.dt-length, .dt-search, .dt-info, .dt-paging {
-    color: #9ca3af; /* gray-400 */
-    padding-bottom: 1rem;
-}
-.dt-input {
-    background-color: #374151;
-    border: 1px solid #4b5563;
-    color: white;
-    border-radius: 0.25rem;
-    margin-left: 0.5rem;
-}
-.dt-paging .dt-paging-button {
-    color: #9ca3af !important;
-    border: 1px solid #4b5563 !important;
-    margin: 0 0.25rem;
-}
-.dt-paging .dt-paging-button.current, .dt-paging .dt-paging-button:hover {
-    background: var(--accent-blue) !important;
-    color: white !important;
-    border-color: var(--accent-blue) !important;
-}
-
-/* Miglioramenti Stile Tabella Classifica */
-#classifica-table thead th {
-    font-weight: bold;
-}
-
-#classifica-table th,
-#classifica-table td {
-    border: 1px solid #374151;
-}
-
-#classifica-table tbody tr:nth-child(odd) {
-    background-color: #1f2937; /* gray-800 per un leggero contrasto */
-}
-
-#classifica-table tbody tr:nth-child(odd):hover {
-    background-color: #374151; /* Mantieni l'hover standard */
-}
-
-/* Stile per la colonna bloccata (Fixed Column) */
-table.dataTable.dt-fixed-start,
-table.dataTable.dt-fixed-end {
-    background-color: var(--card-bg);
-}
-
-.dataTables_wrapper .dt-fixedcolumns-fixed-left {
-    border-right: 1px solid var(--border-color);
-}
-
-/* --- Stili Nuove Card Gazzetta --- */
-.article-card-new {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* Allinea il contenuto in basso */
-    min-height: 320px;
-    border-radius: 0.5rem; /* rounded-lg */
-    overflow: hidden;
-    background-size: cover;
-    background-position: center;
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.article-card-new:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.1), 0 4px 6px -2px rgba(251, 191, 36, 0.05);
-    border-color: #fbbf24; /* amber-400 */
-}
-
-.card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);
-    transition: background 0.3s ease;
-}
-
-.article-card-new:hover .card-overlay {
-    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.2) 100%);
-}
-
-.card-content {
-    position: relative; /* Per stare sopra l'overlay */
-    z-index: 10;
-    padding: 1.5rem; /* p-6 */
-    color: white;
-}
-
-.read-article-btn {
-    display: inline-block;
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem; /* py-2 px-4 */
-    background-color: var(--accent-orange);
-    color: #111827;
-    border-radius: 9999px; /* rounded-full */
-    font-size: 0.875rem; /* text-sm */
-    font-weight: 700;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
-    transform: translateY(10px);
-    opacity: 0;
-}
-
-.article-card-new:hover .read-article-btn {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.article-card-new .card-content h3 {
-    transition: color 0.3s ease;
-}
-
-.article-card-new:hover .card-content h3 {
-    color: var(--gazzetta-color);
-}
-
-/* Allarga la prima colonna della classifica */
-#classifica-table th:first-child,
-#classifica-table td:first-child {
-    width: 150px !important;
-    min-width: 150px !important;
-}
+/* DataTables Styles */
+#classifica-table_wrapper { background-color: var(--card-bg); padding: 1rem; border-radius: 0.5rem; }
+#classifica-table { color: #d6d3d1; border-collapse: collapse; table-layout: fixed; width: 100%; }
+#classifica-table th, #classifica-table td { padding: 0.75rem 1rem; text-align: left; border: 1px solid #374151; }
+#classifica-table thead { background-color: #1f2937; color: #ffffff; }
+#classifica-table tbody tr:hover { background-color: #374151; }
+#classifica-table tbody tr:nth-child(odd) { background-color: #1f2937; }
+#classifica-table .team-column { width: 250px !important; min-width: 250px !important; }
+#classifica-table th.dt-fixed-left, #classifica-table td.dt-fixed-left { background-color: #111827 !important; }
+.dt-input { background-color: #374151; border: 1px solid #4b5563; color: white; border-radius: 0.25rem; margin-left: 0.5rem; }
