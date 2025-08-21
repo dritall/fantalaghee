@@ -1,0 +1,23 @@
+[
+    {
+        "id": "benvenuto-stagione-2526",
+        "date": "19 Agosto 2025",
+        "title": "ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!",
+        "imageUrl": "https://i.ibb.co/9vwyx6Q/placeholder-gazzetta.jpg",
+        "placeholder": false
+    },
+    {
+        "id": "placeholder-2",
+        "date": "Prossimamente",
+        "title": "Un nuovo articolo sta per arrivare...",
+        "imageUrl": "",
+        "placeholder": true
+    },
+    {
+        "id": "placeholder-3",
+        "date": "Prossimamente",
+        "title": "Un nuovo articolo sta per arrivare...",
+        "imageUrl": "",
+        "placeholder": true
+    }
+]

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULULA IL LARIO, RUGGGE IL FANTALAGHÈE! - Gazzetta del Laghèe</title>
-    <meta name="description" content="Il primo editoriale della stagione 2025/2026 del Fanta Laghèe.">
+    <title>Gazzetta del Laghèe</title> <!-- Title will be updated dynamically -->
+    <meta name="description" content=""> <!-- Description will be updated dynamically -->
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/style.css">
@@ -18,6 +18,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&family=Carrois+Gothic&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Marked.js for Markdown to HTML conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body class="antialiased">
     <div class="background-container"></div>
@@ -28,11 +30,7 @@
             <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
             <nav class="nav-menu">
                 <div class="hidden md:flex items-center gap-1">
-
-                    <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
-                        Classifica
-                    </a>
-
+                    <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">Classifica</a>
                     <div class="relative group">
                         <a href="/info-complete.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium inline-flex items-center">
                             <span>Regolamento</span>
@@ -44,22 +42,13 @@
                             <a href="/info-complete.html#bonus-malus" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
                         </div>
                     </div>
-
-                    <a href="/gazzetta-del-laghee.html" class="nav-button nav-gazzetta rounded-md px-4 py-2 text-sm font-medium">
-                        La Gazzetta
-                    </a>
-
-                    <a href="/verdetto.html" class="nav-button nav-verdetto rounded-md px-4 py-2 text-sm font-medium">
-                        Il Verdetto
-                    </a>
-
+                    <a href="/gazzetta-del-laghee.html" class="nav-button nav-gazzetta rounded-md px-4 py-2 text-sm font-medium">La Gazzetta</a>
+                    <a href="/il-verdetto.html" class="nav-button nav-verdetto rounded-md px-4 py-2 text-sm font-medium">Il Verdetto</a>
                 </div>
             </nav>
             <div class="flex items-center gap-2">
                 <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
                 <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
-
-                <!-- Mobile Menu Trigger -->
                 <button id="mobile-menu-button" class="md:hidden p-2 cursor-pointer">
                     <svg class="w-6 h-6" id="hamburger-open-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                     <svg class="w-6 h-6 hidden" id="hamburger-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -75,42 +64,88 @@
             <a href="/homepage-v2.html" class="nav-button-mobile">Classifica</a>
             <a href="/info-complete.html" class="nav-button-mobile">Regolamento</a>
             <a href="/gazzetta-del-laghee.html" class="nav-button-mobile">La Gazzetta</a>
-            <a href="/verdetto.html" class="nav-button-mobile">Il Verdetto</a>
+            <a href="/il-verdetto.html" class="nav-button-mobile">Il Verdetto</a>
             <hr class="border-gray-700 my-2"/>
             <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="nav-button-mobile">Scarica PDF</a>
             <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti Ora</a>
         </nav>
     </div>
 
-<main class="article-container relative z-10">
-    <article>
-        <header class="article-header">
-            <p class="article-date">Martedì 19 Agosto 2025</p>
-            <h2 class="article-title">ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!</h2>
-        </header>
-
-        <div class="article-body">
-            <p class="opening-paragraph">Sciuri e bagai, l'attesa è finita: si torna a bestemmiare in 11 (più la panchina).</p>
-
-            <p><strong>Cari Mister del Fantalaghèe,</strong></p>
-            <p>la nebbia si alza dalle acque del nostro lago e finalmente si alza anche il sipario sulla nuova stagione. Sono finiti i mesi passati a studiare quel maledetto listone, a incrociare statistiche e a sognare l'attaccante da 20 gol preso a 15 crediti. Adesso, le chiacchiere stanno a zero. Adesso parla il campo.</p>
-            <p>Da questa settimana si fa sul serio. Iniziamo con il campionato, ma tenete d'occhio il calendario: alla terza giornata si formeranno i gironi delle Coppe, che ci terranno compagnia quasi fino alla fine. Ricordatevelo bene: il blocco dei giocatori durante l'anno sarà inesorabile e le rose saranno quelle. Ma non disperate: il "colpo proibito" esiste per questo, per cambiare le sorti di una stagione con una sola, maledetta mossa.</p>
-
-            <h3>La Battaglia Ha Inizio</h3>
-            <p>C'è già chi si sente Campione d'Inverno e chi piange miseria, ma tutti lottiamo per la stessa cosa: la gloria, l'onore e il sacro diritto di sfottere il vicino per un anno intero. Che vi troviate a esultare per un gol del Pisa come fosse la finale di Champions o a imprecare per un'ammonizione al 94esimo, il Fantalaghèe è tornato.</p>
-            <p>In bocca al lupo a tutti.</p>
+    <main id="article-main-content" class="article-container relative z-10">
+        <!-- Loading state -->
+        <div id="loader" class="text-center py-16">
+            <h2 class="text-2xl font-bold">Caricamento articolo...</h2>
         </div>
+        <!-- Article content will be injected here -->
+    </main>
 
-        <footer class="article-footer">
-            <p>Dalle umide rive della redazione, La Gazzetta del Laghèe</p>
-        </footer>
-    </article>
-</main>
+    <div class="back-link-container">
+        <a href="/gazzetta-del-laghee.html" class="back-link">&larr; Torna all'elenco articoli</a>
+    </div>
 
-<div class="back-link-container">
-    <a href="/gazzetta-del-laghee.html" class="back-link">&larr; Torna all'elenco articoli</a>
-</div>
+    <script src="/js/main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const mainContainer = document.getElementById('article-main-content');
+            const loader = document.getElementById('loader');
 
-<script src="/js/main.js" defer></script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
+
+            if (!articleId) {
+                mainContainer.innerHTML = '<div class="text-center py-16"><h2>ID articolo non trovato.</h2></div>';
+                return;
+            }
+
+            try {
+                // Fetch both article metadata and markdown content at the same time
+                const [articlesRes, markdownRes] = await Promise.all([
+                    fetch('/data/articles.json'),
+                    fetch(`/articoli/md/${articleId}.md`)
+                ]);
+
+                if (!articlesRes.ok || !markdownRes.ok) {
+                    throw new Error('Impossibile caricare i dati dell\'articolo.');
+                }
+
+                const articles = await articlesRes.json();
+                const markdownText = await markdownRes.text();
+
+                const articleData = articles.find(a => a.id === articleId);
+
+                if (!articleData) {
+                    throw new Error('Articolo non trovato nel file di dati.');
+                }
+
+                // Convert Markdown to HTML
+                const articleHtml = marked.parse(markdownText);
+
+                // Create the full article structure
+                const fullArticle = `
+                    <article>
+                        <header class="article-header">
+                            <p class="article-date">${articleData.date}</p>
+                            <h1 class="article-title">${articleData.title}</h1>
+                        </header>
+                        <div class="article-body">
+                            ${articleHtml}
+                        </div>
+                    </article>
+                `;
+
+                // Update page title and description
+                document.title = `${articleData.title} - Gazzetta del Laghèe`;
+                document.querySelector('meta[name="description"]').setAttribute('content', `Leggi l'articolo "${articleData.title}" della Gazzetta del Laghèe.`);
+
+                // Hide loader and inject content
+                loader.style.display = 'none';
+                mainContainer.innerHTML = fullArticle;
+
+            } catch (error) {
+                console.error('Errore caricamento articolo:', error);
+                mainContainer.innerHTML = `<div class="text-center py-16"><h2>Errore nel caricamento dell'articolo.</h2><p>${error.message}</p></div>`;
+            }
+        });
+    </script>
 </body>
 </html>
