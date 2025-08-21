@@ -302,3 +302,31 @@ table.dataTable.dt-fixed-end {
     border-color: #60a5fa; /* blue-400 */
     box-shadow: 0 10px 15px -3px rgba(96, 165, 250, 0.1), 0 4px 6px -2px rgba(96, 165, 250, 0.05);
 }
+
+/*
+==============================================
+Correzione finale per la tabella classifica
+==============================================
+*/
+
+/* 1. Allarga la colonna fissa per i nomi delle squadre */
+#classifica-table th.dt-fixed-left,
+#classifica-table td.dt-fixed-left {
+    width: 160px !important;       /* Imposta una larghezza fissa più comoda */
+    min-width: 160px !important;    /* Forza la larghezza minima */
+}
+
+/* 2. Scurisce lo sfondo della colonna fissa per allinearlo al tema */
+#classifica-table tr td.dt-fixed-left {
+    background-color: #1f2937; /* Colore di base scuro per le righe dispari */
+}
+
+/* 3. Mantiene l'effetto a righe alternate anche sulla colonna fissa */
+#classifica-table tr:nth-child(even) td.dt-fixed-left {
+    background-color: #111827; /* Sfondo ancora più scuro per le righe pari */
+}
+
+/* 4. Garantisce che il colore cambi correttamente anche al passaggio del mouse */
+#classifica-table tr:hover td.dt-fixed-left {
+    background-color: #374151; /* Colore standard di hover */
+}

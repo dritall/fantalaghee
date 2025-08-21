@@ -153,10 +153,6 @@
                         columnDefs: columnDefs
                     });
 
-                    // Force background color on fixed column on every draw
-                    table.on('draw', function () {
-                        $('#classifica-table th.dt-fixed-left, #classifica-table td.dt-fixed-left').css('background-color', '#111827');
-                    });
                 } else {
                     standingsContainer.innerHTML = '<p class="text-center text-amber-400">Nessun dato disponibile per la classifica.</p>';
                 }
