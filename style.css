@@ -302,3 +302,32 @@ table.dataTable.dt-fixed-end {
     border-color: #60a5fa; /* blue-400 */
     box-shadow: 0 10px 15px -3px rgba(96, 165, 250, 0.1), 0 4px 6px -2px rgba(96, 165, 250, 0.05);
 }
+
+/* ============================================= */
+/* == STILE FINALE PER SCHEDE PAGINA VERDETTO == */
+/* ============================================= */
+
+.widget {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border-top-width: 4px;
+}
+
+.widget-chart, .widget-premi-classifica {
+    border-top-color: var(--accent-blue);
+}
+.widget-leader, .widget-premi-giornata {
+    border-top-color: var(--accent-orange);
+}
+.widget-podium, .widget-premi-migliore {
+    border-top-color: var(--verdetto-color);
+}
+.widget-record {
+    border-top-color: #f43f5e; /* rose-500 */
+}
+.widget-cucchiaio {
+    border-top-color: #78716c; /* stone-500 */
+}
