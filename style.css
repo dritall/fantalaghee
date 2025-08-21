@@ -281,3 +281,24 @@ table.dataTable.dt-fixed-end {
     width: 150px !important;
     min-width: 150px !important;
 }
+
+/* Colori specifici per le card */
+.card-classifica:hover {
+    border-color: #34d399; /* emerald-400 */
+    box-shadow: 0 10px 15px -3px rgba(52, 211, 153, 0.1), 0 4px 6px -2px rgba(52, 211, 153, 0.05);
+}
+
+.card-regolamento:hover {
+    border-color: #fbbf24; /* amber-400 */
+    box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.1), 0 4px 6px -2px rgba(251, 191, 36, 0.05);
+}
+
+.card-gazzetta:hover {
+    border-color: #ef4444; /* red-500 */
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.1), 0 4px 6px -2px rgba(239, 68, 68, 0.05);
+}
+
+.card-verdetto:hover {
+    border-color: #60a5fa; /* blue-400 */
+    box-shadow: 0 10px 15px -3px rgba(96, 165, 250, 0.1), 0 4px 6px -2px rgba(96, 165, 250, 0.05);
+}
