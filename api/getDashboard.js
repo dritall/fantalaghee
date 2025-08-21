@@ -41,13 +41,11 @@ const parseSheetData = (data) => {
 
     // Dynamic finders for data that might move
     const findRowIndex = (label, col = 0) => data.findIndex(row => row && row[col] && row[col].trim().toLowerCase() === label.toLowerCase());
-    const findRowStartsWith = (label, col = 0) => data.findIndex(row => row && row[col] && row[col].trim().toLowerCase().startsWith(label.toLowerCase()));
 
     // --- Static & Dynamic Data Extraction ---
 
-    const giornataInfoRow = findRowStartsWith("campione della giornata");
-    const giornataText = giornataInfoRow !== -1 ? data[giornataInfoRow][0] : "N/D";
-    const numeroGiornata = parseInt(giornataText.match(/\d+/)?.[0] || 0);
+    const numeroGiornataText = get(59, 0); // A60
+    const numeroGiornata = parseInt(numeroGiornataText.match(/\d+/)?.[0] || 0);
 
     const classifica = [];
     let classificaStartIndex = findRowIndex("Squadre On Fire 🔥", 8);
@@ -91,10 +89,10 @@ const parseSheetData = (data) => {
             { squadra: get(65, 0), punteggio: get(65, 1) },
             { squadra: get(66, 0), punteggio: get(66, 1) }
         ],
-        recordAssoluto: { // F57, F56
-            punteggio: get(56, 5),
-            squadra: get(55, 5),
-            giornata: '' // Not provided
+        recordAssoluto: { // E56, E57, E58
+            punteggio: get(55, 4),
+            squadra: get(56, 4),
+            giornata: get(57, 4)
         },
         cucchiaioDiLegno: { // F62, F61
             punteggio: get(61, 5),
