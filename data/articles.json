@@ -2,10 +2,9 @@
     {
     "id": 1,
     "date": "2025-08-26",
-    "title": "Gazzetta del Laghèe - Edizione 1",
-    "giornata": 1,
-    "filename": "gazzetta-laghee-giornata-1.md"
+    "title": "Gazzetta del Laghèe - 1a Giornata",
     "imageUrl": "/image/gazzetta/giornata1.jpg",
+    "placeholder": false
   },
     {
         "id": "benvenuto-stagione-2526",
