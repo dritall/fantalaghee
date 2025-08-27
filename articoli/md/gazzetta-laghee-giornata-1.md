@@ -1,9 +1,3 @@
----
-title: "Gazzetta del Laghèe - Edizione 1"
-author: "Articolo Automatico"
-date: 2025-08-26
----
-
 ### La stagione inizia col botto: Cuccioloni volano oltre quota 100, mentre Zugna United assaggia il primo legno.
 
 #### La Lente d’Ingrandimento
