@@ -1,17 +1,17 @@
 [
     {
+    "id": 1,
+    "date": "2025-08-26",
+    "title": "Gazzetta del Laghèe - Edizione 1",
+    "giornata": 1,
+    "filename": "gazzetta-laghee-giornata-1.md"
+  },
+    {
         "id": "benvenuto-stagione-2526",
         "date": "19 Agosto 2025",
         "title": "ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!",
         "imageUrl": "/image/gazzetta/cover-benvenuto-2526.jpg",
         "placeholder": false
-    },
-    {
-        "id": "placeholder-2",
-        "date": "Prossimamente",
-        "title": "Un nuovo articolo sta per arrivare...",
-        "imageUrl": "",
-        "placeholder": true
     },
     {
         "id": "placeholder-3",
