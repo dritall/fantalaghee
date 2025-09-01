@@ -364,3 +364,38 @@ table.dataTable.dt-fixed-end {
 .team-block.bronze { background-color: #cd7f32; }
 .team-block.qualified { background-color: #6ee7b7; } /* Un verde menta per i qualificati standard */
 .team-block.best-fifth { background-color: #a78bfa; } /* Un viola per la migliore quinta */
+
+.matchup {
+    background-color: #2d3748;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.matchup span {
+    color: var(--accent-orange);
+    font-weight: bold;
+}
+
+.matchup::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -1.5rem; /* Esce dal box del matchup */
+    width: 1rem;
+    height: 2px;
+    background-color: var(--border-color);
+}
+
+.flex-shrink-0:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: calc(100% + 1.5rem);
+    height: 50%;
+    width: 2px;
+    background: var(--border-color);
+}
