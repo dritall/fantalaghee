@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coppe - Fanta Laghèè</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&family=Carrois+Gothic&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="antialiased">
+    <div class="background-container"></div>
+    <div class="background-overlay"></div>
+    <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
+        <div class="container mx-auto px-4 flex justify-between items-center h-16">
+            <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
+            <nav class="nav-menu">
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
+                        Classifica
+                    </a>
+                    <a href="/coppe.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
+                        Coppe
+                    </a>
+                    <div class="relative group">
+                        <a href="/info-complete.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium inline-flex items-center">
+                            <span>Regolamento</span>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </a>
+                        <div class="absolute z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
+                            <a href="/info-complete.html#novita" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
+                            <a href="/info-complete.html#mercato" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
+                            <a href="/info-complete.html#bonus-malus" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
+                        </div>
+                    </div>
+                    <a href="/gazzetta-del-laghee.html" class="nav-button nav-gazzetta rounded-md px-4 py-2 text-sm font-medium">
+                        La Gazzetta
+                    </a>
+                    <a href="/il-verdetto.html" class="nav-button nav-verdetto rounded-md px-4 py-2 text-sm font-medium">
+                        Il Verdetto
+                    </a>
+                </div>
+            </nav>
+            <div class="flex items-center gap-2">
+                <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
+                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
+                <button id="mobile-menu-button" class="md:hidden p-2 cursor-pointer">
+                    <svg class="w-6 h-6" id="hamburger-open-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    <svg class="w-6 h-6 hidden" id="hamburger-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+    <div id="mobile-menu-panel" class="mobile-menu-panel transform -translate-x-full transition-transform duration-300 ease-in-out">
+        <nav class="flex flex-col p-4 gap-2">
+            <a href="/homepage-v2.html" class="nav-button-mobile">Classifica</a>
+            <a href="/coppe.html" class="nav-button-mobile">Coppe</a>
+            <a href="/info-complete.html" class="nav-button-mobile">Regolamento</a>
+            <a href="/gazzetta-del-laghee.html" class="nav-button-mobile">La Gazzetta</a>
+            <a href="/il-verdetto.html" class="nav-button-mobile">Il Verdetto</a>
+            <hr class="border-gray-700 my-2"/>
+            <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="nav-button-mobile">Scarica PDF</a>
+            <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti Ora</a>
+        </nav>
+    </div>
+    <main class="container mx-auto p-4 md:p-8 relative z-10">
+        <div class="text-center mb-8 sm:mb-12">
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-indigo-400 mb-2" style="font-family: 'Oswald', sans-serif;">COPPE</h2>
+            <p class="max-w-3xl mx-auto text-stone-400">Il percorso per la gloria europea.</p>
+        </div>
+        <div class="max-w-6xl mx-auto bg-gray-900/80 border border-indigo-500/50 rounded-lg p-4 md:p-6 shadow-2xl backdrop-blur-sm">
+            <div class="space-y-12">
+                <!-- Spiegazione Fasi -->
+                <div>
+                    <h3 class="text-2xl font-bold text-amber-400 mb-4 text-center" style="font-family: 'Oswald', sans-serif;">STRUTTURA DELLE COPPE</h3>
+                    <div class="grid md:grid-cols-3 gap-6 text-center">
+                        <div class="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                            <h4 class="text-xl font-semibold text-indigo-400">FASE 1: Gironi</h4>
+                            <p class="text-stone-300 mt-2"><strong>Giornate:</strong> 10-18</p>
+                            <p class="text-stone-300">5 gironi da 10 squadre. Le squadre si affrontano in un girone all'italiana.</p>
+                        </div>
+                        <div class="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                            <h4 class="text-xl font-semibold text-indigo-400">FASE 2: Suddivisione</h4>
+                            <p class="text-stone-300 mt-2">Al termine dei gironi:</p>
+                            <p class="text-stone-300"><strong>Super Lega:</strong> Le prime 4 di ogni girone + le 4 migliori quinte (24 squadre).</p>
+                            <p class="text-stone-300"><strong>Coppa UEFA:</strong> Le restanti 26 squadre.</p>
+                        </div>
+                        <div class="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                            <h4 class="text-xl font-semibold text-indigo-400">FASE 3: Eliminazione</h4>
+                            <p class="text-stone-300 mt-2"><strong>Giornate:</strong> 20-34</p>
+                            <p class="text-stone-300">Tabelloni a eliminazione diretta con partite di Andata e Ritorno.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabellone Super Lega -->
+                <div>
+                    <h3 class="text-3xl font-bold text-center text-white mb-6" style="font-family: 'Oswald', sans-serif;">SUPER LEGA (24 SQUADRE)</h3>
+                    <div class="w-full overflow-x-auto pb-4">
+                        <div class="flex space-x-6">
+                            <!-- Preliminari -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">PRELIMINARI</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Gufi vs I Leoni da Tastiera</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Modificatori vs Gli Svincolati</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Top Player vs I Bidoni</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Fantallenatori vs Le Scommesse</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Bomber vs I Difensori</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Centrocampisti vs Gli Attaccanti</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Mister vs Le Riserve</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Titolari vs I Panchinari</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                            <!-- Ottavi -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">OTTAVI DI FINALE</h3>
+                                <div class="space-y-3">
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Real Cules vs Vincente (Gufi/Leoni)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Deportivo La Carogna vs Vincente (Modificatori/Svincolati)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Partizan Degrado vs Vincente (Top/Bidoni)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Aston Birra vs Vincente (Fantallenatori/Scommesse)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Scarsenal vs Vincente (Bomber/Difensori)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Dinamo Kiev vs Vincente (Centrocampisti/Attaccanti)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">CSKA La Rissa vs Vincente (Mister/Riserve)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Bayer Leverkule vs Vincente (Titolari/Panchinari)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                            <!-- Quarti -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">QUARTI DI FINALE</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Ottavo 1 vs Vincente Ottavo 2</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Ottavo 3 vs Vincente Ottavo 4</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Ottavo 5 vs Vincente Ottavo 6</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Ottavo 7 vs Vincente Ottavo 8</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                             <!-- Semifinali -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">SEMIFINALI</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Quarto 1 vs Vincente Quarto 2</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Quarto 3 vs Vincente Quarto 4</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                            <!-- Finale -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">FINALE</h3>
+                                <div class="space-y-3">
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Semifinale 1 vs Vincente Semifinale 2</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabellone Coppa UEFA -->
+                 <div>
+                    <h3 class="text-3xl font-bold text-center text-white mb-6" style="font-family: 'Oswald', sans-serif;">COPPA UEFA (26 SQUADRE)</h3>
+                    <div class="w-full overflow-x-auto pb-4">
+                        <div class="flex space-x-6">
+                            <!-- Preliminari -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">PRELIMINARI</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Rigoristi vs I Senza Voto</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Gli Assistman vs I Cartellini Gialli</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Capitani vs Gli Autogol</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Portieri Imbattuti vs I Gol Subiti</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Fantasisti vs I Mediani</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Terzini vs I Centrali</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Le Ali vs Le Punte</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Registi vs I Trequartisti</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Primavera vs I Veterani</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Gli Esordienti vs I Campioni</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                            <!-- Ottavi -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">OTTAVI DI FINALE</h3>
+                                <div class="space-y-3">
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Rossoneri vs Vincente (Rigoristi/Senza Voto)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Nerazzurri vs Vincente (Assistman/Cartellini)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Bianconeri vs Vincente (Capitani/Autogol)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Giallorossi vs Vincente (Portieri/Gol Subiti)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Biancocelesti vs Vincente (Fantasisti/Mediani)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">I Viola vs Vincente (Terzini/Centrali)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Team Bye 1 vs Vincente (Ali/Punte)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Team Bye 2 vs Vincente (Registi/Trequartisti)</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                            <!-- Quarti -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">QUARTI DI FINALE</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Ottavo 1 vs Vincente Ottavo 2</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Ottavo 3 vs Vincente Ottavo 4</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Ottavo 5 vs Vincente Ottavo 6</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Ottavo 7 vs Vincente Ottavo 8</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                             <!-- Semifinali -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">SEMIFINALI</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Quarto 1 vs Vincente Quarto 2</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                    <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Quarto 3 vs Vincente Quarto 4</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                            <!-- Finale -->
+                            <div class="flex-shrink-0 w-72 bg-gray-900/80 p-4 rounded-lg border border-gray-700">
+                                <h3 class="font-bold text-center text-amber-400 text-lg mb-4" style="font-family: 'Oswald', sans-serif;">FINALE</h3>
+                                <div class="space-y-3">
+                                     <div class="bg-gray-800 p-3 rounded-md text-sm"><p class="text-stone-400">Vincente Semifinale 1 vs Vincente Semifinale 2</p><p class="font-semibold text-white text-center mt-1"> Risultato: ? - ?</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="/js/main.js" defer></script>
+</body>
+</html>
