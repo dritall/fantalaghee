@@ -1,5 +1,12 @@
 [
     {
+        "id": "gazzetta-laghee-giornata-due",
+        "date": "2025-09-01",
+        "title": "The Porks, che squillo!",
+        "imageUrl": "/image/gazzetta/giornata2.jpg",
+        "placeholder": false
+    },
+    {
     "id": "gazzetta-laghee-giornata-uno",
     "date": "2025-08-26",
     "title": "Cuccioloni, Partenza Record!",
@@ -12,12 +19,5 @@
         "title": "ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!",
         "imageUrl": "/image/gazzetta/cover-benvenuto-2526.jpg",
         "placeholder": false
-    },
-    {
-        "id": "placeholder-3",
-        "date": "Prossimamente",
-        "title": "Un nuovo articolo sta per arrivare...",
-        "imageUrl": "",
-        "placeholder": true
     }
 ]
