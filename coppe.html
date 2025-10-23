@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coppe Fantalaghee 2024/25</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #333;
+        }
+        .tab-button {
+            background-color: #2a2a2a;
+            color: #f0f0f0;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .tab-button.active {
+            background-color: #007bff;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #333;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 5px;
+            border-radius: 3px;
+            display: none;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="tooltip" id="tooltip"></div>
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab(event, 'fase1')">FASE 1: QUALIFICAZIONE</button>
+        <button class="tab-button" onclick="openTab(event, 'fase2')">FASE 2: GIRONI</button>
+        <button class="tab-button" onclick="openTab(event, 'fase3')">FASE 3: CLASSIFICHE GIRONI</button>
+        <button class="tab-button" onclick="openTab(event, 'fase4')">FASE 4: CALENDARIO</button>
+        <button class="tab-button" onclick="openTab(event, 'fase5')">FASE 5: TABELLONI</button>
+    </div>
+
+    <div id="fase1" class="tab-content active">
+        <h2>FASE 1: QUALIFICAZIONE (G1-G9)</h2>
+        <div id="classifica-g1-g9"></div>
+    </div>
+
+    <div id="fase2" class="tab-content">
+        <h2>FASE 2: GIRONI (BISCIONE)</h2>
+        <div id="gironi-biscione"></div>
+    </div>
+
+    <div id="fase3" class="tab-content">
+        <h2>FASE 3: CLASSIFICHE GIRONI (G10-G18)</h2>
+        <div id="classifiche-gironi"></div>
+    </div>
+
+    <div id="fase4" class="tab-content">
+        <h2>FASE 4: CALENDARIO FASE FINALE</h2>
+        <div id="calendario-fase-finale"></div>
+    </div>
+
+    <div id="fase5" class="tab-content">
+        <h2>FASE 5: TABELLONI FINALI (SL & CU)</h2>
+        <div id="tabelloni-finali"></div>
+    </div>
+
+    <script>
+        function openTab(event, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            event.currentTarget.className += " active";
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Fetching data...');
+            try {
+                const classificaResponse = await fetch('/api/getClassifica_2425');
+                const classificaData = await classificaResponse.json();
+                console.log('Classifica data:', classificaData);
+                const squadreResponse = await fetch('/api/getSquadre');
+                const squadreData = await squadreResponse.json();
+                console.log('Squadre data:', squadreData);
+                const teamMap = new Map(squadreData.map(t => [t.Team_FullName, t.NickName]));
+
+            function getTLA(teamName) {
+                return teamMap.get(teamName) || teamName.substring(0, 3).toUpperCase();
+            }
+
+            // FASE 1: QUALIFICAZIONE
+            const classificaContainer = document.getElementById('classifica-g1-g9');
+            let classificaTable = '<table><tr><th>Rank</th><th>Team</th><th>Points</th></tr>';
+            classificaData.standings.slice(0, 50).forEach(team => {
+                const tla = getTLA(team.strTeam);
+                classificaTable += `<tr><td>${team.intRank}</td><td class="team-name" data-full-name="${team.strTeam}">${tla}</td><td>${team.intPoints}</td></tr>`;
+            });
+            classificaTable += '</table>';
+            classificaContainer.innerHTML = classificaTable;
+
+            // FASE 2: GIRONI (BISCIONE)
+            const gironiContainer = document.getElementById('gironi-biscione');
+            const gironi = Array.from({ length: 5 }, () => []);
+            const fasce = Array.from({ length: 10 }, (_, i) => classificaData.standings.slice(i * 5, (i + 1) * 5));
+            fasce.forEach((fascia, index) => {
+                if (index % 2 === 0) {
+                    for (let i = 0; i < 5; i++) gironi[i].push(fascia[i]);
+                } else {
+                    for (let i = 0; i < 5; i++) gironi[i].push(fascia[4 - i]);
+                }
+            });
+            let gironiTable = '<table><tr><th>Girone A</th><th>Girone B</th><th>Girone C</th><th>Girone D</th><th>Girone E</th></tr>';
+            for (let i = 0; i < 10; i++) {
+                gironiTable += `<tr>`;
+                for (let j = 0; j < 5; j++) {
+                    const team = gironi[j][i];
+                    const tla = getTLA(team.strTeam);
+                    gironiTable += `<td class="team-name" data-full-name="${team.strTeam}">${tla}</td>`;
+                }
+                gironiTable += `</tr>`;
+            }
+            gironiTable += '</table>';
+            gironiContainer.innerHTML = gironiTable;
+
+            // FASE 3: CLASSIFICHE GIRONI (SIMULAZIONE)
+            const classificheGironiContainer = document.getElementById('classifiche-gironi');
+            let classificheHTML = '';
+            gironi.forEach((girone, index) => {
+                classificheHTML += `<h3>Girone ${String.fromCharCode(65 + index)}</h3>`;
+                classificheHTML += '<table><tr><th>Pos</th><th>Team</th><th>Points</th><th>Status</th></tr>';
+                girone.forEach((team, i) => {
+                    const tla = getTLA(team.strTeam);
+                    let status = '';
+                    if (i < 4) status = '<span style="color: cyan;">Super Lega</span>';
+                    else if (i === 4) status = '<span style="color: orange;">Spareggio</span>';
+                    else status = '<span style="color: lime;">Coppa UEFA</span>';
+                    classificheHTML += `<tr><td>${i + 1}</td><td class="team-name" data-full-name="${team.strTeam}">${tla}</td><td>${Math.floor(Math.random() * 20)}</td><td>${status}</td></tr>`;
+                });
+                classificheHTML += '</table>';
+            });
+            classificheGironiContainer.innerHTML = classificheHTML;
+
+            // Add tooltip functionality
+            const tooltip = document.getElementById('tooltip');
+            document.querySelectorAll('.team-name').forEach(elem => {
+                elem.addEventListener('mousemove', e => {
+                    tooltip.style.display = 'block';
+                    tooltip.textContent = elem.dataset.fullName;
+                    tooltip.style.left = `${e.pageX + 10}px`;
+                    tooltip.style.top = `${e.pageY + 10}px`;
+                });
+                elem.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+            });
+
+            // FASE 4: CALENDARIO FASE FINALE
+            const calendarioContainer = document.getElementById('calendario-fase-finale');
+            calendarioContainer.innerHTML = `
+                <table>
+                    <tr><th>Turno (A/R)</th><th>Giornate di Campionato</th></tr>
+                    <tr><td>Turno 1</td><td>Giornate 19-20</td></tr>
+                    <tr><td>Pausa</td><td>Giornata 21</td></tr>
+                    <tr><td>Turno 2</td><td>Giornate 22-23</td></tr>
+                    <tr><td>Pausa</td><td>Giornata 24</td></tr>
+                    <tr><td>Turno 3</td><td>Giornate 25-26</td></tr>
+                    <tr><td>Pausa</td><td>Giornata 27</td></tr>
+                    <tr><td>Turno 4</td><td>Giornate 28-29</td></tr>
+                    <tr><td>Pausa</td><td>Giornata 30</td></tr>
+                    <tr><td>Turno 5</td><td>Giornate 31-32</td></tr>
+                </table>`;
+
+            // FASE 5: TABELLONI FINALI
+            const tabelloniContainer = document.getElementById('tabelloni-finali');
+            const superLegaTeams = [];
+            const coppaUefaTeams = [];
+
+            gironi.forEach(girone => {
+                superLegaTeams.push(...girone.slice(0, 4));
+                coppaUefaTeams.push(...girone.slice(5, 10));
+            });
+            const spareggioTeams = gironi.map(g => g[4]);
+            spareggioTeams.sort((a, b) => b.intPoints - a.intPoints);
+            superLegaTeams.push(...spareggioTeams.slice(0, 4));
+            coppaUefaTeams.push(spareggioTeams[4]);
+
+            function createBracket(teams, byes, title) {
+                let html = `<h2>${title}</h2>`;
+                const numMatches = (teams.length - byes) / 2;
+                html += '<h3>BYEs</h3><ul>';
+                for (let i = 0; i < byes; i++) {
+                    html += `<li>${getTLA(teams[i].strTeam)}</li>`;
+                }
+                html += '</ul>';
+                html += '<h3>Matches</h3><table>';
+                for (let i = 0; i < numMatches; i++) {
+                    const team1 = teams[byes + i];
+                    const team2 = teams[teams.length - 1 - i];
+                    html += `<tr><td>${getTLA(team1.strTeam)}</td><td>vs</td><td>${getTLA(team2.strTeam)}</td></tr>`;
+                }
+                html += '</table>';
+                return html;
+            }
+
+            const superLegaBracket = createBracket(superLegaTeams, 8, 'Super Lega');
+            const coppaUefaBracket = createBracket(coppaUefaTeams, 6, 'Coppa UEFA');
+
+            tabelloniContainer.innerHTML = superLegaBracket + coppaUefaBracket;
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
+        });
+    </script>
+</body>
+</html>
