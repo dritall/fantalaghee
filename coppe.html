@@ -160,6 +160,12 @@
             const classificheGironiContainer = document.getElementById('classifiche-gironi');
             let classificheHTML = '';
             gironi.forEach((girone, index) => {
+                // Assign simulated points and sort each group to create a realistic leaderboard
+                girone.forEach(team => {
+                    team.simulatedPoints = Math.floor(Math.random() * 30); // Random points for simulation
+                });
+                girone.sort((a, b) => b.simulatedPoints - a.simulatedPoints);
+
                 classificheHTML += `<h3>Girone ${String.fromCharCode(65 + index)}</h3>`;
                 classificheHTML += '<table><tr><th>Pos</th><th>Team</th><th>Points</th><th>Status</th></tr>';
                 girone.forEach((team, i) => {
@@ -168,7 +174,7 @@
                     if (i < 4) status = '<span style="color: cyan;">Super Lega</span>';
                     else if (i === 4) status = '<span style="color: orange;">Spareggio</span>';
                     else status = '<span style="color: lime;">Coppa UEFA</span>';
-                    classificheHTML += `<tr><td>${i + 1}</td><td class="team-name" data-full-name="${team.strTeam}">${tla}</td><td>${Math.floor(Math.random() * 20)}</td><td>${status}</td></tr>`;
+                    classificheHTML += `<tr><td>${i + 1}</td><td class="team-name" data-full-name="${team.strTeam}">${tla}</td><td>${team.simulatedPoints}</td><td>${status}</td></tr>`;
                 });
                 classificheHTML += '</table>';
             });
@@ -210,34 +216,41 @@
             const coppaUefaTeams = [];
 
             gironi.forEach(girone => {
-                superLegaTeams.push(...girone.slice(0, 4));
-                coppaUefaTeams.push(...girone.slice(5, 10));
+                superLegaTeams.push(...girone.slice(0, 4)); // Top 4 from each group
+                coppaUefaTeams.push(...girone.slice(5, 10)); // 6th to 10th from each group
             });
-            const spareggioTeams = gironi.map(g => g[4]);
-            spareggioTeams.sort((a, b) => b.intPoints - a.intPoints);
-            superLegaTeams.push(...spareggioTeams.slice(0, 4));
-            coppaUefaTeams.push(spareggioTeams[4]);
+            const spareggioTeams = gironi.map(g => g[4]); // Get all 5th placed teams
 
-            function createBracket(teams, byes, title) {
-                let html = `<h2>${title}</h2>`;
+            // Sort 5th placed teams by their SIMULATED points
+            spareggioTeams.sort((a, b) => b.simulatedPoints - a.simulatedPoints);
+
+            superLegaTeams.push(...spareggioTeams.slice(0, 4)); // Add the best 4
+            coppaUefaTeams.push(spareggioTeams[4]); // Add the worst 5th
+
+            // Sort all qualified teams by their ORIGINAL rank for seeding
+            superLegaTeams.sort((a, b) => a.intRank - b.intRank);
+            coppaUefaTeams.sort((a, b) => a.intRank - b.intRank);
+
+            function createBracket(teams, byes, title, color) {
+                let html = `<h2 style="color: ${color};">${title}</h2>`;
                 const numMatches = (teams.length - byes) / 2;
-                html += '<h3>BYEs</h3><ul>';
+                html += '<h3>BYEs (Seed 1-' + byes + ')</h3><ul>';
                 for (let i = 0; i < byes; i++) {
-                    html += `<li>${getTLA(teams[i].strTeam)}</li>`;
+                    html += `<li>Seed ${i+1}: <span class="team-name" data-full-name="${teams[i].strTeam}">${getTLA(teams[i].strTeam)}</span></li>`;
                 }
                 html += '</ul>';
                 html += '<h3>Matches</h3><table>';
                 for (let i = 0; i < numMatches; i++) {
                     const team1 = teams[byes + i];
                     const team2 = teams[teams.length - 1 - i];
-                    html += `<tr><td>${getTLA(team1.strTeam)}</td><td>vs</td><td>${getTLA(team2.strTeam)}</td></tr>`;
+                    html += `<tr><td>Seed ${byes + i + 1}: <span class="team-name" data-full-name="${team1.strTeam}">${getTLA(team1.strTeam)}</span></td><td>vs</td><td>Seed ${teams.length - i}: <span class="team-name" data-full-name="${team2.strTeam}">${getTLA(team2.strTeam)}</span></td></tr>`;
                 }
                 html += '</table>';
                 return html;
             }
 
-            const superLegaBracket = createBracket(superLegaTeams, 8, 'Super Lega');
-            const coppaUefaBracket = createBracket(coppaUefaTeams, 6, 'Coppa UEFA');
+            const superLegaBracket = createBracket(superLegaTeams, 8, 'Super Lega', 'cyan');
+            const coppaUefaBracket = createBracket(coppaUefaTeams, 6, 'Coppa UEFA', 'lime');
 
             tabelloniContainer.innerHTML = superLegaBracket + coppaUefaBracket;
             } catch (error) {
