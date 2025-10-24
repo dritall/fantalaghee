@@ -5,61 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coppe Fantalaghee 2024/25</title>
     <style>
+        :root {
+            --sl-color: cyan;
+            --cu-color: lime;
+            --bg-color: #0d1117;
+            --primary-text: #c9d1d9;
+            --secondary-text: #8b949e;
+            --border-color: #30363d;
+            --card-bg: #161b22;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         body {
-            background-color: #1a1a1a;
-            color: #f0f0f0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
             margin: 0;
+            text-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
         }
         .tabs {
             display: flex;
-            border-bottom: 2px solid #333;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
         }
         .tab-button {
-            background-color: #2a2a2a;
-            color: #f0f0f0;
+            background: none;
             border: none;
+            color: var(--secondary-text);
             padding: 10px 20px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            font-size: 16px;
+            font-weight: 500;
+            transition: color 0.2s ease, border-bottom 0.2s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab-button:hover {
+            color: var(--primary-text);
         }
         .tab-button.active {
-            background-color: #007bff;
+            color: var(--sl-color);
+            border-bottom: 2px solid var(--sl-color);
         }
         .tab-content {
             display: none;
-            padding: 20px;
-            border: 1px solid #333;
-            border-top: none;
+            animation: fadeIn 0.5s;
         }
         .tab-content.active {
             display: block;
         }
+        h2 {
+            font-size: 28px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: white;
+        }
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             margin-top: 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
         }
         th, td {
-            padding: 8px;
+            padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+        }
+        thead th {
+            background-color: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+        }
+        tbody tr {
+            border-bottom: 1px solid var(--border-color);
+        }
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+        tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
         .tooltip {
             position: absolute;
-            background-color: #333;
+            background-color: #21262d;
             color: #fff;
-            padding: 5px;
-            border-radius: 3px;
+            padding: 8px 12px;
+            border-radius: 6px;
             display: none;
             pointer-events: none;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        /* Styles for Phases */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: white;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-sl { background-color: rgba(0, 255, 255, 0.1); color: cyan; }
+        .status-playoff { background-color: rgba(255, 165, 0, 0.1); color: orange; }
+        .status-cu { background-color: rgba(0, 255, 0, 0.1); color: lime; }
+
+        .brackets-container {
+            display: flex;
+            gap: 40px;
+            justify-content: space-around;
+        }
+        .bracket {
+            display: flex;
+            flex-direction: column;
+            width: 48%;
+        }
+        .bracket h2 {
+           text-align: center;
+        }
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        .match {
+            display: flex;
+            flex-direction: column;
+            margin: 20px 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            position: relative;
+        }
+        .participant {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .participant:first-child {
+            border-bottom: 1px solid var(--border-color);
+        }
+        .seed {
+            color: var(--secondary-text);
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="tooltip" id="tooltip"></div>
-    <div class="tabs">
+    <div class="container">
+        <div class="tooltip" id="tooltip"></div>
+        <div class="tabs">
         <button class="tab-button active" onclick="openTab(event, 'fase1')">FASE 1: QUALIFICAZIONE</button>
         <button class="tab-button" onclick="openTab(event, 'fase2')">FASE 2: GIRONI</button>
         <button class="tab-button" onclick="openTab(event, 'fase3')">FASE 3: CLASSIFICHE GIRONI</button>
@@ -79,7 +198,7 @@
 
     <div id="fase3" class="tab-content">
         <h2>FASE 3: CLASSIFICHE GIRONI (G10-G18)</h2>
-        <div id="classifiche-gironi"></div>
+        <div id="classifiche-gironi" class="card-container"></div>
     </div>
 
     <div id="fase4" class="tab-content">
@@ -89,7 +208,8 @@
 
     <div id="fase5" class="tab-content">
         <h2>FASE 5: TABELLONI FINALI (SL & CU)</h2>
-        <div id="tabelloni-finali"></div>
+        <div id="tabelloni-finali" class="brackets-container"></div>
+    </div>
     </div>
 
     <script>
@@ -143,13 +263,17 @@
                     for (let i = 0; i < 5; i++) gironi[i].push(fascia[4 - i]);
                 }
             });
-            let gironiTable = '<table><tr><th>Girone A</th><th>Girone B</th><th>Girone C</th><th>Girone D</th><th>Girone E</th></tr>';
+            let gironiTable = '<table><thead><tr><th>Girone A</th><th>Girone B</th><th>Girone C</th><th>Girone D</th><th>Girone E</th></tr></thead><tbody>';
             for (let i = 0; i < 10; i++) {
                 gironiTable += `<tr>`;
                 for (let j = 0; j < 5; j++) {
                     const team = gironi[j][i];
-                    const tla = getTLA(team.strTeam);
-                    gironiTable += `<td class="team-name" data-full-name="${team.strTeam}">${tla}</td>`;
+                    if (team) {
+                        const tla = getTLA(team.strTeam);
+                        gironiTable += `<td class="team-name" data-full-name="${team.strTeam}">${tla}</td>`;
+                    } else {
+                        gironiTable += `<td>-</td>`;
+                    }
                 }
                 gironiTable += `</tr>`;
             }
@@ -166,17 +290,17 @@
                 });
                 girone.sort((a, b) => b.simulatedPoints - a.simulatedPoints);
 
-                classificheHTML += `<h3>Girone ${String.fromCharCode(65 + index)}</h3>`;
-                classificheHTML += '<table><tr><th>Pos</th><th>Team</th><th>Points</th><th>Status</th></tr>';
+                classificheHTML += `<div class="card"><h3>Girone ${String.fromCharCode(65 + index)}</h3>`;
+                classificheHTML += '<table><thead><tr><th>Pos</th><th>Team</th><th>Points</th><th>Status</th></tr></thead><tbody>';
                 girone.forEach((team, i) => {
                     const tla = getTLA(team.strTeam);
-                    let status = '';
-                    if (i < 4) status = '<span style="color: cyan;">Super Lega</span>';
-                    else if (i === 4) status = '<span style="color: orange;">Spareggio</span>';
-                    else status = '<span style="color: lime;">Coppa UEFA</span>';
-                    classificheHTML += `<tr><td>${i + 1}</td><td class="team-name" data-full-name="${team.strTeam}">${tla}</td><td>${team.simulatedPoints}</td><td>${status}</td></tr>`;
+                    let statusBadge;
+                    if (i < 4) statusBadge = '<span class="status-badge status-sl">Super Lega</span>';
+                    else if (i === 4) statusBadge = '<span class="status-badge status-playoff">Spareggio</span>';
+                    else statusBadge = '<span class="status-badge status-cu">Coppa UEFA</span>';
+                    classificheHTML += `<tr><td>${i + 1}</td><td class="team-name" data-full-name="${team.strTeam}">${tla}</td><td>${team.simulatedPoints}</td><td>${statusBadge}</td></tr>`;
                 });
-                classificheHTML += '</table>';
+                classificheHTML += '</tbody></table></div>';
             });
             classificheGironiContainer.innerHTML = classificheHTML;
 
@@ -232,29 +356,64 @@
             coppaUefaTeams.sort((a, b) => a.intRank - b.intRank);
 
             function createBracket(teams, byes, title, color) {
-                let html = `<h2 style="color: ${color};">${title}</h2>`;
-                const numMatches = (teams.length - byes) / 2;
-                html += '<h3>BYEs (Seed 1-' + byes + ')</h3><ul>';
-                for (let i = 0; i < byes; i++) {
-                    html += `<li>Seed ${i+1}: <span class="team-name" data-full-name="${teams[i].strTeam}">${getTLA(teams[i].strTeam)}</span></li>`;
+                let html = `<div class="bracket"><h2 style="color: ${color};">${title}</h2><div class="rounds-container">`;
+                const rounds = [];
+                let currentRoundTeams = [...teams];
+                let roundNum = 1;
+
+                // Create Preliminary Round if needed
+                if (byes > 0) {
+                    const preliminaryMatches = [];
+                    const competitors = currentRoundTeams.slice(byes);
+                    for (let i = 0; i < competitors.length / 2; i++) {
+                        preliminaryMatches.push([competitors[i], competitors[competitors.length - 1 - i]]);
+                    }
+                    rounds.push({ name: 'Preliminari', matches: preliminaryMatches });
+
+                    // Winners of prelims + BYEs advance
+                    let nextRound = currentRoundTeams.slice(0, byes);
+                    preliminaryMatches.forEach(() => nextRound.push({ name: 'TBD' }));
+                    currentRoundTeams = nextRound;
                 }
-                html += '</ul>';
-                html += '<h3>Matches</h3><table>';
-                for (let i = 0; i < numMatches; i++) {
-                    const team1 = teams[byes + i];
-                    const team2 = teams[teams.length - 1 - i];
-                    html += `<tr><td>Seed ${byes + i + 1}: <span class="team-name" data-full-name="${team1.strTeam}">${getTLA(team1.strTeam)}</span></td><td>vs</td><td>Seed ${teams.length - i}: <span class="team-name" data-full-name="${team2.strTeam}">${getTLA(team2.strTeam)}</span></td></tr>`;
+
+                // Create main bracket rounds
+                while (currentRoundTeams.length > 1) {
+                    const matches = [];
+                    for (let i = 0; i < currentRoundTeams.length / 2; i++) {
+                        matches.push([currentRoundTeams[i], currentRoundTeams[currentRoundTeams.length - 1 - i]]);
+                    }
+                    rounds.push({ name: `Turno ${roundNum}`, matches });
+
+                    // Prepare for next round
+                    currentRoundTeams = Array(currentRoundTeams.length / 2).fill({ name: 'TBD' });
+                    roundNum++;
                 }
-                html += '</table>';
+
+                // Generate HTML from rounds structure
+                rounds.forEach(round => {
+                    html += `<div class="round"><h3>${round.name}</h3>`;
+                    round.matches.forEach(match => {
+                        const team1 = match[0];
+                        const team2 = match[1];
+                        html += `<div class="match">
+                                    <div class="participant"><span class="team-name" data-full-name="${team1.strTeam || ''}">${getTLA(team1.strTeam || team1.name)}</span> <span class="seed">${team1.intRank ? `Seed ${team1.intRank}` : ''}</span></div>
+                                    <div class="participant"><span class="team-name" data-full-name="${team2.strTeam || ''}">${getTLA(team2.strTeam || team2.name)}</span> <span class="seed">${team2.intRank ? `Seed ${team2.intRank}` : ''}</span></div>
+                                 </div>`;
+                    });
+                    html += '</div>';
+                });
+
+                html += '</div></div>';
                 return html;
             }
 
-            const superLegaBracket = createBracket(superLegaTeams, 8, 'Super Lega', 'cyan');
-            const coppaUefaBracket = createBracket(coppaUefaTeams, 6, 'Coppa UEFA', 'lime');
+            const superLegaBracket = createBracket(superLegaTeams, 8, 'Super Lega', 'var(--sl-color)');
+            const coppaUefaBracket = createBracket(coppaUefaTeams, 6, 'Coppa UEFA', 'var(--cu-color)');
 
             tabelloniContainer.innerHTML = superLegaBracket + coppaUefaBracket;
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
+                document.getElementById('tabelloni-finali').innerHTML = `<pre style="color: red;">${error.stack}</pre>`;
             }
         });
     </script>
