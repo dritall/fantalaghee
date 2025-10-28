@@ -56,18 +56,11 @@ const parseSheetData = (data) => {
 
     // --- SEZIONI CON LOGICA AGGIORNATA ---
     const classifica = [];
-    // Logic updated based on the user's screenshot of the "Classifica Generale" sheet.
-    let classificaStartIndex = findRowIndex("Team", 0); // Find header "Team" in Column A
-    if (classificaStartIndex !== -1 && numeroGiornata > 0) {
-        // Data starts on the row immediately after the header.
-        for (let i = 1; i <= 5; i++) { // Loop for the top 5 teams
+    let classificaStartIndex = findRowIndex("Squadre On Fire 🔥", 8);
+    if (classificaStartIndex !== -1) {
+        for (let i = 1; i <= 5; i++) {
             const row = data[classificaStartIndex + i];
-            if (row && row[0]) { // Ensure the row and team name in Column A exist
-                const squadra = row[0]; // Column A: Team name
-                const punti = parseFloat(row[3]) || 0; // Column D: Total points
-                const mediaPunti = punti / numeroGiornata; // Calculate the average
-                classifica.push({ squadra, punti, mediaPunti });
-            }
+            if (row && row[8]) classifica.push({ squadra: row[8], punti: parseFloat(row[9]) || 0, mediaPunti: parseFloat(row[11]) || 0 });
         }
     }
 

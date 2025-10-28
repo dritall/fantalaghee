@@ -126,27 +126,65 @@
         const loader = document.getElementById('loader-container');
         const dashboardContent = document.getElementById('dashboard-content');
         const giornataInfo = document.getElementById('giornata-info');
+        const chartContainer = document.getElementById('classificaChart').getContext('2d');
+
+        const showError = (message) => {
+            console.error("Errore Verdetto:", message);
+            giornataInfo.textContent = `Errore nel caricamento dei dati: ${message}.`;
+            loader.style.display = 'none';
+        };
+
         try {
-            const response = await fetch('/api/getDashboard');
-            if (!response.ok) { throw new Error((await response.json()).details || 'Errore API'); }
-            const data = await response.json();
-            giornataInfo.textContent = `Risultati aggiornati alla Giornata ${data.numeroGiornata}`;
-            document.getElementById('leader-squadra').textContent = data.leaderAttuale;
-            document.getElementById('record-info-riga1').textContent = `${data.recordAssoluto.squadra} - ${data.recordAssoluto.punteggio}`;
-            document.getElementById('record-info-riga2').textContent = data.recordAssoluto.giornata;
-            document.getElementById('cucchiaio-info-riga1').textContent = `${data.cucchiaioDiLegno.squadra} - ${data.cucchiaioDiLegno.punteggio}`;
-            document.getElementById('cucchiaio-info-riga2').textContent = data.cucchiaioDiLegno.giornata;
-            document.getElementById('podio-container').innerHTML = data.podio.map((p, i) => `<div class="flex items-center gap-4"><span class="text-2xl">${['🥇','🥈','🥉'][i]}</span><p><strong class="text-white">${p.squadra}</strong> - ${p.punteggio}</p></div>`).join('');
-            document.getElementById('premi-classifica-container').innerHTML = data.premi.classifica.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
-            document.getElementById('premi-giornata-container').innerHTML = data.premi.giornata.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
-            document.getElementById('miglior-punteggio-container').innerHTML = `<p class="font-semibold text-white">${data.premi.migliorPunteggio.info}</p><p class="font-bold text-2xl text-amber-300">${data.premi.migliorPunteggio.premio} 🍆</p>`;
-            new Chart('classificaChart', {
+            // Step 1: Fetch all data in parallel
+            const [classificaRes, dashboardRes] = await Promise.all([
+                fetch('/api/getClassifica').then(res => res.ok ? res.json() : Promise.reject(`API Classifica: ${res.statusText}`)),
+                fetch('/api/getDashboard').then(res => res.ok ? res.json() : Promise.reject(`API Dashboard: ${res.statusText}`))
+            ]);
+
+            const dashboardData = dashboardRes; // This is the original dashboard data
+            const classificaData = classificaRes; // This is the main standings data
+
+            // Update simple dashboard elements first
+            giornataInfo.textContent = `Risultati aggiornati alla Giornata ${dashboardData.numeroGiornata}`;
+            document.getElementById('leader-squadra').textContent = dashboardData.leaderAttuale;
+            document.getElementById('record-info-riga1').textContent = `${dashboardData.recordAssoluto.squadra} - ${dashboardData.recordAssoluto.punteggio}`;
+            document.getElementById('record-info-riga2').textContent = dashboardData.recordAssoluto.giornata;
+            document.getElementById('cucchiaio-info-riga1').textContent = `${dashboardData.cucchiaioDiLegno.squadra} - ${dashboardData.cucchiaioDiLegno.punteggio}`;
+            document.getElementById('cucchiaio-info-riga2').textContent = dashboardData.cucchiaioDiLegno.giornata;
+            document.getElementById('podio-container').innerHTML = dashboardData.podio.map((p, i) => `<div class="flex items-center gap-4"><span class="text-2xl">${['🥇','🥈','🥉'][i]}</span><p><strong class="text-white">${p.squadra}</strong> - ${p.punteggio}</p></div>`).join('');
+            document.getElementById('premi-classifica-container').innerHTML = dashboardData.premi.classifica.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
+            document.getElementById('premi-giornata-container').innerHTML = dashboardData.premi.giornata.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
+            document.getElementById('miglior-punteggio-container').innerHTML = `<p class="font-semibold text-white">${dashboardData.premi.migliorPunteggio.info}</p><p class="font-bold text-2xl text-amber-300">${dashboardData.premi.migliorPunteggio.premio} 🍆</p>`;
+
+            // Step 2: Create a map for average scores from the dashboard data
+            // I will assume the dashboard data for the chart is in `dashboardData.classifica`
+            const averageScoresMap = new Map();
+            if (dashboardData.classifica) {
+                 dashboardData.classifica.forEach(row => {
+                    if (row.squadra && row.mediaPunti != null) {
+                        averageScoresMap.set(row.squadra, row.mediaPunti);
+                    }
+                });
+            }
+
+            // Step 3: Combine the main standings with the average scores
+            const combinedData = classificaData.map(team => ({
+                Team: team.Team,
+                punteggioTotale: team.Generale,
+                mediaPunti: averageScoresMap.get(team.Team) || 0 // Get the average from the map
+            }));
+
+            // Step 4: Take the top 5 for the chart
+            const top5Data = combinedData.slice(0, 5);
+
+            // Step 5: Render the Chart.js chart
+            new Chart(chartContainer, {
                 type: 'bar',
                 data: {
-                    labels: data.classifica.map(item => item.squadra),
+                    labels: top5Data.map(item => item.Team),
                     datasets: [{
                         label: 'Punti Totali',
-                        data: data.classifica.map(item => item.punti),
+                        data: top5Data.map(item => item.punteggioTotale),
                         backgroundColor: (c) => ['rgba(255, 215, 0, 0.7)', 'rgba(192, 192, 192, 0.7)', 'rgba(205, 127, 50, 0.7)'][c.dataIndex] || 'rgba(79, 70, 229, 0.6)',
                         borderColor: (c) => ['#FFD700', '#C0C0C0', '#CD7F32'][c.dataIndex] || '#4F46E5',
                         borderWidth: 2,
@@ -156,7 +194,6 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    indexAxis: 'x',
                     scales: {
                         x: { grid: { display: false }, ticks: { color: '#e5e7eb' } },
                         y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#e5e7eb' } }
@@ -165,18 +202,23 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: (c) => `Punteggio: ${c.raw} | Media: ${data.classifica[c.dataIndex].mediaPunti.toFixed(2)}`
+                                label: function(context) {
+                                    const teamData = top5Data[context.dataIndex];
+                                    const punteggio = context.raw.toFixed(1);
+                                    const media = parseFloat(teamData.mediaPunti).toFixed(2);
+                                    return `${punteggio} punti (Media: ${media})`;
+                                }
                             }
                         }
                     }
                 }
             });
+
             loader.style.display = 'none';
             dashboardContent.classList.remove('hidden');
+
         } catch (error) {
-            console.error("Errore Verdetto:", error);
-            giornataInfo.textContent = `Errore nel caricamento dei dati: ${error.message}.`;
-            loader.style.display = 'none';
+            showError(error);
         }
     });
     </script>
