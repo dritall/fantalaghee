@@ -55,17 +55,17 @@ const parseSheetData = (data) => {
     };
 
     // --- SEZIONI CON LOGICA AGGIORNATA ---
-    // Logica aggiornata per il grafico "CLASSIFICA GENERALE - TOP 5"
     const classifica = [];
-    const classificaStartIndex = 3; // La classifica generale inizia alla riga 4 (indice 3) del foglio
-    if (data.length > classificaStartIndex && numeroGiornata > 0) {
-        for (let i = 0; i < 5; i++) { // Prendiamo i primi 5 team
+    // Logic updated based on the user's screenshot of the "Classifica Generale" sheet.
+    let classificaStartIndex = findRowIndex("Team", 0); // Find header "Team" in Column A
+    if (classificaStartIndex !== -1 && numeroGiornata > 0) {
+        // Data starts on the row immediately after the header.
+        for (let i = 1; i <= 5; i++) { // Loop for the top 5 teams
             const row = data[classificaStartIndex + i];
-            if (row && row[1]) { // Assicuriamoci che la riga e il nome della squadra (colonna B) esistano
-                const squadra = row[1];
-                const punti = parseFloat(row[2]) || 0; // Punti totali dalla colonna C
-                // Calcoliamo la media dividendo i punti totali per il numero di giornate
-                const mediaPunti = punti / numeroGiornata;
+            if (row && row[0]) { // Ensure the row and team name in Column A exist
+                const squadra = row[0]; // Column A: Team name
+                const punti = parseFloat(row[3]) || 0; // Column D: Total points
+                const mediaPunti = punti / numeroGiornata; // Calculate the average
                 classifica.push({ squadra, punti, mediaPunti });
             }
         }
