@@ -55,19 +55,17 @@ const parseSheetData = (data) => {
     };
 
     // --- SEZIONI CON LOGICA AGGIORNATA ---
-    // Modifica richiesta: Il grafico deve mostrare i dati totali della classifica generale, non delle ultime 5 giornate.
+    // Logica aggiornata per il grafico "CLASSIFICA GENERALE - TOP 5"
     const classifica = [];
-    // Cerchiamo l'inizio della classifica generale. Dalle analisi precedenti, sappiamo che la riga 3 contiene le intestazioni.
-    // La classifica vera e propria inizia dalla riga 4 (indice 3).
-    // Le colonne rilevanti sono: B (Squadra), C (Punti Totali), E (Media Punti).
-    const classificaStartIndex = 3; // La riga 4 dell'excel è l'indice 3
-    if (data.length > classificaStartIndex) {
-        for (let i = 0; i < 5; i++) { // Prendiamo i primi 5
+    const classificaStartIndex = 3; // La classifica generale inizia alla riga 4 (indice 3) del foglio
+    if (data.length > classificaStartIndex && numeroGiornata > 0) {
+        for (let i = 0; i < 5; i++) { // Prendiamo i primi 5 team
             const row = data[classificaStartIndex + i];
-            if (row && row[1]) { // Assicuriamoci che la riga e il nome della squadra esistano
+            if (row && row[1]) { // Assicuriamoci che la riga e il nome della squadra (colonna B) esistano
                 const squadra = row[1];
-                const punti = parseFloat(row[2]) || 0;
-                const mediaPunti = parseFloat(row[4]) || 0;
+                const punti = parseFloat(row[2]) || 0; // Punti totali dalla colonna C
+                // Calcoliamo la media dividendo i punti totali per il numero di giornate
+                const mediaPunti = punti / numeroGiornata;
                 classifica.push({ squadra, punti, mediaPunti });
             }
         }
