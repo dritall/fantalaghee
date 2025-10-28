@@ -134,26 +134,53 @@
             loader.style.display = 'none';
         };
 
-        // Fetch both endpoints in parallel
-        Promise.all([
-            fetch('/api/getDashboard').then(res => res.ok ? res.json() : Promise.reject(`API Dashboard: ${res.statusText}`)),
-            fetch('/api/getClassifica').then(res => res.ok ? res.json() : Promise.reject(`API Classifica: ${res.statusText}`))
-        ])
-        .then(([dashboardData, classificaData]) => {
-            // Populate all non-chart widgets from the dashboard data
-            giornataInfo.textContent = `Risultati aggiornati alla Giornata ${dashboardData.numeroGiornata}`;
-            document.getElementById('leader-squadra').textContent = dashboardData.leaderAttuale;
-            document.getElementById('record-info-riga1').textContent = `${dashboardData.recordAssoluto.squadra} - ${dashboardData.recordAssoluto.punteggio}`;
-            document.getElementById('record-info-riga2').textContent = dashboardData.recordAssoluto.giornata;
-            document.getElementById('cucchiaio-info-riga1').textContent = `${dashboardData.cucchiaioDiLegno.squadra} - ${dashboardData.cucchiaioDiLegno.punteggio}`;
-            document.getElementById('cucchiaio-info-riga2').textContent = dashboardData.cucchiaioDiLegno.giornata;
-            document.getElementById('podio-container').innerHTML = dashboardData.podio.map((p, i) => `<div class="flex items-center gap-4"><span class="text-2xl">${['🥇','🥈','🥉'][i]}</span><p><strong class="text-white">${p.squadra}</strong> - ${p.punteggio}</p></div>`).join('');
-            document.getElementById('premi-classifica-container').innerHTML = dashboardData.premi.classifica.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
-            document.getElementById('premi-giornata-container').innerHTML = dashboardData.premi.giornata.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
-            document.getElementById('miglior-punteggio-container').innerHTML = `<p class="font-semibold text-white">${dashboardData.premi.migliorPunteggio.info}</p><p class="font-bold text-2xl text-amber-300">${dashboardData.premi.migliorPunteggio.premio} 🍆</p>`;
+        // Fetch unified data from the correct endpoint
+        fetch('/api/getClassificaV2')
+            .then(res => res.ok ? res.json() : Promise.reject(`API ClassificaV2: ${res.statusText}`))
+            .then(data => {
+                const { classifica, dashboard } = data;
 
-            // Get the top 5 teams from the main standings for the chart
-            const top5Data = classificaData.slice(0, 5);
+                // Populate all non-chart widgets from the dashboard data
+                giornataInfo.textContent = dashboard.campioneDellaGiornata?.giornata || 'Dati dashboard non disponibili';
+
+                if (dashboard.leaderAttuale) {
+                    document.getElementById('leader-squadra').textContent = `${dashboard.leaderAttuale.team} (${dashboard.leaderAttuale.punteggio})`;
+                }
+
+                if (dashboard.recordAssoluto) {
+                    document.getElementById('record-info-riga1').textContent = `${dashboard.recordAssoluto.team} - ${dashboard.recordAssoluto.punteggio}`;
+                    document.getElementById('record-info-riga2').textContent = `Record Assoluto`;
+                }
+
+                if (dashboard.cucchiaioDiLegno) {
+                    document.getElementById('cucchiaio-info-riga1').textContent = `${dashboard.cucchiaioDiLegno.team} - ${dashboard.cucchiaioDiLegno.punteggio}`;
+                    document.getElementById('cucchiaio-info-riga2').textContent = `Cucchiaio di Legno`;
+                }
+
+                if (dashboard.podioDellaGiornata) {
+                    const podio = [dashboard.podioDellaGiornata.primo, dashboard.podioDellaGiornata.secondo, dashboard.podioDellaGiornata.terzo];
+                    document.getElementById('podio-container').innerHTML = podio
+                        .filter(p => p && p.team)
+                        .map((p, i) => `<div class="flex items-center gap-4"><span class="text-2xl">${['🥇','🥈','🥉'][i]}</span><p><strong class="text-white">${p.team}</strong> - ${p.punteggio}</p></div>`)
+                        .join('');
+                }
+
+                if (dashboard.premi) {
+                    document.getElementById('premi-classifica-container').innerHTML = dashboard.premi.classificaGenerale
+                        .map(p => `<div class="flex justify-between text-sm"><span>${p.posizione}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`)
+                        .join('');
+
+                    document.getElementById('premi-giornata-container').innerHTML = dashboard.premi.totali
+                        .map(p => `<div class="flex justify-between text-sm"><span>${p.posizione}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`)
+                        .join('');
+                }
+
+                if (dashboard.migliorPunteggio) {
+                     document.getElementById('miglior-punteggio-container').innerHTML = `<p class="font-semibold text-white">${dashboard.migliorPunteggio.team}</p><p class="font-bold text-2xl text-amber-300">${dashboard.migliorPunteggio.punteggio} 🍆</p>`;
+                }
+
+                // Get the top 5 teams from the main standings for the chart
+                const top5Data = classifica.slice(0, 5);
 
             // Render the Chart.js chart with the simplified data
             new Chart(chartContainer, {
