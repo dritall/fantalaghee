@@ -35,7 +35,7 @@
                 </div>
             </nav>
             <div class="flex items-center gap-2">
-                <a href="https://drive.google.com/file/d/1xLrx-tdMvLbsquIHVIUe_RpmKAn8-D3y/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
+                <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
                 <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
                 <button id="mobile-menu-button" class="md:hidden p-2 cursor-pointer">
                     <svg class="w-6 h-6" id="hamburger-open-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
@@ -52,7 +52,7 @@
             <a href="/gazzetta-del-laghee.html" class="nav-button-mobile">La Gazzetta</a>
             <a href="/il-verdetto.html" class="nav-button-mobile">Il Verdetto</a>
             <hr class="border-gray-700 my-2"/>
-            <a href="https://drive.google.com/file/d/1xLrx-tdMvLbsquIHVIUe_RpmKAn8-D3y/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="nav-button-mobile">Scarica PDF</a>
+            <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="nav-button-mobile">Scarica PDF</a>
             <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti Ora</a>
         </nav>
     </div>
@@ -122,7 +122,7 @@
 
     <script src="/js/main.js" defer></script>
     <script>
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
         const loader = document.getElementById('loader-container');
         const dashboardContent = document.getElementById('dashboard-content');
         const giornataInfo = document.getElementById('giornata-info');
@@ -134,17 +134,13 @@
             loader.style.display = 'none';
         };
 
-        try {
-            // Step 1: Fetch all data in parallel
-            const [classificaRes, dashboardRes] = await Promise.all([
-                fetch('/api/getClassifica').then(res => res.ok ? res.json() : Promise.reject(`API Classifica: ${res.statusText}`)),
-                fetch('/api/getDashboard').then(res => res.ok ? res.json() : Promise.reject(`API Dashboard: ${res.statusText}`))
-            ]);
-
-            const dashboardData = dashboardRes; // This is the original dashboard data
-            const classificaData = classificaRes; // This is the main standings data
-
-            // Update simple dashboard elements first
+        // Fetch both endpoints in parallel
+        Promise.all([
+            fetch('/api/getDashboard').then(res => res.ok ? res.json() : Promise.reject(`API Dashboard: ${res.statusText}`)),
+            fetch('/api/getClassifica').then(res => res.ok ? res.json() : Promise.reject(`API Classifica: ${res.statusText}`))
+        ])
+        .then(([dashboardData, classificaData]) => {
+            // Populate all non-chart widgets from the dashboard data
             giornataInfo.textContent = `Risultati aggiornati alla Giornata ${dashboardData.numeroGiornata}`;
             document.getElementById('leader-squadra').textContent = dashboardData.leaderAttuale;
             document.getElementById('record-info-riga1').textContent = `${dashboardData.recordAssoluto.squadra} - ${dashboardData.recordAssoluto.punteggio}`;
@@ -156,35 +152,17 @@
             document.getElementById('premi-giornata-container').innerHTML = dashboardData.premi.giornata.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
             document.getElementById('miglior-punteggio-container').innerHTML = `<p class="font-semibold text-white">${dashboardData.premi.migliorPunteggio.info}</p><p class="font-bold text-2xl text-amber-300">${dashboardData.premi.migliorPunteggio.premio} 🍆</p>`;
 
-            // Step 2: Create a map for average scores from the dashboard data
-            // I will assume the dashboard data for the chart is in `dashboardData.classifica`
-            const averageScoresMap = new Map();
-            if (dashboardData.classifica) {
-                 dashboardData.classifica.forEach(row => {
-                    if (row.squadra && row.mediaPunti != null) {
-                        averageScoresMap.set(row.squadra, row.mediaPunti);
-                    }
-                });
-            }
+            // Get the top 5 teams from the main standings for the chart
+            const top5Data = classificaData.slice(0, 5);
 
-            // Step 3: Combine the main standings with the average scores
-            const combinedData = classificaData.map(team => ({
-                Team: team.Team,
-                punteggioTotale: team.Generale,
-                mediaPunti: averageScoresMap.get(team.Team) || 0 // Get the average from the map
-            }));
-
-            // Step 4: Take the top 5 for the chart
-            const top5Data = combinedData.slice(0, 5);
-
-            // Step 5: Render the Chart.js chart
+            // Render the Chart.js chart with the simplified data
             new Chart(chartContainer, {
                 type: 'bar',
                 data: {
                     labels: top5Data.map(item => item.Team),
                     datasets: [{
                         label: 'Punti Totali',
-                        data: top5Data.map(item => item.punteggioTotale),
+                        data: top5Data.map(item => item.Generale), // Use the 'Generale' field
                         backgroundColor: (c) => ['rgba(255, 215, 0, 0.7)', 'rgba(192, 192, 192, 0.7)', 'rgba(205, 127, 50, 0.7)'][c.dataIndex] || 'rgba(79, 70, 229, 0.6)',
                         borderColor: (c) => ['#FFD700', '#C0C0C0', '#CD7F32'][c.dataIndex] || '#4F46E5',
                         borderWidth: 2,
@@ -203,10 +181,8 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    const teamData = top5Data[context.dataIndex];
                                     const punteggio = context.raw.toFixed(1);
-                                    const media = parseFloat(teamData.mediaPunti).toFixed(2);
-                                    return `${punteggio} punti (Media: ${media})`;
+                                    return `${punteggio} punti`; // Simplified tooltip
                                 }
                             }
                         }
@@ -216,10 +192,10 @@
 
             loader.style.display = 'none';
             dashboardContent.classList.remove('hidden');
-
-        } catch (error) {
+        })
+        .catch(error => {
             showError(error);
-        }
+        });
     });
     </script>
     </body>
