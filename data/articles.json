@@ -1,10 +1,18 @@
 [
     {
-        "id": "gazzetta-laghee-giornata-due",
-        "date": "2025-09-01",
-        "title": "The Porks, che squillo!",
-        "imageUrl": "/image/gazzetta/giornata2.jpg",
-        "placeholder": false
+    "id": "g9-speciale-coppa",
+    "date": "2025-11-1",
+    "title": "CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA.",
+    "imageUrl": "/image/gazzetta/giornata9.jpg",
+    "placeholder": false
+      
+          },
+    {
+    "id": "gazzetta-laghee-giornata-due",
+    "date": "2025-09-01",
+    "title": "The Porks, che squillo!",
+    "imageUrl": "/image/gazzetta/giornata2.jpg",
+    "placeholder": false
     },
     {
     "id": "gazzetta-laghee-giornata-uno",
