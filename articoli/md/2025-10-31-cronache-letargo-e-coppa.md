@@ -1,14 +1,3 @@
----
-title: "CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA."
-date: 2025-10-31
-description: "Dove eravamo rimasti? Dopo sei giornate di silenzio, la Gazzetta torna per raccontare l'epopea che ha riscritto la classifica generale e per annunciare l'inizio della Coppa Fanta Laghèe."
-author: "La Redazione"
-image: "/images/copertine/gazzetta-speciale-coppa-g9.jpg" # NOTA: Path dell'immagine da aggiornare
----
-
-📰 **LA GAZZETTA DEL LAGHÈE - EDIZIONE SPECIALE**
-*1 Novembre 2025*
-
 ### CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA.
 
 Dove eravamo rimasti?
