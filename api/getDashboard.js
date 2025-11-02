@@ -54,13 +54,24 @@ const parseSheetData = (data) => {
         giornata: data[62] ? data[62][5] : 'N/D'    // F63
     };
 
-    // --- SEZIONI CON LOGICA AGGIORNATA ---
+    // --- SEZIONI CON LOGICA AGGIORNATA (Top 5 da Classifica Generale) ---
     const classifica = [];
-    let classificaStartIndex = findRowIndex("Squadre On Fire 🔥", 8);
+    // Passaggio 1: Cerca l'inizio della Classifica Generale (es. la cella "SQUADRA" in colonna B, indice 1)
+    let classificaStartIndex = findRowIndex("SQUADRA", 1);
+
+    // Fallback: Se non trovi "SQUADRA" in colonna B (indice 1), prova a cercare "POS" in colonna A (indice 0)
+    if (classificaStartIndex === -1) {
+        classificaStartIndex = findRowIndex("POS", 0);
+    }
+
     if (classificaStartIndex !== -1) {
+        // Passaggio 2: Prende i primi 5 risultati dalla Classifica Generale ordinata (dalla riga successiva)
         for (let i = 1; i <= 5; i++) {
             const row = data[classificaStartIndex + i];
-            if (row && row[8]) classifica.push({ squadra: row[8], punti: parseFloat(row[9]) || 0, mediaPunti: parseFloat(row[11]) || 0 });
+
+            // Assunzione Colonne (Indici): Squadra (1=B), Punti Totali (2=C), Media Punti (3=D)
+            // Se nel foglio la Classifica Generale usa colonne diverse, questi indici vanno corretti.
+            if (row && row[1]) classifica.push({ squadra: row[1], punti: parseFloat(row[2]) || 0, mediaPunti: parseFloat(row[3]) || 0 });
         }
     }
 
