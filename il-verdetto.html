@@ -72,9 +72,11 @@
 
         <div id="dashboard-content" class="hidden space-y-6">
 
-            <div class="widget widget-chart">
+            <div class="widget widget-glass">
                 <h2 class="text-xl font-bold text-white mb-4" style="font-family: 'Oswald', sans-serif;">CLASSIFICA GENERALE - TOP 5</h2>
-                <div class="chart-container" style="height: 400px;"><canvas id="classificaChart"></canvas></div>
+                <div id="top5-list" class="space-y-3">
+                    <p class="text-stone-400 animate-pulse">Calcolo classifica in corso...</p>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -140,37 +142,49 @@
             document.getElementById('premi-classifica-container').innerHTML = data.premi.classifica.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
             document.getElementById('premi-giornata-container').innerHTML = data.premi.giornata.map(p => `<div class="flex justify-between text-sm"><span>${p.squadra}</span> <span class="font-bold text-amber-300">${p.premio} 🍆</span></div>`).join('');
             document.getElementById('miglior-punteggio-container').innerHTML = `<p class="font-semibold text-white">${data.premi.migliorPunteggio.info}</p><p class="font-bold text-2xl text-amber-300">${data.premi.migliorPunteggio.premio} 🍆</p>`;
-            new Chart('classificaChart', {
-                type: 'bar',
-                data: {
-                    labels: data.classifica.map(item => item.squadra),
-                    datasets: [{
-                        label: 'Punti Totali',
-                        data: data.classifica.map(item => item.punti),
-                        backgroundColor: (c) => ['rgba(255, 215, 0, 0.7)', 'rgba(192, 192, 192, 0.7)', 'rgba(205, 127, 50, 0.7)'][c.dataIndex] || 'rgba(79, 70, 229, 0.6)',
-                        borderColor: (c) => ['#FFD700', '#C0C0C0', '#CD7F32'][c.dataIndex] || '#4F46E5',
-                        borderWidth: 2,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'x',
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: '#e5e7eb' } },
-                        y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#e5e7eb' } }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (c) => `Punteggio: ${c.raw} | Media: ${data.classifica[c.dataIndex].mediaPunti.toFixed(2)}`
-                            }
-                        }
+
+            // Fetch Top 5 from getClassificaV2
+            try {
+                const respClass = await fetch('/api/getClassificaV2');
+                if (respClass.ok) {
+                    const dataClass = await respClass.json();
+                    if (dataClass.classifica && dataClass.classifica.length > 0) {
+                        const keys = Object.keys(dataClass.classifica[0]);
+                        // Tentativo di identificare le colonne corrette in modo robusto
+                        const kSquadra = keys.find(k => /squadra|team|nome/i.test(k)) || keys[0];
+                        const kPunti = keys.find(k => /p\.tot|punti|total/i.test(k)) || keys.find(k => !isNaN(parseFloat(dataClass.classifica[0][k])));
+                        const kGiornate = keys.find(k => /^g$|^giornate$/i.test(k)) || keys.find(k => /part/i.test(k));
+
+                        const top5 = dataClass.classifica
+                            .map(row => {
+                                const pt = parseFloat((row[kPunti] + '').replace(',', '.')) || 0;
+                                const g = parseFloat((row[kGiornate] + '').replace(',', '.')) || 1;
+                                return {
+                                    squadra: row[kSquadra],
+                                    punti: pt,
+                                    media: (pt / (g > 0 ? g : 1)).toFixed(2)
+                                };
+                            })
+                            .sort((a, b) => b.punti - a.punti)
+                            .slice(0, 5);
+
+                        document.getElementById('top5-list').innerHTML = top5.map((t, i) => `
+                            <div class="tooltip-container flex items-center justify-between p-3 rounded bg-gray-800/50 border border-gray-700 hover:bg-gray-700 transition">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xl font-bold ${i===0?'text-yellow-400':(i===1?'text-gray-300':(i===2?'text-amber-600':'text-stone-500'))}">${i+1}</span>
+                                    <span class="text-white font-medium">${t.squadra}</span>
+                                </div>
+                                <span class="text-indigo-400 font-bold">${t.punti}</span>
+                                <span class="tooltip-text">Media Punti: ${t.media}</span>
+                            </div>
+                        `).join('');
                     }
                 }
-            });
+            } catch(e) {
+                console.error("Errore Top 5:", e);
+                document.getElementById('top5-list').innerHTML = '<p class="text-red-400">Errore caricamento classifica.</p>';
+            }
+
             loader.style.display = 'none';
             dashboardContent.classList.remove('hidden');
         } catch (error) {
