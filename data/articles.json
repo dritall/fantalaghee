@@ -1,12 +1,18 @@
 [
     {
+    "id": "speciale-giro-di-boa",
+    "date": "14 Gennaio 2026",
+    "title": "Speciale Giro di Boa: Il Ribaltone, le Coppe e la pioggia di Melanzane.",
+    "imageUrl": "/image/gazzetta/speciale-giro-di-boa.jpg",
+    "placeholder": false
+    },
+    {
     "id": "gazzetta-laghee-g9",
     "date": "2025-11-1",
     "title": "CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA.",
     "imageUrl": "/image/gazzetta/giornata9.jpg",
-    "placeholder": false
-      
-          },
+    "placeholder": false  
+    },
     {
     "id": "gazzetta-laghee-giornata-due",
     "date": "2025-09-01",
