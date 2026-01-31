@@ -2,7 +2,7 @@
 title: "LA TRILOGIA DEL POTERE E LA MATTANZA DELLE COPPE: IL LAGHÈE CAMBIA PADRONE"
 date: "2026-01-31"
 summary: "Tre settimane di fuoco ridisegnano i confini del campionato: dal volo di Fantagiulia al sorpasso dei Cuccioloni. E nelle Coppe è già tempo di verdetti definitivi."
-image: "/images/articles/la-trilogia-del-potere.jpg"
+image: "/images/gazzetta/la-trilogia-del-potere.jpg"
 ---
 
 # LA TRILOGIA DEL POTERE E LA MATTANZA DELLE COPPE: IL LAGHÈE CAMBIA PADRONE
