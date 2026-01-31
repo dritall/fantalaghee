@@ -1,6 +1,6 @@
 # LA TRILOGIA DEL POTERE E LA MATTANZA DELLE COPPE: IL LAGHÈE CAMBIA PADRONE
 
-![Copertina](/image/gazzetta/la-trilogia-del-potere.jpg)
+![Copertina](image/gazzetta/la-trilogia-del-potere.jpg)
 
 **Tre settimane di fuoco ridisegnano i confini del campionato: dal volo di Fantagiulia al sorpasso dei Cuccioloni. E nelle Coppe è già tempo di verdetti definitivi.**
 <br>
