@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,9 +12,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&family=Carrois+Gothic&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&family=Carrois+Gothic&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
+
 <body class="antialiased">
     <div class="background-container"></div>
     <div class="background-overlay"></div>
@@ -23,40 +27,61 @@
             <nav class="nav-menu">
                 <div class="hidden md:flex items-center gap-1">
 
-                    <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
+                    <a href="/index.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
                         Classifica
                     </a>
 
                     <div class="relative group">
-                        <a href="/info-complete.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium inline-flex items-center">
+                        <a href="/info-complete.html"
+                            class="nav-button rounded-md px-4 py-2 text-sm font-medium inline-flex items-center">
                             <span>Regolamento</span>
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
                         </a>
-                        <div class="absolute z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
-                            <a href="/info-complete.html#novita" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
-                            <a href="/info-complete.html#mercato" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
-                            <a href="/info-complete.html#bonus-malus" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
+                        <div
+                            class="absolute z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
+                            <a href="/info-complete.html#novita"
+                                class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
+                            <a href="/info-complete.html#mercato"
+                                class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
+                            <a href="/info-complete.html#bonus-malus"
+                                class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
                         </div>
                     </div>
 
-                    <a href="/gazzetta-del-laghee.html" class="nav-button nav-gazzetta rounded-md px-4 py-2 text-sm font-medium">
+                    <a href="/gazzetta-del-laghee.html"
+                        class="nav-button nav-gazzetta rounded-md px-4 py-2 text-sm font-medium">
                         La Gazzetta
                     </a>
 
-                    <a href="/il-verdetto.html" class="nav-button nav-verdetto rounded-md px-4 py-2 text-sm font-medium">
+                    <a href="/il-verdetto.html"
+                        class="nav-button nav-verdetto rounded-md px-4 py-2 text-sm font-medium">
                         Il Verdetto
                     </a>
 
                 </div>
             </nav>
             <div class="flex items-center gap-2">
-                <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
-                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
+                <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg"
+                    target="_blank" rel="noopener noreferrer"
+                    class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
+                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank"
+                    class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
 
                 <!-- Mobile Menu Trigger -->
                 <button id="mobile-menu-button" class="md:hidden p-2 cursor-pointer">
-                    <svg class="w-6 h-6" id="hamburger-open-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                    <svg class="w-6 h-6 hidden" id="hamburger-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-6 h-6" id="hamburger-open-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                    <svg class="w-6 h-6 hidden" id="hamburger-close-icon" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -64,31 +89,34 @@
 
     <!-- Mobile Menu Panel -->
     <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
-    <div id="mobile-menu-panel" class="mobile-menu-panel transform -translate-x-full transition-transform duration-300 ease-in-out">
+    <div id="mobile-menu-panel"
+        class="mobile-menu-panel transform -translate-x-full transition-transform duration-300 ease-in-out">
         <nav class="flex flex-col p-4 gap-2">
-            <a href="/homepage-v2.html" class="nav-button-mobile">Classifica</a>
+            <a href="/index.html" class="nav-button-mobile">Classifica</a>
             <a href="/info-complete.html" class="nav-button-mobile">Regolamento</a>
             <a href="/gazzetta-del-laghee.html" class="nav-button-mobile">La Gazzetta</a>
             <a href="/il-verdetto.html" class="nav-button-mobile">Il Verdetto</a>
-            <hr class="border-gray-700 my-2"/>
-            <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="nav-button-mobile">Scarica PDF</a>
-            <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti Ora</a>
+            <hr class="border-gray-700 my-2" />
+            <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank"
+                rel="noopener noreferrer" class="nav-button-mobile">Scarica PDF</a>
+            <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti
+                Ora</a>
         </nav>
     </div>
 
-<div class="w-full">
-    <main class="container mx-auto p-4 md:p-8 relative z-10">
+    <div class="w-full">
+        <main class="container mx-auto p-4 md:p-8 relative z-10">
 
-        <div id="match-details-container">
-            <!-- Contenuto caricato dinamicamente -->
-            <div class="text-center py-16">
-                <div class="text-4xl sm:text-6xl mb-4 animate-spin">⏳</div>
-                <h3 class="text-xl sm:text-2xl font-semibold text-stone-300">Caricamento dati partita...</h3>
+            <div id="match-details-container">
+                <!-- Contenuto caricato dinamicamente -->
+                <div class="text-center py-16">
+                    <div class="text-4xl sm:text-6xl mb-4 animate-spin">⏳</div>
+                    <h3 class="text-xl sm:text-2xl font-semibold text-stone-300">Caricamento dati partita...</h3>
+                </div>
             </div>
-        </div>
 
-    </main>
-</div>
+        </main>
+    </div>
 
     <script src="/js/main.js" defer></script>
     <script>
@@ -132,8 +160,8 @@
 
             function renderMatchDetails(lineups, allStats, timelines) {
                 if (!lineups || lineups.length === 0) {
-                     container.innerHTML = `<div class="text-center py-16 bg-gray-800/50 rounded-lg"><h3 class="text-2xl font-semibold text-amber-400">Dati non ancora disponibili.</h3><p class="text-stone-400 mt-2">Le informazioni per questa partita non sono ancora state pubblicate.</p></div>`;
-                     return;
+                    container.innerHTML = `<div class="text-center py-16 bg-gray-800/50 rounded-lg"><h3 class="text-2xl font-semibold text-amber-400">Dati non ancora disponibili.</h3><p class="text-stone-400 mt-2">Le informazioni per questa partita non sono ancora state pubblicate.</p></div>`;
+                    return;
                 }
                 const matchInfo = lineups[0];
                 const homeTeam = { name: matchInfo.strHomeTeam, badge: matchInfo.strHomeTeamBadge };
@@ -216,7 +244,7 @@
             }
 
             function renderStats(homeStats, awayStats) {
-                 if (!homeStats || homeStats.length === 0) return '<p class="text-center text-stone-400 py-8">Statistiche non disponibili.</p>';
+                if (!homeStats || homeStats.length === 0) return '<p class="text-center text-stone-400 py-8">Statistiche non disponibili.</p>';
                 let statsHtml = '<div class="grid grid-cols-3 gap-4 text-center max-w-4xl mx-auto">';
                 const statTypes = [...new Set(homeStats.map(s => s.strStat))];
 
@@ -258,4 +286,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Se la pagina è la root, mappala sulla homepage
     if (currentPage === '' || currentPage === 'index.html') {
-        currentPage = 'homepage-v2.html';
+        currentPage = 'index.html';
     }
 
     // Seleziona tutti i link nella navigazione principale e mobile
     const navLinks = document.querySelectorAll('.nav-menu a, .nav-button-mobile');
 
-    navLinks.forEach(function(link) {
+    navLinks.forEach(function (link) {
         const linkPage = link.getAttribute('href').split("/").pop();
 
         if (linkPage === currentPage) {
