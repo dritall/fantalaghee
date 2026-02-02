@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 4%;
+    /* Deep Charcoal/Black */
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 8%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 8%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Logo V7 Neon Palette */
+    --primary: 180 100% 50%;
+    /* Electric Cyan (#00f0ff) */
+    --primary-foreground: 180 100% 5%;
+
+    --secondary: 280 100% 64%;
+    /* Neon Purple (#bc13fe) - Adjusted for readability */
+    --secondary-foreground: 280 10% 98%;
+
+    --accent-pink: 320 100% 50%;
+    /* Hot Pink for gradients */
+
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 70%;
+
+    --accent: 35 100% 50%;
+    /* Golden Orange (#ffaa00) - Matching "Laghèe" */
+    --accent-foreground: 35 10% 5%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 160 84% 39%;
+    /* Match primary */
+
+    --radius: 1rem;
+    /* More rounded for "soft" look */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-[#050505] text-white antialiased;
+    /* Clean, professional background - No noise, no images */
+    background-color: #050505;
+  }
+}
+
+/* "Revolut-style" Utilities: Clean, Crisp, Fintech */
+@layer utilities {
+  .glass {
+    /* Minimalist card: Solid dark with subtle border */
+    @apply bg-[#111] border border-white/10 shadow-sm transition-all duration-300;
+  }
+
+  .glass-card {
+    /* Interactive card */
+    @apply bg-[#151515] border border-white/5 shadow-md hover:bg-[#1a1a1a] hover:border-white/20 transition-all duration-300 rounded-2xl;
+  }
+
+  .glass-panel {
+    @apply bg-[#0a0a0a] border-b border-white/10;
+  }
+
+  /* Sharp, high-contrast text gradients (used sparingly) */
+  .text-gradient {
+    @apply text-white;
+    /* Fallback to clean white for professionalism */
+  }
+
+  .text-highlight {
+    @apply text-indigo-400;
+    /* Subtle accent */
+  }
+}

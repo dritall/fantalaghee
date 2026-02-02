@@ -1,0 +1,44 @@
+[
+  {
+    "id": "recupero-giornata",
+    "date": "1 Febbraio 2026",
+    "title": "Recupero Giornata: Chi ha vinto davvero?",
+    "imageUrl": "/image/gazzetta/speciale-giro-di-boa.jpg",
+    "placeholder": true
+  },
+  {
+    "id": "speciale-giro-di-boa",
+    "date": "14 Gennaio 2026",
+    "title": "Speciale Giro di Boa: Il Ribaltone, le Coppe e la pioggia di Melanzane.",
+    "imageUrl": "/image/gazzetta/speciale-giro-di-boa.jpg",
+    "placeholder": false
+  },
+  {
+    "id": "gazzetta-laghee-g9",
+    "date": "2025-11-1",
+    "title": "CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA.",
+    "imageUrl": "/image/gazzetta/giornata9.jpg",
+    "placeholder": false
+  },
+  {
+    "id": "gazzetta-laghee-giornata-due",
+    "date": "2025-09-01",
+    "title": "The Porks, che squillo!",
+    "imageUrl": "/image/gazzetta/giornata2.jpg",
+    "placeholder": false
+  },
+  {
+    "id": "gazzetta-laghee-giornata-uno",
+    "date": "2025-08-26",
+    "title": "Cuccioloni, Partenza Record!",
+    "imageUrl": "/image/gazzetta/giornata1.jpg",
+    "placeholder": false
+  },
+  {
+    "id": "benvenuto-stagione-2526",
+    "date": "19 Agosto 2025",
+    "title": "ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!",
+    "imageUrl": "/image/gazzetta/cover-benvenuto-2526.jpg",
+    "placeholder": false
+  }
+]

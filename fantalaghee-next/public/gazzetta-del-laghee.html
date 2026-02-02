@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gazzetta del Laghèe - Fanta Laghèe</title>
+
+    <!-- SEO & Social Sharing -->
+    <meta name="description" content="La gazzetta ufficiale della lega Fanta Laghèe. Notizie, articoli e approfondimenti sulla stagione in corso.">
+    <meta property="og:title" content="Gazzetta del Laghèe - Fanta Laghèe">
+    <meta property="og:description" content="La gazzetta ufficiale della lega Fanta Laghèe. Notizie, articoli e approfondimenti.">
+    <meta property="og:image" content="https://i.ibb.co/p1B4s3p/Fanta-Laghe-Social-Preview.jpg">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/style.css">
+
+    <!-- Favicon -->
+    <link href="/image/logo-compact.png" rel="icon">
+
+    <!-- Scripts & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&family=Carrois+Gothic&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="antialiased">
+    <div class="background-container"></div>
+    <div class="background-overlay"></div>
+    <header id="main-header" class="sticky top-0 z-50 backdrop-blur-lg border-b border-gray-700">
+        <div class="container mx-auto px-4 flex justify-between items-center h-16">
+            <a href="/index.html"><img src="/image/logo-header.jpg" alt="Fanta Laghèe Logo" class="h-12"></a>
+            <nav class="nav-menu">
+                <div class="hidden md:flex items-center gap-1">
+
+                    <a href="/homepage-v2.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium">
+                        Classifica
+                    </a>
+
+                    <div class="relative group">
+                        <a href="/info-complete.html" class="nav-button rounded-md px-4 py-2 text-sm font-medium inline-flex items-center">
+                            <span>Regolamento</span>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </a>
+                        <div class="absolute z-10 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg w-40">
+                            <a href="/info-complete.html#novita" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Novità</a>
+                            <a href="/info-complete.html#mercato" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Mercato</a>
+                            <a href="/info-complete.html#bonus-malus" class="block px-4 py-2 text-sm text-stone-300 hover:bg-gray-700">Bonus/Malus</a>
+                        </div>
+                    </div>
+
+                    <a href="/gazzetta-del-laghee.html" class="nav-button nav-gazzetta rounded-md px-4 py-2 text-sm font-medium">
+                        La Gazzetta
+                    </a>
+
+                    <a href="/il-verdetto.html" class="nav-button nav-verdetto rounded-md px-4 py-2 text-sm font-medium">
+                        Il Verdetto
+                    </a>
+
+                </div>
+            </nav>
+            <div class="flex items-center gap-2">
+                <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="btn-secondary px-4 py-2 rounded-full text-sm uppercase hidden sm:block">PDF</a>
+                <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="btn-iscriviti px-4 py-2 rounded-full text-sm uppercase hidden sm:block">Iscriviti</a>
+
+                <!-- Mobile Menu Trigger -->
+                <button id="mobile-menu-button" class="md:hidden p-2 cursor-pointer">
+                    <svg class="w-6 h-6" id="hamburger-open-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    <svg class="w-6 h-6 hidden" id="hamburger-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Panel -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+    <div id="mobile-menu-panel" class="mobile-menu-panel transform -translate-x-full transition-transform duration-300 ease-in-out">
+        <nav class="flex flex-col p-4 gap-2">
+            <a href="/homepage-v2.html" class="nav-button-mobile">Classifica</a>
+            <a href="/info-complete.html" class="nav-button-mobile">Regolamento</a>
+            <a href="/gazzetta-del-laghee.html" class="nav-button-mobile">La Gazzetta</a>
+            <a href="/il-verdetto.html" class="nav-button-mobile">Il Verdetto</a>
+            <hr class="border-gray-700 my-2"/>
+            <a href="https://drive.google.com/uc?export=download&id=17821ovoRg0-fae8D-QeVpOAJGHfoWyyg" target="_blank" rel="noopener noreferrer" class="nav-button-mobile">Scarica PDF</a>
+            <a href="https://forms.gle/HRBX3hvc351Y2Mai7" target="_blank" class="nav-button-mobile-primary">Iscriviti Ora</a>
+        </nav>
+    </div>
+    <main class="container mx-auto p-4 md:p-8 relative z-10">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-amber-400 mb-2" style="font-family: 'Carrois Gothic', sans-serif;">LA GAZZETTA DEL LAGHÈE</h1>
+            <p class="max-w-3xl mx-auto text-stone-300" style="font-family: 'Merriweather', serif;">L'unica testata che non ha paura di prendere 65.5</p>
+        </div>
+
+        <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Articles will be loaded here dynamically -->
+        </div>
+    </main>
+<script src="/js/main.js" defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const grid = document.getElementById('articles-grid');
+
+        try {
+            const response = await fetch('/data/articles.json');
+            if (!response.ok) throw new Error('Failed to load articles data.');
+
+            const articles = await response.json();
+            let articlesHtml = '';
+
+            articles.forEach(article => {
+                if (article.placeholder) {
+                    articlesHtml += `
+                        <div class="article-card-placeholder flex items-center justify-center bg-gray-800/60 border-2 border-dashed border-gray-700 rounded-lg min-h-[320px]">
+                            <p class="text-stone-500" style="font-family: 'Carrois Gothic', sans-serif;">Prossimamente...</p>
+                        </div>`;
+                } else {
+                    articlesHtml += `
+                        <a href="/articolo.html?id=${article.id}"
+                           class="article-card-new group"
+                           style="background-image: url('${article.imageUrl}');">
+                            <div class="card-overlay"></div>
+                            <div class="card-content">
+                                <p class="text-sm text-amber-400 mb-2" style="font-family: 'Merriweather', serif; font-weight: 700;">${article.date}</p>
+                                <h3 class="text-xl font-bold text-white transition-colors duration-300 mb-4" style="font-family: 'Carrois Gothic', sans-serif; line-height: 1.3;">
+                                    ${article.title}
+                                </h3>
+                                <span class="read-article-btn">Leggi Articolo</span>
+                            </div>
+                        </a>`;
+                }
+            });
+
+            grid.innerHTML = articlesHtml;
+            // Un-hide any placeholders that were hidden for specific screen sizes if needed
+            const hiddenPlaceholders = document.querySelectorAll('.article-card-placeholder.hidden');
+            if (hiddenPlaceholders.length > 0) {
+                 // Logic to decide whether to show them, for now we remove the 'hidden' class for simplicity
+                 hiddenPlaceholders.forEach(p => p.classList.remove('hidden'));
+            }
+
+        } catch (error) {
+            console.error('Error loading articles:', error);
+            grid.innerHTML = '<p class="text-red-400">Impossibile caricare gli articoli.</p>';
+        }
+    });
+</script>
+</body>
+</html>
