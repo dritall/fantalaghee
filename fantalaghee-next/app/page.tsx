@@ -88,31 +88,39 @@ export default function Home() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex flex-col items-center text-center space-y-6"
         >
-          {/* PURE CSS NEON LOGO - FINAL TYPOGRAPHY */}
-          <div className="relative z-50 flex flex-col md:flex-row items-baseline justify-center gap-4 md:gap-8 p-10 select-none">
-            {/* FANTA: Blue->Purple Gradient, Stroke effect */}
-            <h1 className="font-oswald text-7xl md:text-[10rem] font-bold tracking-tighter uppercase relative z-10"
+          {/* ATOMIC NEON LOGO - STRAIGHT & CLEAN (RECOVERY) */}
+          <div className="relative z-50 flex flex-col md:flex-row items-baseline justify-center gap-2 md:gap-6 p-10 select-none">
+
+            {/* FANTA: Electric Cyan/Blue Neon (Oswald) */}
+            <h1 className="font-oswald text-8xl md:text-[11rem] font-bold tracking-tighter uppercase relative z-10 text-white"
               style={{
-                textShadow: "0 0 20px rgba(0, 100, 255, 0.6)"
+                textShadow: `
+                    0 0 5px #fff,
+                    0 0 10px #fff,
+                    0 0 20px #00ffff,
+                    0 0 40px #00ffff,
+                    0 0 80px #00ffff
+                  `
               }}>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]"
-                style={{ WebkitTextStroke: "2px rgba(255,255,255,0.1)" }}>
-                FANTA
-              </span>
+              FANTA
             </h1>
 
-            {/* LAGHÈE: Gold Cursive, Neon Glow */}
-            <h1 className="font-cursive text-6xl md:text-[9rem] font-normal tracking-wide relative z-10 -rotate-6 transform translate-y-2 md:translate-y-0"
+            {/* LAGHÈE: Golden/Amber Neon (Serif - Merriweather) - STRAIGHT */}
+            <h1 className="font-serif text-7xl md:text-[10rem] font-bold tracking-tight relative z-10 text-[#fffdd0]"
               style={{
-                textShadow: "0 0 30px rgba(255, 170, 0, 0.6), 0 0 10px rgba(255, 215, 0, 0.8)"
+                textShadow: `
+                    0 0 5px #fff,
+                    0 0 10px #fff,
+                    0 0 20px #ffaa00,
+                    0 0 40px #ffaa00,
+                    0 0 80px #ffaa00
+                  `
               }}>
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                Laghèe
-              </span>
+              Laghèe
             </h1>
 
-            {/* Ambient Glow behind logo */}
-            <div className="absolute inset-0 bg-blue-900/20 blur-[120px] z-0 rounded-full opacity-40 pointer-events-none" />
+            {/* Ambient Atmosphere */}
+            <div className="absolute inset-0 bg-blue-500/10 blur-[150px] z-0 rounded-full opacity-50 pointer-events-none mix-blend-screen" />
           </div>
 
         </motion.div>
