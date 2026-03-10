@@ -1,6 +1,6 @@
 # 📰 GAZZETTA DEL LAGHÈÈ - EDIZIONE STRAORDINARIA
 
-![Copertina](/image/gazzetta/speciale-giro-di-boa.jpg)
+![Copertina](//image/gazzetta/speciale-giro-di-boa.jpg)
 
 **SPECIALE GIRO DI BOA: IL RIBALTONE, LE COPPE E LA PIOGGIA DI MELANZANE.**
 

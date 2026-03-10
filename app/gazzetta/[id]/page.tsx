@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import { Loader2, ArrowLeft, Calendar } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -101,7 +102,7 @@ export default function ArticlePage() {
                     prose-a:text-rose-400 prose-a:no-underline hover:prose-a:underline
                     prose-blockquote:border-l-rose-500 prose-blockquote:bg-white/5 prose-blockquote:p-6 prose-blockquote:not-italic prose-blockquote:rounded-r-lg
                 ">
-                    <ReactMarkdown>{content}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
                 </div>
             </div>
 
