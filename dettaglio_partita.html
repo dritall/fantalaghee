@@ -132,25 +132,19 @@
 
             async function fetchMatchDetails() {
                 try {
-                    const [lineupRes, statsRes, timelineRes] = await Promise.all([
-                        fetch(`/api/getMatchLineup?id=${eventId}`),
-                        fetch(`/api/getMatchStats?id=${eventId}`),
-                        fetch(`/api/getMatchTimeline?id=${eventId}`)
-                    ]);
+                    const res = await fetch(`/api/getMatchDetails?id=${eventId}`);
 
-                    if (!lineupRes.ok || !statsRes.ok || !timelineRes.ok) {
-                        throw new Error('Una o più chiamate API hanno fallito.');
+                    if (!res.ok) {
+                        throw new Error('Chiamata API fallita.');
                     }
 
-                    const lineupData = await lineupRes.json();
-                    const statsData = await statsRes.json();
-                    const timelineData = await timelineRes.json();
+                    const data = await res.json();
 
-                    if (lineupData.error || statsData.error || timelineData.error) {
-                        throw new Error(lineupData.error || statsData.error || timelineData.error);
+                    if (data.error) {
+                        throw new Error(data.error);
                     }
 
-                    renderMatchDetails(lineupData.lineup, statsData.stats, timelines.timeline);
+                    renderMatchDetails(data.lineup, data.stats, data.timeline);
 
                 } catch (error) {
                     console.error('Errore nel caricamento dei dettagli della partita:', error);
