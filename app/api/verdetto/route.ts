@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import Papa from 'papaparse';
 
+export const dynamic = 'force-dynamic';
 // Fallback URL if env is not set (derived from user's public link)
 const SPREADSHEET_ID = '1lHQEZoQT3TmgA-mPwExzorjxv6ub-xvFW-9WTm5805Y';
 const SPREADSHEET_URL = process.env.SPREADSHEET_URL || `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=1105159540`;

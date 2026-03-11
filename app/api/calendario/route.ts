@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
 const API_KEY = '1'; // Public API Key
 const LEAGUE_ID = '4332'; // Serie A
 const SEASON = '2024-2025';

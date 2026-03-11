@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Papa from 'papaparse';
 
+export const dynamic = 'force-dynamic';
 const DASHBOARD_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9q-d7H5HzRRIzdoK4LLFU9GX5JUppoNy3-kWEVSDqcpL7dK1IcNIioj9ykzygz28H1xrmWyWoAyyc/pub?output=csv'; // Using the main URL provided by user
 
 export async function GET() {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Papa from 'papaparse';
 
+export const dynamic = 'force-dynamic';
 // Helper function to fetch and parse CSV data
 const fetchAndParseCSV = async (url: string, options = { header: true }, timeout = 10000) => {
     try {
