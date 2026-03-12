@@ -77,7 +77,7 @@ export default function ArticlePage() {
         <article className="min-h-screen bg-[#050505] text-white">
             
             {/* 1. Hero Header con Background */}
-            <div className="relative w-full h-[50vh] min-h-[400px] overflow-hidden flex flex-col justify-end pt-24">
+            <div className="relative w-full h-[50vh] min-h-[400px] overflow-hidden flex flex-col justify-end pt-32">
                 {/* Background Image */}
                 <div
                     className="absolute inset-0 bg-cover bg-center"
@@ -88,11 +88,6 @@ export default function ArticlePage() {
 
                 {/* Contenuto in Sovrimpressione (Titolo, Metadati) */}
                 <div className="relative z-10 w-full max-w-5xl mx-auto px-6 pb-12">
-                    {/* Back Button (Sticky-like via placement) */}
-                    <Link href="/gazzetta" className="inline-flex items-center text-white/70 hover:text-white mb-6 transition-colors text-sm font-medium bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
-                        <ArrowLeft className="w-4 h-4 mr-2" /> Torna alla Gazzetta
-                    </Link>
-
                     <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold font-oswald uppercase leading-tight mb-4 tracking-wide text-white drop-shadow-2xl">
                         {metadata.title}
                     </h1>
@@ -115,14 +110,21 @@ export default function ArticlePage() {
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto px-6 py-12">
+            <div className="max-w-4xl mx-auto px-6 py-12 relative">
+
+                {/* Tasto Back (Sticky) */}
+                <div className="sticky top-24 z-40 mb-8">
+                    <Link href="/gazzetta" className="inline-flex items-center text-white/50 hover:text-white transition-colors text-sm font-medium bg-[#050505]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                        <ArrowLeft className="w-4 h-4 mr-2" /> Torna agli articoli
+                    </Link>
+                </div>
                 
-                {/* 2. Immagine Completa e Non Tagliata */}
-                <div className="w-full relative rounded-2xl overflow-hidden mb-12 shadow-2xl bg-[#0a0a0a] p-2 border border-white/10">
+                {/* 2. Immagine Completa e Non Tagliata (Senza Box) */}
+                <div className="w-full relative mb-12">
                     <img 
                         src={metadata.image} 
                         alt={`Copertina per ${metadata.title}`} 
-                        className="w-full h-auto object-contain max-h-[75vh] rounded-xl"
+                        className="w-full h-auto object-contain rounded-xl"
                     />
                 </div>
 
