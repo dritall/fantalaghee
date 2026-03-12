@@ -24,7 +24,7 @@ export async function GET() {
             };
         });
 
-        // Sort by date descending (rough sort if date formats mismatch, but works well for YYYY-MM-DD or parseable dates)
+        // Strict chronological sort by date descending (newest first)
         articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
         return NextResponse.json(articles);

@@ -8,6 +8,7 @@ import { Loader2, ArrowLeft, Calendar } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import matter from "gray-matter";
+import { formatDateToItalian } from "@/lib/date-utils";
 
 interface ArticleMeta {
     title: string;
@@ -73,52 +74,57 @@ export default function ArticlePage() {
     );
 
     return (
-        <article className="min-h-screen bg-[#050505] text-white">
+        <article className="min-h-screen bg-[#050505] text-white pt-24 pb-12">
+            <div className="max-w-4xl mx-auto px-6">
+                
+                {/* Back Button */}
+                <Link href="/gazzetta" className="inline-flex items-center text-white/50 hover:text-white mb-8 transition-colors text-sm font-medium">
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Torna alla Gazzetta
+                </Link>
 
-            {/* Hero Header with Frontmatter Image */}
-            <div className="relative h-[60vh] w-full overflow-hidden">
-                <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${metadata.image})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
-
-                <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 max-w-4xl mx-auto">
-                    <Link href="/gazzetta" className="inline-flex items-center text-white/70 hover:text-white mb-6 transition-colors backdrop-blur-md bg-black/30 px-3 py-1 rounded-full text-sm">
-                        <ArrowLeft className="w-4 h-4 mr-2" /> Gazzetta
-                    </Link>
-                    <div className="flex items-center gap-4 text-rose-400 font-medium mb-3">
-                        <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>{metadata.date}</span>
-                        </div>
-                        <span className="text-white/50 text-sm">di {metadata.author}</span>
-                    </div>
-                    <h1 className="text-4xl md:text-6xl font-bold font-oswald leading-tight drop-shadow-lg mb-4">
+                {/* 1. H1 (Titolo) ed Eventuale Descrizione */}
+                <div className="mb-6">
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-oswald uppercase leading-tight mb-4 tracking-wide">
                         {metadata.title}
                     </h1>
                     {metadata.description && (
-                        <p className="text-xl text-gray-300 font-serif italic max-w-2xl border-l-4 border-rose-500 pl-4 py-1">
-                            {metadata.description}
-                        </p>
+                         <p className="text-xl text-gray-400 font-serif italic max-w-3xl border-l-4 border-rose-500 pl-4 py-1">
+                             {metadata.description}
+                         </p>
                     )}
                 </div>
-            </div>
 
-            {/* Content Body */}
-            <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+                {/* 2. Metadati (Autore e Data formattata) */}
+                <div className="flex items-center gap-4 text-rose-400 font-medium mb-10 pb-6 border-b border-white/10">
+                    <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>{formatDateToItalian(metadata.date)}</span>
+                    </div>
+                    <span className="text-white/50 text-sm">di {metadata.author}</span>
+                </div>
+
+                {/* 3. Immagine di Copertina */}
+                <div className="w-full relative rounded-2xl overflow-hidden mb-12 shadow-2xl border border-white/5 aspect-video bg-neutral-900">
+                    <img 
+                        src={metadata.image} 
+                        alt={`Copertina per ${metadata.title}`} 
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+
+                {/* 4. Corpo del Testo (Markdown) */}
                 <div className="prose prose-invert prose-lg prose-rose max-w-none 
                     prose-headings:font-oswald prose-headings:font-bold prose-headings:uppercase prose-headings:tracking-wide
                     prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-serif
                     prose-strong:text-white prose-strong:font-bold
                     prose-a:text-rose-400 prose-a:no-underline hover:prose-a:underline
                     prose-blockquote:border-l-rose-500 prose-blockquote:bg-white/5 prose-blockquote:p-6 prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:rounded-r-lg
-                    prose-img:rounded-xl prose-img:shadow-2xl prose-img:w-full prose-img:object-cover
+                    prose-img:rounded-xl prose-img:shadow-xl prose-img:w-full prose-img:object-cover prose-img:my-8
                 ">
                     <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
                 </div>
+                
             </div>
-
         </article>
     );
 }

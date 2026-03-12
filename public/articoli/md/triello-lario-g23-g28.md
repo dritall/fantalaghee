@@ -1,13 +1,10 @@
 ---
-title: "Il Triello del Lario e l'Onda Anomala: Sei Settimane in Apnea"
-date: "11 Marzo 2026"
-description: "Il Triello del Lario e l'Onda Anomala: Sei Settimane in Apnea"
-author: "La Redazione"
-image: "/image/gazzetta/gazzetta-g28-triello-onda.png"
+title: 'Il Triello del Lario e l''Onda Anomala: Sei Settimane in Apnea'
+date: '2026-03-11'
+description: 'Il Triello del Lario e l''Onda Anomala: Sei Settimane in Apnea'
+author: La Redazione
+image: /image/gazzetta/gazzetta-g28-triello-onda.png
 ---
-
-# IL TRIELLO DEL LARIO E L'ONDA ANOMALA: SEI SETTIMANE IN APNEA
-
 **Una frenata in vetta compatta il gruppo di testa in un fazzoletto di punti. Nel frattempo, dalle nebbie del lago emerge il filotto brutale di Cippalippa1418. Nelle Coppe, il pallottoliere miete vittime illustri.**
 
 Da Cernobbio a Varenna, il vento è cambiato. Il blocco di giornate compreso tra la ventitreesima e la ventottesima non ha emesso sentenze definitive in campionato, ma ha trasformato il vertice della classifica in una trincea. Abbiamo assistito a un logoramento tattico dove ogni mezzo punto lasciato per strada pesa come un macigno nelle acque gelide del nostro lago. Non si fugge più, si sopravvive.

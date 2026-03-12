@@ -1,13 +1,10 @@
 ---
-title: "CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA."
-date: "2025-11-1"
-description: "CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA."
-author: "La Redazione"
-image: "/image/gazzetta/giornata9.jpg"
+title: 'CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA.'
+date: '2025-11-01'
+description: 'CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA.'
+author: La Redazione
+image: /image/gazzetta/giornata9.jpg
 ---
-
-### CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA.
-
 Dove eravamo rimasti?
 
 Le rotative di questa Gazzetta erano ferme. Polvere sui microfoni, silenzio nelle redazioni. Pensavamo di aver lasciato un campionato, ma ci ritroviamo un'epopea. In sei giornate di nostra assenza, il Fanta Laghèe 25/26 non ha camminato: ha corso, è inciampato, si è rialzato e ha trovato nuovi padroni.

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { formatDateToItalian } from "@/lib/date-utils";
 
 interface Article {
     id: string;
@@ -91,7 +92,7 @@ export default function GazzettaPage() {
                                         {/* Content */}
                                         <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col gap-3">
                                             <span className="text-amber-400 font-bold font-serif text-sm tracking-wider uppercase">
-                                                {article.date}
+                                                {formatDateToItalian(article.date)}
                                             </span>
                                             <h3 className="text-2xl font-bold text-white font-oswald leading-tight group-hover:text-rose-400 transition-colors">
                                                 {article.title}
