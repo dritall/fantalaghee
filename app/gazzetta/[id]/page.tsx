@@ -78,7 +78,7 @@ export default function ArticlePage() {
         <article className="min-h-screen bg-[#050505] text-white">
             
             {/* 1. Hero Header con Background */}
-            <div className="relative w-full h-[50vh] min-h-[400px] overflow-hidden flex flex-col justify-end pt-32">
+            <div className="relative w-full min-h-[50vh] overflow-hidden flex flex-col justify-end pt-40 pb-12">
                 {/* Background Image */}
                 <Image
                     src={metadata.image}
@@ -91,8 +91,8 @@ export default function ArticlePage() {
                 <div className="absolute inset-0 bg-black/60 bg-gradient-to-t from-[#050505] via-black/70 to-black/30" />
 
                 {/* Contenuto in Sovrimpressione (Titolo, Metadati) */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto px-6 pb-12">
-                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold font-oswald uppercase leading-tight mb-4 tracking-wide text-white drop-shadow-2xl">
+                <div className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col justify-end h-full">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-oswald uppercase leading-tight mb-4 tracking-wide text-white drop-shadow-2xl">
                         {metadata.title}
                     </h1>
                     
