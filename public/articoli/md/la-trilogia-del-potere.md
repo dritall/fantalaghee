@@ -1,6 +1,12 @@
-# LA TRILOGIA DEL POTERE E LA MATTANZA DELLE COPPE: IL LAGHÈE CAMBIA PADRONE
+---
+title: "La Trilogia del Potere e la Mattanza delle Coppe: il Laghèe cambia padrone"
+date: "15 Febbraio 2026"
+description: "La Trilogia del Potere e la Mattanza delle Coppe: il Laghèe cambia padrone"
+author: "La Redazione"
+image: "/image/gazzetta/trilogia-del-potere.jpg"
+---
 
-![Copertina](/image/gazzetta/trilogia-del-potere.jpg)
+# LA TRILOGIA DEL POTERE E LA MATTANZA DELLE COPPE: IL LAGHÈE CAMBIA PADRONE
 
 **Tre settimane di fuoco ridisegnano i confini del campionato: dal volo di Fantagiulia al sorpasso dei Cuccioloni. E nelle Coppe è già tempo di verdetti definitivi.**
 

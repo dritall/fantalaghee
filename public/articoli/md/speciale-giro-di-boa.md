@@ -1,6 +1,12 @@
-# 📰 GAZZETTA DEL LAGHÈÈ - EDIZIONE STRAORDINARIA
+---
+title: "Speciale Giro di Boa: Il Ribaltone, le Coppe e la pioggia di Melanzane."
+date: "14 Gennaio 2026"
+description: "Speciale Giro di Boa: Il Ribaltone, le Coppe e la pioggia di Melanzane."
+author: "La Redazione"
+image: "/image/gazzetta/speciale-giro-di-boa.jpg"
+---
 
-![Copertina](//image/gazzetta/speciale-giro-di-boa.jpg)
+# 📰 GAZZETTA DEL LAGHÈÈ - EDIZIONE STRAORDINARIA
 
 **SPECIALE GIRO DI BOA: IL RIBALTONE, LE COPPE E LA PIOGGIA DI MELANZANE.**
 

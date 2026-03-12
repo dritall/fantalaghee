@@ -21,7 +21,7 @@ export default function GazzettaPage() {
     useEffect(() => {
         async function loadArticles() {
             try {
-                const res = await fetch('/data/articles.json');
+                const res = await fetch('/api/articles');
                 if (res.ok) {
                     const data = await res.json();
                     setArticles(data);

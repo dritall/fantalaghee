@@ -1,3 +1,11 @@
+---
+title: "The Porks, che squillo!"
+date: "2025-09-01"
+description: "The Porks, che squillo!"
+author: "La Redazione"
+image: "/image/gazzetta/giornata2.jpg"
+---
+
 La seconda giornata è andata in archivio e già si delineano i primi valori. Qualcuno conferma le buone impressioni della prima, qualcuno crolla miseramente.
 
 **Cari Mister del Fantalaghèe,**

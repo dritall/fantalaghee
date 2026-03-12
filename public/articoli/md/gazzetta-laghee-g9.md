@@ -1,3 +1,11 @@
+---
+title: "CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA."
+date: "2025-11-1"
+description: "CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA."
+author: "La Redazione"
+image: "/image/gazzetta/giornata9.jpg"
+---
+
 ### CRONACHE DA UN LETARGO: SEI CAPITOLI DI FOLLIA. E ORA, LA COPPA.
 
 Dove eravamo rimasti?

@@ -1,3 +1,11 @@
+---
+title: "ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!"
+date: "19 Agosto 2025"
+description: "ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!"
+author: "La Redazione"
+image: "/image/gazzetta/cover-benvenuto-2526.jpg"
+---
+
 Sciuri e bagai, l'attesa è finita: si torna a bestemmiare in 11 (più la panchina).
 
 **Cari Mister del Fantalaghèe,**

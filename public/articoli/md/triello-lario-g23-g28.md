@@ -1,3 +1,11 @@
+---
+title: "Il Triello del Lario e l'Onda Anomala: Sei Settimane in Apnea"
+date: "11 Marzo 2026"
+description: "Il Triello del Lario e l'Onda Anomala: Sei Settimane in Apnea"
+author: "La Redazione"
+image: "/image/gazzetta/gazzetta-g28-triello-onda.png"
+---
+
 # IL TRIELLO DEL LARIO E L'ONDA ANOMALA: SEI SETTIMANE IN APNEA
 
 **Una frenata in vetta compatta il gruppo di testa in un fazzoletto di punti. Nel frattempo, dalle nebbie del lago emerge il filotto brutale di Cippalippa1418. Nelle Coppe, il pallottoliere miete vittime illustri.**

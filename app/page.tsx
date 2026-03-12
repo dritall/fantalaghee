@@ -79,17 +79,17 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-20" />
       </div>
 
-      <div className="relative z-30 max-w-5xl w-full flex flex-col items-center gap-12 pt-20 pb-12">
+      <div className="relative z-30 max-w-5xl w-full flex flex-col items-center gap-4 pt-20 pb-4">
 
         {/* Hero Logo */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center text-center space-y-6"
+          className="flex flex-col items-center text-center space-y-2"
         >
           {/* OFFICIAL BRAND LOGO */}
-          <div className="relative z-50 flex items-center justify-center p-4 md:p-10 select-none w-full max-w-[800px] mx-auto">
+          <div className="relative z-50 flex items-center justify-center p-2 md:p-4 select-none w-full max-w-[800px] mx-auto">
             <Image
               src="/image/logo-fantalaghee.png"
               alt="Fantalaghee Official Logo"
