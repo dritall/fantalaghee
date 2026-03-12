@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { Loader2, ArrowLeft, Calendar } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import matter from "gray-matter";
 import { formatDateToItalian } from "@/lib/date-utils";
@@ -79,9 +80,12 @@ export default function ArticlePage() {
             {/* 1. Hero Header con Background */}
             <div className="relative w-full h-[50vh] min-h-[400px] overflow-hidden flex flex-col justify-end pt-32">
                 {/* Background Image */}
-                <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${metadata.image})` }}
+                <Image
+                    src={metadata.image}
+                    alt="Copertina Background"
+                    fill
+                    priority={true}
+                    className="absolute inset-0 object-cover object-center"
                 />
                 {/* Overlay Scuro */}
                 <div className="absolute inset-0 bg-black/60 bg-gradient-to-t from-[#050505] via-black/70 to-black/30" />
@@ -114,16 +118,19 @@ export default function ArticlePage() {
 
                 {/* Tasto Back (Sticky) */}
                 <div className="sticky top-24 z-40 mb-8">
-                    <Link href="/gazzetta" className="inline-flex items-center text-white/50 hover:text-white transition-colors text-sm font-medium bg-[#050505]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                    <Link href="/gazzetta" aria-label="Torna agli articoli" className="inline-flex items-center text-white/50 hover:text-white transition-colors text-sm font-medium bg-[#050505]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
                         <ArrowLeft className="w-4 h-4 mr-2" /> Torna agli articoli
                     </Link>
                 </div>
                 
                 {/* 2. Immagine Completa e Non Tagliata (Senza Box) */}
                 <div className="w-full relative mb-12">
-                    <img 
+                    <Image 
                         src={metadata.image} 
                         alt={`Copertina per ${metadata.title}`} 
+                        width={1200}
+                        height={675}
+                        priority={true}
                         className="w-full h-auto object-contain rounded-xl"
                     />
                 </div>

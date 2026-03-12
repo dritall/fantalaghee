@@ -8,9 +8,9 @@ const config: Config = {
     ],
     theme: {
         extend: {
-            sans: ["var(--font-serif)", "ui-serif", "Georgia"],
-            oswald: ["var(--font-oswald)", "ui-sans-serif", "system-ui"],
-            serif: ["var(--font-serif)", "ui-serif", "Georgia"],
+            sans: ["var(--font-inter)", "ui-sans-serif", "system-ui"],
+            oswald: ["var(--font-outfit)", "ui-sans-serif", "system-ui"],
+            serif: ["var(--font-inter)", "ui-serif", "Georgia"],
             cursive: ["var(--font-great-vibes)", "cursive"], // Added font
             colors: {
                 border: "hsl(var(--border))",

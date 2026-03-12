@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Trophy, FileText, Newspaper, Gavel } from "lucide-react";
+import { ArrowRight, Trophy, BookOpen, Newspaper, Gavel } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const sections = [
@@ -20,7 +20,7 @@ const sections = [
     title: "Regolamento",
     description: "Scopri le regole ufficiali della lega.",
     href: "/regolamento",
-    icon: FileText,
+    icon: BookOpen,
     color: "text-indigo-400",
     bg: "hover:bg-indigo-400/10",
     border: "hover:border-indigo-400/50"
@@ -96,7 +96,7 @@ export default function Home() {
               width={800}
               height={400}
               className="w-full h-auto drop-shadow-2xl"
-              priority
+              priority={true}
             />
             {/* Ambient Atmosphere */}
             <div className="absolute inset-0 bg-green-500/10 blur-[120px] z-0 rounded-full opacity-40 pointer-events-none mix-blend-screen" />
@@ -113,10 +113,10 @@ export default function Home() {
         >
           {sections.map((section) => (
             <motion.div key={section.title} variants={itemVariants}>
-              <Link href={section.href} className="block group">
+              <Link href={section.href} className="block group" aria-label={section.title}>
                 <div className={cn(
-                  "relative overflow-hidden p-8 rounded-2xl bg-[#111]/80 backdrop-blur-md border border-white/5 transition-all duration-500",
-                  "group-hover:translate-y-[-5px] group-hover:shadow-2xl",
+                  "relative overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6",
+                  "transition-all duration-300 hover:bg-white/10 hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]",
                   section.bg, section.border
                 )}>
                   <div className="flex items-center justify-between mb-4">
