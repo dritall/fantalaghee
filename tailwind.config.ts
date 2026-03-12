@@ -8,6 +8,10 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                outfit: ['var(--font-outfit)', 'sans-serif'],
+                inter: ['var(--font-inter)', 'sans-serif']
+            },
             sans: ["var(--font-inter)", "ui-sans-serif", "system-ui"],
             oswald: ["var(--font-outfit)", "ui-sans-serif", "system-ui"],
             serif: ["var(--font-inter)", "ui-serif", "Georgia"],

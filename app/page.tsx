@@ -115,7 +115,7 @@ export default function Home() {
             <motion.div key={section.title} variants={itemVariants}>
               <Link href={section.href} className="block group" aria-label={section.title}>
                 <div className={cn(
-                  "relative overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6",
+                  "relative overflow-hidden bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl shadow-black/50 rounded-2xl p-6",
                   "transition-all duration-300 hover:bg-white/10 hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]",
                   section.bg, section.border
                 )}>
@@ -123,10 +123,10 @@ export default function Home() {
                     <section.icon className={cn("w-8 h-8 transition-colors", section.color)} />
                     <ArrowRight className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 transition-transform duration-300" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2 uppercase tracking-wide">
+                  <h2 className="text-2xl font-bold font-outfit text-white mb-2 uppercase tracking-wide">
                     {section.title}
                   </h2>
-                  <p className="text-gray-400 group-hover:text-gray-200 transition-colors">
+                  <p className="text-gray-400 font-inter group-hover:text-gray-200 transition-colors">
                     {section.description}
                   </p>
 
