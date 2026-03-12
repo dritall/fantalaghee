@@ -7,6 +7,13 @@
       "placeholder": false
      },
     {
+        "id": "recupero-giornata",
+        "date": "1 Febbraio 2026",
+        "title": "Recupero Giornata: Chi ha vinto davvero?",
+        "imageUrl": "/image/gazzetta/speciale-giro-di-boa.jpg",
+        "placeholder": false
+    },
+    {
         "id": "la-trilogia-del-potere",
         "date": "15 Febbraio 2026",
         "title": "La Trilogia del Potere e la Mattanza delle Coppe: il Lagh\u00e8e cambia padrone",
