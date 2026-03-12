@@ -88,39 +88,18 @@ export default function Home() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex flex-col items-center text-center space-y-6"
         >
-          {/* ATOMIC NEON LOGO - STRAIGHT & CLEAN (RECOVERY) */}
-          <div className="relative z-50 flex flex-col md:flex-row items-baseline justify-center gap-2 md:gap-6 p-10 select-none">
-
-            {/* FANTA: Electric Cyan/Blue Neon (Oswald) */}
-            <h1 className="font-oswald text-8xl md:text-[11rem] font-bold tracking-tighter uppercase relative z-10 text-white"
-              style={{
-                textShadow: `
-                    0 0 5px #fff,
-                    0 0 10px #fff,
-                    0 0 20px #00ffff,
-                    0 0 40px #00ffff,
-                    0 0 80px #00ffff
-                  `
-              }}>
-              FANTA
-            </h1>
-
-            {/* LAGHÈE: Golden/Amber Neon (Serif - Merriweather) - STRAIGHT */}
-            <h1 className="font-serif text-7xl md:text-[10rem] font-bold tracking-tight relative z-10 text-[#fffdd0]"
-              style={{
-                textShadow: `
-                    0 0 5px #fff,
-                    0 0 10px #fff,
-                    0 0 20px #ffaa00,
-                    0 0 40px #ffaa00,
-                    0 0 80px #ffaa00
-                  `
-              }}>
-              Laghèe
-            </h1>
-
+          {/* OFFICIAL BRAND LOGO */}
+          <div className="relative z-50 flex items-center justify-center p-4 md:p-10 select-none w-full max-w-[800px] mx-auto">
+            <Image
+              src="/image/logo-fantalaghee.png"
+              alt="Fantalaghee Official Logo"
+              width={800}
+              height={400}
+              className="w-full h-auto drop-shadow-2xl"
+              priority
+            />
             {/* Ambient Atmosphere */}
-            <div className="absolute inset-0 bg-blue-500/10 blur-[150px] z-0 rounded-full opacity-50 pointer-events-none mix-blend-screen" />
+            <div className="absolute inset-0 bg-green-500/10 blur-[120px] z-0 rounded-full opacity-40 pointer-events-none mix-blend-screen" />
           </div>
 
         </motion.div>
