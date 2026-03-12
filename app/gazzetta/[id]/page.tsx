@@ -74,45 +74,59 @@ export default function ArticlePage() {
     );
 
     return (
-        <article className="min-h-screen bg-[#050505] text-white pt-24 pb-12">
-            <div className="max-w-4xl mx-auto px-6">
-                
-                {/* Back Button */}
-                <Link href="/gazzetta" className="inline-flex items-center text-white/50 hover:text-white mb-8 transition-colors text-sm font-medium">
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Torna alla Gazzetta
-                </Link>
+        <article className="min-h-screen bg-[#050505] text-white">
+            
+            {/* 1. Hero Header con Background */}
+            <div className="relative w-full h-[50vh] min-h-[400px] overflow-hidden flex flex-col justify-end pt-24">
+                {/* Background Image */}
+                <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${metadata.image})` }}
+                />
+                {/* Overlay Scuro */}
+                <div className="absolute inset-0 bg-black/60 bg-gradient-to-t from-[#050505] via-black/70 to-black/30" />
 
-                {/* 1. H1 (Titolo) ed Eventuale Descrizione */}
-                <div className="mb-6">
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-oswald uppercase leading-tight mb-4 tracking-wide">
+                {/* Contenuto in Sovrimpressione (Titolo, Metadati) */}
+                <div className="relative z-10 w-full max-w-5xl mx-auto px-6 pb-12">
+                    {/* Back Button (Sticky-like via placement) */}
+                    <Link href="/gazzetta" className="inline-flex items-center text-white/70 hover:text-white mb-6 transition-colors text-sm font-medium bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
+                        <ArrowLeft className="w-4 h-4 mr-2" /> Torna alla Gazzetta
+                    </Link>
+
+                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold font-oswald uppercase leading-tight mb-4 tracking-wide text-white drop-shadow-2xl">
                         {metadata.title}
                     </h1>
+                    
                     {metadata.description && (
-                         <p className="text-xl text-gray-400 font-serif italic max-w-3xl border-l-4 border-rose-500 pl-4 py-1">
+                         <p className="text-xl md:text-2xl text-gray-200 font-serif italic max-w-3xl border-l-4 border-rose-500 pl-4 py-1 mb-8 drop-shadow-lg">
                              {metadata.description}
                          </p>
                     )}
-                </div>
 
-                {/* 2. Metadati (Autore e Data formattata) */}
-                <div className="flex items-center gap-4 text-rose-400 font-medium mb-10 pb-6 border-b border-white/10">
-                    <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formatDateToItalian(metadata.date)}</span>
+                    <div className="flex flex-wrap items-center gap-4 text-rose-400 font-medium">
+                        <div className="flex items-center gap-2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                            <Calendar className="w-4 h-4" />
+                            <span>{formatDateToItalian(metadata.date)}</span>
+                        </div>
+                        <span className="text-white/80 text-sm bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                            di {metadata.author}
+                        </span>
                     </div>
-                    <span className="text-white/50 text-sm">di {metadata.author}</span>
                 </div>
+            </div>
 
-                {/* 3. Immagine di Copertina */}
-                <div className="w-full relative rounded-2xl overflow-hidden mb-12 shadow-2xl border border-white/5 aspect-video bg-neutral-900">
+            <div className="max-w-4xl mx-auto px-6 py-12">
+                
+                {/* 2. Immagine Completa e Non Tagliata */}
+                <div className="w-full relative rounded-2xl overflow-hidden mb-12 shadow-2xl bg-[#0a0a0a] p-2 border border-white/10">
                     <img 
                         src={metadata.image} 
                         alt={`Copertina per ${metadata.title}`} 
-                        className="w-full h-full object-cover"
+                        className="w-full h-auto object-contain max-h-[75vh] rounded-xl"
                     />
                 </div>
 
-                {/* 4. Corpo del Testo (Markdown) */}
+                {/* 3. Corpo del Testo (Markdown) */}
                 <div className="prose prose-invert prose-lg prose-rose max-w-none 
                     prose-headings:font-oswald prose-headings:font-bold prose-headings:uppercase prose-headings:tracking-wide
                     prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-serif
