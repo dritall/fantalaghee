@@ -95,6 +95,7 @@ export default function ScoutSerieAHub() {
         }
         
         const data = res.data.response || [];
+        console.log("✅ Dati API Ricevuti:", data);
         sessionStorage.setItem('serieA_calendar', JSON.stringify(data));
         setupMatches(data);
       } catch (err: any) {
@@ -113,7 +114,7 @@ export default function ScoutSerieAHub() {
     if (data.length > 0) {
       const activeStatuses = ['NS', 'TBD', '1H', '2H', 'HT'];
       
-      const rounds = Array.from(new Set(data.map(f => {
+      const rounds = Array.from(new Set((data || []).map(f => {
         const match = f.league.round.match(/\d+/);
         return match ? parseInt(match[0], 10) : 0;
       }))).filter(r => r > 0).sort((a,b) => a-b);
@@ -230,7 +231,7 @@ export default function ScoutSerieAHub() {
     
     return (
       <ul className="space-y-2">
-        {teamEvents.map((e, idx) => {
+        {(teamEvents || []).map((e, idx) => {
           if (e.type === 'Goal') {
             return (
               <li key={idx} className="text-emerald-400 text-sm flex items-start gap-2 font-medium">
@@ -404,7 +405,7 @@ export default function ScoutSerieAHub() {
                     <span>🎯</span>
                   </div>
                   <div className="divide-y divide-slate-800/40">
-                    {topScorers.slice(0, 10).map((s, idx) => (
+                    {(topScorers || []).slice(0, 10).map((s, idx) => (
                       <div key={s.player.id} className="flex items-center justify-between p-3 px-6 hover:bg-slate-800/40 transition-colors">
                         <div className="flex items-center gap-4">
                           <span className={`text-xs font-black ${idx < 3 ? 'text-emerald-500' : 'text-slate-700'}`}>{idx + 1}</span>
@@ -424,7 +425,7 @@ export default function ScoutSerieAHub() {
                     <span>👟</span>
                   </div>
                   <div className="divide-y divide-slate-800/40">
-                    {topAssists.slice(0, 10).map((a, idx) => (
+                    {(topAssists || []).slice(0, 10).map((a, idx) => (
                       <div key={a.player.id} className="flex items-center justify-between p-3 px-6 hover:bg-slate-800/40 transition-colors">
                         <div className="flex items-center gap-4">
                           <span className={`text-xs font-black ${idx < 3 ? 'text-emerald-500' : 'text-slate-700'}`}>{idx + 1}</span>
@@ -447,13 +448,19 @@ export default function ScoutSerieAHub() {
             <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onClick={() => setModalFixture(null)} />
             <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800/50 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in duration-200">
               
-              <div className="p-6 border-b border-slate-800/50 flex items-center justify-between">
-                <div>
-                  <p className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-1">DETTAGLI (ID {modalFixture.fixture.id})</p>
+              <div className="p-6 border-b border-slate-800/50 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.3em]">DETTAGLI PARTITA (ID {modalFixture.fixture.id})</p>
+                    <h2 className="text-lg font-black text-white italic truncate">
+                      {modalFixture.teams.home.name} vs {modalFixture.teams.away.name}
+                    </h2>
+                    <p className="text-[10px] text-slate-500 font-medium">Cronaca e statistici dell'incontro</p>
+                  </div>
+                  <button onClick={() => setModalFixture(null)} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all">
+                    <X className="w-5 h-5 text-slate-400" />
+                  </button>
                 </div>
-                <button onClick={() => setModalFixture(null)} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all">
-                  <X className="w-5 h-5 text-slate-400" />
-                </button>
               </div>
 
               <div className="p-6 md:p-8">
