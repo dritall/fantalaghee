@@ -1,142 +1,311 @@
+"use client";
+
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import React from 'react';
 
-// Data shapes based on API-Sports fixtures endpoint
-type FixtureEvent = {
-  time: { elapsed: number; extra: number | null };
-  team: { id: number; name: string; logo: string };
-  player: { id: number; name: string };
-  assist: { id: number; name: string | null };
-  type: string;
-  detail: string;
-};
+// --- Types ---
+interface TheSportsDBEvent {
+  idEvent: string;
+  strEvent: string;
+  strHomeTeam: string;
+  strAwayTeam: string;
+  intRound: string;
+  dateEvent: string;
+  strTime: string;
+  intHomeScore: string | null;
+  intAwayScore: string | null;
+  strHomeGoalDetails: string | null;
+  strAwayGoalDetails: string | null;
+}
 
-type FixtureResponse = {
-  fixture: { id: number; date: string; status: { short: string } };
-  league: { id: number; name: string };
-  teams: {
-    home: { id: number; name: string; logo: string };
-    away: { id: number; name: string; logo: string };
+interface Team {
+  idTeam: string;
+  strTeam: string;
+  strTeamBadge: string;
+}
+
+type TabType = 'LATEST' | 'CALENDAR' | 'SCORERS';
+
+export default function ScoutSerieAClient() {
+  const [events, setEvents] = useState<TheSportsDBEvent[]>([]);
+  const [teams, setTeams] = useState<Record<string, string>>({}); // Mapping name -> logo URL
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<TabType>('LATEST');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch Calendar & Teams in parallel
+        const [calendarRes, teamsRes] = await Promise.all([
+          axios.get('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4332&s=2025-2026'),
+          axios.get('https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=Italian%20Serie%20A')
+        ]);
+
+        const fetchedEvents = calendarRes.data.events || [];
+        setEvents(fetchedEvents);
+
+        const fetchedTeams = teamsRes.data.teams || [];
+        const teamMap: Record<string, string> = {};
+        fetchedTeams.forEach((t: Team) => {
+          teamMap[t.strTeam] = t.strTeamBadge;
+        });
+        setTeams(teamMap);
+
+      } catch (err: any) {
+        setError(err.message || "Errore nel caricamento dei dati da TheSportsDB");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // --- Helpers ---
+  const parseGoals = (details: string | null): string[] => {
+    if (!details) return [];
+    return details
+      .split(';')
+      .map(g => g.trim())
+      .filter(Boolean)
+      // Removes numbers, colons, and apostrophes (e.g., "45':Pulisic C." -> "Pulisic C.")
+      .map(g => g.replace(/[0-9:']/g, '').trim())
+      .filter(Boolean);
   };
-  goals: { home: number | null; away: number | null };
-  score: { fulltime: { home: number | null; away: number | null } };
-  events?: FixtureEvent[];
-};
 
-export default async function ScoutSerieA() {
-  let matches: FixtureResponse[] = [];
-  let error: string | null = null;
+  const getTeamLogo = (teamName: string) => {
+    // Basic fuzziness or exact match
+    return teams[teamName] || null;
+  };
 
-  try {
-    const res = await axios.get('https://v3.football.api-sports.io/fixtures', {
-      params: {
-        league: 135,
-        season: 2025,
-        last: 10,
-      },
-      headers: {
-        'x-apisports-key': process.env.REACT_APP_FOOTBALL_API_KEY,
-      },
+  // --- Derived Data ---
+  const filteredEvents = useMemo(() => {
+    const query = searchQuery.toLowerCase();
+    return events.filter(e => {
+      if (!query) return true;
+      const homeMatch = e.strHomeTeam.toLowerCase().includes(query);
+      const awayMatch = e.strAwayTeam.toLowerCase().includes(query);
+      const homeGoalsMatch = (e.strHomeGoalDetails || '').toLowerCase().includes(query);
+      const awayGoalsMatch = (e.strAwayGoalDetails || '').toLowerCase().includes(query);
+      return homeMatch || awayMatch || homeGoalsMatch || awayGoalsMatch;
+    });
+  }, [events, searchQuery]);
+
+  const latestMatches = useMemo(() => {
+    return filteredEvents
+      .filter(e => e.intHomeScore !== null && e.intAwayScore !== null)
+      .sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime()); // reverse chrono
+  }, [filteredEvents]);
+
+  const topScorers = useMemo(() => {
+    const scorerCounts: Record<string, number> = {};
+    const finishedMatches = events.filter(e => e.intHomeScore !== null);
+
+    finishedMatches.forEach(match => {
+      const homeGoals = parseGoals(match.strHomeGoalDetails);
+      const awayGoals = parseGoals(match.strAwayGoalDetails);
+
+      [...homeGoals, ...awayGoals].forEach(scorer => {
+        // Clean up empty or weird names
+        if (scorer && scorer.length > 2) {
+          scorerCounts[scorer] = (scorerCounts[scorer] || 0) + 1;
+        }
+      });
     });
 
-    if (res.data.errors && Object.keys(res.data.errors).length > 0) {
-      error = Object.values(res.data.errors)[0] as string;
-    } else {
-      matches = res.data.response || [];
-    }
-  } catch (err: any) {
-    error = err.message || 'Errore nel caricamento dei dati';
+    return Object.entries(scorerCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+  }, [events]);
+
+  // --- Renders ---
+  const renderMatchCard = (match: TheSportsDBEvent) => {
+    const homeLogo = getTeamLogo(match.strHomeTeam);
+    const awayLogo = getTeamLogo(match.strAwayTeam);
+
+    const homeGoals = parseGoals(match.strHomeGoalDetails);
+    const awayGoals = parseGoals(match.strAwayGoalDetails);
+
+    return (
+      <div key={match.idEvent} className="bg-slate-900 rounded-xl p-5 shadow-lg border border-slate-800 hover:border-slate-700 transition-colors">
+        <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+          <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            Giornata {match.intRound}
+          </div>
+          <div className="text-slate-400 text-xs">
+            {new Date(match.dateEvent).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
+            {match.strTime && ` - ${match.strTime.substring(0, 5)}`}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mb-4">
+          {/* Home */}
+          <div className="flex flex-col items-center w-1/3 text-center">
+            {homeLogo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={homeLogo} alt={match.strHomeTeam} className="w-12 h-12 md:w-16 md:h-16 object-contain mb-2" />
+            ) : (
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-800 rounded-full mb-2 flex items-center justify-center text-xs text-slate-500">Logo</div>
+            )}
+            <span className="font-bold text-sm text-slate-200">{match.strHomeTeam}</span>
+          </div>
+
+          {/* Score */}
+          <div className="flex flex-col items-center w-1/3">
+            <div className="text-2xl md:text-3xl font-black tracking-tighter text-white">
+              {match.intHomeScore ?? '-'} <span className="text-slate-600 mx-1">-</span> {match.intAwayScore ?? '-'}
+            </div>
+          </div>
+
+          {/* Away */}
+          <div className="flex flex-col items-center w-1/3 text-center">
+            {awayLogo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={awayLogo} alt={match.strAwayTeam} className="w-12 h-12 md:w-16 md:h-16 object-contain mb-2" />
+            ) : (
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-800 rounded-full mb-2 flex items-center justify-center text-xs text-slate-500">Logo</div>
+            )}
+            <span className="font-bold text-sm text-slate-200">{match.strAwayTeam}</span>
+          </div>
+        </div>
+
+        {/* Goal Details */}
+        {(homeGoals.length > 0 || awayGoals.length > 0) && (
+          <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-800 text-xs text-slate-400">
+            <div>
+              {homeGoals.map((scorer, i) => (
+                <div key={i} className="mb-1 flex items-center gap-1">⚽ <span className="text-slate-300">{scorer}</span></div>
+              ))}
+            </div>
+            <div className="text-right flex flex-col items-end">
+              {awayGoals.map((scorer, i) => (
+                <div key={i} className="mb-1 flex items-center gap-1"><span className="text-slate-300">{scorer}</span> ⚽</div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-slate-800 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
+        <p className="text-emerald-500 font-semibold tracking-wide animate-pulse">Analisi Scout in corso...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-sans">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-white border-b border-slate-700 pb-4">
-          Scout Serie A (Ultime 10 Partite)
-        </h1>
+    <div className="min-h-screen bg-slate-950 text-slate-200 p-4 md:p-8 font-sans selection:bg-emerald-500/30">
+      <div className="max-w-5xl mx-auto">
+        {/* Header & Search */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">
+            Centrale Operativa Scout
+          </h1>
+          <p className="text-slate-500 mb-6 font-medium">Database: TheSportsDB (Serie A 2025/2026)</p>
+          
+          <input
+            type="text"
+            placeholder="Cerca squadra o giocatore (es. Pulisic, Milan...)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-slate-900 border border-slate-800 text-slate-100 rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-slate-600 shadow-inner"
+          />
+        </div>
 
         {error && (
-          <div className="bg-red-900/50 border border-red-500 text-red-200 p-4 rounded-lg mb-8">
-            <p><strong>Errore API:</strong> {error}</p>
+          <div className="bg-red-950/50 border border-red-500/50 text-red-200 p-4 rounded-xl mb-8 flex items-center">
+            <span className="text-xl mr-3">⚠️</span> {error}
           </div>
         )}
 
-        {matches.length === 0 && !error && (
-          <div className="text-slate-400 italic">Nessuna partita trovata.</div>
-        )}
+        {/* Tabs */}
+        <div className="flex space-x-2 bg-slate-900 p-2 rounded-2xl mb-8 border border-slate-800 overflow-x-auto hide-scrollbar">
+          {(['LATEST', 'CALENDAR', 'SCORERS'] as TabType[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 min-w-[120px] rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
+                activeTab === tab 
+                  ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-md' 
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+              }`}
+            >
+              {tab === 'LATEST' && 'Risultati'}
+              {tab === 'CALENDAR' && 'Calendario'}
+              {tab === 'SCORERS' && 'Marcatori'}
+            </button>
+          ))}
+        </div>
 
-        <div className="space-y-6">
-          {matches.map((match) => {
-            const homeGoals = match.events?.filter(e => e.type === 'Goal' && e.team.id === match.teams.home.id) || [];
-            const awayGoals = match.events?.filter(e => e.type === 'Goal' && e.team.id === match.teams.away.id) || [];
-
-            return (
-              <div key={match.fixture.id} className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
-                <div className="flex justify-between items-center mb-6">
-                  <div className="text-slate-400 text-sm">
-                    {new Date(match.fixture.date).toLocaleDateString('it-IT', {
-                      weekday: 'short', day: '2-digit', month: 'long', year: 'numeric'
-                    })}
-                  </div>
-                  <div className="px-3 py-1 bg-slate-700 rounded-full text-xs font-semibold text-slate-300">
-                    {match.fixture.status.short}
-                  </div>
+        {/* Content Area */}
+        <div className="min-h-[50vh]">
+          {activeTab === 'LATEST' && (
+            <div className="space-y-4">
+              {latestMatches.length === 0 ? (
+                <div className="text-center text-slate-500 py-12">Nessun risultato trovato.</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {latestMatches.map(renderMatchCard)}
                 </div>
+              )}
+            </div>
+          )}
 
-                <div className="flex items-center justify-between mb-6">
-                  {/* Home Team */}
-                  <div className="flex flex-col items-center w-1/3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={match.teams.home.logo} alt={match.teams.home.name} className="w-16 h-16 object-contain mb-3" />
-                    <span className="font-bold text-center text-sm md:text-lg">{match.teams.home.name}</span>
-                  </div>
-
-                  {/* Score */}
-                  <div className="flex flex-col items-center w-1/3">
-                    <div className="text-3xl md:text-4xl font-black tracking-tight mb-2 text-center">
-                      {match.goals.home ?? '-'} <span className="text-slate-500 mx-1 md:mx-2">-</span> {match.goals.away ?? '-'}
-                    </div>
-                  </div>
-
-                  {/* Away Team */}
-                  <div className="flex flex-col items-center w-1/3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={match.teams.away.logo} alt={match.teams.away.name} className="w-16 h-16 object-contain mb-3" />
-                    <span className="font-bold text-center text-sm md:text-lg">{match.teams.away.name}</span>
-                  </div>
+          {activeTab === 'CALENDAR' && (
+            <div className="space-y-4">
+              {filteredEvents.length === 0 ? (
+                <div className="text-center text-slate-500 py-12">Nessuna partita trovata.</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredEvents.map(renderMatchCard)}
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Scorers & Assists */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-700 text-sm">
-                  {/* Home Scorers */}
-                  <div>
-                    {homeGoals.map((event, idx) => (
-                      <div key={idx} className="mb-1 text-slate-300 flex flex-wrap items-center gap-1">
-                        <span className="font-medium">⚽ {event.player.name}</span>
-                        <span className="text-slate-500 text-xs">({event.time.elapsed}&apos;)</span>
-                        {event.assist?.name && (
-                          <span className="text-slate-400 text-xs ml-1">🅰️ {event.assist.name}</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Away Scorers */}
-                  <div className="text-right flex flex-col items-end">
-                    {awayGoals.map((event, idx) => (
-                      <div key={idx} className="mb-1 text-slate-300 flex flex-wrap items-center gap-1 justify-end">
-                        {event.assist?.name && (
-                          <span className="text-slate-400 text-xs mr-1">🅰️ {event.assist.name}</span>
-                        )}
-                        <span className="font-medium">⚽ {event.player.name}</span>
-                        <span className="text-slate-500 text-xs text-right">({event.time.elapsed}&apos;)</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          {activeTab === 'SCORERS' && (
+            <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
+              <div className="p-6 border-b border-slate-800 bg-slate-900/50">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span>🏆</span> Top 10 Marcatori
+                </h3>
+                <p className="text-slate-500 text-sm mt-1">Calcolata in tempo reale dai match reports</p>
               </div>
-            );
-          })}
+              <div className="divide-y divide-slate-800/50">
+                {topScorers.length === 0 ? (
+                  <div className="p-8 text-center text-slate-500">Dati marcatori non sufficienti.</div>
+                ) : (
+                  topScorers.map(([name, goals], index) => (
+                    <div key={name} className="flex items-center justify-between p-4 hover:bg-slate-800/30 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                          index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                          index === 1 ? 'bg-slate-300/20 text-slate-300' :
+                          index === 2 ? 'bg-amber-700/20 text-amber-600' :
+                          'bg-slate-800 text-slate-400'
+                        }`}>
+                          {index + 1}
+                        </div>
+                        <span className="font-semibold text-slate-200 text-lg">{name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-black text-emerald-400">{goals}</span>
+                        <span className="text-slate-500 text-sm">gol</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
