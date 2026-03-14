@@ -16,7 +16,7 @@ import {
 const API_KEY = process.env.NEXT_PUBLIC_FOOTBALL_API_KEY || '';
 const API_BASE = 'https://v3.football.api-sports.io';
 const HEADERS = {
-  'x-apisports-key': API_KEY
+  'x-apisports-key': process.env.NEXT_PUBLIC_FOOTBALL_API_KEY || ''
 };
 
 interface FixtureData {
@@ -74,6 +74,7 @@ export default function ScoutSerieAHub() {
   // --- 1. Fetch Iniziale (Calendario) ---
   useEffect(() => {
     const fetchCalendar = async () => {
+      console.log("Stato Chiave API:", process.env.NEXT_PUBLIC_FOOTBALL_API_KEY ? "Presente e letta" : "UNDEFINED! Manca la variabile");
       try {
         setLoadingInitial(true);
         setErrorHeader(null);
