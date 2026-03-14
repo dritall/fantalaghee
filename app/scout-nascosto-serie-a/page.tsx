@@ -23,7 +23,8 @@ interface TheSportsDBEvent {
 interface Team {
   idTeam: string;
   strTeam: string;
-  strTeamBadge: string;
+  strTeamBadge?: string;
+  strBadge?: string;
 }
 
 type TabType = 'LATEST' | 'CALENDAR' | 'SCORERS';
@@ -40,19 +41,19 @@ export default function ScoutSerieAClient() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch Calendar (24/25) & Teams in parallel
+        // Fetch Calendar (25/26) & Teams in parallel
         const [calendarRes, teamsRes] = await Promise.all([
-          axios.get('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4332&s=2024-2025'),
+          axios.get('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4332&s=2025-2026'),
           axios.get('https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=Italian%20Serie%20A')
         ]);
 
-        const fetchedEvents = calendarRes.data.events || [];
+        const fetchedEvents = calendarRes.data?.events || [];
         setEvents(fetchedEvents);
 
-        const fetchedTeams = teamsRes.data.teams || [];
+        const fetchedTeams = teamsRes.data?.teams || [];
         const teamMap: Record<string, string> = {};
         fetchedTeams.forEach((t: Team) => {
-          teamMap[t.idTeam] = t.strTeamBadge;
+          teamMap[String(t.idTeam)] = t.strBadge || t.strTeamBadge || '';
         });
         setTeams(teamMap);
 
@@ -78,8 +79,8 @@ export default function ScoutSerieAClient() {
       .filter(Boolean);
   };
 
-  const getTeamLogo = (teamId: string) => {
-    return teams[teamId] || null;
+  const getTeamLogo = (teamId: string | number) => {
+    return teams[String(teamId)] || null;
   };
 
   // --- Derived Data ---
@@ -132,8 +133,8 @@ export default function ScoutSerieAClient() {
     const homeLogo = getTeamLogo(match.idHomeTeam);
     const awayLogo = getTeamLogo(match.idAwayTeam);
 
-    const homeGoals = parseGoals(match.strHomeGoalDetails);
-    const awayGoals = parseGoals(match.strAwayGoalDetails);
+    const homeGoals = match.strHomeGoalDetails ? match.strHomeGoalDetails.split(';').filter(Boolean) : [];
+    const awayGoals = match.strAwayGoalDetails ? match.strAwayGoalDetails.split(';').filter(Boolean) : [];
 
     return (
       <div key={match.idEvent} className="bg-slate-900 rounded-xl p-5 shadow-lg border border-slate-800 hover:border-slate-700 transition-colors">
@@ -183,12 +184,12 @@ export default function ScoutSerieAClient() {
           <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-800 text-xs text-slate-400">
             <div>
               {homeGoals.map((scorer, i) => (
-                <div key={i} className="mb-1 flex items-center gap-1">⚽ <span className="text-slate-300">{scorer}</span></div>
+                <div key={i} className="mb-1 flex items-start gap-1">⚽ <span className="text-slate-300">{scorer.trim()}</span></div>
               ))}
             </div>
             <div className="text-right flex flex-col items-end">
               {awayGoals.map((scorer, i) => (
-                <div key={i} className="mb-1 flex items-center gap-1"><span className="text-slate-300">{scorer}</span> ⚽</div>
+                <div key={i} className="mb-1 flex items-start gap-1 justify-end"><span className="text-slate-300">{scorer.trim()}</span> ⚽</div>
               ))}
             </div>
           </div>
@@ -198,17 +199,19 @@ export default function ScoutSerieAClient() {
   };
 
   const renderGroupedMatches = (matches: TheSportsDBEvent[], sortOrder: 'asc' | 'desc') => {
-    if (matches.length === 0) {
+    if (!matches || matches.length === 0) {
       return <div className="text-center text-slate-500 py-12">Nessuna partita trovata.</div>;
     }
 
-    // Group by intRound
-    const groups: Record<string, TheSportsDBEvent[]> = {};
-    matches.forEach(m => {
+    // Group by intRound using reduce
+    const groups = matches.reduce((acc: Record<string, TheSportsDBEvent[]>, m) => {
       const round = m.intRound || 'Sconosciuta';
-      if (!groups[round]) groups[round] = [];
-      groups[round].push(m);
-    });
+      if (!acc[round]) {
+        acc[round] = [];
+      }
+      acc[round].push(m);
+      return acc;
+    }, {});
 
     // Sort rounds
     const sortedRounds = Object.keys(groups).sort((a, b) => {
@@ -254,7 +257,7 @@ export default function ScoutSerieAClient() {
           <h1 className="text-3xl md:text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">
             Centrale Operativa Scout
           </h1>
-          <p className="text-slate-500 mb-6 font-medium">Database: TheSportsDB (Serie A 2024/2025)</p>
+          <p className="text-slate-500 mb-6 font-medium">Database: TheSportsDB (Serie A 2025/2026)</p>
           
           <input
             type="text"
@@ -306,7 +309,7 @@ export default function ScoutSerieAClient() {
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <span>🏆</span> Top 10 Marcatori
                 </h3>
-                <p className="text-slate-500 text-sm mt-1">Calcolata in tempo reale dai match reports (Stagione 24/25)</p>
+                <p className="text-slate-500 text-sm mt-1">Calcolata in tempo reale dai match reports (Stagione 25/26)</p>
               </div>
               <div className="divide-y divide-slate-800/50">
                 {topScorers.length === 0 ? (
