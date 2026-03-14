@@ -7,6 +7,8 @@ import axios from 'axios';
 interface TheSportsDBEvent {
   idEvent: string;
   strEvent: string;
+  idHomeTeam: string;
+  idAwayTeam: string;
   strHomeTeam: string;
   strAwayTeam: string;
   intRound: string;
@@ -28,7 +30,7 @@ type TabType = 'LATEST' | 'CALENDAR' | 'SCORERS';
 
 export default function ScoutSerieAClient() {
   const [events, setEvents] = useState<TheSportsDBEvent[]>([]);
-  const [teams, setTeams] = useState<Record<string, string>>({}); // Mapping name -> logo URL
+  const [teams, setTeams] = useState<Record<string, string>>({}); // Mapping id -> logo URL
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -38,9 +40,9 @@ export default function ScoutSerieAClient() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch Calendar & Teams in parallel
+        // Fetch Calendar (24/25) & Teams in parallel
         const [calendarRes, teamsRes] = await Promise.all([
-          axios.get('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4332&s=2025-2026'),
+          axios.get('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4332&s=2024-2025'),
           axios.get('https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=Italian%20Serie%20A')
         ]);
 
@@ -50,7 +52,7 @@ export default function ScoutSerieAClient() {
         const fetchedTeams = teamsRes.data.teams || [];
         const teamMap: Record<string, string> = {};
         fetchedTeams.forEach((t: Team) => {
-          teamMap[t.strTeam] = t.strTeamBadge;
+          teamMap[t.idTeam] = t.strTeamBadge;
         });
         setTeams(teamMap);
 
@@ -76,9 +78,8 @@ export default function ScoutSerieAClient() {
       .filter(Boolean);
   };
 
-  const getTeamLogo = (teamName: string) => {
-    // Basic fuzziness or exact match
-    return teams[teamName] || null;
+  const getTeamLogo = (teamId: string) => {
+    return teams[teamId] || null;
   };
 
   // --- Derived Data ---
@@ -98,6 +99,11 @@ export default function ScoutSerieAClient() {
     return filteredEvents
       .filter(e => e.intHomeScore !== null && e.intAwayScore !== null)
       .sort((a, b) => new Date(b.dateEvent).getTime() - new Date(a.dateEvent).getTime()); // reverse chrono
+  }, [filteredEvents]);
+
+  const calendarMatches = useMemo(() => {
+    // Sort calendar ascending
+    return [...filteredEvents].sort((a, b) => new Date(a.dateEvent).getTime() - new Date(b.dateEvent).getTime());
   }, [filteredEvents]);
 
   const topScorers = useMemo(() => {
@@ -123,8 +129,8 @@ export default function ScoutSerieAClient() {
 
   // --- Renders ---
   const renderMatchCard = (match: TheSportsDBEvent) => {
-    const homeLogo = getTeamLogo(match.strHomeTeam);
-    const awayLogo = getTeamLogo(match.strAwayTeam);
+    const homeLogo = getTeamLogo(match.idHomeTeam);
+    const awayLogo = getTeamLogo(match.idAwayTeam);
 
     const homeGoals = parseGoals(match.strHomeGoalDetails);
     const awayGoals = parseGoals(match.strAwayGoalDetails);
@@ -135,7 +141,7 @@ export default function ScoutSerieAClient() {
           <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
             Giornata {match.intRound}
           </div>
-          <div className="text-slate-400 text-xs">
+          <div className="text-slate-400 text-xs text-right">
             {new Date(match.dateEvent).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
             {match.strTime && ` - ${match.strTime.substring(0, 5)}`}
           </div>
@@ -191,6 +197,45 @@ export default function ScoutSerieAClient() {
     );
   };
 
+  const renderGroupedMatches = (matches: TheSportsDBEvent[], sortOrder: 'asc' | 'desc') => {
+    if (matches.length === 0) {
+      return <div className="text-center text-slate-500 py-12">Nessuna partita trovata.</div>;
+    }
+
+    // Group by intRound
+    const groups: Record<string, TheSportsDBEvent[]> = {};
+    matches.forEach(m => {
+      const round = m.intRound || 'Sconosciuta';
+      if (!groups[round]) groups[round] = [];
+      groups[round].push(m);
+    });
+
+    // Sort rounds
+    const sortedRounds = Object.keys(groups).sort((a, b) => {
+      const numA = parseInt(a, 10);
+      const numB = parseInt(b, 10);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return sortOrder === 'asc' ? numA - numB : numB - numA;
+      }
+      return sortOrder === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+    });
+
+    return (
+      <div className="space-y-8">
+        {sortedRounds.map(round => (
+          <div key={round} className="space-y-4">
+            <h3 className="text-xl font-bold border-b border-slate-800 pb-2 text-emerald-400">
+              Giornata {round}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {groups[round].map(renderMatchCard)}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
 
   if (loading) {
     return (
@@ -202,14 +247,14 @@ export default function ScoutSerieAClient() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-4 md:p-8 font-sans selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-slate-950 text-slate-200 p-4 md:p-8 pt-28 md:pt-32 font-sans selection:bg-emerald-500/30">
       <div className="max-w-5xl mx-auto">
         {/* Header & Search */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">
             Centrale Operativa Scout
           </h1>
-          <p className="text-slate-500 mb-6 font-medium">Database: TheSportsDB (Serie A 2025/2026)</p>
+          <p className="text-slate-500 mb-6 font-medium">Database: TheSportsDB (Serie A 2024/2025)</p>
           
           <input
             type="text"
@@ -248,27 +293,11 @@ export default function ScoutSerieAClient() {
         {/* Content Area */}
         <div className="min-h-[50vh]">
           {activeTab === 'LATEST' && (
-            <div className="space-y-4">
-              {latestMatches.length === 0 ? (
-                <div className="text-center text-slate-500 py-12">Nessun risultato trovato.</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {latestMatches.map(renderMatchCard)}
-                </div>
-              )}
-            </div>
+            renderGroupedMatches(latestMatches, 'desc')
           )}
 
           {activeTab === 'CALENDAR' && (
-            <div className="space-y-4">
-              {filteredEvents.length === 0 ? (
-                <div className="text-center text-slate-500 py-12">Nessuna partita trovata.</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredEvents.map(renderMatchCard)}
-                </div>
-              )}
-            </div>
+            renderGroupedMatches(calendarMatches, 'asc')
           )}
 
           {activeTab === 'SCORERS' && (
@@ -277,7 +306,7 @@ export default function ScoutSerieAClient() {
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <span>🏆</span> Top 10 Marcatori
                 </h3>
-                <p className="text-slate-500 text-sm mt-1">Calcolata in tempo reale dai match reports</p>
+                <p className="text-slate-500 text-sm mt-1">Calcolata in tempo reale dai match reports (Stagione 24/25)</p>
               </div>
               <div className="divide-y divide-slate-800/50">
                 {topScorers.length === 0 ? (
