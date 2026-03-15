@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import axios from 'axios';
 import { 
   Trophy, 
   X, 
@@ -13,43 +12,41 @@ import {
   Info
 } from 'lucide-react';
 
-const API_KEY = process.env.NEXT_PUBLIC_FOOTBALL_API_KEY || '';
-const API_BASE = 'https://v3.football.api-sports.io';
-const HEADERS = {
-  'x-apisports-key': process.env.NEXT_PUBLIC_FOOTBALL_API_KEY || ''
-};
-
-interface FixtureData {
-  fixture: {
-    id: number;
-    date: string;
-    status: { short: string };
+// --- Interfaces FotMob ---
+interface FotMobMatch {
+  id: string;
+  round: number;
+  roundName: string;
+  status: {
+    finished: boolean;
+    started: boolean;
+    cancelled: boolean;
+    scoreStr?: string;
+    reason?: { short: string; long: string };
+    liveTime?: { short: string };
   };
-  league: { round: string };
-  teams: {
-    home: { name: string; logo: string; id: number };
-    away: { name: string; logo: string; id: number };
+  home: {
+    name: string;
+    id: string;
   };
-  goals: { home: number | null; away: number | null };
+  away: {
+    name: string;
+    id: string;
+  };
 }
 
-interface MatchEvent {
-  team: { id: number; name: string };
-  player: { name: string };
-  assist: { name: string | null };
+interface FotMobEvent {
   type: string;
-  detail: string;
-}
-
-interface PlayerStat {
-  player: { id: number; name: string; photo: string };
-  statistics: {
-    goals: { total: number | null; assists: number | null };
-  }[];
+  time: number;
+  text?: string;
+  player?: { name: string; id: string };
+  assist?: { name: string; id: string };
+  card?: string;
+  teamId: string;
 }
 
 export default function ScoutSerieAHub() {
-  const [fixtures, setFixtures] = useState<FixtureData[]>([]);
+  const [fixtures, setFixtures] = useState<FotMobMatch[]>([]);
   const [loadingInitial, setLoadingInitial] = useState<boolean>(true);
   const [errorHeader, setErrorHeader] = useState<string | null>(null);
   const [selectedRound, setSelectedRound] = useState<number>(1);
@@ -57,29 +54,21 @@ export default function ScoutSerieAHub() {
   const [activeTab, setActiveTab] = useState<'MATCHES' | 'STATS'>('MATCHES');
   
   // Modal State
-  const [modalFixture, setModalFixture] = useState<FixtureData | null>(null);
-  const [modalEvents, setModalEvents] = useState<MatchEvent[]>([]);
+  const [modalFixture, setModalFixture] = useState<FotMobMatch | null>(null);
+  const [modalEvents, setModalEvents] = useState<FotMobEvent[]>([]);
   const [loadingModal, setLoadingModal] = useState<boolean>(false);
   const [modalError, setModalError] = useState<string | null>(null);
 
-  // Stats State
-  const [topScorers, setTopScorers] = useState<PlayerStat[]>([]);
-  const [topAssists, setTopAssists] = useState<PlayerStat[]>([]);
-  const [loadingStats, setLoadingStats] = useState<boolean>(false);
-  const [statsLoaded, setStatsLoaded] = useState<boolean>(false);
-  const [statsError, setStatsError] = useState<string | null>(null);
-
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // --- 1. Fetch Iniziale (Calendario) ---
+  // --- 1. Fetch Iniziale (Calendario FotMob) ---
   useEffect(() => {
     const fetchCalendar = async () => {
-      console.log("Stato Chiave API:", process.env.NEXT_PUBLIC_FOOTBALL_API_KEY ? "Presente e letta" : "UNDEFINED! Manca la variabile");
       try {
         setLoadingInitial(true);
         setErrorHeader(null);
 
-        const cached = sessionStorage.getItem('serieA_calendar');
+        const cached = sessionStorage.getItem('fotmob_serieA_calendar');
         if (cached) {
           const parsed = JSON.parse(cached);
           if (parsed && parsed.length > 0) {
@@ -89,29 +78,22 @@ export default function ScoutSerieAHub() {
           }
         }
 
-        const res = await fetch('https://v3.football.api-sports.io/fixtures?league=135&season=2025', {
-          headers: {
-            'x-apisports-key': process.env.NEXT_PUBLIC_FOOTBALL_API_KEY || ''
-          }
-        });
-        
+        const res = await fetch('/api/fotmob?endpoint=leagues?id=54');
         const data = await res.json();
-        console.log("🔍 RAW API RESPONSE:", data);
         
-        // API-Sports restituisce status 200 ma mette gli errori nell'oggetto "errors"
-        if (data.errors && (Array.isArray(data.errors) ? data.errors.length > 0 : Object.keys(data.errors).length > 0)) {
-          console.error("🚨 API-SPORTS ERROR PAYLOAD:", data.errors);
-          // Interrompi l'esecuzione per non far crashare i map successivi
-          return; 
+        console.log("🔍 FOTMOB RAW RESPONSE:", data);
+
+        const allMatches: FotMobMatch[] = data.matches?.allMatches || [];
+        
+        if (allMatches.length === 0) {
+          throw new Error('Nessun match trovato');
         }
-        
-        const fixturesData = data.response || [];
-        console.log("✅ Dati API Ricevuti:", fixturesData);
-        sessionStorage.setItem('serieA_calendar', JSON.stringify(fixturesData));
-        setupMatches(fixturesData);
-      } catch (error) {
-        console.error("💥 FETCH CATCH ERROR:", error);
-        setErrorHeader("Impossibile caricare il calendario. Riprova più tardi.");
+
+        sessionStorage.setItem('fotmob_serieA_calendar', JSON.stringify(allMatches));
+        setupMatches(allMatches);
+      } catch (err: any) {
+        console.error("💥 FOTMOB FETCH ERROR:", err);
+        setErrorHeader("Impossibile caricare il calendario FotMob.");
       } finally {
         setLoadingInitial(false);
       }
@@ -119,58 +101,44 @@ export default function ScoutSerieAHub() {
     fetchCalendar();
   }, []);
 
-  const setupMatches = (data: FixtureData[]) => {
+  const setupMatches = (data: FotMobMatch[]) => {
     setFixtures(data);
     
-    // Calculate current round
-    if (data.length > 0) {
-      const activeStatuses = ['NS', 'TBD', '1H', '2H', 'HT'];
-      
-      const rounds = Array.from(new Set((data || []).map(f => {
-        const match = f.league.round.match(/\d+/);
-        return match ? parseInt(match[0], 10) : 0;
-      }))).filter(r => r > 0).sort((a,b) => a-b);
-      
-      let current = rounds[0] || 1;
-      for (const r of rounds) {
-        const roundMatches = data.filter(f => {
-          const m = f.league.round.match(/\d+/);
-          return m && parseInt(m[0], 10) === r;
-        });
-        const hasActive = roundMatches.some(f => activeStatuses.includes(f.fixture.status.short));
-        if (hasActive) {
-          current = r;
-          break;
-        }
+    // Calcola giornata corrente (primo round con match non finiti)
+    const rounds = Array.from(new Set(data.map(m => m.round))).sort((a, b) => a - b);
+    let current = rounds[0] || 1;
+
+    for (const r of rounds) {
+      const roundMatches = data.filter(m => m.round === r);
+      const hasPending = roundMatches.some(m => !m.status.finished);
+      if (hasPending) {
         current = r;
+        break;
       }
-      setSelectedRound(current);
+      current = r; // Se tutti finiti, resta all'ultimo
     }
+    setSelectedRound(current);
   };
 
   // --- Derived Grouped Data ---
   const groupedFixtures = useMemo(() => {
-    const groups: Record<number, FixtureData[]> = {};
+    const groups: Record<number, FotMobMatch[]> = {};
     fixtures.forEach(f => {
-      const match = f.league.round.match(/\d+/);
-      if (match) {
-        const r = parseInt(match[0], 10);
-        if (!groups[r]) groups[r] = [];
-        groups[r].push(f);
-      }
+      if (!groups[f.round]) groups[f.round] = [];
+      groups[f.round].push(f);
     });
     return groups;
   }, [fixtures]);
 
-  // --- 3. Dettagli Partita (Modal On-Demand) ---
-  const openModal = async (fixture: FixtureData) => {
+  // --- 3. Dettagli Partita (Modal On-Demand FotMob) ---
+  const openModal = async (fixture: FotMobMatch) => {
     setModalFixture(fixture);
     setModalError(null);
     setModalEvents([]);
     
     try {
       setLoadingModal(true);
-      const cacheKey = `events_${fixture.fixture.id}`;
+      const cacheKey = `fotmob_events_${fixture.id}`;
       const cached = sessionStorage.getItem(cacheKey);
       
       if (cached) {
@@ -179,10 +147,14 @@ export default function ScoutSerieAHub() {
         return;
       }
 
-      const res = await axios.get(`${API_BASE}/fixtures/events?fixture=${fixture.fixture.id}`, { headers: HEADERS });
-      const data = res.data.response || [];
-      sessionStorage.setItem(cacheKey, JSON.stringify(data));
-      setModalEvents(data);
+      const res = await fetch(`/api/fotmob?endpoint=matchDetails?matchId=${fixture.id}`);
+      const data = await res.json();
+      
+      console.log("🔍 FOTMOB MATCH DETAILS:", data);
+      
+      const eventsRaw = data.content?.matchFacts?.events?.events || [];
+      sessionStorage.setItem(cacheKey, JSON.stringify(eventsRaw));
+      setModalEvents(eventsRaw);
     } catch (err) {
       setModalError("Impossibile caricare i dettagli della partita.");
     } finally {
@@ -190,77 +162,38 @@ export default function ScoutSerieAHub() {
     }
   };
 
-  // --- 4. Tab Statistiche Ufficiali (Nuovo Fetch) ---
-  const loadStats = async () => {
-    if (statsLoaded) return;
-    try {
-      setLoadingStats(true);
-      setStatsError(null);
-
-      const cachedScorers = sessionStorage.getItem('serieA_scorers');
-      const cachedAssists = sessionStorage.getItem('serieA_assists');
-
-      let scorersData = [];
-      let assistsData = [];
-
-      if (cachedScorers && cachedAssists) {
-        scorersData = JSON.parse(cachedScorers);
-        assistsData = JSON.parse(cachedAssists);
-      } else {
-        const [resS, resA] = await Promise.all([
-          axios.get(`${API_BASE}/players/topscorers?league=135&season=2025`, { headers: HEADERS }),
-          axios.get(`${API_BASE}/players/topassists?league=135&season=2025`, { headers: HEADERS })
-        ]);
-
-        scorersData = resS.data.response || [];
-        assistsData = resA.data.response || [];
-        
-        sessionStorage.setItem('serieA_scorers', JSON.stringify(scorersData));
-        sessionStorage.setItem('serieA_assists', JSON.stringify(assistsData));
-      }
-
-      setTopScorers(scorersData);
-      setTopAssists(assistsData);
-      setStatsLoaded(true);
-
-    } catch (err) {
-      setStatsError("Errore nel caricamento delle statistiche ufficiali.");
-    } finally {
-      setLoadingStats(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'STATS') {
-      loadStats();
-    }
-  }, [activeTab]);
-
   // --- Rendering Helpers ---
-  const renderEventsList = (eventsList: MatchEvent[], teamId: number) => {
-    const teamEvents = eventsList.filter(e => e.team.id === teamId);
-    if (teamEvents.length === 0) return <p className="text-slate-600 text-xs italic">Nessun evento registrato.</p>;
+  const renderEventsList = (eventsList: FotMobEvent[], teamId: string) => {
+    const teamEvents = eventsList.filter(e => e.teamId === teamId);
+    
+    if (teamEvents.length === 0) return <p className="text-slate-600 text-[10px] italic py-2">Nessun evento registrato.</p>;
     
     return (
-      <ul className="space-y-2">
-        {(teamEvents || []).map((e, idx) => {
+      <ul className="space-y-3">
+        {teamEvents.map((e, idx) => {
           if (e.type === 'Goal') {
             return (
-              <li key={idx} className="text-emerald-400 text-sm flex items-start gap-2 font-medium">
-                <span>⚽</span>
+              <li key={idx} className="text-emerald-400 text-xs flex items-start gap-2 font-bold animate-in slide-in-from-left-2 duration-300">
+                <span className="mt-0.5">⚽</span>
                 <div>
-                  {e.player.name}
-                  {e.assist.name && <span className="text-slate-400 text-xs ml-1">(🅰️ {e.assist.name})</span>}
+                  <span className="text-white">{e.player?.name || 'Gol'}</span>
+                  {e.assist?.name && (
+                    <div className="text-[9px] text-slate-400 font-medium">🅰️ {e.assist.name}</div>
+                  )}
+                  <span className="text-[8px] text-slate-500 ml-1">{e.time}'</span>
                 </div>
               </li>
             );
           }
           if (e.type === 'Card') {
-            const isRed = e.detail.toLowerCase().includes('red');
+            const isRed = e.card?.toLowerCase().includes('red');
             return (
-              <li key={idx} className={`${isRed ? 'text-red-400' : 'text-yellow-400'} text-sm flex items-start gap-2 font-medium`}>
-                <span>{isRed ? '🟥' : '🟨'}</span>
-                <span>{e.player.name}</span>
+              <li key={idx} className="text-xs flex items-start gap-2 font-bold animate-in slide-in-from-left-2 duration-300">
+                <span className="mt-0.5">{isRed ? '🟥' : '🟨'}</span>
+                <div>
+                  <span className="text-slate-300">{e.player?.name}</span>
+                  <span className="text-[8px] text-slate-500 ml-1">{e.time}'</span>
+                </div>
               </li>
             );
           }
@@ -270,12 +203,11 @@ export default function ScoutSerieAHub() {
     );
   };
 
-  // --- Main Render ---
   if (loadingInitial) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-4" />
-        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Inizializzazione API-Football v3...</p>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">PIRATING FOTMOB API...</p>
       </div>
     );
   }
@@ -292,7 +224,7 @@ export default function ScoutSerieAHub() {
             </h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Powered by API-Sports (Cache attive)</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">FotMob Proxy Alpha</span>
             </div>
           </div>
 
@@ -347,43 +279,47 @@ export default function ScoutSerieAHub() {
             {/* Matches List */}
             <div className="space-y-3">
               {(groupedFixtures[selectedRound] || []).map(f => {
-                const finished = ['FT', 'PEN', 'AET'].includes(f.fixture.status.short);
-                const active = ['1H', '2H', 'HT', 'ET'].includes(f.fixture.status.short);
+                const finished = f.status.finished;
+                const active = f.status.started && !f.status.finished;
                 
-                const dateObj = new Date(f.fixture.date);
-                const timeStr = dateObj.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-                const dateStr = dateObj.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
                 return (
                   <div 
-                    key={f.fixture.id}
+                    key={f.id}
                     onClick={() => openModal(f)}
                     className="group bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 hover:border-emerald-500/40 p-4 rounded-2xl transition-all cursor-pointer flex items-center justify-between gap-4"
                   >
                     <div className="flex items-center gap-3 flex-1">
-                      <img src={f.teams.home.logo} alt={f.teams.home.name} className="w-8 h-8 md:w-10 md:h-10 object-contain" />
-                      <span className="text-sm font-bold text-slate-200 group-hover:text-white truncate">{f.teams.home.name}</span>
+                      <img 
+                        src={`https://images.fotmob.com/image_resources/logo/teamlogo/${f.home.id}.png`} 
+                        alt={f.home.name} 
+                        className="w-8 h-8 md:w-10 md:h-10 object-contain" 
+                      />
+                      <span className="text-sm font-bold text-slate-200 group-hover:text-white truncate">{f.home.name}</span>
                     </div>
 
                     <div className="flex flex-col items-center min-w-[80px]">
                       {(finished || active) ? (
                         <div className="flex flex-col items-center">
-                          {active && <span className="text-[8px] text-red-500 font-bold animate-pulse mb-1">LIVE</span>}
+                          {active && <span className="text-[8px] text-red-500 font-bold animate-pulse mb-1">{f.status.liveTime?.short || 'LIVE'}</span>}
                           <div className="text-xl md:text-2xl font-black italic text-white tracking-widest leading-none">
-                            {f.goals.home ?? 0} <span className="text-emerald-500/50">:</span> {f.goals.away ?? 0}
+                            {f.status.scoreStr || '0 - 0'}
                           </div>
                         </div>
                       ) : (
                         <div className="flex flex-col items-center gap-0.5">
-                          <span className="text-[10px] font-black text-emerald-500 italic leading-none">{timeStr}</span>
-                          <span className="text-[9px] font-bold text-slate-600 whitespace-nowrap">{dateStr}</span>
+                          <span className="text-[10px] font-black text-emerald-500 italic leading-none">{f.status.reason?.short || 'TBD'}</span>
+                          <span className="text-[8px] font-bold text-slate-600 whitespace-nowrap uppercase tracking-tighter">DA GIOCARE</span>
                         </div>
                       )}
                     </div>
 
                     <div className="flex items-center gap-3 flex-1 justify-end">
-                      <span className="text-sm font-bold text-slate-200 group-hover:text-white truncate text-right">{f.teams.away.name}</span>
-                      <img src={f.teams.away.logo} alt={f.teams.away.name} className="w-8 h-8 md:w-10 md:h-10 object-contain" />
+                      <span className="text-sm font-bold text-slate-200 group-hover:text-white truncate text-right">{f.away.name}</span>
+                      <img 
+                        src={`https://images.fotmob.com/image_resources/logo/teamlogo/${f.away.id}.png`} 
+                        alt={f.away.name} 
+                        className="w-8 h-8 md:w-10 md:h-10 object-contain" 
+                      />
                     </div>
                   </div>
                 );
@@ -392,123 +328,69 @@ export default function ScoutSerieAHub() {
           </>
         )}
 
-        {/* --- Tab: Statistiche Ufficiali --- */}
+        {/* --- Tab: Statistiche (Placeholder) --- */}
         {activeTab === 'STATS' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            {loadingStats && (
-              <div className="flex justify-center py-10">
-                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-              </div>
-            )}
-            
-            {statsError && (
-              <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center gap-3">
-                <ShieldAlert className="text-red-500 w-5 h-5 flex-shrink-0" />
-                <p className="text-red-200 text-xs font-medium">{statsError}</p>
-              </div>
-            )}
-
-            {!loadingStats && !statsError && statsLoaded && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Top Scorers */}
-                <div className="bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-                  <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-                    <h3 className="font-black text-base text-white italic tracking-wide">TOP MARCATORI</h3>
-                    <span>🎯</span>
-                  </div>
-                  <div className="divide-y divide-slate-800/40">
-                    {(topScorers || []).slice(0, 10).map((s, idx) => (
-                      <div key={s.player.id} className="flex items-center justify-between p-3 px-6 hover:bg-slate-800/40 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <span className={`text-xs font-black ${idx < 3 ? 'text-emerald-500' : 'text-slate-700'}`}>{idx + 1}</span>
-                          <img src={s.player.photo} alt={s.player.name} className="w-8 h-8 rounded-full border border-slate-700 object-cover" />
-                          <span className="text-sm font-bold text-slate-200">{s.player.name}</span>
-                        </div>
-                        <div className="text-lg font-black text-emerald-500">{s.statistics[0].goals.total || 0}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Top Assists */}
-                <div className="bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-                  <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-                    <h3 className="font-black text-base text-white italic tracking-wide">TOP ASSIST</h3>
-                    <span>👟</span>
-                  </div>
-                  <div className="divide-y divide-slate-800/40">
-                    {(topAssists || []).slice(0, 10).map((a, idx) => (
-                      <div key={a.player.id} className="flex items-center justify-between p-3 px-6 hover:bg-slate-800/40 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <span className={`text-xs font-black ${idx < 3 ? 'text-emerald-500' : 'text-slate-700'}`}>{idx + 1}</span>
-                          <img src={a.player.photo} alt={a.player.name} className="w-8 h-8 rounded-full border border-slate-700 object-cover" />
-                          <span className="text-sm font-bold text-slate-200">{a.player.name}</span>
-                        </div>
-                        <div className="text-lg font-black text-emerald-500">{a.statistics[0].goals.assists || 0}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+          <div className="py-20 text-center">
+             <Trophy className="w-12 h-12 text-slate-800 mx-auto mb-4" />
+             <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">Statistiche ufficiali in arrivo...</p>
           </div>
         )}
 
-        {/* --- Modal Partita --- */}
+        {/* --- Modal Partita FotMob --- */}
         {modalFixture && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onClick={() => setModalFixture(null)} />
-            <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800/50 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in duration-200">
+            <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800/50 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
               
-              <div className="p-6 border-b border-slate-800/50 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.3em]">DETTAGLI PARTITA (ID {modalFixture.fixture.id})</p>
-                    <h2 className="text-lg font-black text-white italic truncate">
-                      {modalFixture.teams.home.name} vs {modalFixture.teams.away.name}
-                    </h2>
-                    <p className="text-[10px] text-slate-500 font-medium">Cronaca e statistici dell'incontro</p>
-                  </div>
-                  <button onClick={() => setModalFixture(null)} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all">
-                    <X className="w-5 h-5 text-slate-400" />
-                  </button>
+              <div className="p-6 border-b border-slate-800/50 flex flex-col gap-2 relative">
+                <button onClick={() => setModalFixture(null)} className="absolute right-6 top-6 p-2 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all">
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+                <div className="flex flex-col gap-1">
+                  <p className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em]">DETTAGLI PREMIUM • ID {modalFixture.id}</p>
+                  <h2 className="text-lg font-black text-white italic truncate pr-12">
+                    {modalFixture.home.name} <span className="text-emerald-500">vs</span> {modalFixture.away.name}
+                  </h2>
                 </div>
               </div>
 
               <div className="p-6 md:p-8">
                 {/* Scoreboard Info */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-10">
                   <div className="flex flex-col items-center flex-1 gap-3 text-center">
-                    <img src={modalFixture.teams.home.logo} className="w-16 h-16 object-contain drop-shadow-md" />
-                    <span className="text-xs font-black text-white">{modalFixture.teams.home.name}</span>
+                    <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${modalFixture.home.id}.png`} className="w-16 h-16 object-contain drop-shadow-md" />
+                    <span className="text-[11px] font-black text-white uppercase tracking-tighter">{modalFixture.home.name}</span>
                   </div>
                   <div className="px-4 flex flex-col items-center">
                     <div className="text-4xl font-black text-white italic tracking-tighter">
-                      {modalFixture.goals.home ?? '-'}<span className="text-emerald-500 mx-1">:</span>{modalFixture.goals.away ?? '-'}
+                      {modalFixture.status.scoreStr || '-'}
                     </div>
                   </div>
                   <div className="flex flex-col items-center flex-1 gap-3 text-center">
-                    <img src={modalFixture.teams.away.logo} className="w-16 h-16 object-contain drop-shadow-md" />
-                    <span className="text-xs font-black text-white">{modalFixture.teams.away.name}</span>
+                    <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${modalFixture.away.id}.png`} className="w-16 h-16 object-contain drop-shadow-md" />
+                    <span className="text-[11px] font-black text-white uppercase tracking-tighter">{modalFixture.away.name}</span>
                   </div>
                 </div>
 
                 {/* Events Loading/Error State */}
                 {loadingModal ? (
-                  <div className="flex justify-center py-10">
+                  <div className="flex flex-col items-center justify-center py-10 gap-3">
                     <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Intercettando cronaca live...</span>
                   </div>
                 ) : modalError ? (
-                  <p className="text-center text-red-400 text-xs py-10">{modalError}</p>
+                  <p className="text-center text-red-400 text-xs py-10 font-bold uppercase">{modalError}</p>
                 ) : (
-                  <div className="grid grid-cols-2 gap-8 border-t border-slate-800/50 pt-6">
+                  <div className="grid grid-cols-2 gap-8 border-t border-slate-800/50 pt-8">
                     {/* Home Team Events */}
                     <div>
-                      {renderEventsList(modalEvents, modalFixture.teams.home.id)}
+                      <div className="text-[8px] font-black text-slate-600 mb-4 uppercase tracking-widest ml-1">EVENTI CASA</div>
+                      {renderEventsList(modalEvents, modalFixture.home.id)}
                     </div>
                     {/* Away Team Events */}
-                    <div>
-                      {renderEventsList(modalEvents, modalFixture.teams.away.id)}
+                    <div className="text-right">
+                      <div className="text-[8px] font-black text-slate-600 mb-4 uppercase tracking-widest mr-1">EVENTI TRASFERTA</div>
+                      {renderEventsList(modalEvents, modalFixture.away.id)}
                     </div>
                   </div>
                 )}
