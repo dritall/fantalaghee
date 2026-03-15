@@ -64,27 +64,28 @@ export default function ScoutHub() {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/fotmob?mode=l&target=55');
+        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.fotmob.com/api/leagues?id=55');
+        const res = await fetch(url);
         const data = await res.json();
         const matchesArray = data?.fixtures?.allMatches || [];
         
         setFixtures(matchesArray);
 
-        // Logic for rounds and current round
-        const rounds = Array.from(new Set(matchesArray.map((m: any) => m.round))).filter(Boolean).sort((a: any, b: any) => Number(a) - Number(b));
-        let detected = Number(rounds[0]) || 1;
-        for (const r of rounds) {
-          const mInR = matchesArray.filter((m: any) => Number(m.round) === Number(r));
-          if (mInR.some((m: any) => !m.status.finished)) {
-            detected = Number(r);
+        // Logic for currentRound: find first non-finished match
+        let detected = 1;
+        const sorted = [...matchesArray].sort((a,b) => Number(a.round) - Number(b.round));
+        for (const m of sorted) {
+          if (!m.status?.finished || m.status?.started === false) {
+            detected = Number(m.round);
             break;
           }
-          detected = Number(r);
+          detected = Number(m.round);
         }
+        
         setCurrentRound(detected);
         setSelectedRound(detected);
       } catch (err) {
-        setError("Synchronization failed.");
+        setError("Synchronization via CORS Proxy failed.");
       } finally {
         setLoading(false);
       }
@@ -107,13 +108,13 @@ export default function ScoutHub() {
     setModalLoading(true);
     
     try {
-      const res = await fetch('/api/fotmob?mode=m&target=' + m.id);
+      const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.fotmob.com/api/matchDetails?matchId=' + m.id);
+      const res = await fetch(url);
       const data = await res.json();
       
       const events = data?.content?.matchFacts?.events?.events || [];
       const allStats = data?.content?.stats?.Periods?.All?.stats?.[0]?.stats || [];
       
-      // Filter key stats
       const keyStatsTitles = ['Ball possession', 'Expected goals (xG)', 'Total shots'];
       const filteredStats = allStats.filter((s: any) => keyStatsTitles.includes(s.title));
       
@@ -129,7 +130,7 @@ export default function ScoutHub() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
-        <p className="text-slate-600 font-black uppercase tracking-[0.4em] text-[9px]">Encrpyted Channel Booting...</p>
+        <p className="text-slate-600 font-black uppercase tracking-[0.4em] text-[9px]">Bypassing Matrix Blocking...</p>
       </div>
     );
   }
@@ -143,7 +144,7 @@ export default function ScoutHub() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest">Premium</span>
-              <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em]">Data Analytics</span>
+              <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em]">CORS PROXY ENABLED</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-[0.8] mb-1">
               Serie A <span className="text-blue-600">Scout</span>
@@ -151,7 +152,7 @@ export default function ScoutHub() {
           </div>
           <div className="hidden md:flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-full border border-slate-800">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Live Matrix Active</span>
+            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Security Bypass Active</span>
           </div>
         </div>
 
@@ -162,32 +163,30 @@ export default function ScoutHub() {
           </div>
         )}
 
-        {/* Round Navigation */}
+        {/* Round Navigation (Native Select) */}
         <div className="mb-10">
           <div className="flex items-center justify-between mb-4 px-1">
              <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] flex items-center gap-2">
-               <Calendar className="w-3 h-3" /> Select Round
+               <Calendar className="w-3 h-3" /> Select Matchday
              </span>
              <span className="text-[10px] font-black text-blue-500 italic">#{selectedRound} OF 38</span>
           </div>
-          <div className="flex overflow-x-auto gap-3 pb-6 no-scrollbar snap-x">
-            {roundsList.map(r => (
-              <button
-                key={r}
-                onClick={() => setSelectedRound(r)}
-                className={`flex-shrink-0 min-w-[4.5rem] p-3 rounded-2xl border transition-all snap-start flex flex-col items-center justify-center gap-1
-                  ${selectedRound === r 
-                    ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_20px_rgba(37,99,235,0.3)]' 
-                    : 'bg-slate-900/50 border-slate-800 text-slate-500 hover:border-slate-700 hover:text-slate-300'}`}
-              >
-                {r === currentRound && (
-                  <span className={`text-[7px] font-black uppercase tracking-widest ${selectedRound === r ? 'text-blue-200' : 'text-emerald-500'} animate-pulse`}>
-                    In Corso
-                  </span>
-                )}
-                <span className="text-[10px] font-black uppercase italic tracking-tighter">Round {r}</span>
-              </button>
-            ))}
+          
+          <div className="relative">
+            <select 
+              className="w-full md:w-1/2 p-4 rounded-xl bg-slate-800 text-white font-bold border border-slate-700 outline-none appearance-none cursor-pointer focus:border-blue-500/50 transition-all text-xs uppercase tracking-widest"
+              value={selectedRound || ''} 
+              onChange={(e) => setSelectedRound(Number(e.target.value))}
+            >
+              {roundsList.map(round => (
+                <option key={round} value={round} className="bg-slate-900">
+                  Giornata {round} {round === currentRound ? ' - 🟢 IN CORSO' : ''}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-4 md:right-[54%] top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+               <ChevronRight className="w-4 h-4 rotate-90" />
+            </div>
           </div>
         </div>
 
