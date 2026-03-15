@@ -84,11 +84,7 @@ export default function ScoutSerieAHub() {
         console.log("🟢 Dati Ricevuti dal Proxy:", data);
         console.log("🔍 FOTMOB RAW RESPONSE:", data);
 
-        const matchesArray = data?.matches?.allMatches || data?.matches || [];
-        
-        if (matchesArray.length === 0) {
-          console.log("🔍 DEBUG: matchesArray vuoto. data.matches:", data?.matches);
-        }
+        const matchesArray = data?.fixtures?.allMatches || [];
 
         sessionStorage.setItem('fotmob_serieA_calendar', JSON.stringify(matchesArray));
         setupMatches(matchesArray);
