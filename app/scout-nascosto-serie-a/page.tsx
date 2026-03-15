@@ -89,16 +89,28 @@ export default function ScoutSerieAHub() {
           }
         }
 
-        const res = await axios.get(`${API_BASE}/fixtures?league=135&season=2025`, { headers: HEADERS });
-        if (res.data.errors && Object.keys(res.data.errors).length > 0) {
-          throw new Error('Errore API limit/key');
+        const res = await fetch('https://v3.football.api-sports.io/fixtures?league=135&season=2025', {
+          headers: {
+            'x-apisports-key': process.env.NEXT_PUBLIC_FOOTBALL_API_KEY || ''
+          }
+        });
+        
+        const data = await res.json();
+        console.log("🔍 RAW API RESPONSE:", data);
+        
+        // API-Sports restituisce status 200 ma mette gli errori nell'oggetto "errors"
+        if (data.errors && (Array.isArray(data.errors) ? data.errors.length > 0 : Object.keys(data.errors).length > 0)) {
+          console.error("🚨 API-SPORTS ERROR PAYLOAD:", data.errors);
+          // Interrompi l'esecuzione per non far crashare i map successivi
+          return; 
         }
         
-        const data = res.data.response || [];
-        console.log("✅ Dati API Ricevuti:", data);
-        sessionStorage.setItem('serieA_calendar', JSON.stringify(data));
-        setupMatches(data);
-      } catch (err: any) {
+        const fixturesData = data.response || [];
+        console.log("✅ Dati API Ricevuti:", fixturesData);
+        sessionStorage.setItem('serieA_calendar', JSON.stringify(fixturesData));
+        setupMatches(fixturesData);
+      } catch (error) {
+        console.error("💥 FETCH CATCH ERROR:", error);
         setErrorHeader("Impossibile caricare il calendario. Riprova più tardi.");
       } finally {
         setLoadingInitial(false);
