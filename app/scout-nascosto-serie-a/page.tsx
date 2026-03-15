@@ -78,19 +78,19 @@ export default function ScoutSerieAHub() {
           }
         }
 
-        const res = await fetch('/api/fotmob?endpoint=leagues?id=54');
+        const res = await fetch('/api/fotmob?endpoint=leagues?id=55');
         const data = await res.json();
         
         console.log("🔍 FOTMOB RAW RESPONSE:", data);
 
-        const allMatches: FotMobMatch[] = data.matches?.allMatches || [];
+        const matchesArray = data?.matches?.allMatches || data?.matches || [];
         
-        if (allMatches.length === 0) {
-          throw new Error('Nessun match trovato');
+        if (matchesArray.length === 0) {
+          console.log("🔍 DEBUG: matchesArray vuoto. data.matches:", data?.matches);
         }
 
-        sessionStorage.setItem('fotmob_serieA_calendar', JSON.stringify(allMatches));
-        setupMatches(allMatches);
+        sessionStorage.setItem('fotmob_serieA_calendar', JSON.stringify(matchesArray));
+        setupMatches(matchesArray);
       } catch (err: any) {
         console.error("💥 FOTMOB FETCH ERROR:", err);
         setErrorHeader("Impossibile caricare il calendario FotMob.");
