@@ -78,9 +78,10 @@ export default function ScoutSerieAHub() {
           }
         }
 
-        const res = await fetch('/api/fotmob?endpoint=leagues?id=55');
+        const res = await fetch('/api/fotmob?type=league&id=55');
         const data = await res.json();
         
+        console.log("🟢 Dati Ricevuti dal Proxy:", data);
         console.log("🔍 FOTMOB RAW RESPONSE:", data);
 
         const matchesArray = data?.matches?.allMatches || data?.matches || [];
@@ -147,9 +148,10 @@ export default function ScoutSerieAHub() {
         return;
       }
 
-      const res = await fetch(`/api/fotmob?endpoint=matchDetails?matchId=${fixture.id}`);
+      const res = await fetch(`/api/fotmob?type=match&id=${fixture.id}`);
       const data = await res.json();
       
+      console.log("🟢 Dati Ricevuti dal Proxy:", data);
       console.log("🔍 FOTMOB MATCH DETAILS:", data);
       
       const eventsRaw = data.content?.matchFacts?.events?.events || [];
