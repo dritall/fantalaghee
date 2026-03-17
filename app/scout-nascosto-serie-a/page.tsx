@@ -121,9 +121,17 @@ export default function ScoutHub() {
     setModalLoading(true);
     
     try {
-      const res = await fetch('/api/fotmob?mode=m&target=' + m.id);
-      const data = await res.json();
+      // Secure JSONP bypass via AllOrigins
+      const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://www.fotmob.com/api/matchDetails?matchId=' + m.id);
+      const res = await fetch(url);
       
+      if (!res.ok) throw new Error("Network response was not ok");
+      const jsonWrapper = await res.json();
+      
+      // Decodifica il payload interno
+      const data = JSON.parse(jsonWrapper.contents);
+
+      // Estrai ed imposta events e stats con fallback
       const events = data?.content?.matchFacts?.events?.events || [];
       const allStats = data?.content?.stats?.Periods?.All?.stats?.[0]?.stats || [];
       
@@ -142,29 +150,26 @@ export default function ScoutHub() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
-        <p className="text-slate-600 font-black uppercase tracking-[0.4em] text-[9px]">Mobile Spoofing active...</p>
+        <p className="text-slate-400 font-bold tracking-widest text-sm">Sincronizzazione Hub Operativo...</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 p-4 pt-28 md:p-8 md:pt-32 font-sans selection:bg-blue-500/30">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest">Premium</span>
-              <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em]">FOTMOB MOBILE BYPASS</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-[0.8] mb-1">
-              Serie A <span className="text-blue-600">Scout</span>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div className="flex items-center gap-4">
+            <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/55.png" alt="Serie A" className="w-12 h-12 md:w-16 md:h-16 drop-shadow-lg" />
+            <h1 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+              Calendario Serie A 2025/2026
             </h1>
           </div>
-          <div className="hidden md:flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-full border border-slate-800">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">iPhone iOS Spoofing Active</span>
+          <div className="hidden md:flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 shadow-lg">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+            <span className="text-xs font-bold text-slate-300 tracking-wide uppercase">Connessione stabilita</span>
           </div>
         </div>
 
@@ -175,18 +180,18 @@ export default function ScoutHub() {
           </div>
         )}
 
-        {/* Round Navigation (Snap-Scroller) */}
+        {/* Round Navigation (Glassmorphism Snap-Scroller) */}
         <div className="mb-10">
-          <div className="flex items-center justify-between mb-4 px-1">
-             <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] flex items-center gap-2">
-               <Calendar className="w-3 h-3" /> Select Matchday
+          <div className="flex items-center justify-between mb-4 px-2">
+             <span className="text-sm font-bold text-slate-400 flex items-center gap-2">
+               <Calendar className="w-4 h-4" /> Seleziona Giornata
              </span>
-             <span className="text-[10px] font-black text-blue-500 italic">#{selectedRound} OF 38</span>
+             <span className="text-xs font-bold text-slate-500">#{selectedRound} DI 38</span>
           </div>
           
           <div 
             ref={scrollerRef}
-            className="flex overflow-x-auto snap-x scroll-smooth scrollbar-hide py-4 gap-3 no-scrollbar"
+            className="flex overflow-x-auto snap-x scrollbar-hide py-4 gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl no-scrollbar"
           >
             {roundsList.map(round => {
               const isActive = round === selectedRound;
@@ -197,15 +202,15 @@ export default function ScoutHub() {
                   ref={isActive ? activeRoundRef : null}
                   onClick={() => setSelectedRound(round)}
                   className={`
-                    snap-center whitespace-nowrap px-6 py-2 rounded-full font-bold transition-all text-xs uppercase tracking-widest flex items-center gap-2
+                    snap-center whitespace-nowrap px-6 py-2 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border flex items-center gap-2
                     ${isActive 
-                      ? 'bg-blue-600 text-white shadow-lg scale-105 border-blue-400' 
-                      : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+                      ? 'bg-white/20 border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.2)] scale-105' 
+                      : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
                     }
                   `}
                 >
                   Giornata {round}
-                  {isCurrent && <span className="text-[10px]">🟢</span>}
+                  {isCurrent && <span className="w-2 h-2 inline-block rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
                 </button>
               );
             })}
@@ -213,36 +218,53 @@ export default function ScoutHub() {
         </div>
 
         {/* Matches Grid */}
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayedMatches.map(m => (
             <div 
               key={m.id}
               onClick={() => openMatch(m)}
-              className="group bg-slate-900/30 hover:bg-slate-900/80 border border-slate-800/50 hover:border-blue-500/40 p-5 rounded-[1.5rem] transition-all cursor-pointer flex items-center justify-between gap-4"
+              className="bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 rounded-2xl p-6 cursor-pointer shadow-xl flex flex-col justify-between group"
             >
-              <div className="flex items-center gap-3 flex-1">
-                <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png`} className="w-10 h-10 object-contain drop-shadow-sm group-hover:scale-110 transition-transform" alt="" />
-                <span className="text-xs font-black text-slate-300 group-hover:text-white uppercase truncate tracking-tighter">{m.home.name}</span>
-              </div>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col items-center gap-2 w-1/3">
+                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-2 shadow-inner group-hover:bg-white/10 transition-colors">
+                    <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png`} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt={m.home.name} />
+                  </div>
+                  <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.home.name}</span>
+                </div>
 
-              <div className="flex flex-col items-center min-w-[80px]">
-                {m.status.started || m.status.finished ? (
-                  <div className="flex flex-col items-center">
-                    {!m.status.finished && <span className="text-[7px] text-red-500 font-black animate-pulse mb-1 tracking-widest">LIVE</span>}
-                    <div className="text-2xl font-black italic text-white tracking-widest">
-                      {m.status.scoreStr || '0 - 0'}
+                <div className="flex flex-col items-center w-1/3">
+                  {m.status.started || m.status.finished ? (
+                    <div className="flex flex-col items-center">
+                      <div className="text-3xl font-black text-white drop-shadow-md">
+                        {m.status.scoreStr || '0 - 0'}
+                      </div>
                     </div>
+                  ) : (
+                    <div className="text-2xl font-black text-slate-600 drop-shadow-sm">
+                      - : -
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col items-center gap-2 w-1/3">
+                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-2 shadow-inner group-hover:bg-white/10 transition-colors">
+                    <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png`} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt={m.away.name} />
                   </div>
-                ) : (
-                  <div className="bg-slate-800/40 px-3 py-1 rounded-full border border-slate-700/50">
-                    <span className="text-[9px] font-black text-blue-500 italic">{m.status.reason?.short || 'TBD'}</span>
-                  </div>
-                )}
+                  <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.away.name}</span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-3 flex-1 justify-end">
-                <span className="text-xs font-black text-slate-300 group-hover:text-white uppercase truncate tracking-tighter text-right">{m.away.name}</span>
-                <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png`} className="w-10 h-10 object-contain drop-shadow-sm group-hover:scale-110 transition-transform" alt="" />
+              <div className="flex justify-center mt-2 border-t border-white/5 pt-4">
+                 {m.status.started || m.status.finished ? (
+                    !m.status.finished ? (
+                       <span className="text-xs font-bold text-emerald-400 animate-pulse bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">IN CORSO</span>
+                    ) : (
+                       <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full">{m.status.reason?.short || 'Terminata'}</span>
+                    )
+                 ) : (
+                    <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/5">{m.status.liveTime?.short || m.status.reason?.short || 'In Programma'}</span>
+                 )}
               </div>
             </div>
           ))}
