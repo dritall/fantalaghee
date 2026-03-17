@@ -63,9 +63,26 @@ export default function ScoutHub() {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/fotmob?mode=l&target=55');
+        const res = await fetch('/api/football?endpoint=tournaments/get-events&courseId=23');
         const data = await res.json();
-        const matchesArray = data?.fixtures?.allMatches || [];
+        
+        let matchesArray = data?.fixtures?.allMatches || [];
+        if (data?.events) {
+          matchesArray = data.events.map((e: any) => ({
+            id: e.id,
+            round: e.roundInfo?.round || 1,
+            status: {
+              finished: e.status?.type === 'finished',
+              started: e.status?.type === 'inprogress' || e.status?.type === 'finished',
+              cancelled: e.status?.type === 'canceled',
+              scoreStr: e.homeScore?.display !== undefined ? `${e.homeScore?.display} - ${e.awayScore?.display}` : undefined,
+              reason: { short: e.status?.description || 'FT', long: e.status?.description },
+              liveTime: { short: e.status?.description }
+            },
+            home: { name: e.homeTeam?.name, id: e.homeTeam?.id },
+            away: { name: e.awayTeam?.name, id: e.awayTeam?.id }
+          }));
+        }
         
         setFixtures(matchesArray);
 
@@ -117,25 +134,27 @@ export default function ScoutHub() {
     setModalError(false);
     
     try {
-      const targetUrl = 'https://www.fotmob.com/api/matchDetails?matchId=' + m.id;
-      let res = await fetch('https://corsproxy.io/?url=' + encodeURIComponent(targetUrl));
+      const res = await fetch('/api/football?endpoint=matches/v1/get-incidents&matchId=' + m.id);
       
-      if (!res.ok) {
-        // Fallback su CodeTabs se corsproxy fallisce
-        res = await fetch('https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(targetUrl));
-      }
-      
-      if (!res.ok) throw new Error("Entrambi i proxy bloccati");
+      if (!res.ok) throw new Error("RapidAPI proxy bloccato");
       
       const data = await res.json();
       
-      const events = data?.content?.matchFacts?.events?.events || [];
-      const allStats = data?.content?.stats?.Periods?.All?.stats?.[0]?.stats || [];
+      let events = [];
+      if (data?.incidents) {
+         events = data.incidents.map((inc: any) => ({
+            type: inc.incidentType === 'goal' ? 'Goal' : inc.incidentType === 'card' ? 'Card' : inc.incidentType,
+            time: inc.time,
+            player: { name: inc.player?.name, id: inc.player?.id },
+            assist: inc.assist1 ? { name: inc.assist1?.name, id: inc.assist1?.id } : undefined,
+            card: inc.incidentClass,
+            teamId: inc.isHome ? m.home.id : m.away.id
+         }));
+      } else {
+         events = data?.content?.matchFacts?.events?.events || [];
+      }
       
-      const keyStatsTitles = ['Ball possession', 'Expected goals (xG)', 'Total shots'];
-      const filteredStats = allStats.filter((s: any) => keyStatsTitles.includes(s.title));
-      
-      setModalContent({ events, stats: filteredStats });
+      setModalContent({ events, stats: [] });
     } catch (err) {
       setModalError(true);
     } finally {
@@ -176,15 +195,16 @@ export default function ScoutHub() {
 
         {/* Round Navigation (Glass Snap-Scroll) */}
         <div className="mb-10">
-          <div className="flex overflow-x-auto snap-x scrollbar-hide py-4 gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-8 shadow-2xl">
+          <div className="flex overflow-x-auto snap-x scrollbar-hide py-4 gap-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-8 shadow-2xl relative z-20">
             {roundsList.map(round => (
-              <button 
-                key={round} 
-                id={'round-' + round} 
-                onClick={() => setSelectedRound(round)} 
-                className={`snap-center whitespace-nowrap px-6 py-2 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border flex flex-col items-center ${selectedRound === round ? 'bg-white/20 border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.15)] scale-105' : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'}`}>
+              <button key={round} id={'round-' + round} onClick={() => setSelectedRound(round)} 
+                className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
+                  selectedRound === round 
+                    ? 'bg-gradient-to-r from-blue-500/20 to-emerald-500/20 border-blue-400/50 text-white shadow-[0_0_25px_rgba(56,189,248,0.6)] scale-110 relative overflow-hidden' 
+                    : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
+                }`}>
                 Giornata {round}
-                {round === currentRound && <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+                {round === currentRound && <span className="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse"></span>}
               </button>
             ))}
           </div>
