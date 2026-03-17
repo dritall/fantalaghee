@@ -67,6 +67,12 @@ export default function ScoutHub() {
         const resSeasons = await fetch('/api/football?endpoint=tournaments/get-seasons&uniqueTournamentId=23');
         const seasonsData = await resSeasons.json();
         
+        if (seasonsData.debugError) {
+          console.error("🔴 ERRORE RAPIDAPI RILEVATO:", seasonsData);
+          // Ferma l'esecuzione per evitare il crash del frontend (data.seasons undefined)
+          return; 
+        }
+
         // 2. Extract current season id
         const currentSeasonId = seasonsData.seasons?.[0]?.id;
         if (!currentSeasonId) throw new Error("Season ID not found");
