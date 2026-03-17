@@ -57,6 +57,7 @@ export default function ScoutHub() {
   } | null>(null);
   const [modalTab, setModalTab] = useState<'E' | 'S'>('E');
   const [modalLoading, setModalLoading] = useState<boolean>(false);
+  const [modalError, setModalError] = useState<boolean>(false);
 
   useEffect(() => {
     const load = async () => {
@@ -68,18 +69,19 @@ export default function ScoutHub() {
         
         setFixtures(matchesArray);
 
-        // Calcola currentRound
-        let detected = 1;
-        const sorted = [...matchesArray].sort((a,b) => Number(a.round) - Number(b.round));
-        for (const m of sorted) {
-          detected = Number(m.round);
-          if (!m.status?.finished || m.status?.started === false) {
-            break;
-          }
+        // Trova partite in corso o finite
+        const ongoing = matchesArray.filter((m: Match) => m.status?.started && !m.status?.finished);
+        const finished = matchesArray.filter((m: Match) => m.status?.finished || m.status?.reason?.short === 'FT');
+
+        let targetRound = 1;
+        if (ongoing.length > 0) {
+          targetRound = Number(ongoing[0].round);
+        } else if (finished.length > 0) {
+          targetRound = Math.max(...finished.map((m: Match) => Number(m.round)));
         }
-        
-        setCurrentRound(detected);
-        setSelectedRound(detected);
+
+        setCurrentRound(targetRound);
+        setSelectedRound(targetRound);
       } catch (err) {
         setError("Sincronizzazione fallita.");
       } finally {
@@ -112,10 +114,19 @@ export default function ScoutHub() {
     setModalFixture(m);
     setModalContent(null);
     setModalTab('E');
-    setModalLoading(true);
+    setModalError(false);
     
     try {
-      const res = await fetch('/api/fotmob?mode=m&target=' + m.id);
+      const targetUrl = 'https://www.fotmob.com/api/matchDetails?matchId=' + m.id;
+      let res = await fetch('https://corsproxy.io/?url=' + encodeURIComponent(targetUrl));
+      
+      if (!res.ok) {
+        // Fallback su CodeTabs se corsproxy fallisce
+        res = await fetch('https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(targetUrl));
+      }
+      
+      if (!res.ok) throw new Error("Entrambi i proxy bloccati");
+      
       const data = await res.json();
       
       const events = data?.content?.matchFacts?.events?.events || [];
@@ -126,7 +137,7 @@ export default function ScoutHub() {
       
       setModalContent({ events, stats: filteredStats });
     } catch (err) {
-      // Fail silently
+      setModalError(true);
     } finally {
       setModalLoading(false);
     }
@@ -185,51 +196,55 @@ export default function ScoutHub() {
             <div 
               key={m.id}
               onClick={() => openMatch(m)}
-              className="relative overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 cursor-pointer transition-all duration-500 hover:border-white/30 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] group"
+              className="relative overflow-hidden bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 cursor-pointer transition-all duration-500 hover:border-white/30 hover:-translate-y-1 hover:shadow-2xl group"
             >
-              {/* Iridescent Glow on Hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+              {/* Effetto Riflesso Loghi */}
+              <div className="absolute top-0 left-0 w-1/2 h-full opacity-0 group-hover:opacity-40 transition-opacity duration-700 blur-[40px] pointer-events-none" style={{ backgroundImage: `url(https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+              <div className="absolute top-0 right-0 w-1/2 h-full opacity-0 group-hover:opacity-40 transition-opacity duration-700 blur-[40px] pointer-events-none" style={{ backgroundImage: `url(https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
               
-              <div className="relative z-10 flex items-center justify-between mb-6">
-                <div className="flex flex-col items-center gap-2 w-1/3">
-                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-2 shadow-inner group-hover:bg-white/10 transition-colors">
-                    <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png`} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt={m.home.name} />
+              {/* Contenuto Card in primo piano */}
+              <div className="relative z-10 flex flex-col h-full justify-between gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col items-center gap-2 w-1/3">
+                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-2 shadow-inner group-hover:bg-white/10 transition-colors">
+                      <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png`} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt={m.home.name} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.home.name}</span>
                   </div>
-                  <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.home.name}</span>
-                </div>
 
-                <div className="flex flex-col items-center w-1/3">
-                  {m.status.started || m.status.finished ? (
-                    <div className="flex flex-col items-center">
-                      <div className="text-3xl font-black text-white drop-shadow-md">
-                        {m.status.scoreStr || '0 - 0'}
+                  <div className="flex flex-col items-center w-1/3">
+                    {m.status.started || m.status.finished ? (
+                      <div className="flex flex-col items-center">
+                        <div className="text-3xl font-black text-white drop-shadow-md">
+                          {m.status.scoreStr || '0 - 0'}
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-2xl font-black text-slate-600 drop-shadow-sm">
-                      - : -
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-col items-center gap-2 w-1/3">
-                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-2 shadow-inner group-hover:bg-white/10 transition-colors">
-                    <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png`} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt={m.away.name} />
-                  </div>
-                  <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.away.name}</span>
-                </div>
-              </div>
-
-              <div className="relative z-10 flex justify-center mt-2 border-t border-white/5 pt-4">
-                 {m.status.started || m.status.finished ? (
-                    !m.status.finished ? (
-                       <span className="text-xs font-bold text-emerald-400 animate-pulse bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">IN CORSO</span>
                     ) : (
-                       <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full">{m.status.reason?.short || 'Terminata'}</span>
-                    )
-                 ) : (
-                    <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/5">{m.status.liveTime?.short || m.status.reason?.short || 'In Programma'}</span>
-                 )}
+                      <div className="text-2xl font-black text-slate-600 drop-shadow-sm">
+                        - : -
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-center gap-2 w-1/3">
+                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-2 shadow-inner group-hover:bg-white/10 transition-colors">
+                      <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png`} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt={m.away.name} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.away.name}</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-center border-t border-white/5 pt-4">
+                   {m.status.started || m.status.finished ? (
+                      !m.status.finished ? (
+                         <span className="text-xs font-bold text-emerald-400 animate-pulse bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">IN CORSO</span>
+                      ) : (
+                         <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full">{m.status.reason?.short || 'Terminata'}</span>
+                      )
+                   ) : (
+                      <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/5">{m.status.liveTime?.short || m.status.reason?.short || 'In Programma'}</span>
+                   )}
+                </div>
               </div>
             </div>
           ))}
