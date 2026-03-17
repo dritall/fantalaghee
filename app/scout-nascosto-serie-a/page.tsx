@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   X, 
   Loader2,
   ShieldAlert,
-  ChevronRight,
-  Activity,
   Calendar,
-  Clock,
+  Activity,
   BarChart3,
   History
 } from 'lucide-react';
@@ -51,6 +49,10 @@ export default function ScoutHub() {
   const [selectedRound, setSelectedRound] = useState<number>(1);
   const [currentRound, setCurrentRound] = useState<number>(1);
   
+  // Refs for auto-scroll
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const activeRoundRef = useRef<HTMLButtonElement>(null);
+
   // Modal State
   const [modalFixture, setModalFixture] = useState<Match | null>(null);
   const [modalContent, setModalContent] = useState<{
@@ -64,14 +66,14 @@ export default function ScoutHub() {
     const load = async () => {
       try {
         setLoading(true);
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.fotmob.com/api/leagues?id=55');
-        const res = await fetch(url);
+        // Utilizziamo il nostro server mascherato da iPhone
+        const res = await fetch('/api/fotmob?mode=l&target=55');
         const data = await res.json();
         const matchesArray = data?.fixtures?.allMatches || [];
         
         setFixtures(matchesArray);
 
-        // Logic for currentRound: find first non-finished match
+        // Logic for currentRound: find lowest non-finished match
         let detected = 1;
         const sorted = [...matchesArray].sort((a,b) => Number(a.round) - Number(b.round));
         for (const m of sorted) {
@@ -85,13 +87,24 @@ export default function ScoutHub() {
         setCurrentRound(detected);
         setSelectedRound(detected);
       } catch (err) {
-        setError("Synchronization via CORS Proxy failed.");
+        setError("Synchronization failed.");
       } finally {
         setLoading(false);
       }
     };
     load();
   }, []);
+
+  // Auto-scroll logic
+  useEffect(() => {
+    if (activeRoundRef.current) {
+      activeRoundRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
+    }
+  }, [selectedRound, loading]);
 
   const displayedMatches = useMemo(() => {
     return fixtures.filter((m: Match) => Number(m.round) === Number(selectedRound));
@@ -108,8 +121,7 @@ export default function ScoutHub() {
     setModalLoading(true);
     
     try {
-      const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.fotmob.com/api/matchDetails?matchId=' + m.id);
-      const res = await fetch(url);
+      const res = await fetch('/api/fotmob?mode=m&target=' + m.id);
       const data = await res.json();
       
       const events = data?.content?.matchFacts?.events?.events || [];
@@ -120,7 +132,7 @@ export default function ScoutHub() {
       
       setModalContent({ events, stats: filteredStats });
     } catch (err) {
-      // Fail silently for modal
+      // Fail silently
     } finally {
       setModalLoading(false);
     }
@@ -130,7 +142,7 @@ export default function ScoutHub() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
-        <p className="text-slate-600 font-black uppercase tracking-[0.4em] text-[9px]">Bypassing Matrix Blocking...</p>
+        <p className="text-slate-600 font-black uppercase tracking-[0.4em] text-[9px]">Mobile Spoofing active...</p>
       </div>
     );
   }
@@ -144,7 +156,7 @@ export default function ScoutHub() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest">Premium</span>
-              <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em]">CORS PROXY ENABLED</span>
+              <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em]">FOTMOB MOBILE BYPASS</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-[0.8] mb-1">
               Serie A <span className="text-blue-600">Scout</span>
@@ -152,7 +164,7 @@ export default function ScoutHub() {
           </div>
           <div className="hidden md:flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-full border border-slate-800">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Security Bypass Active</span>
+            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">iPhone iOS Spoofing Active</span>
           </div>
         </div>
 
@@ -163,7 +175,7 @@ export default function ScoutHub() {
           </div>
         )}
 
-        {/* Round Navigation (Native Select) */}
+        {/* Round Navigation (Snap-Scroller) */}
         <div className="mb-10">
           <div className="flex items-center justify-between mb-4 px-1">
              <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] flex items-center gap-2">
@@ -172,21 +184,31 @@ export default function ScoutHub() {
              <span className="text-[10px] font-black text-blue-500 italic">#{selectedRound} OF 38</span>
           </div>
           
-          <div className="relative">
-            <select 
-              className="w-full md:w-1/2 p-4 rounded-xl bg-slate-800 text-white font-bold border border-slate-700 outline-none appearance-none cursor-pointer focus:border-blue-500/50 transition-all text-xs uppercase tracking-widest"
-              value={selectedRound || ''} 
-              onChange={(e) => setSelectedRound(Number(e.target.value))}
-            >
-              {roundsList.map(round => (
-                <option key={round} value={round} className="bg-slate-900">
-                  Giornata {round} {round === currentRound ? ' - 🟢 IN CORSO' : ''}
-                </option>
-              ))}
-            </select>
-            <div className="absolute right-4 md:right-[54%] top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-               <ChevronRight className="w-4 h-4 rotate-90" />
-            </div>
+          <div 
+            ref={scrollerRef}
+            className="flex overflow-x-auto snap-x scroll-smooth scrollbar-hide py-4 gap-3 no-scrollbar"
+          >
+            {roundsList.map(round => {
+              const isActive = round === selectedRound;
+              const isCurrent = round === currentRound;
+              return (
+                <button
+                  key={round}
+                  ref={isActive ? activeRoundRef : null}
+                  onClick={() => setSelectedRound(round)}
+                  className={`
+                    snap-center whitespace-nowrap px-6 py-2 rounded-full font-bold transition-all text-xs uppercase tracking-widest flex items-center gap-2
+                    ${isActive 
+                      ? 'bg-blue-600 text-white shadow-lg scale-105 border-blue-400' 
+                      : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+                    }
+                  `}
+                >
+                  Giornata {round}
+                  {isCurrent && <span className="text-[10px]">🟢</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -280,7 +302,7 @@ export default function ScoutHub() {
                 <div className="animate-in fade-in duration-500">
                   {modalTab === 'E' ? (
                     <div className="space-y-6">
-                      {modalContent?.events.filter(e => ['Goal', 'Card'].includes(e.type)).map((e, idx) => (
+                      {(modalContent?.events || []).filter(e => ['Goal', 'Card'].includes(e.type)).map((e, idx) => (
                         <div key={idx} className={`flex items-center gap-4 ${e.teamId === modalFixture?.home.id ? 'flex-row' : 'flex-row-reverse text-right'}`}>
                            <div className="w-10 text-[9px] font-black text-slate-700 italic">{e.time}'</div>
                            <div className={`flex-1 p-3 rounded-xl border ${e.teamId === modalFixture?.home.id ? 'bg-blue-500/5 border-blue-500/10' : 'bg-slate-800/20 border-slate-700/20'}`}>
@@ -296,7 +318,7 @@ export default function ScoutHub() {
                            </div>
                         </div>
                       ))}
-                      {!modalContent?.events.length && (
+                      {!(modalContent?.events || []).length && (
                         <div className="text-center py-10 opacity-20 flex flex-col items-center gap-2">
                           <Activity className="w-8 h-8" />
                           <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">No events logged</span>
@@ -305,7 +327,7 @@ export default function ScoutHub() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {modalContent?.stats.map((s, i) => (
+                      {(modalContent?.stats || []).map((s, i) => (
                         <div key={i} className="bg-slate-950/30 p-4 rounded-xl border border-slate-800/30">
                           <div className="flex justify-between items-center mb-3">
                              <span className="text-[10px] font-black text-white">{s.stats[0]}</span>
@@ -318,7 +340,7 @@ export default function ScoutHub() {
                           </div>
                         </div>
                       ))}
-                      {!modalContent?.stats.length && (
+                      {!(modalContent?.stats || []).length && (
                         <div className="text-center py-10 opacity-20 flex flex-col items-center gap-2">
                           <BarChart3 className="w-8 h-8" />
                           <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Stats unavailable</span>

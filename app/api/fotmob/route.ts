@@ -2,23 +2,23 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const target = searchParams.get('target');
   const mode = searchParams.get('mode');
+  const target = searchParams.get('target');
 
-  if (!target || !mode) return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+  if (!mode || !target) return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
 
   try {
-    const fotmobUrl = mode === 'l' 
+    const url = mode === 'l' 
       ? `https://www.fotmob.com/api/leagues?id=${target}`
       : `https://www.fotmob.com/api/matchDetails?matchId=${target}`;
 
-    const res = await fetch(fotmobUrl, {
+    const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Referer': 'https://www.fotmob.com/',
-        'Origin': 'https://www.fotmob.com'
+        // La chiave per bucare Cloudflare: simulare l'app iOS ufficiale
+        'User-Agent': 'FotMob/175.0.0 (iPhone; iOS 17.0.3; Scale/3.00)',
+        'X-Fotmob-Platform': 'iOS',
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
       },
       cache: 'no-store'
     });
@@ -27,6 +27,6 @@ export async function GET(request: Request) {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Data fetch failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Fetch failed' }, { status: 500 });
   }
 }
