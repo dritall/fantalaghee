@@ -63,10 +63,19 @@ export default function ScoutHub() {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/football?endpoint=tournaments/get-events&courseId=23');
-        const data = await res.json();
+        // 1. Fetch seasons
+        const resSeasons = await fetch('/api/football?endpoint=tournaments/get-seasons&uniqueTournamentId=23');
+        const seasonsData = await resSeasons.json();
         
-        let matchesArray = data?.fixtures?.allMatches || [];
+        // 2. Extract current season id
+        const currentSeasonId = seasonsData.seasons?.[0]?.id;
+        if (!currentSeasonId) throw new Error("Season ID not found");
+
+        // 3. Fetch Calendar
+        const resEvents = await fetch(`/api/football?endpoint=tournaments/get-season-events&uniqueTournamentId=23&seasonId=${currentSeasonId}`);
+        const data = await resEvents.json();
+        
+        let matchesArray = [];
         if (data?.events) {
           matchesArray = data.events.map((e: any) => ({
             id: e.id,
@@ -86,7 +95,7 @@ export default function ScoutHub() {
         
         setFixtures(matchesArray);
 
-        // Trova partite in corso o finite
+        // 4. Calculate currentRound
         const ongoing = matchesArray.filter((m: Match) => m.status?.started && !m.status?.finished);
         const finished = matchesArray.filter((m: Match) => m.status?.finished || m.status?.reason?.short === 'FT');
 
@@ -134,27 +143,43 @@ export default function ScoutHub() {
     setModalError(false);
     
     try {
-      const res = await fetch('/api/football?endpoint=matches/v1/get-incidents&matchId=' + m.id);
+      const [resIncidents, resStats] = await Promise.all([
+        fetch('/api/football?endpoint=matches/v1/get-incidents&matchId=' + m.id),
+        fetch('/api/football?endpoint=matches/v1/get-statistics&matchId=' + m.id)
+      ]);
       
-      if (!res.ok) throw new Error("RapidAPI proxy bloccato");
+      if (!resIncidents.ok || !resStats.ok) throw new Error("RapidAPI proxy bloccato");
       
-      const data = await res.json();
+      const dataIncidents = await resIncidents.json();
+      const dataStats = await resStats.json();
       
       let events = [];
-      if (data?.incidents) {
-         events = data.incidents.map((inc: any) => ({
-            type: inc.incidentType === 'goal' ? 'Goal' : inc.incidentType === 'card' ? 'Card' : inc.incidentType,
+      if (dataIncidents?.incidents) {
+        events = dataIncidents.incidents
+          .filter((inc: any) => inc.incidentType === 'goal' || inc.incidentType === 'card')
+          .map((inc: any) => ({
+            type: inc.incidentType === 'goal' ? 'Goal' : 'Card',
             time: inc.time,
             player: { name: inc.player?.name, id: inc.player?.id },
             assist: inc.assist1 ? { name: inc.assist1?.name, id: inc.assist1?.id } : undefined,
             card: inc.incidentClass,
             teamId: inc.isHome ? m.home.id : m.away.id
-         }));
-      } else {
-         events = data?.content?.matchFacts?.events?.events || [];
+          }));
       }
       
-      setModalContent({ events, stats: [] });
+      let stats = [];
+      if (dataStats?.statistics && dataStats.statistics.length > 0) {
+        const targetStats = ["Ball possession", "Expected goals", "Total shots"];
+        stats = dataStats.statistics[0].groups
+          .flatMap((group: any) => group.statisticsItems)
+          .filter((item: any) => targetStats.includes(item.name))
+          .map((item: any) => ({
+            title: item.name,
+            stats: [item.home, item.away]
+          }));
+      }
+      
+      setModalContent({ events, stats });
     } catch (err) {
       setModalError(true);
     } finally {

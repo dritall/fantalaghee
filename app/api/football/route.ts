@@ -6,11 +6,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const endpoint = searchParams.get('endpoint');
   
-  if (!endpoint) return NextResponse.json({ error: 'Missing endpoint' }, { status: 400 });
+  if (!endpoint) return NextResponse.json({ error: 'Missing endpoint configuration' }, { status: 400 });
 
   try {
-    const searchParamsString = new URLSearchParams(Array.from(searchParams.entries()).filter(([k]) => k !== 'endpoint')).toString();
-    const url = `https://sofascore.p.rapidapi.com/${endpoint}${searchParamsString ? '?' + searchParamsString : ''}`;
+    const query = new URLSearchParams(Array.from(searchParams.entries()).filter(([k]) => k !== 'endpoint')).toString();
+    const url = `https://sofascore.p.rapidapi.com/${endpoint}${query ? '?' + query : ''}`;
 
     const res = await fetch(url, {
       headers: {
@@ -20,10 +20,9 @@ export async function GET(request: Request) {
       cache: 'no-store'
     });
 
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    const data = await res.json();
-    return NextResponse.json(data);
+    if (!res.ok) throw new Error(`Provider response status: ${res.status}`);
+    return NextResponse.json(await res.json());
   } catch (error) {
-    return NextResponse.json({ error: 'RapidAPI fetch failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Data synchronization failed' }, { status: 500 });
   }
 }
