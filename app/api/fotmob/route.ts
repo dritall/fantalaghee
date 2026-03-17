@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const runtime = 'edge'; // Cruciale per bypassare i blocchi WAF/Cloudflare
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const mode = searchParams.get('mode');
@@ -14,19 +16,17 @@ export async function GET(request: Request) {
 
     const res = await fetch(url, {
       headers: {
-        // La chiave per bucare Cloudflare: simulare l'app iOS ufficiale
-        'User-Agent': 'FotMob/175.0.0 (iPhone; iOS 17.0.3; Scale/3.00)',
-        'X-Fotmob-Platform': 'iOS',
-        'Accept': 'application/json',
-        'Cache-Control': 'no-cache'
-      },
-      cache: 'no-store'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7'
+      }
     });
 
     if (!res.ok) throw new Error(`Status ${res.status}`);
     const data = await res.json();
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Fetch failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Data fetch failed' }, { status: 500 });
   }
 }
+
