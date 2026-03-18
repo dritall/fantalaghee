@@ -49,6 +49,43 @@ interface StandingTeam {
   };
 }
 
+const SERIE_A_COLORS: Record<string, string> = {
+  "Inter": "#0059A3",
+  "Milan": "#FB090B",
+  "Juventus": "#000000",
+  "Napoli": "#00AEEF",
+  "Roma": "#8E1F2F",
+  "Lazio": "#87D8F7",
+  "Atalanta": "#1E4B87",
+  "Fiorentina": "#4A2583",
+  "Bologna": "#A21C26",
+  "Torino": "#8A1E31",
+  "Sassuolo": "#00A752",
+  "Genoa": "#A61A2A",
+  "Verona": "#FFD100",
+  "Lecce": "#FFD100",
+  "Empoli": "#00579C",
+  "Udinese": "#000000",
+  "Cagliari": "#00285E",
+  "Frosinone": "#FFCC00",
+  "Salernitana": "#8A1E31",
+  "Monza": "#E5002B",
+  "Como": "#0059A3",
+  "Parma": "#FFCB05",
+  "Venezia": "#F59124",
+};
+
+const STATS_TRANSLATIONS: Record<string, string> = {
+  "Ball possession": "Possesso Palla",
+  "Expected goals (xG)": "Gol Attesi (xG)",
+  "Total shots": "Tiri Totali",
+  "Shots on target": "Tiri in Porta",
+  "Fouls committed": "Falli",
+  "Yellow cards": "Ammonizioni",
+  "Red cards": "Espulsioni",
+  "Corner kicks": "Calci d'angolo"
+};
+
 export default function ScoutHub() {
   const [activeTab, setActiveTab] = useState<'calendario' | 'classifica'>('calendario');
   const [rounds, setRounds] = useState<Match[][]>([]);
@@ -70,8 +107,8 @@ export default function ScoutHub() {
       try {
         setLoading(true);
         const [matchesRes, standingsRes] = await Promise.all([
-          fetch('/api/football?endpoint=football-get-all-matches-by-league&leagueid=47').then(res => res.json()).catch(() => null),
-          fetch('/api/football?endpoint=football-get-standing-all&leagueid=47').then(res => res.json()).catch(() => null)
+          fetch('/api/football?endpoint=football-get-all-matches-by-league&leagueid=55').then(res => res.json()).catch(() => null),
+          fetch('/api/football?endpoint=football-get-standing-all&leagueid=55').then(res => res.json()).catch(() => null)
         ]);
         
         let validMatchesData = matchesRes;
@@ -166,7 +203,7 @@ export default function ScoutHub() {
     try {
       const [statsRes, eventsRes] = await Promise.all([
         fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json()),
-        fetch(`/api/football?endpoint=football-get-match-event-all-stats&eventid=${m.id}`).then(res => res.json())
+        fetch(`/api/football?endpoint=football-get-match-detail&eventid=${m.id}`).then(res => res.json())
       ]);
       
       setStatsData(statsRes);
@@ -288,13 +325,16 @@ export default function ScoutHub() {
                           </div>
 
                           <div className="flex-1 flex flex-col items-center justify-center">
-                            {m.status.scoreStr !== '- - -' ? (
-                              <div className={`text-4xl font-black italic tracking-tighter ${isLive ? 'text-white animate-[flash_2s_infinite]' : 'text-white'}`}>
-                                {m.status.scoreStr}
+                            {(!m.status.started || m.status.reason?.short === 'NS') ? (
+                              <div className="flex flex-col items-center gap-1">
+                                <span className="text-2xl font-black text-slate-400 italic">TBD</span>
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                                  {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
                               </div>
                             ) : (
-                              <div className="text-xl font-black text-slate-600 italic">
-                                {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                              <div className={`text-4xl font-black italic tracking-tighter ${isLive ? 'text-white animate-[flash_2s_infinite]' : 'text-white'}`}>
+                                {m.status.scoreStr || '0 - 0'}
                               </div>
                             )}
                           </div>
@@ -414,23 +454,27 @@ export default function ScoutHub() {
                 <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
                   {(() => {
                     const topStats = statsData?.raw?.response?.stats?.find((g: any) => g.key === 'top_stats')?.stats || [];
+                    const dColorHome = SERIE_A_COLORS[modalFixture?.home.name || ""] || "#22d3ee";
+                    const dColorAway = SERIE_A_COLORS[modalFixture?.away.name || ""] || "#34d399";
+
                     return topStats.length > 0 ? topStats.map((stat: any, i: number) => {
                       const val0 = parseFloat(String(stat.stats[0]).replace('%', '')) || 0;
                       const val1 = parseFloat(String(stat.stats[1]).replace('%', '')) || 0;
                       const total = val0 + val1 || 1;
                       const w0 = (val0 / total) * 100;
                       const w1 = (val1 / total) * 100;
+                      const trTitle = STATS_TRANSLATIONS[stat.title] || stat.title;
 
                       return (
                         <div key={i} className="mb-4">
                           <div className="flex justify-between text-xs text-white mb-2">
-                            <span className="font-bold text-cyan-400 text-sm drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">{stat.stats[0]}</span>
-                            <span className="text-slate-500 uppercase tracking-widest text-[9px] font-black leading-tight flex items-end pb-0.5">{stat.title}</span>
-                            <span className="font-bold text-emerald-400 text-sm drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">{stat.stats[1]}</span>
+                            <span className="font-bold text-sm" style={{ color: dColorHome, textShadow: `0 0 8px ${dColorHome}80` }}>{stat.stats[0]}</span>
+                            <span className="text-slate-500 uppercase tracking-widest text-[9px] font-black leading-tight flex items-end pb-0.5">{trTitle}</span>
+                            <span className="font-bold text-sm" style={{ color: dColorAway, textShadow: `0 0 8px ${dColorAway}80` }}>{stat.stats[1]}</span>
                           </div>
                           <div className="flex w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                            <div className="h-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all duration-1000 ease-out" style={{ width: `${w0}%` }}></div>
-                            <div className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(52,211,153,0.5)] transition-all duration-1000 ease-out" style={{ width: `${w1}%` }}></div>
+                            <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${w0}%`, backgroundColor: dColorHome, boxShadow: `0 0 10px ${dColorHome}80` }}></div>
+                            <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${w1}%`, backgroundColor: dColorAway, boxShadow: `0 0 10px ${dColorAway}80` }}></div>
                           </div>
                         </div>
                       );
@@ -443,9 +487,58 @@ export default function ScoutHub() {
                 </div>
               ) : (
                 <div className="animate-in slide-in-from-bottom-5 duration-500">
-                  <div className="text-center text-slate-500 text-[10px] font-black py-16 uppercase tracking-widest border border-white/5 rounded-3xl bg-white/5 border-dashed">
-                    Cronaca in aggiornamento...
-                  </div>
+                  {(() => {
+                    const timeline = eventsData?.raw?.response?.match?.incidents || eventsData?.raw?.response?.incidents || eventsData?.raw?.response?.events || [];
+                    if (!timeline || timeline.length === 0) {
+                       return (
+                         <div className="text-center text-slate-500 text-[10px] font-black py-16 uppercase tracking-widest border border-white/5 rounded-3xl bg-white/5 border-dashed">
+                           Nessun evento disponibile
+                         </div>
+                       );
+                    }
+                    
+                    return (
+                      <div className="relative py-4">
+                         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-white/5"></div>
+                         {timeline.map((ev: any, idx: number) => {
+                           const isHome = ev.homeScore !== undefined ? (ev.isHome === true || ev.teamIndex === 0) : (ev.team?.id === Number(modalFixture?.home.id) || ev.team === 1);
+                           let icon = "📍";
+                           let desc = ev.type || ev.incidentClass || "Evento";
+                           const detailName = ev.player?.name || ev.playerName || ev.name || ev.text || "";
+                           
+                           if (desc.toLowerCase().includes("goal")) icon = "⚽";
+                           if (desc.toLowerCase().includes("assist")) icon = "👟";
+                           if (desc.toLowerCase().includes("yellow")) icon = "🟨";
+                           if (desc.toLowerCase().includes("red")) icon = "🟥";
+                           if (desc.toLowerCase().includes("subst") || desc.toLowerCase().includes("cambio") || desc.toLowerCase().includes("sub")) icon = "🔄";
+
+                           return (
+                             <div key={idx} className="relative flex items-center mb-8">
+                               <div className={`w-1/2 ${isHome ? 'pr-8 text-right' : 'opacity-0 pointer-events-none'}`}>
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-black text-white">{detailName}</span>
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase">{icon} {desc}</span>
+                                  </div>
+                               </div>
+
+                               <div className="absolute left-1/2 -translate-x-1/2 z-10">
+                                  <div className="w-10 h-10 rounded-full border-2 border-white/10 bg-[#0a0f1a] flex items-center justify-center shadow-2xl">
+                                    <span className="text-[10px] font-black text-white">{ev.time || ev.minute || ev.elapsed}'</span>
+                                  </div>
+                               </div>
+
+                               <div className={`w-1/2 ${!isHome ? 'pl-8' : 'opacity-0 pointer-events-none'}`}>
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-black text-white">{detailName}</span>
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase">{icon} {desc}</span>
+                                  </div>
+                               </div>
+                             </div>
+                           );
+                         })}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
