@@ -81,17 +81,29 @@ export default function ScoutHub() {
             const roundMatch = roundStr.match(/\d+/);
             const roundNum = roundMatch ? parseInt(roundMatch[0]) : 1;
 
-            const isStarted = e.status === 'In Progress' || e.status === 'Finished' || e.status_short === 'FT' || e.status_short === 'HT' || (e.home?.score !== null && e.home?.score !== undefined);
+            const isFinished = e.status_short === 'FT' || e.status === 'Finished' || String(e.status_short || "").toUpperCase() === 'FT';
+            const isStarted = e.status === 'In Progress' || isFinished || e.status_short === 'HT' || (e.home?.score !== null && e.home?.score !== undefined);
+
+            // Extract scores from scoreStr fallback
+            let homeScore = e.home?.score;
+            let awayScore = e.away?.score;
+            if ((homeScore === null || homeScore === undefined) && e.scoreStr) {
+               const parts = e.scoreStr.split("-");
+               if (parts.length === 2) {
+                  homeScore = parseInt(parts[0].trim());
+                  awayScore = parseInt(parts[1].trim());
+               }
+            }
 
             return {
               id: e.id,
               round: roundNum,
               status: {
-                finished: e.status === 'Finished' || e.status_short === 'FT',
+                finished: isFinished,
                 started: isStarted,
                 cancelled: e.status === 'Cancelled',
-                scoreStr: isStarted ? `${e.home?.score ?? 0} - ${e.away?.score ?? 0}` : "- - -",
-                reason: { short: e.status_short || 'FT', long: e.status },
+                scoreStr: isStarted ? `${homeScore ?? 0} - ${awayScore ?? 0}` : "- - -",
+                reason: { short: e.status_short || (isFinished ? 'FT' : 'NS'), long: e.status },
                 liveTime: { short: e.time_status },
                 startTime: e.fixture?.date || e.date || new Date().toISOString()
               },
@@ -103,14 +115,13 @@ export default function ScoutHub() {
               }))
             };
           });
-          console.log("Sample Match Object:", matchesArray[0]);
         }
         
         setFixtures(matchesArray);
 
         // Calculate currentRound logic
         const ongoing = matchesArray.filter((m: Match) => m.status?.started && !m.status?.finished);
-        const finished = matchesArray.filter((m: Match) => m.status?.finished || m.status?.reason?.short === 'FT');
+        const finished = matchesArray.filter((m: Match) => m.status?.finished);
 
         let targetRound = 1;
         if (ongoing.length > 0) {
@@ -119,6 +130,8 @@ export default function ScoutHub() {
           targetRound = Math.max(...finished.map((m: Match) => Number(m.round)));
         }
 
+        // If all match rounds are 1, but we have multiple matches, we might need a better default or fallback grouping
+        // For now, ensure selectedRound is valid
         setCurrentRound(targetRound);
         setSelectedRound(targetRound);
       } catch (err) {
@@ -142,7 +155,10 @@ export default function ScoutHub() {
   }, [selectedRound, loading]);
 
   const displayedMatches = useMemo(() => {
-    return fixtures.filter((m: Match) => Number(m.round) === Number(selectedRound));
+    const subset = fixtures.filter((m: Match) => Number(m.round) === Number(selectedRound));
+    // Fallback: if selectedRound has no matches AND we are on round 1, maybe show all if everything is round 1
+    if (subset.length === 0 && selectedRound === 1 && fixtures.length > 0) return fixtures;
+    return subset;
   }, [fixtures, selectedRound]);
 
   const roundsList = useMemo(() => {
@@ -156,7 +172,7 @@ export default function ScoutHub() {
     setModalError(false);
     
     try {
-      const res = await fetch(`/api/football?endpoint=football-get-match-detail&matchid=${m.id}`);
+      const res = await fetch(`/api/football?endpoint=football-get-match-detail&matchId=${m.id}`);
       
       if (!res.ok) throw new Error("RapidAPI proxy bloccato");
       
@@ -326,7 +342,7 @@ export default function ScoutHub() {
               </div>
             ))
           ) : (
-            displayedMatches.map(m => (
+            (displayedMatches || []).map(m => (
             <div 
               key={m.id}
               onClick={() => openMatch(m)}
