@@ -63,45 +63,33 @@ export default function ScoutHub() {
     const load = async () => {
       try {
         setLoading(true);
-        // 1. Fetch seasons
-        const resSeasons = await fetch('/api/football?endpoint=tournaments/get-seasons&uniqueTournamentId=23');
-        const seasonsData = await resSeasons.json();
-        
-        if (seasonsData.debugError) {
-          console.error("🔴 ERRORE RAPIDAPI RILEVATO:", seasonsData);
-          // Ferma l'esecuzione per evitare il crash del frontend (data.seasons undefined)
-          return; 
-        }
-
-        // 2. Extract current season id
-        const currentSeasonId = seasonsData.seasons?.[0]?.id;
-        if (!currentSeasonId) throw new Error("Season ID not found");
-
-        // 3. Fetch Calendar
-        const resEvents = await fetch(`/api/football?endpoint=tournaments/get-season-events&uniqueTournamentId=23&seasonId=${currentSeasonId}`);
-        const data = await resEvents.json();
+        // Initialization: Use all-matches-by-league with a typical league ID (e.g. 1 or 23)
+        // For this provider, we'll try to find matches directly.
+        const res = await fetch('/api/football?endpoint=football-get-all-matches-by-league-id-and-season-id&leagueid=23&seasonid=2025');
+        const data = await res.json();
         
         let matchesArray = [];
-        if (data?.events) {
-          matchesArray = data.events.map((e: any) => ({
+        // Mappatura specifica per il provider Free API Live Football Data
+        if (data?.result) {
+          matchesArray = data.result.map((e: any) => ({
             id: e.id,
-            round: e.roundInfo?.round || 1,
+            round: parseInt(e.round) || 1,
             status: {
-              finished: e.status?.type === 'finished',
-              started: e.status?.type === 'inprogress' || e.status?.type === 'finished',
-              cancelled: e.status?.type === 'canceled',
-              scoreStr: e.homeScore?.display !== undefined ? `${e.homeScore?.display} - ${e.awayScore?.display}` : undefined,
-              reason: { short: e.status?.description || 'FT', long: e.status?.description },
-              liveTime: { short: e.status?.description }
+              finished: e.status === 'Finished',
+              started: e.status === 'In Progress' || e.status === 'Finished',
+              cancelled: e.status === 'Cancelled',
+              scoreStr: e.home_score !== undefined ? `${e.home_score} - ${e.away_score}` : undefined,
+              reason: { short: e.status_short || 'FT', long: e.status },
+              liveTime: { short: e.time_status }
             },
-            home: { name: e.homeTeam?.name, id: e.homeTeam?.id },
-            away: { name: e.awayTeam?.name, id: e.awayTeam?.id }
+            home: { name: e.home_team_name, id: e.home_team_id },
+            away: { name: e.away_team_name, id: e.away_team_id }
           }));
         }
         
         setFixtures(matchesArray);
 
-        // 4. Calculate currentRound
+        // Calculate currentRound logic
         const ongoing = matchesArray.filter((m: Match) => m.status?.started && !m.status?.finished);
         const finished = matchesArray.filter((m: Match) => m.status?.finished || m.status?.reason?.short === 'FT');
 
@@ -149,40 +137,34 @@ export default function ScoutHub() {
     setModalError(false);
     
     try {
-      const [resIncidents, resStats] = await Promise.all([
-        fetch('/api/football?endpoint=matches/v1/get-incidents&matchId=' + m.id),
-        fetch('/api/football?endpoint=matches/v1/get-statistics&matchId=' + m.id)
-      ]);
+      const res = await fetch('/api/football?endpoint=football-get-match-detail&matchid=' + m.id);
       
-      if (!resIncidents.ok || !resStats.ok) throw new Error("RapidAPI proxy bloccato");
+      if (!res.ok) throw new Error("RapidAPI proxy bloccato");
       
-      const dataIncidents = await resIncidents.json();
-      const dataStats = await resStats.json();
+      const data = await res.json();
+      const matchDetail = data?.result?.[0];
       
       let events = [];
-      if (dataIncidents?.incidents) {
-        events = dataIncidents.incidents
-          .filter((inc: any) => inc.incidentType === 'goal' || inc.incidentType === 'card')
+      if (matchDetail?.incidents) {
+        events = matchDetail.incidents
+          .filter((inc: any) => inc.type === 'goal' || inc.type === 'card')
           .map((inc: any) => ({
-            type: inc.incidentType === 'goal' ? 'Goal' : 'Card',
+            type: inc.type === 'goal' ? 'Goal' : 'Card',
             time: inc.time,
-            player: { name: inc.player?.name, id: inc.player?.id },
-            assist: inc.assist1 ? { name: inc.assist1?.name, id: inc.assist1?.id } : undefined,
-            card: inc.incidentClass,
-            teamId: inc.isHome ? m.home.id : m.away.id
+            player: { name: inc.player_name, id: inc.player_id },
+            assist: inc.assist_player_name ? { name: inc.assist_player_name, id: inc.assist_player_id } : undefined,
+            card: inc.card_type,
+            teamId: inc.team_id == m.home.id ? m.home.id : m.away.id
           }));
       }
       
       let stats = [];
-      if (dataStats?.statistics && dataStats.statistics.length > 0) {
-        const targetStats = ["Ball possession", "Total shots", "Shots on target", "Expected goals"];
-        stats = dataStats.statistics[0].groups
-          .flatMap((group: any) => group.statisticsItems ?? [])
-          .filter((item: any) => targetStats.includes(item.name))
-          .map((item: any) => ({
-            title: item.name,
-            stats: [item.home, item.away]
-          }));
+      if (matchDetail?.statistics) {
+        const targetStats = ["Possession", "Total Shots", "Expected Goals (xG)"];
+        stats = Object.entries(matchDetail.statistics).map(([title, s]: [string, any]) => ({
+          title: title,
+          stats: [s.home, s.away]
+        })).filter(s => targetStats.includes(s.title));
       }
       
       setModalContent({ events: events ?? [], stats: stats ?? [] });
@@ -231,7 +213,7 @@ export default function ScoutHub() {
               <button key={round} id={'round-' + round} onClick={() => setSelectedRound(round)} 
                 className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
                   selectedRound === round 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-transparent border-cyan-400/50 text-white shadow-[0_0_25px_rgba(34,211,238,0.6)] scale-110 relative overflow-hidden' 
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-transparent border-cyan-400 text-white shadow-[0_0_20px_rgba(34,211,238,0.4)] scale-110 relative overflow-hidden' 
                     : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
                 }`}>
                 Giornata {round}
@@ -247,13 +229,13 @@ export default function ScoutHub() {
             <div 
               key={m.id}
               onClick={() => openMatch(m)}
-              className="relative overflow-hidden bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 cursor-pointer transition-all duration-500 hover:border-white/30 hover:-translate-y-1 hover:shadow-2xl group"
+              className="relative overflow-hidden bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 cursor-pointer transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.15)] hover:-translate-y-1 group"
             >
-              {/* Effetto Riflesso Loghi */}
-              <div className="absolute top-0 left-0 w-1/2 h-full opacity-0 group-hover:opacity-40 transition-opacity duration-700 blur-[40px] pointer-events-none" style={{ backgroundImage: `url(https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
-              <div className="absolute top-0 right-0 w-1/2 h-full opacity-0 group-hover:opacity-40 transition-opacity duration-700 blur-[40px] pointer-events-none" style={{ backgroundImage: `url(https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+              {/* Reflection Effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               
-              {/* Contenuto Card in primo piano */}
+              {/* Mouse Aura (Gradient Glow) */}
+              <div className="absolute -inset-2 opacity-0 group-hover:opacity-20 transition-opacity blur-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 pointer-events-none"></div>
               <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col items-center gap-2 w-1/3">
@@ -380,27 +362,26 @@ export default function ScoutHub() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {(modalContent?.stats || []).map((s, i) => {
-                        const homeVal = Number(s.stats[0]);
-                        const awayVal = Number(s.stats[1]);
+                        const homeVal = parseFloat(String(s.stats[0])) || 0;
+                        const awayVal = parseFloat(String(s.stats[1])) || 0;
                         const total = homeVal + awayVal;
                         const homeWidth = total === 0 ? 50 : (homeVal / total) * 100;
                         const awayWidth = total === 0 ? 50 : (awayVal / total) * 100;
                         
                         return (
-                          <div key={i} className="mb-4">
-                            <div className="flex justify-between text-[10px] mb-1 text-slate-400 uppercase font-bold px-1">
-                              <span>{s.stats[0]}</span> 
-                              <span className="text-[8px] tracking-wider opacity-60">{s.title}</span> 
-                              <span>{s.stats[1]}</span>
+                          <div key={i} className="mb-6">
+                            <div className="flex justify-between items-center text-[11px] mb-2 px-1">
+                              <span className="font-bold text-cyan-400">{s.stats[0]}</span> 
+                              <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">{s.title}</span> 
+                              <span className="font-bold text-emerald-400">{s.stats[1]}</span>
                             </div>
-                            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden flex shadow-inner">
-                              <div className="h-full bg-cyan-400 transition-all duration-700" style={{ width: `${homeWidth}%` }} />
-                              <div className="h-full bg-emerald-400 transition-all duration-700 border-l border-black/20" style={{ width: `${awayWidth}%` }} />
+                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden flex shadow-inner border border-white/10">
+                              <div className="h-full bg-cyan-500 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(34,211,238,0.5)]" style={{ width: `${homeWidth}%` }} />
+                              <div className="h-full bg-emerald-500 transition-all duration-1000 ease-out border-l border-black/40 shadow-[0_0_10px_rgba(52,211,153,0.5)]" style={{ width: `${awayWidth}%` }} />
                             </div>
                           </div>
                         );
-                      })}
+                      }) ?? []}
                       {!(modalContent?.stats || []).length && (
                         <div className="text-center py-10 opacity-40 flex flex-col items-center gap-2">
                           <BarChart3 className="w-8 h-8 text-slate-400" />
