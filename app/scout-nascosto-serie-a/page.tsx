@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useTransition } from 'react';
 import { 
   X, 
   Loader2,
@@ -23,6 +23,7 @@ interface Match {
     scoreStr?: string;
     reason?: { short: string; long: string };
     liveTime?: { short: string };
+    startTime?: string;
   };
   home: { name: string; id: string; };
   away: { name: string; id: string; };
@@ -49,6 +50,7 @@ export default function ScoutHub() {
   const [selectedRound, setSelectedRound] = useState<number>(1);
   const [currentRound, setCurrentRound] = useState<number>(1);
   const [debugData, setDebugData] = useState<any>(null);
+  const [isPending, startTransition] = useTransition();
   
   // Modal State
   const [modalFixture, setModalFixture] = useState<Match | null>(null);
@@ -78,9 +80,10 @@ export default function ScoutHub() {
               finished: e.status === 'Finished' || e.status_short === 'FT',
               started: e.status === 'In Progress' || e.status === 'Finished' || e.status_short === 'FT' || e.status_short === 'HT',
               cancelled: e.status === 'Cancelled',
-              scoreStr: e.home?.score !== undefined ? `${e.home?.score} - ${e.away?.score}` : undefined,
+              scoreStr: (e.home?.score !== null && e.home?.score !== undefined) ? `${e.home?.score} - ${e.away?.score}` : undefined,
               reason: { short: e.status_short || 'FT', long: e.status },
-              liveTime: { short: e.time_status }
+              liveTime: { short: e.time_status },
+              startTime: e.fixture?.date || e.date || new Date().toISOString()
             },
             home: { name: e.home?.name, id: e.home?.id },
             away: { name: e.away?.name, id: e.away?.id }
@@ -142,29 +145,48 @@ export default function ScoutHub() {
       if (!res.ok) throw new Error("RapidAPI proxy bloccato");
       
       const resData = await res.json();
-      const matchDetail = resData?.raw?.data || resData?.data;
+      const matchDetail = resData?.raw?.response || resData?.response || resData?.raw?.data || resData?.data;
       
       let events = [];
-      if (matchDetail?.incidents) {
-        events = matchDetail.incidents
-          .filter((inc: any) => inc.type === 'goal' || inc.type === 'card')
-          .map((inc: any) => ({
-            type: inc.type === 'goal' ? 'Goal' : 'Card',
-            time: inc.time,
-            player: { name: inc.player_name, id: inc.player_id },
-            assist: inc.assist_player_name ? { name: inc.assist_player_name, id: inc.assist_player_id } : undefined,
-            card: inc.card_type,
-            teamId: inc.team_id == m.home.id ? m.home.id : m.away.id
-          }));
-      }
+      const rawEvents = matchDetail?.goals || matchDetail?.incidents || [];
+      events = rawEvents.map((inc: any) => ({
+        type: inc.type === 'goal' || inc.player_name ? 'Goal' : 'Card',
+        time: inc.minute || inc.time,
+        player: { name: inc.player_name || inc.player?.name, id: inc.player_id || inc.player?.id },
+        assist: inc.assist_name || inc.assist_player_name || inc.assist?.name ? { name: inc.assist_name || inc.assist_player_name || inc.assist?.name } : undefined,
+        card: inc.card_type || inc.detail,
+        teamId: (inc.team === 'home' || inc.team?.name === m.home.name || inc.team_id == m.home.id) ? m.home.id : m.away.id
+      }));
       
       let stats: MatchStat[] = [];
-      if (matchDetail?.statistics) {
-        const targetStats = ["Possession", "Total Shots", "Expected Goals (xG)", "Shots on target"];
-        stats = Object.entries(matchDetail.statistics).map(([title, s]: [string, any]) => ({
-          title: title,
-          stats: [s.home, s.away]
-        })).filter(s => targetStats.includes(s.title));
+      const rawStats = matchDetail?.statistics || (matchDetail?.length > 0 ? matchDetail[0]?.statistics : []) || [];
+      if (Array.isArray(rawStats)) {
+        if (rawStats.length > 0 && rawStats[0]?.team) {
+           // Format [{ team: {}, statistics: [{type: 'Possession', value: '50%'}, ...] }]
+           const homeStats = rawStats.find((s: any) => s.team?.id == m.home.id || s.team?.name === m.home.name)?.statistics || [];
+           const awayStats = rawStats.find((s: any) => s.team?.id == m.away.id || s.team?.name === m.away.name)?.statistics || [];
+           
+           const targetTypes = ["possession", "shots_total", "shots on goal", "expected_goals", "expected goals (xg)", "ball possession", "total shots"];
+           stats = homeStats.filter((s: any) => targetTypes.includes(s.type?.toLowerCase())).map((hs: any) => {
+              const aw = awayStats.find((as: any) => as.type === hs.type);
+              return {
+                 title: hs.type,
+                 stats: [hs.value, aw?.value || 0]
+              };
+           });
+        } else {
+           const targetTypes = ["possession", "shots_total", "shots_on_goal", "expected_goals", "expected goals (xg)", "ball possession", "total shots"];
+           stats = rawStats.filter((s: any) => targetTypes.includes(s.type?.toLowerCase())).map((s: any) => ({
+             title: s.type,
+             stats: [s.home, s.away]
+           }));
+        }
+      } else if (rawStats) {
+        const targetKeys = ["possession", "shots_total", "shots_on_goal", "expected_goals"];
+        stats = Object.entries(rawStats).filter(([k]) => targetKeys.includes(k.toLowerCase()) || ["Possession", "Total Shots", "Shots on target", "Expected Goals (xG)"].includes(k)).map(([k, v]: any) => ({
+          title: k,
+          stats: [v.home, v.away]
+        }));
       }
       
       setModalContent({ events: events ?? [], stats: stats ?? [] });
@@ -260,7 +282,7 @@ export default function ScoutHub() {
         <div className="mb-10">
           <div className="flex overflow-x-auto snap-x scrollbar-hide py-4 gap-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-8 shadow-2xl relative z-20">
             {roundsList.map(round => (
-              <button key={round} id={'round-' + round} onClick={() => setSelectedRound(round)} 
+              <button key={round} id={'round-' + round} onClick={() => startTransition(() => setSelectedRound(round))} 
                 className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
                   selectedRound === round 
                     ? 'bg-cyan-500/10 border-cyan-400 text-white shadow-[0_0_20px_rgba(34,211,238,0.6)] scale-110 relative overflow-hidden' 
@@ -275,7 +297,19 @@ export default function ScoutHub() {
 
         {/* Matches Grid (Glass Cards & Iridescent Glow) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayedMatches.map(m => (
+          {isPending ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-[#0f172a]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-5 h-[160px] animate-pulse flex flex-col justify-between">
+                <div className="flex justify-between items-center">
+                  <div className="w-16 h-16 bg-white/5 rounded-full" />
+                  <div className="w-16 h-8 bg-white/5 rounded-md" />
+                  <div className="w-16 h-16 bg-white/5 rounded-full" />
+                </div>
+                <div className="w-32 h-4 bg-white/5 rounded-full mx-auto" />
+              </div>
+            ))
+          ) : (
+            displayedMatches.map(m => (
             <div 
               key={m.id}
               onClick={() => openMatch(m)}
@@ -304,15 +338,15 @@ export default function ScoutHub() {
                   </div>
 
                   <div className="flex flex-col items-center w-1/3">
-                    {m.status.started || m.status.finished ? (
+                    {m.status.scoreStr ? (
                       <div className="flex flex-col items-center">
-                        <div className="text-3xl font-black text-white drop-shadow-md">
-                          {m.status.scoreStr || '0 - 0'}
+                        <div className="text-3xl font-black text-white drop-shadow-md tracking-tighter">
+                          {m.status.scoreStr}
                         </div>
                       </div>
                     ) : (
-                      <div className="text-2xl font-black text-slate-600 drop-shadow-sm">
-                        - : -
+                      <div className="text-xl font-black text-slate-400 drop-shadow-sm">
+                        {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     )}
                   </div>
@@ -326,19 +360,20 @@ export default function ScoutHub() {
                 </div>
 
                 <div className="flex justify-center border-t border-white/5 pt-4">
-                   {m.status.started || m.status.finished ? (
-                      !m.status.finished ? (
-                         <span className="text-xs font-semibold text-red-400 bg-white/5 px-3 py-1 rounded-full">{m.status.liveTime?.short || 'IN CORSO'}</span>
-                      ) : (
-                         <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full">{m.status.reason?.short || 'Terminata'}</span>
-                      )
+                   {m.status.started && !m.status.finished ? (
+                       <span className="text-xs font-semibold text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)] bg-white/5 px-4 py-1 rounded-full">{m.status.liveTime?.short || 'IN CORSO'}</span>
+                   ) : m.status.finished ? (
+                       <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/5 shadow-inner">{m.status.reason?.short || 'Terminata'}</span>
                    ) : (
-                      <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/5">{m.status.liveTime?.short || m.status.reason?.short || 'In Programma'}</span>
+                       <span className="text-[10px] font-bold tracking-widest text-slate-500 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 uppercase">
+                          {new Date(m.status.startTime || Date.now()).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })} • In Programma
+                       </span>
                    )}
                 </div>
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
@@ -421,8 +456,10 @@ export default function ScoutHub() {
                   ) : (
                     <div className="space-y-6">
                       {(modalContent?.stats || []).map((s, i) => {
-                        const homeVal = parseFloat(String(s.stats[0])) || 0;
-                        const awayVal = parseFloat(String(s.stats[1])) || 0;
+                        const homeValRaw = s.stats[0]?.toString().replace('%', '');
+                        const awayValRaw = s.stats[1]?.toString().replace('%', '');
+                        const homeVal = parseFloat(homeValRaw) || 0;
+                        const awayVal = parseFloat(awayValRaw) || 0;
                         const total = homeVal + awayVal;
                         const homeWidth = total === 0 ? 50 : (homeVal / total) * 100;
                         const awayWidth = total === 0 ? 50 : (awayVal / total) * 100;
