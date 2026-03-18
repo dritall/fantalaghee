@@ -15,13 +15,13 @@ import * as Dialog from '@radix-ui/react-dialog';
 // --- Interfaces ---
 interface Match {
   id: string;
-  round: number;
+  round: string; // Changed to string for date-based grouping
   status: {
     finished: boolean;
     started: boolean;
     cancelled: boolean;
     scoreStr?: string;
-    reason?: { short: string; long: string };
+    reason?: { short: string; long: any }; // Changed long to any for deep parsing
     liveTime?: { short: string };
     startTime?: string;
   };
@@ -48,21 +48,17 @@ export default function ScoutHub() {
   const [fixtures, setFixtures] = useState<Match[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRound, setSelectedRound] = useState<number>(1);
-  const [currentRound, setCurrentRound] = useState<number>(1);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [currentDate, setCurrentDate] = useState<string>("");
   const [debugData, setDebugData] = useState<any>(null);
   const [isPending, startTransition] = useTransition();
   
   // Modal State
   const [modalFixture, setModalFixture] = useState<Match | null>(null);
-  const [modalContent, setModalContent] = useState<{
-    events: MatchEvent[];
-    stats: MatchStat[];
-  } | null>(null);
   const [modalTab, setModalTab] = useState<'E' | 'S'>('E');
   const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [modalError, setModalError] = useState<boolean>(false);
-  const [modalDebugData, setModalDebugData] = useState<any>(null);
+  const [detailData, setDetailData] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -76,36 +72,27 @@ export default function ScoutHub() {
         const matchesData = data?.raw?.response?.matches || data?.response?.matches;
         if (matchesData) {
           matchesArray = matchesData.map((e: any) => {
-            // Extract numeric round from strings like "Regular Season - 29"
-            const roundStr = String(e.league_round || e.round || "");
-            const roundMatch = roundStr.match(/\d+/);
-            const roundNum = roundMatch ? parseInt(roundMatch[0]) : 1;
+            // FIX LOGICA STATO E RISULTATO (Deep Parsing)
+            const realStatus = e.status?.reason?.long || e.status?.reason || e.status;
+            const isFinished = realStatus?.finished === true || realStatus?.reason?.short === 'FT' || e.status_short === 'FT';
+            const isStarted = !isFinished && e.status_started === true && realStatus?.reason?.short !== 'NS' && e.status_short !== 'NS';
+            const isLive = !isFinished && e.status_started === true && realStatus?.reason?.short !== 'NS' && e.status_short !== 'NS';
+            const score = realStatus?.scoreStr || (e.home?.score !== null ? `${e.home?.score} - ${e.away?.score}` : '-');
 
-            const isFinished = e.status_short === 'FT' || e.status === 'Finished' || String(e.status_short || "").toUpperCase() === 'FT';
-            const isStarted = e.status === 'In Progress' || isFinished || e.status_short === 'HT' || (e.home?.score !== null && e.home?.score !== undefined);
-
-            // Extract scores from scoreStr fallback
-            let homeScore = e.home?.score;
-            let awayScore = e.away?.score;
-            if ((homeScore === null || homeScore === undefined) && e.scoreStr) {
-               const parts = e.scoreStr.split("-");
-               if (parts.length === 2) {
-                  homeScore = parseInt(parts[0].trim());
-                  awayScore = parseInt(parts[1].trim());
-               }
-            }
+            const startTime = e.fixture?.date || e.date || e.status?.startTime || new Date().toISOString();
+            const dateStr = new Date(realStatus?.utcTime || startTime).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 
             return {
               id: e.id,
-              round: roundNum,
+              round: dateStr, // Using dateStr as the group indicator
               status: {
                 finished: isFinished,
-                started: isStarted,
+                started: e.status_started || isFinished,
                 cancelled: e.status === 'Cancelled',
-                scoreStr: isStarted ? `${homeScore ?? 0} - ${awayScore ?? 0}` : "- - -",
-                reason: { short: e.status_short || (isFinished ? 'FT' : 'NS'), long: e.status },
+                scoreStr: score === '-' ? "- - -" : score,
+                reason: { short: e.status_short || (isFinished ? 'FT' : 'NS'), long: realStatus },
                 liveTime: { short: e.time_status },
-                startTime: e.fixture?.date || e.date || new Date().toISOString()
+                startTime: startTime
               },
               home: { name: e.home?.name, id: e.home?.id },
               away: { name: e.away?.name, id: e.away?.id },
@@ -119,21 +106,22 @@ export default function ScoutHub() {
         
         setFixtures(matchesArray);
 
-        // Calculate currentRound logic
-        const ongoing = matchesArray.filter((m: Match) => m.status?.started && !m.status?.finished);
-        const finished = matchesArray.filter((m: Match) => m.status?.finished);
-
-        let targetRound = 1;
-        if (ongoing.length > 0) {
-          targetRound = Number(ongoing[0].round);
-        } else if (finished.length > 0) {
-          targetRound = Math.max(...finished.map((m: Match) => Number(m.round)));
+        const uniqueDates = Array.from(new Set(matchesArray.map((m: Match) => m.round))) as string[];
+        const today = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
+        
+        let targetDate: string = uniqueDates[0] || "";
+        if (uniqueDates.includes(today)) {
+          targetDate = today;
+        } else {
+          // Find first date that is not finished or the last finished date
+          const ongoing = matchesArray.find((m: Match) => m.status?.started && !m.status?.finished);
+          if (ongoing) {
+            targetDate = ongoing.round;
+          }
         }
 
-        // If all match rounds are 1, but we have multiple matches, we might need a better default or fallback grouping
-        // For now, ensure selectedRound is valid
-        setCurrentRound(targetRound);
-        setSelectedRound(targetRound);
+        setCurrentDate(targetDate);
+        setSelectedDate(targetDate);
       } catch (err) {
         setError("Sincronizzazione fallita.");
       } finally {
@@ -145,84 +133,42 @@ export default function ScoutHub() {
 
   // Auto-scroll logic via ID
   useEffect(() => {
-    if (!loading) {
-      document.getElementById('round-' + selectedRound)?.scrollIntoView({
+    if (!loading && selectedDate) {
+      document.getElementById('date-' + selectedDate)?.scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
         inline: 'center'
       });
     }
-  }, [selectedRound, loading]);
+  }, [selectedDate, loading]);
 
   const displayedMatches = useMemo(() => {
-    const subset = fixtures.filter((m: Match) => Number(m.round) === Number(selectedRound));
-    // Fallback: if selectedRound has no matches AND we are on round 1, maybe show all if everything is round 1
-    if (subset.length === 0 && selectedRound === 1 && fixtures.length > 0) return fixtures;
-    return subset;
-  }, [fixtures, selectedRound]);
+    return fixtures.filter((m: Match) => m.round === selectedDate);
+  }, [fixtures, selectedDate]);
 
-  const roundsList = useMemo(() => {
-    return Array.from({ length: 38 }, (_, i) => i + 1);
-  }, []);
+  const datesList = useMemo(() => {
+    // Unique dates sorted by time
+    const uniqueDates = Array.from(new Set(fixtures.map((m: Match) => m.round)));
+    // We should probably sort them by actual date, but let's assume they are somewhat in order or we map them back
+    return uniqueDates;
+  }, [fixtures]);
 
   const openMatch = async (m: Match) => {
     setModalFixture(m);
-    setModalContent(null);
+    setDetailData(null);
     setModalTab('E');
     setModalError(false);
+    setModalLoading(true);
     
     try {
-      const res = await fetch(`/api/football?endpoint=football-get-match-detail&matchId=${m.id}`);
+      const res = await fetch(`/api/football?endpoint=football-get-match-detail&matchid=${m.id}`);
       
       if (!res.ok) throw new Error("RapidAPI proxy bloccato");
       
       const resData = await res.json();
       const matchDetail = resData?.raw?.response || resData?.response || resData?.raw?.data || resData?.data;
       
-      let events = [];
-      const rawEvents = matchDetail?.goals || matchDetail?.incidents || [];
-      events = rawEvents.map((inc: any) => ({
-        type: inc.type === 'goal' || inc.player_name ? 'Goal' : 'Card',
-        time: inc.minute || inc.time,
-        player: { name: inc.player_name || inc.player?.name, id: inc.player_id || inc.player?.id },
-        assist: inc.assist_name || inc.assist_player_name || inc.assist?.name ? { name: inc.assist_name || inc.assist_player_name || inc.assist?.name } : undefined,
-        card: inc.card_type || inc.detail,
-        teamId: (inc.team === 'home' || inc.team?.name === m.home.name || inc.team_id == m.home.id) ? m.home.id : m.away.id
-      })).sort((a: any, b: any) => (parseInt(a.time) || 0) - (parseInt(b.time) || 0));
-      
-      let stats: MatchStat[] = [];
-      const rawStats = matchDetail?.statistics || (matchDetail?.length > 0 ? matchDetail[0]?.statistics : []) || [];
-      if (Array.isArray(rawStats)) {
-        if (rawStats.length > 0 && rawStats[0]?.team) {
-           // Format [{ team: {}, statistics: [{type: 'Possession', value: '50%'}, ...] }]
-           const homeStats = rawStats.find((s: any) => s.team?.id == m.home.id || s.team?.name === m.home.name)?.statistics || [];
-           const awayStats = rawStats.find((s: any) => s.team?.id == m.away.id || s.team?.name === m.away.name)?.statistics || [];
-           
-           const targetTypes = ["possession", "shots_total", "shots on goal", "expected_goals", "expected goals (xg)", "ball possession", "total shots"];
-           stats = homeStats.filter((s: any) => targetTypes.includes(s.type?.toLowerCase())).map((hs: any) => {
-              const aw = awayStats.find((as: any) => as.type === hs.type);
-              return {
-                 title: hs.type,
-                 stats: [hs.value, aw?.value || 0]
-              };
-           });
-        } else {
-           const targetTypes = ["possession", "shots_total", "shots_on_goal", "expected_goals", "expected goals (xg)", "ball possession", "total shots"];
-           stats = rawStats.filter((s: any) => targetTypes.includes(s.type?.toLowerCase())).map((s: any) => ({
-             title: s.type,
-             stats: [s.home, s.away]
-           }));
-        }
-      } else if (rawStats) {
-        const targetKeys = ["possession", "shots_total", "shots_on_goal", "expected_goals"];
-        stats = Object.entries(rawStats).filter(([k]) => targetKeys.includes(k.toLowerCase()) || ["Possession", "Total Shots", "Shots on target", "Expected Goals (xG)"].includes(k)).map(([k, v]: any) => ({
-          title: k,
-          stats: [v.home, v.away]
-        }));
-      }
-      
-      setModalContent({ events: events ?? [], stats: stats ?? [] });
-      setModalDebugData(matchDetail);
+      setDetailData(matchDetail);
     } catch (err) {
       setModalError(true);
     } finally {
@@ -314,15 +260,15 @@ export default function ScoutHub() {
         {/* Round Navigation (Glass Snap-Scroll) */}
         <div className="mb-10">
           <div className="flex overflow-x-auto snap-x scrollbar-hide py-4 gap-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-8 shadow-2xl relative z-20">
-            {roundsList.map(round => (
-              <button key={round} id={'round-' + round} onClick={() => startTransition(() => setSelectedRound(round))} 
+            {datesList.map(date => (
+              <button key={date} id={'date-' + date} onClick={() => startTransition(() => setSelectedDate(date))} 
                 className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
-                  selectedRound === round 
+                  selectedDate === date 
                     ? 'bg-cyan-500/10 border-cyan-400 text-white shadow-[0_0_20px_rgba(34,211,238,0.6)] scale-110 relative overflow-hidden' 
                     : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
                 }`}>
-                Giornata {round}
-                {round === currentRound && <span className="mt-1 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse"></span>}
+                {date}
+                {date === currentDate && <span className="mt-1 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse"></span>}
               </button>
             ))}
           </div>
@@ -349,13 +295,19 @@ export default function ScoutHub() {
               className="relative overflow-hidden bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 cursor-pointer transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.15)] hover:-translate-y-1 group"
             >
               {/* Badge LIVE In Alto A Sinistra */}
-              {!m.status.finished && m.status.started && (
-                <div className="absolute top-3 left-3 z-20">
-                  <span className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500/20 border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.5)] rounded-full text-[9px] font-black text-red-500 tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
-                  </span>
-                </div>
-              )}
+              {(() => {
+                const realStatus = m.status.reason?.long;
+                const isFinished = realStatus?.finished === true || realStatus?.reason?.short === 'FT' || m.status.reason?.short === 'FT';
+                const isLive = !isFinished && m.status.started === true && m.status.reason?.short !== 'NS';
+                
+                return isLive && (
+                  <div className="absolute top-3 left-3 z-20">
+                    <span className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500/20 border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.5)] rounded-full text-[9px] font-black text-red-500 tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
+                    </span>
+                  </div>
+                );
+              })()}
               {/* Reflection Effect */}
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               
@@ -401,15 +353,23 @@ export default function ScoutHub() {
                 </div>
 
                 <div className="flex justify-center border-t border-white/5 pt-3">
-                   {m.status.started && !m.status.finished ? (
-                       <span className="text-[10px] font-bold tracking-widest text-red-100 shadow-[0_0_15px_rgba(239,68,68,0.4)] bg-red-500/80 px-4 py-1.5 rounded-full border border-red-500/50 uppercase">{m.status.reason?.short === 'HT' ? 'Intervallo' : (m.status.liveTime?.short || 'IN CORSO')}</span>
-                   ) : m.status.finished || m.status.scoreStr ? (
-                       <span className="text-[10px] font-bold tracking-widest text-slate-300 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 uppercase shadow-inner shadow-black/20">Finale {m.status.reason?.short && m.status.reason.short !== 'FT' ? `(${m.status.reason.short})` : ''}</span>
-                   ) : (
-                       <span className="text-[9.5px] font-bold tracking-widest text-emerald-400/80 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 uppercase shadow-inner">
-                          {new Date(m.status.startTime || Date.now()).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })} • In Programma
-                       </span>
-                   )}
+                   {(() => {
+                      const realStatus = m.status.reason?.long;
+                      const isFinished = realStatus?.finished === true || realStatus?.reason?.short === 'FT' || m.status.reason?.short === 'FT';
+                      const isLive = !isFinished && m.status.started === true && m.status.reason?.short !== 'NS';
+                      
+                      if (isLive) {
+                        return <span className="text-[10px] font-bold tracking-widest text-red-100 shadow-[0_0_15px_rgba(239,68,68,0.4)] bg-red-500/80 px-4 py-1.5 rounded-full border border-red-500/50 uppercase">{m.status.reason?.short === 'HT' ? 'Intervallo' : (m.status.liveTime?.short || 'IN CORSO')}</span>;
+                      }
+                      if (isFinished) {
+                        return <span className="text-[10px] font-bold tracking-widest text-slate-300 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 uppercase shadow-inner shadow-black/20">Finale</span>;
+                      }
+                      return (
+                         <span className="text-[9.5px] font-bold tracking-widest text-emerald-400/80 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 uppercase shadow-inner">
+                            {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} • In Programma
+                         </span>
+                      );
+                   })()}
                 </div>
               </div>
             </div>
@@ -469,19 +429,9 @@ export default function ScoutHub() {
                 </div>
               ) : (
                 <div className="animate-in fade-in duration-500">
-                  <div className="mb-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl">
-                    <h3 className="text-[10px] font-black text-cyan-400 uppercase mb-2">Fixture Mapping</h3>
-                    <pre className="text-[9px] text-cyan-200 font-mono whitespace-pre-wrap overflow-x-hidden">
-                      {JSON.stringify(modalFixture, null, 2)}
-                    </pre>
-                  </div>
-                  
-                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                    <h3 className="text-[10px] font-black text-emerald-400 uppercase mb-2">Raw API Data</h3>
-                    <pre className="text-[9px] text-emerald-200 font-mono whitespace-pre-wrap overflow-x-hidden">
-                      {JSON.stringify(modalDebugData, null, 2)}
-                    </pre>
-                  </div>
+                  <pre className="text-[10px] text-green-400 font-mono overflow-auto custom-scrollbar selection:bg-green-400/20">
+                    {JSON.stringify(detailData, null, 2)}
+                  </pre>
                 </div>
               )}
             </div>
