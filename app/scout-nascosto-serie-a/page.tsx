@@ -8,20 +8,22 @@ import {
   Calendar,
   Activity,
   BarChart3,
-  History
+  History,
+  Trophy,
+  ChevronRight
 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 
 // --- Interfaces ---
 interface Match {
   id: string;
-  round: string; // Changed to string for date-based grouping
+  round: string;
   status: {
     finished: boolean;
     started: boolean;
     cancelled: boolean;
     scoreStr?: string;
-    reason?: { short: string; long: any }; // Changed long to any for deep parsing
+    reason?: { short: string; long: any };
     liveTime?: { short: string };
     startTime?: string;
   };
@@ -30,73 +32,125 @@ interface Match {
   scorers?: { name: string; time: number; }[];
 }
 
+interface StandingTeam {
+  rank: number;
+  team: {
+    id: number;
+    name: string;
+    logo: string;
+  };
+  points: number;
+  goalsDiff: number;
+  all: {
+    played: number;
+    win: number;
+    draw: number;
+    lose: number;
+  };
+}
+
 interface MatchEvent {
   type: string;
-  time: number;
-  player?: { name: string; id: string };
-  assist?: { name: string; id: string };
-  card?: string;
-  teamId: string;
+  time: { elapsed: number; extra?: number };
+  team: { id: number; name: string };
+  player: { id: number; name: string };
+  assist?: { id: number; name: string };
+  detail: string;
 }
 
 interface MatchStat {
-  title: string;
-  stats: (string | number)[];
+  type: string;
+  home: string | number;
+  away: string | number;
 }
+
+// --- Components ---
+
+const StatBar = ({ homeVal, awayVal, label }: { homeVal: number | string, awayVal: number | string, label: string }) => {
+  const h = typeof homeVal === 'string' ? parseInt(homeVal) || 0 : homeVal;
+  const a = typeof awayVal === 'string' ? parseInt(awayVal) || 0 : awayVal;
+  const total = h + a || 1;
+  const hPerc = (h / total) * 100;
+  const aPerc = (a / total) * 100;
+
+  return (
+    <div className="mb-6">
+      <div className="flex justify-between items-center mb-2 px-1">
+        <span className="text-sm font-black text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">{homeVal}</span>
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{label}</span>
+        <span className="text-sm font-black text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">{awayVal}</span>
+      </div>
+      <div className="h-2 bg-white/5 rounded-full overflow-hidden flex border border-white/5 p-[1px]">
+        <div 
+          className="h-full bg-cyan-500 rounded-l-full shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all duration-1000 ease-out" 
+          style={{ width: `${hPerc}%` }}
+        />
+        <div 
+          className="h-full bg-emerald-500 rounded-r-full shadow-[0_0_10px_rgba(52,211,153,0.5)] transition-all duration-1000 ease-out" 
+          style={{ width: `${aPerc}%` }}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default function ScoutHub() {
   const [fixtures, setFixtures] = useState<Match[]>([]);
+  const [standings, setStandings] = useState<StandingTeam[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [currentDate, setCurrentDate] = useState<string>("");
-  const [debugData, setDebugData] = useState<any>(null);
   const [isPending, startTransition] = useTransition();
   
   // Modal State
   const [modalFixture, setModalFixture] = useState<Match | null>(null);
   const [modalTab, setModalTab] = useState<'E' | 'S'>('E');
   const [modalLoading, setModalLoading] = useState<boolean>(false);
-  const [modalError, setModalError] = useState<boolean>(false);
-  const [detailData, setDetailData] = useState<any>(null);
+  const [events, setEvents] = useState<any[]>([]);
+  const [stats, setStats] = useState<any[]>([]);
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/football?endpoint=football-get-all-matches-by-league&leagueid=55');
-        const data = await res.json();
-        setDebugData(data);
+        const [matchesRes, standingsRes] = await Promise.all([
+          fetch('/api/football?endpoint=football-get-all-matches-by-league&leagueid=55'),
+          fetch('/api/football?endpoint=football-get-standing-all&leagueid=47')
+        ]);
         
+        const matchesData = await matchesRes.json();
+        const standingsData = await standingsRes.json();
+        
+        // Process Standings
+        const rawStandings = standingsData?.raw?.response?.[0]?.league?.standings?.[0] || [];
+        setStandings(rawStandings);
+
+        // Process Matches
         let matchesArray = [];
-        const matchesData = data?.raw?.response?.matches || data?.response?.matches;
-        if (matchesData) {
-          matchesArray = matchesData.map((e: any) => {
-            // FIX LOGICA STATO E RISULTATO (Deep Parsing)
+        const rawMatches = matchesData?.raw?.response?.matches || matchesData?.response?.matches;
+        if (rawMatches) {
+          matchesArray = rawMatches.map((e: any) => {
             const realStatus = e.status?.reason?.long || e.status?.reason || e.status;
             const isFinished = realStatus?.finished === true || realStatus?.reason?.short === 'FT' || e.status_short === 'FT';
-            const isStarted = !isFinished && e.status_started === true && realStatus?.reason?.short !== 'NS' && e.status_short !== 'NS';
-            const isLive = !isFinished && e.status_started === true && realStatus?.reason?.short !== 'NS' && e.status_short !== 'NS';
-            const score = realStatus?.scoreStr || (e.home?.score !== null ? `${e.home?.score} - ${e.away?.score}` : '-');
-
             const startTime = e.fixture?.date || e.date || e.status?.startTime || new Date().toISOString();
             const dateStr = new Date(realStatus?.utcTime || startTime).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 
             return {
               id: e.id,
-              round: dateStr, // Using dateStr as the group indicator
+              round: dateStr,
               status: {
                 finished: isFinished,
-                started: e.status_started || isFinished,
+                started: (e.status_started || isFinished) && e.status_short !== 'NS',
                 cancelled: e.status === 'Cancelled',
-                scoreStr: score === '-' ? "- - -" : score,
+                scoreStr: realStatus?.scoreStr || (e.home?.score !== null ? `${e.home?.score} - ${e.away?.score}` : '- - -'),
                 reason: { short: e.status_short || (isFinished ? 'FT' : 'NS'), long: realStatus },
                 liveTime: { short: e.time_status },
                 startTime: startTime
               },
               home: { name: e.home?.name, id: e.home?.id },
               away: { name: e.away?.name, id: e.away?.id },
-              scorers: (e.goals || e.incidents || []).filter((inc: any) => inc.type === 'goal' || inc.player_name || inc.player?.name).map((inc: any) => ({
+              scorers: (e.goals || e.incidents || []).filter((inc: any) => inc.type === 'goal').map((inc: any) => ({
                 name: inc.player_name || inc.player?.name,
                 time: inc.minute || inc.time
               }))
@@ -113,11 +167,8 @@ export default function ScoutHub() {
         if (uniqueDates.includes(today)) {
           targetDate = today;
         } else {
-          // Find first date that is not finished or the last finished date
           const ongoing = matchesArray.find((m: Match) => m.status?.started && !m.status?.finished);
-          if (ongoing) {
-            targetDate = ongoing.round;
-          }
+          if (ongoing) targetDate = ongoing.round;
         }
 
         setCurrentDate(targetDate);
@@ -131,7 +182,6 @@ export default function ScoutHub() {
     load();
   }, []);
 
-  // Auto-scroll logic via ID
   useEffect(() => {
     if (!loading && selectedDate) {
       document.getElementById('date-' + selectedDate)?.scrollIntoView({
@@ -147,30 +197,26 @@ export default function ScoutHub() {
   }, [fixtures, selectedDate]);
 
   const datesList = useMemo(() => {
-    // Unique dates sorted by time
-    const uniqueDates = Array.from(new Set(fixtures.map((m: Match) => m.round)));
-    // We should probably sort them by actual date, but let's assume they are somewhat in order or we map them back
-    return uniqueDates;
+    return Array.from(new Set(fixtures.map((m: Match) => m.round)));
   }, [fixtures]);
 
   const openMatch = async (m: Match) => {
     setModalFixture(m);
-    setDetailData(null);
+    setEvents([]);
+    setStats([]);
     setModalTab('E');
-    setModalError(false);
     setModalLoading(true);
     
     try {
-      const res = await fetch(`/api/football?endpoint=football-get-match-detail&matchid=${m.id}`);
+      const [statsRes, eventsRes] = await Promise.all([
+        fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json()),
+        fetch(`/api/football?endpoint=football-get-match-event-all-stats&eventid=${m.id}`).then(res => res.json())
+      ]);
       
-      if (!res.ok) throw new Error("RapidAPI proxy bloccato");
-      
-      const resData = await res.json();
-      const matchDetail = resData?.raw?.response || resData?.response || resData?.raw?.data || resData?.data;
-      
-      setDetailData(matchDetail);
+      setStats(statsRes?.raw?.response || []);
+      setEvents(eventsRes?.raw?.response || []);
     } catch (err) {
-      setModalError(true);
+      console.error("Match detail fetch error:", err);
     } finally {
       setModalLoading(false);
     }
@@ -180,7 +226,7 @@ export default function ScoutHub() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 text-white/50 animate-spin mb-4" />
-        <p className="text-slate-400 font-bold tracking-widest text-sm">Sincronizzazione Hub Operativo...</p>
+        <p className="text-slate-400 font-bold tracking-widest text-sm uppercase">Sincronizzazione Hub Serie A...</p>
       </div>
     );
   }
@@ -202,7 +248,7 @@ export default function ScoutHub() {
             <div className="w-full space-y-4">
               <div className="flex items-center justify-between px-4 py-2 bg-white/5 rounded-xl border border-white/5">
                 <span className="text-[10px] font-black text-slate-500 uppercase">Status Code</span>
-                <span className="text-[10px] font-black text-emerald-400 italic">HTTP {debugData?.status || 200}</span>
+                <span className="text-[10px] font-black text-emerald-400 italic">HTTP 200</span>
               </div>
               
               <div className="relative group">
@@ -217,7 +263,7 @@ export default function ScoutHub() {
                      </div>
                    </div>
                    <pre className="text-[10px] text-green-400 font-mono overflow-auto max-h-[40vh] custom-scrollbar selection:bg-green-400/20">
-                     {JSON.stringify(debugData?.raw || debugData, null, 2)}
+                     {JSON.stringify(error, null, 2)}
                    </pre>
                 </div>
               </div>
@@ -236,208 +282,310 @@ export default function ScoutHub() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-4 pt-28 md:p-8 md:pt-32 font-sans selection:bg-white/10">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-950 text-slate-200 p-4 pt-28 md:p-8 md:pt-32 font-sans selection:bg-cyan-500/30">
+      <div className="max-w-7xl mx-auto">
         
         {/* Header Premium */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-4">
-            <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/55.png" alt="Serie A" className="w-12 h-12 drop-shadow-lg" />
-            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">Control Room Serie A</h1>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-slate-200 font-medium tracking-wide shadow-lg">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-[pulse_3s_ease-in-out_infinite]"></span> LIVE
-          </div>
-        </div>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-3 mb-8">
-            <ShieldAlert className="text-red-500 w-5 h-5 flex-shrink-0" />
-            <p className="text-red-200 text-sm font-bold tracking-wide">{error}</p>
-          </div>
-        )}
-
-        {/* Round Navigation (Glass Snap-Scroll) */}
-        <div className="mb-10">
-          <div className="flex overflow-x-auto snap-x scrollbar-hide py-4 gap-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-8 shadow-2xl relative z-20">
-            {datesList.map(date => (
-              <button key={date} id={'date-' + date} onClick={() => startTransition(() => setSelectedDate(date))} 
-                className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
-                  selectedDate === date 
-                    ? 'bg-cyan-500/10 border-cyan-400 text-white shadow-[0_0_20px_rgba(34,211,238,0.6)] scale-110 relative overflow-hidden' 
-                    : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
-                }`}>
-                {date}
-                {date === currentDate && <span className="mt-1 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse"></span>}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Matches Grid (Glass Cards & Iridescent Glow) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isPending ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-[#0f172a]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-5 h-[160px] animate-pulse flex flex-col justify-between">
-                <div className="flex justify-between items-center">
-                  <div className="w-16 h-16 bg-white/5 rounded-full" />
-                  <div className="w-16 h-8 bg-white/5 rounded-md" />
-                  <div className="w-16 h-16 bg-white/5 rounded-full" />
-                </div>
-                <div className="w-32 h-4 bg-white/5 rounded-full mx-auto" />
-              </div>
-            ))
-          ) : (
-            (displayedMatches || []).map(m => (
-            <div 
-              key={m.id}
-              onClick={() => openMatch(m)}
-              className="relative overflow-hidden bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 cursor-pointer transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.15)] hover:-translate-y-1 group"
-            >
-              {/* Badge LIVE In Alto A Sinistra */}
-              {(() => {
-                const realStatus = m.status.reason?.long;
-                const isFinished = realStatus?.finished === true || realStatus?.reason?.short === 'FT' || m.status.reason?.short === 'FT';
-                const isLive = !isFinished && m.status.started === true && m.status.reason?.short !== 'NS';
-                
-                return isLive && (
-                  <div className="absolute top-3 left-3 z-20">
-                    <span className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500/20 border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.5)] rounded-full text-[9px] font-black text-red-500 tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
-                    </span>
-                  </div>
-                );
-              })()}
-              {/* Reflection Effect */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-              
-              {/* Mouse Aura (Gradient Glow) */}
-              <div className="absolute -inset-2 opacity-0 group-hover:opacity-20 transition-opacity blur-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 pointer-events-none"></div>
-              <div className="relative z-10 flex flex-col h-full justify-between gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col items-center gap-2 w-1/3">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-2 shadow-inner group-hover:bg-white/10 transition-colors">
-                      <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png`} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt={m.home.name} />
-                    </div>
-                    <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.home.name}</span>
-                  </div>
-
-                  <div className="flex flex-col items-center w-1/3 mt-2">
-                    {m.status.scoreStr ? (
-                      <div className="flex flex-col items-center">
-                        <div className="text-3xl font-black text-white drop-shadow-md tracking-tighter">
-                          {m.status.scoreStr}
-                        </div>
-                        {m.scorers && m.scorers.length > 0 && (
-                          <div className="mt-1 flex flex-col items-center text-center w-full max-h-12 overflow-hidden opacity-80">
-                            {m.scorers.slice(0, 2).map((s, idx) => (
-                              <span key={idx} className="text-[8.5px] text-white truncate w-[80px] leading-tight"><span className="text-cyan-400">⚽</span> {s.name} {s.time}'</span>
-                            ))}
-                            {m.scorers.length > 2 && <span className="text-[7.5px] text-slate-400 mt-0.5">+{m.scorers.length - 2}</span>}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-xl font-black text-slate-400 drop-shadow-sm">
-                        {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col items-center gap-2 w-1/3">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-2 shadow-inner group-hover:bg-white/10 transition-colors">
-                      <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png`} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt={m.away.name} />
-                    </div>
-                    <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.away.name}</span>
-                  </div>
-                </div>
-
-                <div className="flex justify-center border-t border-white/5 pt-3">
-                   {(() => {
-                      const realStatus = m.status.reason?.long;
-                      const isFinished = realStatus?.finished === true || realStatus?.reason?.short === 'FT' || m.status.reason?.short === 'FT';
-                      const isLive = !isFinished && m.status.started === true && m.status.reason?.short !== 'NS';
-                      
-                      if (isLive) {
-                        return <span className="text-[10px] font-bold tracking-widest text-red-100 shadow-[0_0_15px_rgba(239,68,68,0.4)] bg-red-500/80 px-4 py-1.5 rounded-full border border-red-500/50 uppercase">{m.status.reason?.short === 'HT' ? 'Intervallo' : (m.status.liveTime?.short || 'IN CORSO')}</span>;
-                      }
-                      if (isFinished) {
-                        return <span className="text-[10px] font-bold tracking-widest text-slate-300 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 uppercase shadow-inner shadow-black/20">Finale</span>;
-                      }
-                      return (
-                         <span className="text-[9.5px] font-bold tracking-widest text-emerald-400/80 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 uppercase shadow-inner">
-                            {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} • In Programma
-                         </span>
-                      );
-                   })()}
-                </div>
-              </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div className="flex items-center gap-5">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-cyan-500/20 rounded-full blur group-hover:opacity-100 transition duration-500 opacity-50"></div>
+              <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/55.png" alt="Serie A" className="w-16 h-16 relative z-10 drop-shadow-2xl" />
             </div>
-            ))
-          )}
+            <div>
+              <h1 className="text-4xl font-black text-white italic tracking-tighter">FORZA DASHBOARD</h1>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Operational Unit • Serie A Live Intelligence</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl group">
+             <div className="relative">
+               <span className="absolute animate-ping inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
+               <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.8)]"></span>
+             </div>
+             <span className="text-sm font-black text-white italic tracking-widest group-hover:text-red-400 transition-colors uppercase">Network Active</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          
+          {/* Colonna Sx: Calendario & Match */}
+          <div className="lg:col-span-2 space-y-10">
+            
+            {/* Round Navigation */}
+            <div className="relative">
+              <div className="flex overflow-x-auto snap-x scrollbar-hide py-4 gap-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-5 shadow-inner">
+                {datesList.map(date => (
+                  <button 
+                    key={date} 
+                    id={'date-' + date} 
+                    onClick={() => startTransition(() => setSelectedDate(date))} 
+                    className={`snap-center min-w-[110px] py-4 rounded-2xl font-black transition-all duration-700 border-2 flex flex-col items-center group relative overflow-hidden ${
+                      selectedDate === date 
+                        ? 'bg-cyan-500/10 border-cyan-400 text-white shadow-[0_0_30px_rgba(34,211,238,0.4)] scale-110' 
+                        : 'bg-transparent border-transparent text-slate-500 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {selectedDate === date && <div className="absolute inset-0 bg-gradient-to-t from-cyan-400/20 to-transparent opacity-50"></div>}
+                    <span className="text-[10px] uppercase tracking-widest mb-1 opacity-60">Giornata</span>
+                    <span className="text-lg italic tracking-tighter">{date}</span>
+                    {date === currentDate && <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>}
+                  </button>
+                ))}
+              </div>
+              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none rounded-r-3xl"></div>
+              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none rounded-l-3xl"></div>
+            </div>
+
+            {/* Match Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {isPending ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-44 bg-white/5 rounded-3xl animate-pulse border border-white/10"></div>
+                ))
+              ) : (
+                displayedMatches.map(m => {
+                  const isLive = m.status.started && !m.status.finished;
+                  return (
+                    <div 
+                      key={m.id}
+                      onClick={() => openMatch(m)}
+                      className="group relative bg-[#0f172a]/60 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-7 cursor-pointer transition-all duration-500 hover:border-cyan-500/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.1)] hover:-translate-y-2 overflow-hidden"
+                    >
+                      {isLive && (
+                        <div className="absolute top-5 right-5 z-20">
+                          <span className="flex items-center gap-2 px-3 py-1.5 bg-red-500/20 border border-red-500/30 rounded-full text-[10px] font-black text-red-500 tracking-[0.2em] shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-[flash_1.5s_infinite]"></span> LIVE
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="relative z-10 flex flex-col h-full justify-between gap-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col items-center gap-3 w-[40%] text-center">
+                            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-3 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                              <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png`} className="w-full h-full object-contain" alt={m.home.name} />
+                            </div>
+                            <span className="text-[11px] font-black text-slate-300 group-hover:text-white uppercase tracking-tight truncate w-full">{m.home.name}</span>
+                          </div>
+
+                          <div className="flex-1 flex flex-col items-center justify-center">
+                            {m.status.scoreStr !== '- - -' ? (
+                              <div className={`text-4xl font-black italic tracking-tighter ${isLive ? 'text-white animate-[flash_2s_infinite]' : 'text-white'}`}>
+                                {m.status.scoreStr}
+                              </div>
+                            ) : (
+                              <div className="text-xl font-black text-slate-600 italic">
+                                {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col items-center gap-3 w-[40%] text-center">
+                            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center p-3 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                              <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png`} className="w-full h-full object-contain" alt={m.away.name} />
+                            </div>
+                            <span className="text-[11px] font-black text-slate-300 group-hover:text-white uppercase tracking-tight truncate w-full">{m.away.name}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-center border-t border-white/5 pt-4">
+                           <span className={`text-[10px] font-black tracking-[0.2em] uppercase px-5 py-2 rounded-full border transition-all ${
+                             isLive ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
+                             m.status.finished ? 'bg-white/5 text-slate-400 border-white/10' : 
+                             'bg-emerald-500/5 text-emerald-400 border-emerald-500/10'
+                           }`}>
+                             {isLive ? (m.status.reason?.short === 'HT' ? 'Intervallo' : (m.status.liveTime?.short || 'IN CORSO')) : 
+                              m.status.finished ? 'Finale' : 'Prossimamente'}
+                           </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Colonna Dx: Classifica Live */}
+          <div className="space-y-6">
+            <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden">
+               <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 blur-[50px] rounded-full"></div>
+               <div className="flex items-center gap-3 mb-8">
+                  <div className="p-2.5 bg-cyan-500/20 rounded-xl border border-cyan-500/30">
+                    <Trophy className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <h2 className="text-xl font-black text-white italic tracking-tighter uppercase">Live Standings</h2>
+               </div>
+
+               <div className="space-y-2">
+                 {/* Table Header */}
+                 <div className="grid grid-cols-12 px-3 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 mb-2">
+                    <div className="col-span-1">#</div>
+                    <div className="col-span-6">Team</div>
+                    <div className="col-span-1 text-center">G</div>
+                    <div className="col-span-2 text-center">+/-</div>
+                    <div className="col-span-2 text-right">PT</div>
+                 </div>
+
+                 <div className="max-h-[800px] overflow-y-auto no-scrollbar space-y-1">
+                   {standings.map((team: any, idx: number) => {
+                     const isChampions = idx < 4;
+                     const isRelegation = idx >= standings.length - 3;
+                     
+                     return (
+                       <div 
+                        key={team.team.id} 
+                        className={`grid grid-cols-12 items-center px-4 py-3 rounded-2xl transition-all border ${
+                          isChampions ? 'bg-cyan-500/5 border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]' :
+                          isRelegation ? 'bg-red-500/5 border-red-500/20' :
+                          'bg-transparent border-transparent hover:bg-white/5'
+                        }`}
+                       >
+                         <div className={`col-span-1 text-xs font-black italic ${isChampions ? 'text-cyan-400' : isRelegation ? 'text-red-400' : 'text-slate-400'}`}>{team.rank}</div>
+                         <div className="col-span-6 flex items-center gap-3">
+                           <img src={team.team.logo} className="w-6 h-6 object-contain" alt="" />
+                           <span className="text-[11px] font-bold text-slate-200 truncate">{team.team.name}</span>
+                         </div>
+                         <div className="col-span-1 text-center text-[10px] font-medium text-slate-400">{team.all.played}</div>
+                         <div className="col-span-2 text-center text-[10px] font-medium text-slate-400">{team.goalsDiff > 0 ? `+${team.goalsDiff}` : team.goalsDiff}</div>
+                         <div className={`col-span-2 text-right text-xs font-black ${isChampions ? 'text-cyan-400' : 'text-white'}`}>{team.points}</div>
+                       </div>
+                     );
+                   })}
+                 </div>
+               </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Analytics Modal */}
+      {/* Analytics Modal: "Forza Football" Style */}
       <Dialog.Root open={!!modalFixture} onOpenChange={(open) => !open && setModalFixture(null)}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[100] animate-in fade-in duration-300" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[94vw] max-w-xl bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] z-[101] overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+          <Dialog.Overlay className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[100] animate-in fade-in duration-500" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-2xl bg-[#0a0f1a] border border-white/10 rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] z-[101] overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
             
-            <Dialog.Title className="sr-only">Dettagli Partita</Dialog.Title>
-            <Dialog.Description className="sr-only">Visualizza eventi e statistiche del match.</Dialog.Description>
+            <Dialog.Title className="sr-only">Match Operations</Dialog.Title>
+            <Dialog.Description className="sr-only">Deep analytics and events timeline.</Dialog.Description>
 
-            {/* Header Modal */}
-            <div className="p-8 border-b border-white/10 bg-white/5">
-              <div className="flex items-center justify-between mb-8">
-                 <div className="flex flex-col items-center gap-2 flex-1 text-center">
-                   <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${modalFixture?.home.id}.png`} className="w-14 h-14 object-contain drop-shadow-lg" alt="" />
-                   <span className="text-[10px] font-black text-white uppercase truncate w-full">{modalFixture?.home.name}</span>
-                 </div>
-                 <div className="px-6 flex flex-col items-center">
-                    <div className="text-4xl font-black text-white italic tracking-tighter mb-1 drop-shadow-md">{modalFixture?.status.scoreStr || '0-0'}</div>
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{modalFixture?.status.finished ? 'Finale' : modalFixture?.status.liveTime?.short || 'In Programma'}</span>
-                 </div>
-                 <div className="flex flex-col items-center gap-2 flex-1 text-center">
-                   <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${modalFixture?.away.id}.png`} className="w-14 h-14 object-contain drop-shadow-lg" alt="" />
-                   <span className="text-[10px] font-black text-white uppercase truncate w-full">{modalFixture?.away.name}</span>
-                 </div>
-              </div>
+            {/* Modal Header */}
+            <div className="p-10 border-b border-white/5 relative overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent pointer-events-none"></div>
+               <div className="relative z-10 flex items-center justify-between gap-4">
+                  <div className="flex flex-col items-center gap-3 w-1/3">
+                    <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${modalFixture?.home.id}.png`} className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" alt="" />
+                    <span className="text-xs font-black text-white italic uppercase tracking-tighter text-center">{modalFixture?.home.name}</span>
+                  </div>
+                  <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="text-6xl font-black text-white italic tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] mb-2">
+                      {modalFixture?.status.scoreStr || '0-0'}
+                    </div>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">
+                      {modalFixture?.status.finished ? 'Full Time' : modalFixture?.status.liveTime?.short || 'Intelligence'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center gap-3 w-1/3">
+                    <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${modalFixture?.away.id}.png`} className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" alt="" />
+                    <span className="text-xs font-black text-white italic uppercase tracking-tighter text-center">{modalFixture?.away.name}</span>
+                  </div>
+               </div>
 
-              <div className="flex bg-black/40 backdrop-blur-md p-1 rounded-xl border border-white/10 max-w-xs mx-auto shadow-inner">
-                 <button 
-                  onClick={() => setModalTab('E')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold transition-all ${modalTab === 'E' ? 'bg-white/20 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                 >
-                   <History className="w-3 h-3" /> EVENTI
-                 </button>
-                 <button 
-                  onClick={() => setModalTab('S')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold transition-all ${modalTab === 'S' ? 'bg-white/20 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                 >
-                   <BarChart3 className="w-3 h-3" /> STATS
-                 </button>
-              </div>
+               <div className="mt-10 flex bg-white/5 backdrop-blur-md p-1.5 rounded-[1.5rem] border border-white/10 max-w-[280px] mx-auto shadow-2xl relative z-10">
+                  <button 
+                   onClick={() => setModalTab('E')}
+                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black tracking-widest transition-all ${modalTab === 'E' ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    <History className="w-3.5 h-3.5" /> CRONACA
+                  </button>
+                  <button 
+                   onClick={() => setModalTab('S')}
+                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black tracking-widest transition-all ${modalTab === 'S' ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(52,211,153,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    <BarChart3 className="w-3.5 h-3.5" /> STATS
+                  </button>
+               </div>
             </div>
 
-            {/* Body (Debug Mode) */}
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-950/50">
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-[#080d17]/50">
               {modalLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-3">
-                  <Loader2 className="w-6 h-6 text-white/50 animate-spin" />
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Decodifica Dati...</span>
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Scanning Match Matrix...</span>
+                </div>
+              ) : modalTab === 'E' ? (
+                <div className="space-y-8 animate-in slide-in-from-bottom-5 duration-500">
+                  {events.length > 0 ? (
+                    <div className="relative">
+                      {/* Timeline Line */}
+                      <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-white/5"></div>
+                      
+                      {events.map((ev, idx) => {
+                        const isHome = ev.team.id === Number(modalFixture?.home.id);
+                        const isGoal = ev.type === 'Goal';
+                        const isCard = ev.type === 'Card';
+                        
+                        return (
+                          <div key={idx} className="relative flex items-center mb-8">
+                            <div className={`w-1/2 ${isHome ? 'pr-8 text-right' : 'opacity-0 pointer-events-none'}`}>
+                               <div className="flex flex-col">
+                                 <span className="text-xs font-black text-white">{ev.player?.name}</span>
+                                 <span className="text-[9px] font-bold text-slate-500 uppercase">{ev.detail}</span>
+                               </div>
+                            </div>
+
+                            <div className="absolute left-1/2 -translate-x-1/2 z-10">
+                               <div className={`w-10 h-10 rounded-full border-2 bg-[#0a0f1a] flex items-center justify-center shadow-2xl ${isGoal ? 'border-emerald-500' : isCard ? 'border-yellow-500' : 'border-white/10'}`}>
+                                 <span className="text-[10px] font-black text-white">{ev.time.elapsed}'</span>
+                               </div>
+                            </div>
+
+                            <div className={`w-1/2 ${!isHome ? 'pl-8' : 'opacity-0 pointer-events-none'}`}>
+                               <div className="flex flex-col">
+                                 <span className="text-xs font-black text-white">{ev.player?.name}</span>
+                                 <span className="text-[9px] font-bold text-slate-500 uppercase">{ev.detail}</span>
+                               </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-10">
+                      <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Nessun evento registrato</p>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="animate-in fade-in duration-500">
-                  <pre className="text-[10px] text-green-400 font-mono overflow-auto custom-scrollbar selection:bg-green-400/20">
-                    {JSON.stringify(detailData, null, 2)}
-                  </pre>
+                <div className="space-y-4 animate-in slide-in-from-bottom-5 duration-500">
+                  {stats.length > 0 ? (
+                    (() => {
+                      // Definiamo un set di keyword per le statistiche richieste
+                      const targetStats = ['Possession', 'Shots on Goal', 'Total Shots', 'Fouls', 'Corner Kicks', 'Offsides'];
+                      return stats.map((group: any) => (
+                        <div key={group.group} className="space-y-4">
+                          {group.statistics.map((s: any) => (
+                            <StatBar 
+                              key={s.type} 
+                              label={s.type} 
+                              homeVal={s.home} 
+                              awayVal={s.away} 
+                            />
+                          ))}
+                        </div>
+                      ));
+                    })()
+                  ) : (
+                    <div className="text-center py-10">
+                      <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Dati statistici non ancora disponibili</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            <Dialog.Close className="absolute top-6 right-6 p-2 bg-black/40 hover:bg-black/60 text-slate-400 hover:text-white rounded-full transition-all border border-white/10 backdrop-blur-md">
-              <X className="w-4 h-4" />
+            <Dialog.Close className="absolute top-8 right-8 p-3 bg-black/40 hover:bg-red-500 text-slate-300 hover:text-white rounded-2xl transition-all border border-white/10 backdrop-blur-md z-[110]">
+              <X className="w-5 h-5" />
             </Dialog.Close>
 
           </Dialog.Content>
@@ -445,11 +593,17 @@ export default function ScoutHub() {
       </Dialog.Root>
 
       <style jsx global>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        @keyframes flash {
+          0%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
+          50% { opacity: 0.5; }
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { width: 0; display: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
       `}</style>
     </div>
   );
