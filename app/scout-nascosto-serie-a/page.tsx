@@ -69,21 +69,21 @@ export default function ScoutHub() {
         setDebugData(data);
         
         let matchesArray = [];
-        const rawData = data?.raw?.data || data?.data;
-        if (rawData) {
-          matchesArray = rawData.map((e: any) => ({
-            id: e.match_id || e.id,
+        const matchesData = data?.raw?.response?.matches || data?.response?.matches;
+        if (matchesData) {
+          matchesArray = matchesData.map((e: any) => ({
+            id: e.id,
             round: parseInt(e.league_round || e.round) || 1,
             status: {
               finished: e.status === 'Finished' || e.status_short === 'FT',
               started: e.status === 'In Progress' || e.status === 'Finished' || e.status_short === 'FT' || e.status_short === 'HT',
               cancelled: e.status === 'Cancelled',
-              scoreStr: e.home_score !== undefined ? `${e.home_score} - ${e.away_score}` : undefined,
+              scoreStr: e.home?.score !== undefined ? `${e.home?.score} - ${e.away?.score}` : undefined,
               reason: { short: e.status_short || 'FT', long: e.status },
               liveTime: { short: e.time_status }
             },
-            home: { name: e.home_team_name, id: e.home_team_id },
-            away: { name: e.away_team_name, id: e.away_team_id }
+            home: { name: e.home?.name, id: e.home?.id },
+            away: { name: e.away?.name, id: e.away?.id }
           }));
         }
         
@@ -263,7 +263,7 @@ export default function ScoutHub() {
               <button key={round} id={'round-' + round} onClick={() => setSelectedRound(round)} 
                 className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
                   selectedRound === round 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-transparent border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)] scale-110 relative overflow-hidden' 
+                    ? 'bg-cyan-500/10 border-cyan-400 text-white shadow-[0_0_20px_rgba(34,211,238,0.6)] scale-110 relative overflow-hidden' 
                     : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
                 }`}>
                 Giornata {round}
@@ -281,6 +281,14 @@ export default function ScoutHub() {
               onClick={() => openMatch(m)}
               className="relative overflow-hidden bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 cursor-pointer transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.15)] hover:-translate-y-1 group"
             >
+              {/* Badge LIVE In Alto A Sinistra */}
+              {!m.status.finished && m.status.started && (
+                <div className="absolute top-3 left-3 z-20">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500/20 border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.5)] rounded-full text-[9px] font-black text-red-500 tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
+                  </span>
+                </div>
+              )}
               {/* Reflection Effect */}
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               
@@ -320,7 +328,7 @@ export default function ScoutHub() {
                 <div className="flex justify-center border-t border-white/5 pt-4">
                    {m.status.started || m.status.finished ? (
                       !m.status.finished ? (
-                         <span className="text-xs font-bold text-emerald-400 animate-pulse bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">IN CORSO</span>
+                         <span className="text-xs font-semibold text-red-400 bg-white/5 px-3 py-1 rounded-full">{m.status.liveTime?.short || 'IN CORSO'}</span>
                       ) : (
                          <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full">{m.status.reason?.short || 'Terminata'}</span>
                       )
