@@ -112,7 +112,7 @@ export default function ScoutHub() {
         let validMatchesData = matchesRes;
 
         // Process Standings
-        const rawStandings = standingsRes?.raw?.response?.[0]?.league?.standings?.[0] || [];
+        const rawStandings = standingsRes?.response?.standing || [];
         setStandings(rawStandings);
 
         // Process Matches
@@ -316,16 +316,16 @@ export default function ScoutHub() {
                           </div>
 
                           <div className="flex-1 flex flex-col items-center justify-center">
-                            {(m.status.started === false || m.status.reason?.short === 'NS') ? (
+                            {m.status?.started === true ? (
+                              <div className={`text-4xl font-black italic tracking-tighter ${isLive ? 'text-white animate-[flash_2s_infinite]' : 'text-white'}`}>
+                                {m.status.scoreStr || '0 - 0'}
+                              </div>
+                            ) : (
                               <div className="flex flex-col items-center gap-1">
                                 <span className="text-2xl font-black text-slate-400 italic">TBD</span>
                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">
                                   {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                                 </span>
-                              </div>
-                            ) : (
-                              <div className={`text-4xl font-black italic tracking-tighter ${isLive ? 'text-white animate-[flash_2s_infinite]' : 'text-white'}`}>
-                                {m.status.scoreStr || '0 - 0'}
                               </div>
                             )}
                           </div>
