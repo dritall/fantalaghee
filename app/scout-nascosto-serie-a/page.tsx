@@ -60,6 +60,7 @@ export default function ScoutHub() {
   
   // Modal State
   const [modalFixture, setModalFixture] = useState<Match | null>(null);
+  const [modalTab, setModalTab] = useState<'eventi' | 'stats'>('stats');
   const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [eventsData, setEventsData] = useState<any>(null);
   const [statsData, setStatsData] = useState<any>(null);
@@ -68,19 +69,12 @@ export default function ScoutHub() {
     const load = async () => {
       try {
         setLoading(true);
-        // Using leagueid=42 per instructions (or 55 fallback if 42 is wrong, but 42 requested)
         const [matchesRes, standingsRes] = await Promise.all([
-          fetch('/api/football?endpoint=football-get-all-matches-by-league&leagueid=42').then(res => res.json()).catch(() => null),
+          fetch('/api/football?endpoint=football-get-all-matches-by-league&leagueid=47').then(res => res.json()).catch(() => null),
           fetch('/api/football?endpoint=football-get-standing-all&leagueid=47').then(res => res.json()).catch(() => null)
         ]);
         
         let validMatchesData = matchesRes;
-        
-        // Se la 42 non funziona, fallback alla 55
-        if (!validMatchesData?.raw?.response?.matches && !validMatchesData?.response?.matches) {
-           const fallbackRes = await fetch('/api/football?endpoint=football-get-all-matches-by-league&leagueid=55');
-           validMatchesData = await fallbackRes.json();
-        }
 
         // Process Standings
         const rawStandings = standingsRes?.raw?.response?.[0]?.league?.standings?.[0] || [];
@@ -166,6 +160,7 @@ export default function ScoutHub() {
     setModalFixture(m);
     setEventsData(null);
     setStatsData(null);
+    setModalTab('stats');
     setModalLoading(true);
     
     try {
@@ -388,28 +383,68 @@ export default function ScoutHub() {
           <Dialog.Overlay className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[100] animate-in fade-in duration-500" />
           <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-2xl bg-[#0a0f1a] border border-white/10 rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] z-[101] overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
             
-            <Dialog.Title className="sr-only">Match Operations Debug</Dialog.Title>
+            <Dialog.Title className="sr-only">Match Operations</Dialog.Title>
 
             <div className="p-8 border-b border-white/5 relative bg-white/5">
-                <h3 className="text-xl font-black text-white italic">Raw Data Inspector</h3>
-                <p className="text-xs text-slate-500 uppercase font-bold mt-1 tracking-widest">{modalFixture?.home.name} vs {modalFixture?.away.name}</p>
+                <h3 className="text-xl font-black text-white italic">Match Details</h3>
+                <p className="text-xs text-slate-500 uppercase font-bold mt-1 tracking-widest max-w-[85%]">{modalFixture?.home.name} vs {modalFixture?.away.name}</p>
+                <div className="mt-8 flex bg-black/40 p-[4px] rounded-full border border-white/10 max-w-[280px]">
+                  <button 
+                   onClick={() => setModalTab('eventi')}
+                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-[10px] font-black tracking-widest transition-all ${modalTab === 'eventi' ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    CRONACA
+                  </button>
+                  <button 
+                   onClick={() => setModalTab('stats')}
+                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-[10px] font-black tracking-widest transition-all ${modalTab === 'stats' ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(52,211,153,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    STATS
+                  </button>
+               </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 bg-[#080d17]/50 space-y-6">
               {modalLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading Payloads...</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Scanning matrix...</span>
+                </div>
+              ) : modalTab === 'stats' ? (
+                <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
+                  {(() => {
+                    const topStats = statsData?.raw?.response?.stats?.find((g: any) => g.key === 'top_stats')?.stats || [];
+                    return topStats.length > 0 ? topStats.map((stat: any, i: number) => {
+                      const val0 = parseFloat(String(stat.stats[0]).replace('%', '')) || 0;
+                      const val1 = parseFloat(String(stat.stats[1]).replace('%', '')) || 0;
+                      const total = val0 + val1 || 1;
+                      const w0 = (val0 / total) * 100;
+                      const w1 = (val1 / total) * 100;
+
+                      return (
+                        <div key={i} className="mb-4">
+                          <div className="flex justify-between text-xs text-white mb-2">
+                            <span className="font-bold text-cyan-400 text-sm drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">{stat.stats[0]}</span>
+                            <span className="text-slate-500 uppercase tracking-widest text-[9px] font-black leading-tight flex items-end pb-0.5">{stat.title}</span>
+                            <span className="font-bold text-emerald-400 text-sm drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">{stat.stats[1]}</span>
+                          </div>
+                          <div className="flex w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                            <div className="h-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all duration-1000 ease-out" style={{ width: `${w0}%` }}></div>
+                            <div className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(52,211,153,0.5)] transition-all duration-1000 ease-out" style={{ width: `${w1}%` }}></div>
+                          </div>
+                        </div>
+                      );
+                    }) : (
+                      <div className="text-center py-10">
+                         <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Dati non disponibili</p>
+                      </div>
+                    );
+                  })()}
                 </div>
               ) : (
-                <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
-                  <div className="bg-slate-900/80 p-6 rounded-2xl border border-white/10 text-[10px] text-cyan-400 overflow-auto max-h-[40vh] custom-scrollbar">
-                    <p className="font-black text-white uppercase tracking-widest mb-4">⚽ EVENTS <span className="text-slate-500 ml-2">football-get-match-event-all-stats</span></p>
-                    <pre>{eventsData ? JSON.stringify(eventsData, null, 2) : 'No data'}</pre>
-                  </div>
-                  <div className="bg-slate-900/80 p-6 rounded-2xl border border-white/10 text-[10px] text-emerald-400 overflow-auto max-h-[40vh] custom-scrollbar">
-                    <p className="font-black text-white uppercase tracking-widest mb-4">📊 STATS <span className="text-slate-500 ml-2">football-get-match-all-stats</span></p>
-                    <pre>{statsData ? JSON.stringify(statsData, null, 2) : 'No data'}</pre>
+                <div className="animate-in slide-in-from-bottom-5 duration-500">
+                  <div className="text-center text-slate-500 text-[10px] font-black py-16 uppercase tracking-widest border border-white/5 rounded-3xl bg-white/5 border-dashed">
+                    Cronaca in aggiornamento...
                   </div>
                 </div>
               )}
