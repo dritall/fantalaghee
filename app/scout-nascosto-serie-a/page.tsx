@@ -158,7 +158,7 @@ export default function ScoutHub() {
           }));
       }
       
-      let stats = [];
+      let stats: MatchStat[] = [];
       if (matchDetail?.statistics) {
         const targetStats = ["Possession", "Total Shots", "Expected Goals (xG)"];
         stats = Object.entries(matchDetail.statistics).map(([title, s]: [string, any]) => ({
@@ -362,6 +362,7 @@ export default function ScoutHub() {
                     </div>
                   ) : (
                     <div className="space-y-6">
+                      {(modalContent?.stats || []).map((s, i) => {
                         const homeVal = parseFloat(String(s.stats[0])) || 0;
                         const awayVal = parseFloat(String(s.stats[1])) || 0;
                         const total = homeVal + awayVal;
@@ -381,7 +382,7 @@ export default function ScoutHub() {
                             </div>
                           </div>
                         );
-                      }) ?? []}
+                      })}
                       {!(modalContent?.stats || []).length && (
                         <div className="text-center py-10 opacity-40 flex flex-col items-center gap-2">
                           <BarChart3 className="w-8 h-8 text-slate-400" />
