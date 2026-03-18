@@ -175,9 +175,9 @@ export default function ScoutHub() {
       
       let stats = [];
       if (dataStats?.statistics && dataStats.statistics.length > 0) {
-        const targetStats = ["Ball possession", "Expected goals", "Total shots"];
+        const targetStats = ["Ball possession", "Total shots", "Shots on target", "Expected goals"];
         stats = dataStats.statistics[0].groups
-          .flatMap((group: any) => group.statisticsItems)
+          .flatMap((group: any) => group.statisticsItems ?? [])
           .filter((item: any) => targetStats.includes(item.name))
           .map((item: any) => ({
             title: item.name,
@@ -185,7 +185,7 @@ export default function ScoutHub() {
           }));
       }
       
-      setModalContent({ events, stats });
+      setModalContent({ events: events ?? [], stats: stats ?? [] });
     } catch (err) {
       setModalError(true);
     } finally {
@@ -213,7 +213,7 @@ export default function ScoutHub() {
             <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">Calendario Serie A 2025/2026</h1>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-slate-200 font-medium tracking-wide shadow-lg">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-[pulse_2s_ease-in-out_infinite]"></span> Risultati Live
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-[pulse_3s_ease-in-out_infinite]"></span> Risultati Live
           </div>
         </div>
 
@@ -231,7 +231,7 @@ export default function ScoutHub() {
               <button key={round} id={'round-' + round} onClick={() => setSelectedRound(round)} 
                 className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
                   selectedRound === round 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-transparent border-cyan-400/50 text-white shadow-[0_0_20px_rgba(34,211,238,0.4)] scale-110 relative overflow-hidden' 
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-transparent border-cyan-400/50 text-white shadow-[0_0_25px_rgba(34,211,238,0.6)] scale-110 relative overflow-hidden' 
                     : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
                 }`}>
                 Giornata {round}
