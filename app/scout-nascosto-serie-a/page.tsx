@@ -27,6 +27,7 @@ interface Match {
   };
   home: { name: string; id: string; };
   away: { name: string; id: string; };
+  scorers?: { name: string; time: number; }[];
 }
 
 interface MatchEvent {
@@ -86,7 +87,11 @@ export default function ScoutHub() {
               startTime: e.fixture?.date || e.date || new Date().toISOString()
             },
             home: { name: e.home?.name, id: e.home?.id },
-            away: { name: e.away?.name, id: e.away?.id }
+            away: { name: e.away?.name, id: e.away?.id },
+            scorers: (e.goals || e.incidents || []).filter((inc: any) => inc.type === 'goal' || inc.player_name || inc.player?.name).map((inc: any) => ({
+              name: inc.player_name || inc.player?.name,
+              time: inc.minute || inc.time
+            }))
           }));
         }
         
@@ -130,8 +135,8 @@ export default function ScoutHub() {
   }, [fixtures, selectedRound]);
 
   const roundsList = useMemo(() => {
-    return Array.from(new Set(fixtures.map((m: Match) => m.round))).filter(Boolean).sort((a: number, b: number) => a - b);
-  }, [fixtures]);
+    return Array.from({ length: 38 }, (_, i) => i + 1);
+  }, []);
 
   const openMatch = async (m: Match) => {
     setModalFixture(m);
@@ -156,7 +161,7 @@ export default function ScoutHub() {
         assist: inc.assist_name || inc.assist_player_name || inc.assist?.name ? { name: inc.assist_name || inc.assist_player_name || inc.assist?.name } : undefined,
         card: inc.card_type || inc.detail,
         teamId: (inc.team === 'home' || inc.team?.name === m.home.name || inc.team_id == m.home.id) ? m.home.id : m.away.id
-      }));
+      })).sort((a: any, b: any) => (parseInt(a.time) || 0) - (parseInt(b.time) || 0));
       
       let stats: MatchStat[] = [];
       const rawStats = matchDetail?.statistics || (matchDetail?.length > 0 ? matchDetail[0]?.statistics : []) || [];
@@ -337,12 +342,20 @@ export default function ScoutHub() {
                     <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase truncate w-full text-center">{m.home.name}</span>
                   </div>
 
-                  <div className="flex flex-col items-center w-1/3">
+                  <div className="flex flex-col items-center w-1/3 mt-2">
                     {m.status.scoreStr ? (
                       <div className="flex flex-col items-center">
                         <div className="text-3xl font-black text-white drop-shadow-md tracking-tighter">
                           {m.status.scoreStr}
                         </div>
+                        {m.scorers && m.scorers.length > 0 && (
+                          <div className="mt-1 flex flex-col items-center text-center w-full max-h-12 overflow-hidden opacity-80">
+                            {m.scorers.slice(0, 2).map((s, idx) => (
+                              <span key={idx} className="text-[8.5px] text-white truncate w-[80px] leading-tight"><span className="text-cyan-400">⚽</span> {s.name} {s.time}'</span>
+                            ))}
+                            {m.scorers.length > 2 && <span className="text-[7.5px] text-slate-400 mt-0.5">+{m.scorers.length - 2}</span>}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="text-xl font-black text-slate-400 drop-shadow-sm">
@@ -359,13 +372,13 @@ export default function ScoutHub() {
                   </div>
                 </div>
 
-                <div className="flex justify-center border-t border-white/5 pt-4">
+                <div className="flex justify-center border-t border-white/5 pt-3">
                    {m.status.started && !m.status.finished ? (
-                       <span className="text-xs font-semibold text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)] bg-white/5 px-4 py-1 rounded-full">{m.status.liveTime?.short || 'IN CORSO'}</span>
-                   ) : m.status.finished ? (
-                       <span className="text-xs font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/5 shadow-inner">{m.status.reason?.short || 'Terminata'}</span>
+                       <span className="text-[10px] font-bold tracking-widest text-red-100 shadow-[0_0_15px_rgba(239,68,68,0.4)] bg-red-500/80 px-4 py-1.5 rounded-full border border-red-500/50 uppercase">{m.status.reason?.short === 'HT' ? 'Intervallo' : (m.status.liveTime?.short || 'IN CORSO')}</span>
+                   ) : m.status.finished || m.status.scoreStr ? (
+                       <span className="text-[10px] font-bold tracking-widest text-slate-300 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 uppercase shadow-inner shadow-black/20">Finale {m.status.reason?.short && m.status.reason.short !== 'FT' ? `(${m.status.reason.short})` : ''}</span>
                    ) : (
-                       <span className="text-[10px] font-bold tracking-widest text-slate-500 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 uppercase">
+                       <span className="text-[9.5px] font-bold tracking-widest text-emerald-400/80 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 uppercase shadow-inner">
                           {new Date(m.status.startTime || Date.now()).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })} • In Programma
                        </span>
                    )}
