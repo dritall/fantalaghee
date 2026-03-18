@@ -3,34 +3,19 @@ export const runtime = 'edge';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const endpoint = searchParams.get('endpoint');
-  if (!endpoint) return NextResponse.json({ error: 'Missing endpoint' }, { status: 400 });
-  
+  if (!endpoint) return NextResponse.json({ error: 'Endpoint missing' }, { status: 400 });
   try {
     const query = new URLSearchParams(Array.from(searchParams.entries()).filter(([k]) => k !== 'endpoint')).toString();
-    const url = `https://sofascore.p.rapidapi.com/${endpoint}${query ? '?' + query : ''}`;
-    
+    const url = `https://free-api-live-football-data.p.rapidapi.com/${endpoint}?${query}`;
     const res = await fetch(url, {
       headers: {
-        'x-rapidapi-host': 'sofascore.p.rapidapi.com',
-        'x-rapidapi-key': process.env.RAPIDAPI_KEY || ''
+        'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com',
+        'x-rapidapi-key': '3b9798580fmsh5505297c4cba235p1158b4jsn3683c74d3ef0'
       },
       cache: 'no-store'
     });
-    
-    const data = await res.json().catch(() => ({}));
-    
-    // Se WAF o RapidAPI bloccano, restituisci lo status reale e il body
-    if (!res.ok) {
-      return NextResponse.json({ 
-        debugError: true, 
-        status: res.status, 
-        message: data.message || 'RapidAPI Error',
-        hasKey: !!process.env.RAPIDAPI_KEY 
-      }, { status: 200 }); // Status 200 per forzare il passaggio al client
-    }
-    
-    return NextResponse.json(data);
+    return NextResponse.json(await res.json());
   } catch (error) {
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Sync failed' }, { status: 500 });
   }
 }

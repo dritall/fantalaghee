@@ -231,7 +231,7 @@ export default function ScoutHub() {
               <button key={round} id={'round-' + round} onClick={() => setSelectedRound(round)} 
                 className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
                   selectedRound === round 
-                    ? 'bg-gradient-to-r from-blue-500/20 to-emerald-500/20 border-blue-400/50 text-white shadow-[0_0_25px_rgba(56,189,248,0.6)] scale-110 relative overflow-hidden' 
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-transparent border-cyan-400/50 text-white shadow-[0_0_20px_rgba(34,211,238,0.4)] scale-110 relative overflow-hidden' 
                     : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
                 }`}>
                 Giornata {round}
@@ -358,14 +358,14 @@ export default function ScoutHub() {
                       {(modalContent?.events || []).filter(e => ['Goal', 'Card'].includes(e.type)).map((e, idx) => (
                         <div key={idx} className={`flex items-center gap-4 ${e.teamId === modalFixture?.home.id ? 'flex-row' : 'flex-row-reverse text-right'}`}>
                            <div className="w-10 text-[9px] font-black text-slate-500 italic">{e.time}'</div>
-                           <div className={`flex-1 p-3 rounded-xl border backdrop-blur-sm ${e.teamId === modalFixture?.home.id ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-white/5 border-white/10'}`}>
+                           <div className={`flex-1 p-3 rounded-xl border backdrop-blur-sm ${e.teamId === modalFixture?.home.id ? 'bg-cyan-500/10 border-cyan-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
                               <div className={`flex items-center gap-2 mb-0.5 ${e.teamId !== modalFixture?.home.id && 'flex-row-reverse'}`}>
                                 <span className="text-xs mb-0.5 drop-shadow">{e.type === 'Goal' ? '⚽' : e.card?.toLowerCase().includes('red') ? '🟥' : '🟨'}</span>
                                 <span className="text-[10px] font-black text-white">{e.player?.name}</span>
                               </div>
                               {e.assist && (
                                 <div className={`text-[8px] font-bold text-slate-400 flex items-center gap-1 ${e.teamId !== modalFixture?.home.id && 'flex-row-reverse'}`}>
-                                   <span className="text-indigo-400/70">🅰️</span> {e.assist.name}
+                                   <span className="text-cyan-400/70">🅰️</span> {e.assist.name}
                                 </div>
                               )}
                            </div>
@@ -374,25 +374,33 @@ export default function ScoutHub() {
                       {!(modalContent?.events || []).length && (
                         <div className="text-center py-10 opacity-40 flex flex-col items-center gap-2">
                           <Activity className="w-8 h-8 text-slate-400" />
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Nessun evento registrato</span>
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Cronaca non disponibile</span>
                         </div>
                       )}
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {(modalContent?.stats || []).map((s, i) => (
-                        <div key={i} className="bg-black/20 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-sm">
-                          <div className="flex justify-between items-center mb-3">
-                             <span className="text-[10px] font-black text-white">{s.stats[0]}</span>
-                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{s.title}</span>
-                             <span className="text-[10px] font-black text-white">{s.stats[1]}</span>
+                      {(modalContent?.stats || []).map((s, i) => {
+                        const homeVal = Number(s.stats[0]);
+                        const awayVal = Number(s.stats[1]);
+                        const total = homeVal + awayVal;
+                        const homeWidth = total === 0 ? 50 : (homeVal / total) * 100;
+                        const awayWidth = total === 0 ? 50 : (awayVal / total) * 100;
+                        
+                        return (
+                          <div key={i} className="mb-4">
+                            <div className="flex justify-between text-[10px] mb-1 text-slate-400 uppercase font-bold px-1">
+                              <span>{s.stats[0]}</span> 
+                              <span className="text-[8px] tracking-wider opacity-60">{s.title}</span> 
+                              <span>{s.stats[1]}</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden flex shadow-inner">
+                              <div className="h-full bg-cyan-400 transition-all duration-700" style={{ width: `${homeWidth}%` }} />
+                              <div className="h-full bg-emerald-400 transition-all duration-700 border-l border-black/20" style={{ width: `${awayWidth}%` }} />
+                            </div>
                           </div>
-                          <div className="h-1.5 w-full bg-slate-800 rounded-full flex overflow-hidden shadow-inner">
-                             <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-700" style={{ width: `${(Number(s.stats[0]) / (Number(s.stats[0]) + Number(s.stats[1]))) * 100 || 50}%` }} />
-                             <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-700" style={{ width: `${(Number(s.stats[1]) / (Number(s.stats[0]) + Number(s.stats[1]))) * 100 || 50}%` }} />
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       {!(modalContent?.stats || []).length && (
                         <div className="text-center py-10 opacity-40 flex flex-col items-center gap-2">
                           <BarChart3 className="w-8 h-8 text-slate-400" />
