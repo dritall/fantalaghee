@@ -64,21 +64,19 @@ export default function ScoutHub() {
     const load = async () => {
       try {
         setLoading(true);
-        // Initialization: Use all-matches-by-league with a typical league ID (e.g. 1 or 23)
-        // For this provider, we'll try to find matches directly.
-        const res = await fetch('/api/football?endpoint=football-get-all-matches-by-league-id-and-season-id&leagueid=23&seasonid=2025');
+        const res = await fetch('/api/football?endpoint=football-get-all-matches-by-league&leagueid=55');
         const data = await res.json();
         setDebugData(data);
         
         let matchesArray = [];
-        // Mappatura specifica per il provider Free API Live Football Data
-        if (data?.result) {
-          matchesArray = data.result.map((e: any) => ({
-            id: e.id,
-            round: parseInt(e.round) || 1,
+        const rawData = data?.raw?.data || data?.data;
+        if (rawData) {
+          matchesArray = rawData.map((e: any) => ({
+            id: e.match_id || e.id,
+            round: parseInt(e.league_round || e.round) || 1,
             status: {
-              finished: e.status === 'Finished',
-              started: e.status === 'In Progress' || e.status === 'Finished',
+              finished: e.status === 'Finished' || e.status_short === 'FT',
+              started: e.status === 'In Progress' || e.status === 'Finished' || e.status_short === 'FT' || e.status_short === 'HT',
               cancelled: e.status === 'Cancelled',
               scoreStr: e.home_score !== undefined ? `${e.home_score} - ${e.away_score}` : undefined,
               reason: { short: e.status_short || 'FT', long: e.status },
@@ -139,12 +137,12 @@ export default function ScoutHub() {
     setModalError(false);
     
     try {
-      const res = await fetch('/api/football?endpoint=football-get-match-detail&matchid=' + m.id);
+      const res = await fetch(`/api/football?endpoint=football-get-match-detail&matchid=${m.id}`);
       
       if (!res.ok) throw new Error("RapidAPI proxy bloccato");
       
-      const data = await res.json();
-      const matchDetail = data?.result?.[0];
+      const resData = await res.json();
+      const matchDetail = resData?.raw?.data || resData?.data;
       
       let events = [];
       if (matchDetail?.incidents) {
@@ -162,7 +160,7 @@ export default function ScoutHub() {
       
       let stats: MatchStat[] = [];
       if (matchDetail?.statistics) {
-        const targetStats = ["Possession", "Total Shots", "Expected Goals (xG)"];
+        const targetStats = ["Possession", "Total Shots", "Expected Goals (xG)", "Shots on target"];
         stats = Object.entries(matchDetail.statistics).map(([title, s]: [string, any]) => ({
           title: title,
           stats: [s.home, s.away]
@@ -244,10 +242,10 @@ export default function ScoutHub() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
             <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/55.png" alt="Serie A" className="w-12 h-12 drop-shadow-lg" />
-            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">Calendario Serie A 2025/2026</h1>
+            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">Control Room Serie A</h1>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-slate-200 font-medium tracking-wide shadow-lg">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-[pulse_3s_ease-in-out_infinite]"></span> Risultati Live
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-[pulse_3s_ease-in-out_infinite]"></span> LIVE
           </div>
         </div>
 
@@ -265,11 +263,11 @@ export default function ScoutHub() {
               <button key={round} id={'round-' + round} onClick={() => setSelectedRound(round)} 
                 className={`snap-center whitespace-nowrap px-8 py-3 rounded-xl font-bold transition-all duration-500 backdrop-blur-md border flex flex-col items-center ${
                   selectedRound === round 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-transparent border-cyan-400 text-white shadow-[0_0_20px_rgba(34,211,238,0.4)] scale-110 relative overflow-hidden' 
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-transparent border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)] scale-110 relative overflow-hidden' 
                     : 'bg-transparent border-transparent text-slate-400 hover:bg-white/10 hover:text-white'
                 }`}>
                 Giornata {round}
-                {round === currentRound && <span className="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse"></span>}
+                {round === currentRound && <span className="mt-1 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse"></span>}
               </button>
             ))}
           </div>
