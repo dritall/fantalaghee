@@ -48,6 +48,7 @@ export default function ScoutHub() {
   const [error, setError] = useState<string | null>(null);
   const [selectedRound, setSelectedRound] = useState<number>(1);
   const [currentRound, setCurrentRound] = useState<number>(1);
+  const [debugData, setDebugData] = useState<any>(null);
   
   // Modal State
   const [modalFixture, setModalFixture] = useState<Match | null>(null);
@@ -67,6 +68,7 @@ export default function ScoutHub() {
         // For this provider, we'll try to find matches directly.
         const res = await fetch('/api/football?endpoint=football-get-all-matches-by-league-id-and-season-id&leagueid=23&seasonid=2025');
         const data = await res.json();
+        setDebugData(data);
         
         let matchesArray = [];
         // Mappatura specifica per il provider Free API Live Football Data
@@ -180,6 +182,56 @@ export default function ScoutHub() {
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 text-white/50 animate-spin mb-4" />
         <p className="text-slate-400 font-bold tracking-widest text-sm">Sincronizzazione Hub Operativo...</p>
+      </div>
+    );
+  }
+  
+  if (!fixtures || fixtures.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+        <div className="w-full max-w-4xl bg-black/60 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+          <div className="absolute -top-24 -left-24 w-64 h-64 bg-cyan-500/10 blur-[100px] rounded-full"></div>
+          <div className="flex flex-col items-center gap-6 relative z-10">
+            <div className="bg-red-500/20 p-4 rounded-full border border-red-500/30">
+              <ShieldAlert className="w-8 h-8 text-red-500" />
+            </div>
+            <div className="text-center">
+              <h2 className="text-2xl font-black text-white italic mb-2 tracking-tight">ERRORE MAPPATURA DATI</h2>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Provider: Free API Live Football Data</p>
+            </div>
+            
+            <div className="w-full space-y-4">
+              <div className="flex items-center justify-between px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+                <span className="text-[10px] font-black text-slate-500 uppercase">Status Code</span>
+                <span className="text-[10px] font-black text-emerald-400 italic">HTTP {debugData?.status || 200}</span>
+              </div>
+              
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                <div className="relative bg-black/40 border border-white/10 rounded-2xl p-4 overflow-hidden">
+                   <div className="flex items-center justify-between mb-3">
+                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Raw JSON Payload</span>
+                     <div className="flex gap-1">
+                       <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                       <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                       <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                     </div>
+                   </div>
+                   <pre className="text-[10px] text-green-400 font-mono overflow-auto max-h-[40vh] custom-scrollbar selection:bg-green-400/20">
+                     {JSON.stringify(debugData?.raw || debugData, null, 2)}
+                   </pre>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-xs font-black text-white uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
+            >
+              Riprova Sincronizzazione
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
