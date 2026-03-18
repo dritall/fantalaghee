@@ -62,6 +62,7 @@ export default function ScoutHub() {
   const [modalTab, setModalTab] = useState<'E' | 'S'>('E');
   const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [modalError, setModalError] = useState<boolean>(false);
+  const [modalDebugData, setModalDebugData] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -74,25 +75,35 @@ export default function ScoutHub() {
         let matchesArray = [];
         const matchesData = data?.raw?.response?.matches || data?.response?.matches;
         if (matchesData) {
-          matchesArray = matchesData.map((e: any) => ({
-            id: e.id,
-            round: parseInt(e.league_round || e.round) || 1,
-            status: {
-              finished: e.status === 'Finished' || e.status_short === 'FT',
-              started: e.status === 'In Progress' || e.status === 'Finished' || e.status_short === 'FT' || e.status_short === 'HT',
-              cancelled: e.status === 'Cancelled',
-              scoreStr: (e.home?.score !== null && e.home?.score !== undefined) ? `${e.home?.score} - ${e.away?.score}` : undefined,
-              reason: { short: e.status_short || 'FT', long: e.status },
-              liveTime: { short: e.time_status },
-              startTime: e.fixture?.date || e.date || new Date().toISOString()
-            },
-            home: { name: e.home?.name, id: e.home?.id },
-            away: { name: e.away?.name, id: e.away?.id },
-            scorers: (e.goals || e.incidents || []).filter((inc: any) => inc.type === 'goal' || inc.player_name || inc.player?.name).map((inc: any) => ({
-              name: inc.player_name || inc.player?.name,
-              time: inc.minute || inc.time
-            }))
-          }));
+          matchesArray = matchesData.map((e: any) => {
+            // Extract numeric round from strings like "Regular Season - 29"
+            const roundStr = String(e.league_round || e.round || "");
+            const roundMatch = roundStr.match(/\d+/);
+            const roundNum = roundMatch ? parseInt(roundMatch[0]) : 1;
+
+            const isStarted = e.status === 'In Progress' || e.status === 'Finished' || e.status_short === 'FT' || e.status_short === 'HT' || (e.home?.score !== null && e.home?.score !== undefined);
+
+            return {
+              id: e.id,
+              round: roundNum,
+              status: {
+                finished: e.status === 'Finished' || e.status_short === 'FT',
+                started: isStarted,
+                cancelled: e.status === 'Cancelled',
+                scoreStr: isStarted ? `${e.home?.score ?? 0} - ${e.away?.score ?? 0}` : "- - -",
+                reason: { short: e.status_short || 'FT', long: e.status },
+                liveTime: { short: e.time_status },
+                startTime: e.fixture?.date || e.date || new Date().toISOString()
+              },
+              home: { name: e.home?.name, id: e.home?.id },
+              away: { name: e.away?.name, id: e.away?.id },
+              scorers: (e.goals || e.incidents || []).filter((inc: any) => inc.type === 'goal' || inc.player_name || inc.player?.name).map((inc: any) => ({
+                name: inc.player_name || inc.player?.name,
+                time: inc.minute || inc.time
+              }))
+            };
+          });
+          console.log("Sample Match Object:", matchesArray[0]);
         }
         
         setFixtures(matchesArray);
@@ -195,6 +206,7 @@ export default function ScoutHub() {
       }
       
       setModalContent({ events: events ?? [], stats: stats ?? [] });
+      setModalDebugData(matchDetail);
     } catch (err) {
       setModalError(true);
     } finally {
@@ -432,8 +444,8 @@ export default function ScoutHub() {
               </div>
             </div>
 
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            {/* Body (Debug Mode) */}
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-950/50">
               {modalLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
                   <Loader2 className="w-6 h-6 text-white/50 animate-spin" />
@@ -441,64 +453,19 @@ export default function ScoutHub() {
                 </div>
               ) : (
                 <div className="animate-in fade-in duration-500">
-                  {modalTab === 'E' ? (
-                    <div className="space-y-6">
-                      {(modalContent?.events || []).filter(e => ['Goal', 'Card'].includes(e.type)).map((e, idx) => (
-                        <div key={idx} className={`flex items-center gap-4 ${e.teamId === modalFixture?.home.id ? 'flex-row' : 'flex-row-reverse text-right'}`}>
-                           <div className="w-10 text-[9px] font-black text-slate-500 italic">{e.time}'</div>
-                           <div className={`flex-1 p-3 rounded-xl border backdrop-blur-sm ${e.teamId === modalFixture?.home.id ? 'bg-cyan-500/10 border-cyan-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
-                              <div className={`flex items-center gap-2 mb-0.5 ${e.teamId !== modalFixture?.home.id && 'flex-row-reverse'}`}>
-                                <span className="text-xs mb-0.5 drop-shadow">{e.type === 'Goal' ? '⚽' : e.card?.toLowerCase().includes('red') ? '🟥' : '🟨'}</span>
-                                <span className="text-[10px] font-black text-white">{e.player?.name}</span>
-                              </div>
-                              {e.assist && (
-                                <div className={`text-[8px] font-bold text-slate-400 flex items-center gap-1 ${e.teamId !== modalFixture?.home.id && 'flex-row-reverse'}`}>
-                                   <span className="text-cyan-400/70">🅰️</span> {e.assist.name}
-                                </div>
-                              )}
-                           </div>
-                        </div>
-                      ))}
-                      {!(modalContent?.events || []).length && (
-                        <div className="text-center py-10 opacity-40 flex flex-col items-center gap-2">
-                          <Activity className="w-8 h-8 text-slate-400" />
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Cronaca non disponibile</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      {(modalContent?.stats || []).map((s, i) => {
-                        const homeValRaw = s.stats[0]?.toString().replace('%', '');
-                        const awayValRaw = s.stats[1]?.toString().replace('%', '');
-                        const homeVal = parseFloat(homeValRaw) || 0;
-                        const awayVal = parseFloat(awayValRaw) || 0;
-                        const total = homeVal + awayVal;
-                        const homeWidth = total === 0 ? 50 : (homeVal / total) * 100;
-                        const awayWidth = total === 0 ? 50 : (awayVal / total) * 100;
-                        
-                        return (
-                          <div key={i} className="mb-6">
-                            <div className="flex justify-between items-center text-[11px] mb-2 px-1">
-                              <span className="font-bold text-cyan-400">{s.stats[0]}</span> 
-                              <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">{s.title}</span> 
-                              <span className="font-bold text-emerald-400">{s.stats[1]}</span>
-                            </div>
-                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden flex shadow-inner border border-white/10">
-                              <div className="h-full bg-cyan-500 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(34,211,238,0.5)]" style={{ width: `${homeWidth}%` }} />
-                              <div className="h-full bg-emerald-500 transition-all duration-1000 ease-out border-l border-black/40 shadow-[0_0_10px_rgba(52,211,153,0.5)]" style={{ width: `${awayWidth}%` }} />
-                            </div>
-                          </div>
-                        );
-                      })}
-                      {!(modalContent?.stats || []).length && (
-                        <div className="text-center py-10 opacity-40 flex flex-col items-center gap-2">
-                          <BarChart3 className="w-8 h-8 text-slate-400" />
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Statistiche non disponibili</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <div className="mb-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl">
+                    <h3 className="text-[10px] font-black text-cyan-400 uppercase mb-2">Fixture Mapping</h3>
+                    <pre className="text-[9px] text-cyan-200 font-mono whitespace-pre-wrap overflow-x-hidden">
+                      {JSON.stringify(modalFixture, null, 2)}
+                    </pre>
+                  </div>
+                  
+                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                    <h3 className="text-[10px] font-black text-emerald-400 uppercase mb-2">Raw API Data</h3>
+                    <pre className="text-[9px] text-emerald-200 font-mono whitespace-pre-wrap overflow-x-hidden">
+                      {JSON.stringify(modalDebugData, null, 2)}
+                    </pre>
+                  </div>
                 </div>
               )}
             </div>
