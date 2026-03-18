@@ -97,9 +97,7 @@ export default function ScoutHub() {
   
   // Modal State
   const [modalFixture, setModalFixture] = useState<Match | null>(null);
-  const [modalTab, setModalTab] = useState<'eventi' | 'stats'>('stats');
   const [modalLoading, setModalLoading] = useState<boolean>(false);
-  const [eventsData, setEventsData] = useState<any>(null);
   const [statsData, setStatsData] = useState<any>(null);
 
   useEffect(() => {
@@ -195,19 +193,12 @@ export default function ScoutHub() {
 
   const openMatch = async (m: Match) => {
     setModalFixture(m);
-    setEventsData(null);
     setStatsData(null);
-    setModalTab('stats');
     setModalLoading(true);
     
     try {
-      const [statsRes, eventsRes] = await Promise.all([
-        fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json()),
-        fetch(`/api/football?endpoint=football-get-match-detail&eventid=${m.id}`).then(res => res.json())
-      ]);
-      
+      const statsRes = await fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json());
       setStatsData(statsRes);
-      setEventsData(eventsRes);
     } catch (err) {
       console.error("Match detail fetch error:", err);
     } finally {
@@ -325,7 +316,7 @@ export default function ScoutHub() {
                           </div>
 
                           <div className="flex-1 flex flex-col items-center justify-center">
-                            {(!m.status.started || m.status.reason?.short === 'NS') ? (
+                            {(m.status.started === false || m.status.reason?.short === 'NS') ? (
                               <div className="flex flex-col items-center gap-1">
                                 <span className="text-2xl font-black text-slate-400 italic">TBD</span>
                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">
@@ -383,30 +374,36 @@ export default function ScoutHub() {
                  </div>
 
                  <div className="overflow-y-auto no-scrollbar space-y-1">
-                   {standings.map((team: any, idx: number) => {
-                     const isChampions = idx < 4;
-                     const isRelegation = idx >= standings.length - 3;
+                   {standings.map((t: any, idx: number) => {
+                     const teamObj = t.team || t; 
+                     const rank = t.rank || t.idx || idx + 1;
+                     const name = teamObj.name || teamObj.nameStr || t.name || t.nameStr || "Unknown";
+                     const logo = teamObj.logo || `https://images.fotmob.com/image_resources/logo/teamlogo/${teamObj.id || t.id}.png`;
+                     const played = t.all?.played ?? t.played ?? 0;
+                     const win = t.all?.win ?? t.wins ?? 0;
+                     const draw = t.all?.draw ?? t.draws ?? 0;
+                     const lose = t.all?.lose ?? t.losses ?? 0;
+                     const goalsDiff = t.goalsDiff ?? t.scoresStr ?? 0;
+                     const pts = t.points ?? t.pts ?? 0;
+                     const qualColor = t.qualColor || null;
                      
                      return (
                        <div 
-                        key={team.team.id} 
-                        className={`grid grid-cols-12 items-center px-5 py-4 rounded-2xl transition-all border ${
-                          isChampions ? 'bg-cyan-500/5 border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]' :
-                          isRelegation ? 'bg-red-500/5 border-red-500/20' :
-                          'bg-transparent border-transparent hover:bg-white/5'
-                        }`}
+                        key={teamObj.id || name} 
+                        className={`grid grid-cols-12 items-center px-5 py-4 rounded-2xl transition-all border bg-transparent border-transparent hover:bg-white/5`}
                        >
-                         <div className={`col-span-1 text-sm font-black italic ${isChampions ? 'text-cyan-400' : isRelegation ? 'text-red-400' : 'text-slate-400'}`}>{team.rank}</div>
-                         <div className="col-span-5 flex items-center gap-4">
-                           <img src={team.team.logo} className="w-8 h-8 object-contain" alt="" />
-                           <span className="text-sm font-bold text-slate-200 truncate">{team.team.name}</span>
+                         <div className={`col-span-1 text-sm font-black italic text-slate-400`}>{rank}</div>
+                         <div className="col-span-5 flex items-center gap-4 relative">
+                           {qualColor && <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" style={{ backgroundColor: qualColor, boxShadow: `0 0 8px ${qualColor}80` }}></div>}
+                           <img src={logo} className="w-8 h-8 object-contain" alt="" />
+                           <span className="text-sm font-bold text-slate-200 truncate">{name}</span>
                          </div>
-                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{team.all.played}</div>
-                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{team.all.win}</div>
-                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{team.all.draw}</div>
-                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{team.all.lose}</div>
-                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{team.goalsDiff > 0 ? `+${team.goalsDiff}` : team.goalsDiff}</div>
-                         <div className={`col-span-1 text-right text-sm font-black ${isChampions ? 'text-cyan-400' : 'text-white'}`}>{team.points}</div>
+                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{played}</div>
+                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{win}</div>
+                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{draw}</div>
+                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{lose}</div>
+                         <div className="col-span-1 text-center text-xs font-medium text-slate-400">{goalsDiff}</div>
+                         <div className={`col-span-1 text-right text-sm font-black text-white`}>{pts}</div>
                        </div>
                      );
                    })}
@@ -428,20 +425,6 @@ export default function ScoutHub() {
             <div className="p-8 border-b border-white/5 relative bg-white/5">
                 <h3 className="text-xl font-black text-white italic">Match Details</h3>
                 <p className="text-xs text-slate-500 uppercase font-bold mt-1 tracking-widest max-w-[85%]">{modalFixture?.home.name} vs {modalFixture?.away.name}</p>
-                <div className="mt-8 flex bg-black/40 p-[4px] rounded-full border border-white/10 max-w-[280px]">
-                  <button 
-                   onClick={() => setModalTab('eventi')}
-                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-[10px] font-black tracking-widest transition-all ${modalTab === 'eventi' ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                  >
-                    CRONACA
-                  </button>
-                  <button 
-                   onClick={() => setModalTab('stats')}
-                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-[10px] font-black tracking-widest transition-all ${modalTab === 'stats' ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(52,211,153,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                  >
-                    STATS
-                  </button>
-               </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 bg-[#080d17]/50 space-y-6">
@@ -450,7 +433,7 @@ export default function ScoutHub() {
                   <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Scanning matrix...</span>
                 </div>
-              ) : modalTab === 'stats' ? (
+              ) : (
                 <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
                   {(() => {
                     const topStats = statsData?.raw?.response?.stats?.find((g: any) => g.key === 'top_stats')?.stats || [];
@@ -481,61 +464,6 @@ export default function ScoutHub() {
                     }) : (
                       <div className="text-center py-10">
                          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Dati non disponibili</p>
-                      </div>
-                    );
-                  })()}
-                </div>
-              ) : (
-                <div className="animate-in slide-in-from-bottom-5 duration-500">
-                  {(() => {
-                    const timeline = eventsData?.raw?.response?.match?.incidents || eventsData?.raw?.response?.incidents || eventsData?.raw?.response?.events || [];
-                    if (!timeline || timeline.length === 0) {
-                       return (
-                         <div className="text-center text-slate-500 text-[10px] font-black py-16 uppercase tracking-widest border border-white/5 rounded-3xl bg-white/5 border-dashed">
-                           Nessun evento disponibile
-                         </div>
-                       );
-                    }
-                    
-                    return (
-                      <div className="relative py-4">
-                         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-white/5"></div>
-                         {timeline.map((ev: any, idx: number) => {
-                           const isHome = ev.homeScore !== undefined ? (ev.isHome === true || ev.teamIndex === 0) : (ev.team?.id === Number(modalFixture?.home.id) || ev.team === 1);
-                           let icon = "📍";
-                           let desc = ev.type || ev.incidentClass || "Evento";
-                           const detailName = ev.player?.name || ev.playerName || ev.name || ev.text || "";
-                           
-                           if (desc.toLowerCase().includes("goal")) icon = "⚽";
-                           if (desc.toLowerCase().includes("assist")) icon = "👟";
-                           if (desc.toLowerCase().includes("yellow")) icon = "🟨";
-                           if (desc.toLowerCase().includes("red")) icon = "🟥";
-                           if (desc.toLowerCase().includes("subst") || desc.toLowerCase().includes("cambio") || desc.toLowerCase().includes("sub")) icon = "🔄";
-
-                           return (
-                             <div key={idx} className="relative flex items-center mb-8">
-                               <div className={`w-1/2 ${isHome ? 'pr-8 text-right' : 'opacity-0 pointer-events-none'}`}>
-                                  <div className="flex flex-col">
-                                    <span className="text-xs font-black text-white">{detailName}</span>
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase">{icon} {desc}</span>
-                                  </div>
-                               </div>
-
-                               <div className="absolute left-1/2 -translate-x-1/2 z-10">
-                                  <div className="w-10 h-10 rounded-full border-2 border-white/10 bg-[#0a0f1a] flex items-center justify-center shadow-2xl">
-                                    <span className="text-[10px] font-black text-white">{ev.time || ev.minute || ev.elapsed}'</span>
-                                  </div>
-                               </div>
-
-                               <div className={`w-1/2 ${!isHome ? 'pl-8' : 'opacity-0 pointer-events-none'}`}>
-                                  <div className="flex flex-col">
-                                    <span className="text-xs font-black text-white">{detailName}</span>
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase">{icon} {desc}</span>
-                                  </div>
-                               </div>
-                             </div>
-                           );
-                         })}
                       </div>
                     );
                   })()}
