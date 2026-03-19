@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-    { name: "Home", href: "/", icon: Home },
+    { name: "Risultati Serie A", href: "/risultati-serie-a", icon: Trophy },
     { name: "Classifica", href: "/classifica", icon: Trophy },
     { name: "Verdetto", href: "/verdetto", icon: Newspaper },
     { name: "Gazzetta", href: "/gazzetta", icon: BookOpen },

@@ -266,7 +266,7 @@ export default function ScoutHub() {
       const res = await fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json());
       setStatsData(getStats(res));
     } catch (err) {
-      console.error("Match detail fetch error:", err);
+      console.error("Errore recupero dettagli match:", err);
     } finally {
       setModalLoading(false);
     }
@@ -293,9 +293,9 @@ export default function ScoutHub() {
               <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/55.png" alt="Serie A" className="w-16 h-16 relative z-10 drop-shadow-2xl" />
             </div>
             <div>
-              <h1 className="text-4xl font-black text-white italic tracking-tighter">Calendario Serie A 25/26</h1>
+              <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase">Risultati Serie A</h1>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Serie A Live Intelligence Hub</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Live Intelligence Hub</p>
                 {rounds[selectedRoundIndex]?.every(m => m.status.finished || m.statusId === 6) && (
                    <span className="text-[9px] font-black bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20 uppercase tracking-widest">Giornata Finita</span>
                 )}
@@ -356,26 +356,28 @@ export default function ScoutHub() {
               ) : (
                 displayedMatches.map(m => {
                   const isLive = m.status.started && !m.status.finished;
+                  const isFinished = m.status.finished || m.statusId === 6;
+                  const homeColor = SERIE_A_COLORS[m.home.name] || '#ffffff';
+                  const awayColor = SERIE_A_COLORS[m.away.name] || '#ffffff';
+                  
                   return (
                     <div 
                       key={m.id}
                       onClick={() => openMatch(m)}
-                      className="group relative bg-[#0f172a]/60 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-7 cursor-pointer transition-all duration-500 hover:border-cyan-500/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.1)] hover:-translate-y-2 overflow-hidden"
+                      style={{ 
+                        ['--glow-color' as any]: `${homeColor}40`,
+                        ['--glow-color-final' as any]: `${awayColor}40`
+                      }}
+                      className="group relative bg-[#0f172a]/60 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-7 cursor-pointer transition-all duration-500 hover:border-cyan-500/40 hover:shadow-[0_0_50px_var(--glow-color)] hover:-translate-y-2 overflow-hidden"
                     >
-                      {isLive && (
-                        <div className="absolute top-5 right-5 z-20">
-                          <span className="flex items-center gap-2 px-3 py-1.5 bg-red-500/20 border border-red-500/30 rounded-full text-[10px] font-black text-red-500 tracking-[0.2em] shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-[flash_1.5s_infinite]"></span> LIVE
-                          </span>
-                        </div>
-                      )}
-                      {(m.status.finished || m.statusId === 6) && (
-                        <div className="absolute top-5 right-5 z-20">
-                          <span className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-slate-400 tracking-[0.1em]">
-                            Terminata
-                          </span>
-                        </div>
-                      )}
+                      {/* LED Indicator */}
+                      <div className="absolute top-8 right-8 z-20">
+                        <div className={`w-3 h-3 rounded-full border-2 border-slate-900 shadow-lg ${
+                          isLive ? 'bg-emerald-500 animate-[breathing_1.5s_infinite]' : 
+                          isFinished ? 'bg-red-500/60' : 
+                          'bg-slate-700'
+                        }`} />
+                      </div>
 
                       <div className="relative z-10 flex flex-col h-full justify-between gap-6">
                         <div className="flex items-center justify-between">
@@ -497,7 +499,10 @@ export default function ScoutHub() {
             <Dialog.Description className="sr-only">Statistiche del match</Dialog.Description>
 
             <div className="p-8 border-b border-white/5 relative bg-white/5">
-                <h3 className="text-xl font-black text-white italic">Match Details</h3>
+                <div className="flex items-center gap-4 mb-2">
+                   <Trophy className="w-5 h-5 text-cyan-400" />
+                   <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">Dettagli Partita</h3>
+                </div>
                 <p className="text-xs text-slate-500 uppercase font-bold mt-1 tracking-widest max-w-[85%]">{modalFixture?.home.name} vs {modalFixture?.away.name}</p>
             </div>
 
@@ -505,7 +510,7 @@ export default function ScoutHub() {
               {modalLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Scanning matrix...</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Analisi in corso...</span>
                 </div>
               ) : (
                 <div className="space-y-8 animate-in slide-in-from-bottom-5 duration-500">
@@ -567,9 +572,9 @@ export default function ScoutHub() {
       </Dialog.Root>
 
       <style jsx global>{`
-        @keyframes flash {
-          0%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
-          50% { opacity: 0.5; }
+        @keyframes breathing {
+          0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 5px rgba(16,185,129,0.5); }
+          50% { opacity: 0.7; transform: scale(1.1); box-shadow: 0 0 15px rgba(16,185,129,0.8); }
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
