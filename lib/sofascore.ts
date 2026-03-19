@@ -12,54 +12,12 @@ export interface MatchEvent {
 /**
  * Normalizes team names for better matching between API-Football and Sofascore.
  */
-function normalizeTeamName(name: string): string {
+const normalizeName = (name: string): string => {
   if (!name) return "";
-  const normalized = name.toLowerCase()
-    .replace(/ fc/g, "")
-    .replace(/fc /g, "")
-    .replace(/ ac/g, "")
-    .replace(/ac /g, "")
-    .replace(/ calcio/g, "")
+  return name.toLowerCase()
+    .replace(/\b(fc|ac|ss|as|hellas|calcio|us|1907|1899|internazionale)\b/g, '')
     .trim();
-    
-  const teamNameMap: Record<string, string> = {
-    "hellas verona": "verona",
-    "juventus fc": "juventus",
-    "fc internazionale": "inter",
-    "ac milan": "milan",
-    "as roma": "roma",
-    "ss lazio": "lazio",
-    "bologna fc": "bologna",
-    "torino fc": "torino",
-    "genoa cfc": "genoa",
-    "udinese calcio": "udinese",
-    "parma calcio 1913": "parma",
-    "como 1907": "como",
-    "us lecce": "lecce",
-    "empoli fc": "empoli",
-    "ac monza": "monza",
-    "venezia fc": "venezia",
-    "cagliari calcio": "cagliari"
-  };
-  
-  if (teamNameMap[name.toLowerCase()]) {
-     return teamNameMap[name.toLowerCase()];
-  }
-  
-  if (teamNameMap[normalized]) {
-     return teamNameMap[normalized];
-  }
-  
-  // Specific fallbacks for Italian teams
-  if (normalized.includes("inter")) return "inter";
-  if (normalized.includes("milan")) return "ac milan"; // Sofascore usually has AC Milan
-  if (normalized.includes("roma")) return "roma";
-  if (normalized.includes("lazio")) return "lazio";
-  if (normalized.includes("napoli")) return "napoli";
-  if (normalized.includes("juve")) return "juventus";
-  
-  return normalized;
-}
+};
 
 /**
  * Hybrid Bridge to fetch match events from Sofascore via API-Dojo
@@ -77,25 +35,22 @@ export async function fetchMatchEvents(homeName: string, awayName: string, dateS
     const scheduleRes = await fetch(`/api/sofascore?endpoint=schedule/v2/get-matches&date=${isoDate}&timezone=Europe/Rome`).then(res => res.json());
     
     const events = scheduleRes?.events || [];
-    const nHome = normalizeTeamName(homeName);
-    const nAway = normalizeTeamName(awayName);
 
     // Find the right event
     const matchEvent = events.find((evt: any) => {
-       const evtHomeAPI = evt?.homeTeam?.name || "";
-       const evtAwayAPI = evt?.awayTeam?.name || "";
+       const sHome = normalizeName(evt?.homeTeam?.name || evt?.home?.name || evt?.entity?.homeTeam?.name);
+       const sAway = normalizeName(evt?.awayTeam?.name || evt?.away?.name || evt?.entity?.awayTeam?.name);
+       const aHome = normalizeName(homeName);
+       const aAway = normalizeName(awayName);
        
-       const evtHome = normalizeTeamName(evtHomeAPI);
-       const evtAway = normalizeTeamName(evtAwayAPI);
-       
-       const isHomeMatch = evtHome.includes(nHome) || nHome.includes(evtHome);
-       const isAwayMatch = evtAway.includes(nAway) || nAway.includes(evtAway);
+       const isHomeMatch = sHome.includes(aHome) || aHome.includes(sHome);
+       const isAwayMatch = sAway.includes(aAway) || aAway.includes(sAway);
        
        return isHomeMatch && isAwayMatch;
     });
 
     if (!matchEvent || !matchEvent.id) {
-       console.warn(`Match non trovato su Sofascore. Cercavo: [Home: "${homeName}" -> "${nHome}"] | [Away: "${awayName}" -> "${nAway}"]. Data: ${isoDate}`);
+       console.warn(`Match non trovato su Sofascore. Cercavo: [Home: "${homeName}" -> "${normalizeName(homeName)}"] | [Away: "${awayName}" -> "${normalizeName(awayName)}"]. Data: ${isoDate}`);
        return [];
     }
 
