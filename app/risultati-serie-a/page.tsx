@@ -79,12 +79,12 @@ const SERIE_A_COLORS: Record<string, string> = {
 
 const STATS_CATEGORIES: Record<string, string> = {
   "top_stats": "Principali",
-  "shots": "Tiri",
-  "expected_goals": "Gol Attesi (xG)",
-  "physical_metrics": "Fisica",
-  "passes": "Passaggi",
+  "shots": "Attacco",
+  "expected_goals": "Attacco",
+  "physical_metrics": "Attacco",
+  "passes": "Attacco",
   "defence": "Difesa",
-  "duels": "Contrasti",
+  "duels": "Difesa",
   "discipline": "Disciplina"
 };
 
@@ -295,7 +295,6 @@ export default function ScoutHub() {
             <div>
               <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase">Risultati Serie A</h1>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Live Intelligence Hub</p>
                 {rounds[selectedRoundIndex]?.every(m => m.status.finished || m.statusId === 6) && (
                    <span className="text-[9px] font-black bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20 uppercase tracking-widest">Giornata Finita</span>
                 )}
@@ -357,6 +356,7 @@ export default function ScoutHub() {
                 displayedMatches.map(m => {
                   const isLive = m.status.started && !m.status.finished;
                   const isFinished = m.status.finished || m.statusId === 6;
+                  const isStarted = m.status.started || m.statusId === 6 || isFinished;
                   const homeColor = SERIE_A_COLORS[m.home.name] || '#ffffff';
                   const awayColor = SERIE_A_COLORS[m.away.name] || '#ffffff';
                   
@@ -372,11 +372,12 @@ export default function ScoutHub() {
                     >
                       {/* LED Indicator */}
                       <div className="absolute top-8 right-8 z-20">
-                        <div className={`w-3 h-3 rounded-full border-2 border-slate-900 shadow-lg ${
-                          isLive ? 'bg-emerald-500 animate-[breathing_1.5s_infinite]' : 
-                          isFinished ? 'bg-red-500/60' : 
-                          'bg-slate-700'
-                        }`} />
+                        {isStarted && (
+                          <div className={`w-3 h-3 rounded-full border-2 border-slate-900 shadow-lg ${
+                            isLive ? 'bg-emerald-500 animate-[breathing_1.5s_infinite]' : 
+                            'bg-red-500/60'
+                          }`} />
+                        )}
                       </div>
 
                       <div className="relative z-10 flex flex-col h-full justify-between gap-6">
@@ -503,7 +504,6 @@ export default function ScoutHub() {
                    <Trophy className="w-5 h-5 text-cyan-400" />
                    <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">Dettagli Partita</h3>
                 </div>
-                <p className="text-xs text-slate-500 uppercase font-bold mt-1 tracking-widest max-w-[85%]">{modalFixture?.home.name} vs {modalFixture?.away.name}</p>
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 bg-[#080d17]/50 space-y-6">
@@ -526,14 +526,24 @@ export default function ScoutHub() {
                       );
                     }
 
-                    return statsData.map((group: any, gIdx: number) => {
-                      const groupTitle = STATS_CATEGORIES[group.key] || group.title || group.key;
-                      const stats = group.stats || [];
-                      if (stats.length === 0) return null;
+                    const buckets: Record<string, any[]> = {
+                      "Principali": [],
+                      "Attacco": [],
+                      "Difesa": [],
+                      "Disciplina": []
+                    };
+                    
+                    statsData.forEach((group: any) => {
+                      const bucketName = STATS_CATEGORIES[group.key] || "Principali";
+                      buckets[bucketName].push(...(group.stats || []));
+                    });
 
+                    return Object.entries(buckets).map(([title, stats], bIdx) => {
+                      if (stats.length === 0) return null;
+                      
                       return (
-                        <div key={gIdx} className="space-y-4">
-                          <h4 className="text-xs font-black text-cyan-400/80 uppercase tracking-[0.2em] border-l-2 border-cyan-500/50 pl-3 mb-4">{groupTitle}</h4>
+                        <div key={bIdx} className="space-y-6">
+                          <h4 className="text-sm font-black text-cyan-400 uppercase tracking-[0.2em] border-l-4 border-cyan-500 pl-4 mb-6">{title}</h4>
                           {stats.map((stat: any, i: number) => {
                             const val0 = parseFloat(String(stat.stats[0]).replace('%', '')) || 0;
                             const val1 = parseFloat(String(stat.stats[1]).replace('%', '')) || 0;
@@ -543,15 +553,19 @@ export default function ScoutHub() {
                             const trTitle = STATS_TRANSLATIONS[stat.title] || stat.title;
 
                             return (
-                              <div key={i} className="mb-4">
-                                <div className="flex justify-between text-xs text-white mb-2">
-                                  <span className="font-bold text-sm" style={{ color: dColorHome, textShadow: `0 0 8px ${dColorHome}80` }}>{stat.stats[0]}</span>
-                                  <span className="text-slate-500 uppercase tracking-widest text-[9px] font-black leading-tight flex items-end pb-0.5">{trTitle}</span>
-                                  <span className="font-bold text-sm" style={{ color: dColorAway, textShadow: `0 0 8px ${dColorAway}80` }}>{stat.stats[1]}</span>
+                              <div key={i} className="mb-6">
+                                <div className="flex justify-between text-xs text-white mb-2 items-end">
+                                  <span className="font-black text-lg italic" style={{ color: dColorHome }}>{stat.stats[0]}</span>
+                                  <span className="text-slate-500 uppercase tracking-widest text-[10px] font-black pb-1">{trTitle}</span>
+                                  <span className="font-black text-lg italic" style={{ color: dColorAway }}>{stat.stats[1]}</span>
                                 </div>
-                                <div className="flex w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${w0}%`, backgroundColor: dColorHome, boxShadow: `0 0 10px ${dColorHome}80` }}></div>
-                                  <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${w1}%`, backgroundColor: dColorAway, boxShadow: `0 0 10px ${dColorAway}80` }}></div>
+                                <div className="flex w-full h-5 bg-white/5 rounded-lg overflow-hidden border border-white/5">
+                                  <div className="h-full transition-all duration-1000 ease-out bg-gradient-to-r from-cyan-600 to-cyan-400 relative" style={{ width: `${w0}%`, backgroundColor: dColorHome }}>
+                                     <div className="absolute inset-0 bg-white/20 mix-blend-overlay" />
+                                  </div>
+                                  <div className="h-full transition-all duration-1000 ease-out bg-gradient-to-l from-emerald-600 to-emerald-400 relative" style={{ width: `${w1}%`, backgroundColor: dColorAway }}>
+                                     <div className="absolute inset-0 bg-white/20 mix-blend-overlay" />
+                                  </div>
                                 </div>
                               </div>
                             );
