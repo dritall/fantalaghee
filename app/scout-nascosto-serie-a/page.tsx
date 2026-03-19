@@ -112,8 +112,8 @@ export default function ScoutHub() {
         let validMatchesData = matchesRes;
 
         // Process Standings
-        const rawStandings = standingsRes?.response?.standing || [];
-        setStandings(rawStandings);
+        const tableData = standingsRes?.response?.standing || standingsRes?.raw?.response?.[0]?.league?.standings?.[0] || [];
+        setStandings(tableData);
 
         // Process Matches
         let matchesArray: Match[] = [];
@@ -317,15 +317,12 @@ export default function ScoutHub() {
 
                           <div className="flex-1 flex flex-col items-center justify-center">
                             {m.status?.started === true ? (
-                              <div className={`text-4xl font-black italic tracking-tighter ${isLive ? 'text-white animate-[flash_2s_infinite]' : 'text-white'}`}>
+                              <div className="font-bold text-white text-xl">
                                 {m.status.scoreStr || '0 - 0'}
                               </div>
                             ) : (
-                              <div className="flex flex-col items-center gap-1">
-                                <span className="text-2xl font-black text-slate-400 italic">TBD</span>
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                                  {new Date(m.status.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                                </span>
+                              <div className="text-sm font-bold text-slate-400">
+                                TBD <span className="block text-xs font-normal">{new Date(m.status?.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</span>
                               </div>
                             )}
                           </div>
@@ -374,7 +371,7 @@ export default function ScoutHub() {
                  </div>
 
                  <div className="overflow-y-auto no-scrollbar space-y-1">
-                   {standings.map((t: any, idx: number) => {
+                   {standings.length > 0 ? standings.map((t: any, idx: number) => {
                      const teamObj = t.team || t; 
                      const rank = t.rank || t.idx || idx + 1;
                      const name = teamObj.name || teamObj.nameStr || t.name || t.nameStr || "Unknown";
@@ -406,7 +403,11 @@ export default function ScoutHub() {
                          <div className={`col-span-1 text-right text-sm font-black text-white`}>{pts}</div>
                        </div>
                      );
-                   })}
+                   }) : (
+                     <div className="text-center py-10">
+                        <p className="text-slate-400 text-sm font-bold">Nessun dato classifica</p>
+                     </div>
+                   )}
                  </div>
                </div>
             </div>
@@ -420,7 +421,8 @@ export default function ScoutHub() {
           <Dialog.Overlay className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[100] animate-in fade-in duration-500" />
           <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-2xl bg-[#0a0f1a] border border-white/10 rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] z-[101] overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
             
-            <Dialog.Title className="sr-only">Match Operations</Dialog.Title>
+            <Dialog.Title className="sr-only">Dettagli Partita</Dialog.Title>
+            <Dialog.Description className="sr-only">Statistiche del match</Dialog.Description>
 
             <div className="p-8 border-b border-white/5 relative bg-white/5">
                 <h3 className="text-xl font-black text-white italic">Match Details</h3>
