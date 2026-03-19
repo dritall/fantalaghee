@@ -128,8 +128,8 @@ const STATS_TRANSLATIONS: Record<string, string> = {
 
 // --- Bulletproof Parsers ---
 const getStandings = (data: any) => {
-  const res = data?.raw?.response || data?.response || {};
-  return Array.isArray(res.standing) ? res.standing : [];
+  const standing = data?.response?.standing || data?.raw?.response?.standing || [];
+  return Array.isArray(standing) ? standing : [];
 };
 
 const getMatches = (data: any) => {

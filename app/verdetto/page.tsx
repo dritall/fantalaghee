@@ -157,7 +157,8 @@ export default function VerdettoPage() {
                     {/* Leader */}
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }}
-                        className="glass-card p-6 rounded-2xl relative overflow-hidden group"
+                        style={{ '--team-color': '250, 204, 21' } as any}
+                        className="glass-card p-6 rounded-2xl relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]"
                     >
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <Trophy className="w-24 h-24 text-yellow-400" />
@@ -171,7 +172,8 @@ export default function VerdettoPage() {
                     {/* Record */}
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2 }}
-                        className="glass-card p-6 rounded-2xl relative overflow-hidden group"
+                        style={{ '--team-color': '249, 115, 22' } as any}
+                        className="glass-card p-6 rounded-2xl relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]"
                     >
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <Flame className="w-24 h-24 text-orange-500" />
@@ -189,7 +191,8 @@ export default function VerdettoPage() {
                     {/* Cucchiaio */}
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.3 }}
-                        className="glass-card p-6 rounded-2xl relative overflow-hidden group border-red-900/30 bg-red-900/10"
+                        style={{ '--team-color': '248, 113, 113' } as any}
+                        className="glass-card p-6 rounded-2xl relative overflow-hidden group border-red-900/30 bg-red-900/10 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]"
                     >
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <ThumbsDown className="w-24 h-24 text-red-400" />

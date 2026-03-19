@@ -10,43 +10,43 @@ import { cn } from "@/lib/utils";
 const sections = [
   {
     title: "Classifica Lega",
-    description: "La graduatoria ufficiale del nostro campionato.",
+    description: "Consulta la graduatoria aggiornata del nostro campionato.",
     href: "/classifica",
     icon: Trophy,
     color: "text-amber-400",
-    glow: "rgba(251,191,36,0.3)"
+    glow: "rgba(251,191,36,0.5)"
   },
   {
     title: "Il Verdetto",
-    description: "Analisi tecnica e provvedimenti disciplinari.",
+    description: "Analisi e proiezioni su vincitori, promossi e retrocessi.",
     href: "/verdetto",
     icon: ShieldCheck,
     color: "text-emerald-400",
-    glow: "rgba(52,211,153,0.3)"
+    glow: "rgba(52,211,153,0.5)"
   },
   {
     title: "Risultati Serie A",
-    description: "Live, statistiche e calendario completo.",
+    description: "Calendario, dirette e statistiche dell'attuale stagione.",
     href: "/risultati-serie-a",
     icon: Activity,
     color: "text-cyan-400",
-    glow: "rgba(34,211,238,0.3)"
+    glow: "rgba(34,211,238,0.5)"
   },
   {
     title: "La Gazzetta",
-    description: "Notizie, editoriali e retroscena.",
+    description: "Ultime news, pagelle e approfondimenti quotidiani.",
     href: "/gazzetta",
     icon: Newspaper,
     color: "text-rose-400",
-    glow: "rgba(251,113,133,0.3)"
+    glow: "rgba(251,113,133,0.5)"
   },
   {
-    title: "Regolamento",
-    description: "Le regole d'oro della nostra competizione.",
+    title: "Il Regolamento",
+    description: "Tutte le norme ufficiali e le guide del fantacalcio.",
     href: "/regolamento",
     icon: BookOpen,
     color: "text-indigo-400",
-    glow: "rgba(129,140,248,0.3)"
+    glow: "rgba(129,140,248,0.5)"
   },
 ];
 
@@ -102,7 +102,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen relative overflow-hidden flex flex-col items-center px-4 py-32">
+    <main className="min-h-screen relative overflow-hidden flex flex-col items-center px-4 pt-24 pb-12">
 
       {/* Background Layer - FINAL NEON FIELD V2 */}
       <div className="absolute inset-0 z-0">
@@ -152,7 +152,7 @@ export default function Home() {
                 <div 
                   style={{ ['--glow-hover' as any]: section.glow }}
                   className={cn(
-                  "h-full relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:shadow-[0_0_40px_var(--glow-hover)] min-h-[280px] flex flex-col justify-between",
+                  "h-full relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:shadow-[0_0_40px_var(--glow-hover)] flex flex-col justify-between",
                 )}>
                   <div className="flex items-center justify-between mb-2">
                     <section.icon className={cn("w-8 h-8", section.color)} />
@@ -205,7 +205,11 @@ export default function Home() {
               const isStarted = m.status?.started || m.statusId === 6;
               
               return (
-                <div key={i} className="flex flex-col bg-black/40 p-5 rounded-3xl border border-white/5 group hover:border-cyan-500/30 transition-all duration-500 shadow-inner">
+                <div 
+                   key={i} 
+                   style={{ '--team-color': isLive ? '16, 185, 129' : '34, 211, 238' } as any}
+                   className="flex flex-col bg-black/40 p-5 rounded-3xl border border-white/5 group hover:border-white/20 transition-all duration-500 shadow-inner hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]"
+                >
                   <div className="flex justify-between items-center mb-4">
                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{m.status?.reason?.short || 'SERIE A'}</span>
                      <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-emerald-500 animate-[pulse_1.5s_infinite]' : isFinished ? 'bg-slate-700' : 'bg-transparent'}`} />
