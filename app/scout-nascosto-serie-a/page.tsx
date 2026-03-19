@@ -77,14 +77,55 @@ const SERIE_A_COLORS: Record<string, string> = {
   "Venezia": "#F59124",
 };
 
+const STATS_CATEGORIES: Record<string, string> = {
+  "top_stats": "Principali",
+  "shots": "Tiri",
+  "expected_goals": "Gol Attesi (xG)",
+  "physical_metrics": "Fisica",
+  "passes": "Passaggi",
+  "defence": "Difesa",
+  "duels": "Contrasti",
+  "discipline": "Disciplina"
+};
+
 const STATS_TRANSLATIONS: Record<string, string> = {
+  // Principali & Tiri
   "Ball possession": "Possesso Palla",
   "Expected goals (xG)": "Gol Attesi (xG)",
   "Total shots": "Tiri Totali",
   "Shots on target": "Tiri in Porta",
-  "Fouls committed": "Falli",
-  "Yellow cards": "Ammonizioni",
-  "Red cards": "Espulsioni",
+  "Big chances": "Grandi Occasioni",
+  "Big chances missed": "Grandi Occasioni Fallite",
+  "Shots off target": "Tiri Fuori",
+  "Blocked shots": "Tiri Respinti",
+  "Shots inside box": "Tiri in Area",
+  "Shots outside box": "Tiri Fuori Area",
+  
+  // Passaggi
+  "Accurate passes": "Passaggi Riusciti",
+  "Passes": "Passaggi Totali",
+  "Own half": "Propria Metà Campo",
+  "Opponent half": "Metà Campo Avversaria",
+  "Long balls": "Lanci Lunghi",
+  "Crosses": "Cross",
+  
+  // Difesa & Contrasti
+  "Tackles won": "Tackle Vinti",
+  "Interceptions": "Intercetti",
+  "Blocks": "Respinte",
+  "Clearances": "Rinvii",
+  "Keeper saves": "Parate",
+  "Duels won": "Contrasti Vinti",
+  "Ground duels won": "Contrasti a Terra Vinti",
+  "Aerial duels won": "Contrasti Aerei Vinti",
+  "Successful dribbles": "Dribbling Riusciti",
+  
+  // Disciplina
+  "Fouls committed": "Falli Commessi",
+  "Fouls conceded": "Falli Subiti",
+  "Yellow cards": "Ammonizioni 🟨",
+  "Red cards": "Espulsioni 🟥",
+  "Offsides": "Fuorigioco",
   "Corner kicks": "Calci d'angolo"
 };
 
@@ -253,15 +294,13 @@ export default function ScoutHub() {
             </div>
             <div>
               <h1 className="text-4xl font-black text-white italic tracking-tighter">Calendario Serie A 25/26</h1>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Operational Unit • Serie A Live Intelligence</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Serie A Live Intelligence Hub</p>
+                {rounds[selectedRoundIndex]?.every(m => m.status.finished || m.statusId === 6) && (
+                   <span className="text-[9px] font-black bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20 uppercase tracking-widest">Giornata Finita</span>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl group">
-             <div className="relative">
-               <span className="absolute animate-ping inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
-               <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.8)]"></span>
-             </div>
-             <span className="text-sm font-black text-white italic tracking-widest group-hover:text-red-400 transition-colors uppercase">Network Active</span>
           </div>
         </div>
 
@@ -327,6 +366,13 @@ export default function ScoutHub() {
                         <div className="absolute top-5 right-5 z-20">
                           <span className="flex items-center gap-2 px-3 py-1.5 bg-red-500/20 border border-red-500/30 rounded-full text-[10px] font-black text-red-500 tracking-[0.2em] shadow-[0_0_15px_rgba(239,68,68,0.3)]">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-[flash_1.5s_infinite]"></span> LIVE
+                          </span>
+                        </div>
+                      )}
+                      {(m.status.finished || m.statusId === 6) && (
+                        <div className="absolute top-5 right-5 z-20">
+                          <span className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-slate-400 tracking-[0.1em]">
+                            Terminata
                           </span>
                         </div>
                       )}
@@ -461,41 +507,54 @@ export default function ScoutHub() {
                   <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Scanning matrix...</span>
                 </div>
-              ) : (
-                <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
+              ) :                 <div className="space-y-8 animate-in slide-in-from-bottom-5 duration-500">
                   {(() => {
-                    const topStats = statsData?.find((g: any) => g.key === 'top_stats')?.stats || [];
                     const dColorHome = SERIE_A_COLORS[modalFixture?.home.name || ""] || "#22d3ee";
                     const dColorAway = SERIE_A_COLORS[modalFixture?.away.name || ""] || "#34d399";
-
-                    return topStats.length > 0 ? topStats.map((stat: any, i: number) => {
-                      const val0 = parseFloat(String(stat.stats[0]).replace('%', '')) || 0;
-                      const val1 = parseFloat(String(stat.stats[1]).replace('%', '')) || 0;
-                      const total = val0 + val1 || 1;
-                      const w0 = (val0 / total) * 100;
-                      const w1 = (val1 / total) * 100;
-                      const trTitle = STATS_TRANSLATIONS[stat.title] || stat.title;
-
+                    
+                    if (!statsData || statsData.length === 0) {
                       return (
-                        <div key={i} className="mb-4">
-                          <div className="flex justify-between text-xs text-white mb-2">
-                            <span className="font-bold text-sm" style={{ color: dColorHome, textShadow: `0 0 8px ${dColorHome}80` }}>{stat.stats[0]}</span>
-                            <span className="text-slate-500 uppercase tracking-widest text-[9px] font-black leading-tight flex items-end pb-0.5">{trTitle}</span>
-                            <span className="font-bold text-sm" style={{ color: dColorAway, textShadow: `0 0 8px ${dColorAway}80` }}>{stat.stats[1]}</span>
-                          </div>
-                          <div className="flex w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                            <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${w0}%`, backgroundColor: dColorHome, boxShadow: `0 0 10px ${dColorHome}80` }}></div>
-                            <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${w1}%`, backgroundColor: dColorAway, boxShadow: `0 0 10px ${dColorAway}80` }}></div>
-                          </div>
+                        <div className="text-center py-10">
+                           <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Dati non disponibili</p>
                         </div>
                       );
-                    }) : (
-                      <div className="text-center py-10">
-                         <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Dati non disponibili</p>
-                      </div>
-                    );
+                    }
+
+                    return statsData.map((group: any, gIdx: number) => {
+                      const groupTitle = STATS_CATEGORIES[group.key] || group.title || group.key;
+                      const stats = group.stats || [];
+                      if (stats.length === 0) return null;
+
+                      return (
+                        <div key={gIdx} className="space-y-4">
+                          <h4 className="text-xs font-black text-cyan-400/80 uppercase tracking-[0.2em] border-l-2 border-cyan-500/50 pl-3 mb-4">{groupTitle}</h4>
+                          {stats.map((stat: any, i: number) => {
+                            const val0 = parseFloat(String(stat.stats[0]).replace('%', '')) || 0;
+                            const val1 = parseFloat(String(stat.stats[1]).replace('%', '')) || 0;
+                            const total = val0 + val1 || 1;
+                            const w0 = (val0 / total) * 100;
+                            const w1 = (val1 / total) * 100;
+                            const trTitle = STATS_TRANSLATIONS[stat.title] || stat.title;
+
+                            return (
+                              <div key={i} className="mb-4">
+                                <div className="flex justify-between text-xs text-white mb-2">
+                                  <span className="font-bold text-sm" style={{ color: dColorHome, textShadow: `0 0 8px ${dColorHome}80` }}>{stat.stats[0]}</span>
+                                  <span className="text-slate-500 uppercase tracking-widest text-[9px] font-black leading-tight flex items-end pb-0.5">{trTitle}</span>
+                                  <span className="font-bold text-sm" style={{ color: dColorAway, textShadow: `0 0 8px ${dColorAway}80` }}>{stat.stats[1]}</span>
+                                </div>
+                                <div className="flex w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                  <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${w0}%`, backgroundColor: dColorHome, boxShadow: `0 0 10px ${dColorHome}80` }}></div>
+                                  <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${w1}%`, backgroundColor: dColorAway, boxShadow: `0 0 10px ${dColorAway}80` }}></div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    });
                   })()}
-                </div>
+                </div>v>
               )}
             </div>
 
