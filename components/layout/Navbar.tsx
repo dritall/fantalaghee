@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Home, Trophy, Calendar, Newspaper, User, BookOpen, Scale } from "lucide-react";
+import { Menu, X, Home, Trophy, Calendar, Newspaper, User, BookOpen, Gavel, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-    { name: "Risultati Serie A", href: "/risultati-serie-a", icon: Trophy },
-    { name: "Classifica", href: "/classifica", icon: Trophy },
-    { name: "Verdetto", href: "/verdetto", icon: Newspaper },
-    { name: "Gazzetta", href: "/gazzetta", icon: BookOpen },
-    { name: "Regolamento", href: "/regolamento", icon: Scale },
+    { name: "Classifica Lega", href: "/classifica", icon: Trophy },
+    { name: "Il Verdetto", href: "/verdetto", icon: Gavel },
+    { name: "Risultati Serie A", href: "/risultati-serie-a", icon: Activity },
+    { name: "La Gazzetta", href: "/gazzetta", icon: Newspaper },
+    { name: "Regolamento", href: "/regolamento", icon: BookOpen },
 ];
 
 export function Navbar() {

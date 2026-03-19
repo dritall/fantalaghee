@@ -57,24 +57,21 @@ const SERIE_A_COLORS: Record<string, string> = {
   "Juventus": "#000000",
   "Napoli": "#00AEEF",
   "Roma": "#8E1F2F",
-  "Lazio": "#87D8F7",
-  "Atalanta": "#1E4B87",
-  "Fiorentina": "#4A2583",
-  "Bologna": "#A21C26",
-  "Torino": "#8A1E31",
-  "Sassuolo": "#00A752",
-  "Genoa": "#A61A2A",
-  "Verona": "#FFD100",
-  "Lecce": "#FFD100",
-  "Empoli": "#00579C",
+  "Lazio": "#87D3F8",
+  "Atalanta": "#1E71B8",
+  "Fiorentina": "#4B2E83",
+  "Bologna": "#1A2F48",
+  "Torino": "#8A2432",
+  "Genoa": "#8C1C1C",
+  "Verona": "#005395",
   "Udinese": "#000000",
-  "Cagliari": "#00285E",
-  "Frosinone": "#FFCC00",
-  "Salernitana": "#8A1E31",
-  "Monza": "#E5002B",
-  "Como": "#0059A3",
-  "Parma": "#FFCB05",
-  "Venezia": "#F59124",
+  "Parma": "#FFE800",
+  "Como": "#1C3F94",
+  "Lecce": "#FFED00",
+  "Empoli": "#00579C",
+  "Monza": "#E30613",
+  "Venezia": "#000000",
+  "Cagliari": "#B31B1E",
 };
 
 const STATS_CATEGORIES: Record<string, string> = {
@@ -390,13 +387,13 @@ export default function ScoutHub() {
                           </div>
 
                           <div className="flex-1 flex flex-col items-center justify-center">
-                            {(m.status?.started === true || m.statusId === 6) ? (
+                            {(m.status?.started === true || m.statusId === 6 || isFinished) ? (
                               <div className="font-bold text-white text-xl">
                                 {m.status.scoreStr || (m.home.score !== undefined ? `${m.home.score} - ${m.away.score}` : '0 - 0')}
                               </div>
                             ) : (
                               <div className="flex flex-col items-center gap-1">
-                                <span className="text-sm font-bold text-slate-400">TBD</span>
+                                <span className="text-sm font-bold text-slate-400 font-mono tracking-tighter">DA GIOCARE</span>
                                 <span className="text-xs text-slate-500">{m.time}</span>
                               </div>
                             )}
@@ -559,12 +556,14 @@ export default function ScoutHub() {
                                   <span className="text-slate-500 uppercase tracking-widest text-[10px] font-black pb-1">{trTitle}</span>
                                   <span className="font-black text-lg italic" style={{ color: dColorAway }}>{stat.stats[1]}</span>
                                 </div>
-                                <div className="flex w-full h-5 bg-white/5 rounded-lg overflow-hidden border border-white/5">
-                                  <div className="h-full transition-all duration-1000 ease-out bg-gradient-to-r from-cyan-600 to-cyan-400 relative" style={{ width: `${w0}%`, backgroundColor: dColorHome }}>
-                                     <div className="absolute inset-0 bg-white/20 mix-blend-overlay" />
+                                <div className="flex w-full h-6 bg-white/5 rounded-lg overflow-hidden border border-white/5 relative">
+                                  <div className="h-full transition-all duration-1000 ease-out relative" style={{ width: `${w0}%`, backgroundColor: dColorHome }}>
+                                     <div className="absolute inset-0 bg-white/10 mix-blend-overlay" />
+                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                                   </div>
-                                  <div className="h-full transition-all duration-1000 ease-out bg-gradient-to-l from-emerald-600 to-emerald-400 relative" style={{ width: `${w1}%`, backgroundColor: dColorAway }}>
-                                     <div className="absolute inset-0 bg-white/20 mix-blend-overlay" />
+                                  <div className="h-full transition-all duration-1000 ease-out relative" style={{ width: `${w1}%`, backgroundColor: dColorAway }}>
+                                     <div className="absolute inset-0 bg-white/10 mix-blend-overlay" />
+                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                                   </div>
                                 </div>
                               </div>

@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   try {
     const query = new URLSearchParams(Array.from(searchParams.entries()).filter(([k]) => k !== 'endpoint')).toString();
     const url = `https://free-api-live-football-data.p.rapidapi.com/${endpoint}?${query}`;
-    const revalidate = endpoint === 'football-get-match-all-stats' ? 60 : 3600;
+    const revalidate = endpoint === 'football-get-match-all-stats' ? 60 : 300;
     const res = await fetch(url, {
       headers: {
         'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com',

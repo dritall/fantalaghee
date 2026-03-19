@@ -144,7 +144,7 @@ export default function Home() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
+          className="grid grid-cols-1 md:grid-cols-5 gap-4"
         >
           {sections.map((section) => (
             <motion.div key={section.title} variants={itemVariants}>
@@ -152,18 +152,20 @@ export default function Home() {
                 <div 
                   style={{ ['--glow-hover' as any]: section.glow }}
                   className={cn(
-                  "h-full relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-6 transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:shadow-[0_0_40px_var(--glow-hover)]",
+                  "h-full relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:shadow-[0_0_40px_var(--glow-hover)] min-h-[280px] flex flex-col justify-between",
                 )}>
-                  <div className="flex items-center justify-between mb-4">
-                    <section.icon className={cn("w-7 h-7", section.color)} />
-                    <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-white transition-all transform -translate-x-2 group-hover:translate-x-0 opacity-0 group-hover:opacity-100" />
+                  <div className="flex items-center justify-between mb-2">
+                    <section.icon className={cn("w-8 h-8", section.color)} />
+                    <ArrowRight className="w-5 h-5 text-slate-700 group-hover:text-white transition-all transform -translate-x-2 group-hover:translate-x-0 opacity-0 group-hover:opacity-100" />
                   </div>
-                  <h2 className="text-lg font-black text-white italic uppercase tracking-tighter mb-1 leading-tight">
-                    {section.title}
-                  </h2>
-                  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                    {section.description}
-                  </p>
+                  <div>
+                    <h2 className="text-xl font-black text-white italic uppercase tracking-tighter mb-2 leading-tight">
+                      {section.title}
+                    </h2>
+                    <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
+                      {section.description}
+                    </p>
+                  </div>
                   
                   {/* Glowing Flash effect on active box */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 animate-[flash_3s_infinite]" />
@@ -189,8 +191,8 @@ export default function Home() {
                  <Trophy className="w-6 h-6 text-cyan-400" />
                </div>
                <div>
-                 <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Schedina Serie A</h3>
-                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Giornata {selectedRound} • Risultati in Tempo Reale</p>
+                 <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Serie A: Diretta & Risultati</h3>
+                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Giornata {selectedRound} • Dati in tempo reale</p>
                </div>
             </div>
             <Link href="/risultati-serie-a" className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] font-black text-white uppercase tracking-widest transition-all">Hub Completo</Link>
