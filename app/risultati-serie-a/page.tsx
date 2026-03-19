@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { fetchMatchEvents } from '@/lib/sofascore';
 
 // --- Interfaces ---
 interface Match {
@@ -162,6 +163,8 @@ export default function ScoutHub() {
   const [modalFixture, setModalFixture] = useState<Match | null>(null);
   const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [statsData, setStatsData] = useState<any>(null);
+  const [incidentsData, setIncidentsData] = useState<any[]>([]);
+  const [modalTab, setModalTab] = useState<'timeline' | 'stats'>('timeline');
 
   useEffect(() => {
     const load = async () => {
@@ -257,11 +260,17 @@ export default function ScoutHub() {
   const openMatch = async (m: Match) => {
     setModalFixture(m);
     setStatsData(null);
+    setIncidentsData([]);
+    setModalTab('timeline');
     setModalLoading(true);
     
     try {
-      const res = await fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json());
-      setStatsData(getStats(res));
+      const [statsRes, incidents] = await Promise.all([
+        fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json()).catch(() => null),
+        fetchMatchEvents(m.home.name, m.away.name, m.status.startTime || new Date().toISOString())
+      ]);
+      setStatsData(getStats(statsRes));
+      setIncidentsData(incidents || []);
     } catch (err) {
       console.error("Errore recupero dettagli match:", err);
     } finally {
@@ -495,10 +504,27 @@ export default function ScoutHub() {
             <Dialog.Description className="sr-only">Statistiche del match</Dialog.Description>
 
             <div className="p-8 border-b border-white/5 relative bg-white/5">
-                <div className="flex items-center gap-4 mb-2">
+                <div className="flex items-center gap-4 mb-6">
                    <Trophy className="w-5 h-5 text-cyan-400" />
                    <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">Dettagli Partita</h3>
                 </div>
+
+                {!modalLoading && (
+                <div className="flex border border-white/10 rounded-xl p-1 bg-black/20 w-full max-w-xs relative z-10">
+                   <button 
+                     onClick={() => setModalTab('timeline')}
+                     className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${modalTab === 'timeline' ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-500 hover:text-white'}`}
+                   >
+                     Timeline
+                   </button>
+                   <button 
+                     onClick={() => setModalTab('stats')}
+                     className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${modalTab === 'stats' ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-500 hover:text-white'}`}
+                   >
+                     Statistiche
+                   </button>
+                </div>
+                )}
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 bg-[#080d17]/50 space-y-6">
@@ -506,6 +532,44 @@ export default function ScoutHub() {
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Analisi in corso...</span>
+                </div>
+              ) : modalTab === 'timeline' ? (
+                <div className="space-y-6 animate-in fade-in duration-500 relative py-4">
+                  <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10 -translate-x-1/2 rounded-full" />
+                  
+                  {incidentsData.length === 0 && (
+                    <div className="text-center py-10 relative z-10">
+                       <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest bg-[#080d17] px-4 py-2 inline-block rounded-full border border-white/5">Nessun evento registrato</p>
+                    </div>
+                  )}
+
+                  {incidentsData.map((inc, i) => {
+                    if (inc.incidentType !== 'goal' && inc.incidentType !== 'card') return null;
+                    const isHome = inc.isHome;
+                    
+                    return (
+                      <div key={i} className={`flex items-center w-full relative z-10 ${isHome ? 'justify-start' : 'justify-end'}`}>
+                        <div className={`w-1/2 flex items-center gap-4 relative ${isHome ? 'justify-end pr-6 md:pr-10' : 'justify-start pl-6 md:pl-10 flex-row-reverse'}`}>
+                           
+                           <div className={`text-right ${isHome ? '' : 'text-left'}`}>
+                             <p className="text-sm font-bold text-white uppercase tracking-tight">{inc.player?.name || 'Sconosciuto'}</p>
+                             {inc.incidentType === 'goal' && inc.assist1 && (
+                               <p className="text-[10px] text-slate-500 uppercase">Assist: {inc.assist1.name}</p>
+                             )}
+                           </div>
+                           
+                           <div className={`w-8 h-8 rounded-full bg-[#080d17] border border-white/10 flex items-center justify-center shrink-0 shadow-2xl relative ${isHome ? '-right-[17px] md:-right-[21px]' : '-left-[17px] md:-left-[21px]'}`}>
+                             {inc.incidentType === 'goal' ? '⚽' : (inc.incidentClass === 'yellow' ? '🟨' : '🟥')}
+                           </div>
+
+                        </div>
+                        
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center z-20 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+                          <span className="text-[9px] font-black text-cyan-400">{inc.time}'</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="space-y-8 animate-in slide-in-from-bottom-5 duration-500">

@@ -18,7 +18,8 @@ export async function GET(request: Request) {
     
     const responseHeaders: any = {};
     if (endpoint === 'football-get-standing-all') {
-        responseHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        // Enforce 300 seconds (5 minutes) cache for standings to save calls while keeping it updated
+        responseHeaders['Cache-Control'] = 'public, s-maxage=300, stale-while-revalidate=60';
     }
     
     return NextResponse.json(data, { headers: responseHeaders });

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const sections = [
   {
     title: "Classifica Lega",
-    description: "Consulta la graduatoria aggiornata e i dettagli del nostro campionato fantacalcistico.",
+    description: "Consulta la graduatoria aggiornata.",
     href: "/classifica",
     icon: Trophy,
     color: "text-amber-400",
@@ -18,7 +18,7 @@ const sections = [
   },
   {
     title: "Il Verdetto",
-    description: "Analisi, pronostici e proiezioni su vincitori, retrocessioni e promozioni.",
+    description: "Pronostici su vincitori e retrocessi.",
     href: "/verdetto",
     icon: ShieldCheck,
     color: "text-emerald-400",
@@ -26,7 +26,7 @@ const sections = [
   },
   {
     title: "Risultati Serie A",
-    description: "Calendario, dirette in tempo reale e statistiche complete dell'attuale stagione.",
+    description: "Calendario, dirette e statistiche.",
     href: "/risultati-serie-a",
     icon: Activity,
     color: "text-cyan-400",
@@ -34,7 +34,7 @@ const sections = [
   },
   {
     title: "La Gazzetta",
-    description: "Ultime notizie, approfondimenti, pagelle e gossip calcistico quotidiano.",
+    description: "Ultime news e approfondimenti.",
     href: "/gazzetta",
     icon: Newspaper,
     color: "text-rose-400",
@@ -42,7 +42,7 @@ const sections = [
   },
   {
     title: "Il Regolamento",
-    description: "Tutte le norme ufficiali, le guide e le FAQ per giocare correttamente.",
+    description: "Norme ufficiali del fantacalcio.",
     href: "/regolamento",
     icon: BookOpen,
     color: "text-indigo-400",
@@ -148,18 +148,16 @@ export default function Home() {
         >
           {sections.map((section) => (
             <motion.div key={section.title} variants={itemVariants}>
-              <Link href={section.href} className="block group" aria-label={section.title}>
+              <Link href={section.href} className="block group h-full" aria-label={section.title}>
                 <div 
-                  style={{ ['--glow-hover' as any]: section.glow }}
                   className={cn(
-                  "h-full relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:shadow-[0_0_40px_var(--glow-hover)] flex flex-col justify-between",
+                  "h-full relative overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 transition-all duration-500 flex flex-col items-center text-center justify-center hover:-translate-y-2 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(120,119,198,0.4)]",
                 )}>
-                  <div className="flex items-center justify-between mb-2">
-                    <section.icon className={cn("w-8 h-8", section.color)} />
-                    <ArrowRight className="w-5 h-5 text-slate-700 group-hover:text-white transition-all transform -translate-x-2 group-hover:translate-x-0 opacity-0 group-hover:opacity-100" />
+                  <div className="flex items-center justify-center mb-4">
+                    <section.icon className={cn("w-10 h-10 mb-2", section.color)} />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-black text-white italic uppercase tracking-tighter mb-2 leading-tight">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <h2 className="text-xl font-black text-white italic uppercase tracking-tighter leading-tight">
                       {section.title}
                     </h2>
                     <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
@@ -208,20 +206,20 @@ export default function Home() {
                 <div 
                    key={i} 
                    style={{ '--team-color': isLive ? '16, 185, 129' : '34, 211, 238' } as any}
-                   className="flex flex-col bg-black/40 p-5 rounded-3xl border border-white/5 group hover:border-white/20 transition-all duration-500 shadow-inner hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]"
+                   className="relative overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 transition-all duration-500 flex flex-col items-center text-center justify-center group hover:-translate-y-2 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(var(--team-color),0.4)]"
                 >
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex w-full justify-between items-center mb-4">
                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{m.status?.reason?.short || 'SERIE A'}</span>
                      <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-emerald-500 animate-[pulse_1.5s_infinite]' : isFinished ? 'bg-red-500/60' : 'bg-slate-600'}`} />
                   </div>
                   
-                  <div className="flex items-center justify-around gap-2 mb-4">
+                  <div className="flex w-full items-center justify-around gap-2 mb-4">
                     <div className="flex flex-col items-center gap-2 w-1/3">
-                      <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png`} className="w-8 h-8 object-contain" alt="" />
-                      <span className="text-[8px] font-black text-slate-400 uppercase truncate w-full text-center">{m.home.name}</span>
+                      <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.home.id}.png`} className="w-8 h-8 object-contain relative z-10" alt="" />
+                      <span className="text-[8px] font-black text-slate-400 uppercase truncate w-full text-center relative z-10">{m.home.name}</span>
                     </div>
                     
-                    <div className="flex-1 text-center">
+                    <div className="flex-1 text-center relative z-10">
                        {isStarted ? (
                          <span className="text-sm font-black text-white italic">
                             {m.status?.scoreStr || `${m.home.score} - ${m.away.score}`}
@@ -232,13 +230,13 @@ export default function Home() {
                     </div>
 
                     <div className="flex flex-col items-center gap-2 w-1/3">
-                      <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png`} className="w-8 h-8 object-contain" alt="" />
-                      <span className="text-[8px] font-black text-slate-400 uppercase truncate w-full text-center">{m.away.name}</span>
+                      <img src={`https://images.fotmob.com/image_resources/logo/teamlogo/${m.away.id}.png`} className="w-8 h-8 object-contain relative z-10" alt="" />
+                      <span className="text-[8px] font-black text-slate-400 uppercase truncate w-full text-center relative z-10">{m.away.name}</span>
                     </div>
                   </div>
                   
-                  <div className="mt-auto pt-3 border-t border-white/5 flex justify-center">
-                     <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">
+                  <div className="mt-auto pt-3 border-t border-white/10 w-full flex justify-center">
+                     <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">
                        {isLive ? 'IN CORSO' : isFinished ? 'FINALE' : m.time || 'A BREVE'}
                      </span>
                   </div>
