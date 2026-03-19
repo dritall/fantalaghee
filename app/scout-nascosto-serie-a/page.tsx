@@ -507,7 +507,8 @@ export default function ScoutHub() {
                   <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Scanning matrix...</span>
                 </div>
-              ) :                 <div className="space-y-8 animate-in slide-in-from-bottom-5 duration-500">
+              ) : (
+                <div className="space-y-8 animate-in slide-in-from-bottom-5 duration-500">
                   {(() => {
                     const dColorHome = SERIE_A_COLORS[modalFixture?.home.name || ""] || "#22d3ee";
                     const dColorAway = SERIE_A_COLORS[modalFixture?.away.name || ""] || "#34d399";
@@ -554,7 +555,7 @@ export default function ScoutHub() {
                       );
                     });
                   })()}
-                </div>v>
+                </div>
               )}
             </div>
 
