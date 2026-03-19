@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const sections = [
   {
     title: "Classifica Lega",
-    description: "Consulta la graduatoria aggiornata del nostro campionato.",
+    description: "Consulta la graduatoria aggiornata e i dettagli del nostro campionato fantacalcistico.",
     href: "/classifica",
     icon: Trophy,
     color: "text-amber-400",
@@ -18,7 +18,7 @@ const sections = [
   },
   {
     title: "Il Verdetto",
-    description: "Analisi e proiezioni su vincitori, promossi e retrocessi.",
+    description: "Analisi, pronostici e proiezioni su vincitori, retrocessioni e promozioni.",
     href: "/verdetto",
     icon: ShieldCheck,
     color: "text-emerald-400",
@@ -26,7 +26,7 @@ const sections = [
   },
   {
     title: "Risultati Serie A",
-    description: "Calendario, dirette e statistiche dell'attuale stagione.",
+    description: "Calendario, dirette in tempo reale e statistiche complete dell'attuale stagione.",
     href: "/risultati-serie-a",
     icon: Activity,
     color: "text-cyan-400",
@@ -34,7 +34,7 @@ const sections = [
   },
   {
     title: "La Gazzetta",
-    description: "Ultime news, pagelle e approfondimenti quotidiani.",
+    description: "Ultime notizie, approfondimenti, pagelle e gossip calcistico quotidiano.",
     href: "/gazzetta",
     icon: Newspaper,
     color: "text-rose-400",
@@ -42,7 +42,7 @@ const sections = [
   },
   {
     title: "Il Regolamento",
-    description: "Tutte le norme ufficiali e le guide del fantacalcio.",
+    description: "Tutte le norme ufficiali, le guide e le FAQ per giocare correttamente.",
     href: "/regolamento",
     icon: BookOpen,
     color: "text-indigo-400",
@@ -144,7 +144,7 @@ export default function Home() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-5 gap-4"
+          className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"
         >
           {sections.map((section) => (
             <motion.div key={section.title} variants={itemVariants}>
@@ -212,7 +212,7 @@ export default function Home() {
                 >
                   <div className="flex justify-between items-center mb-4">
                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{m.status?.reason?.short || 'SERIE A'}</span>
-                     <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-emerald-500 animate-[pulse_1.5s_infinite]' : isFinished ? 'bg-slate-700' : 'bg-transparent'}`} />
+                     <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-emerald-500 animate-[pulse_1.5s_infinite]' : isFinished ? 'bg-red-500/60' : 'bg-slate-600'}`} />
                   </div>
                   
                   <div className="flex items-center justify-around gap-2 mb-4">

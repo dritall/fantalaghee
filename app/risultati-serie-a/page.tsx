@@ -369,12 +369,10 @@ export default function ScoutHub() {
                     >
                       {/* LED Indicator */}
                       <div className="absolute top-8 right-8 z-20">
-                        {isStarted && (
                           <div className={`w-3 h-3 rounded-full border-2 border-slate-900 shadow-lg ${
                             isLive ? 'bg-emerald-500 animate-[breathing_1.5s_infinite]' : 
-                            'bg-red-500/60'
+                            isFinished ? 'bg-red-500/60' : 'bg-slate-600'
                           }`} />
-                        )}
                       </div>
 
                       <div className="relative z-10 flex flex-col h-full justify-between gap-6">

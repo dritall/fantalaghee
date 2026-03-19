@@ -15,7 +15,13 @@ export async function GET(request: Request) {
       next: { revalidate }
     });
     const data = await res.json();
-    return NextResponse.json(data);
+    
+    const responseHeaders: any = {};
+    if (endpoint === 'football-get-standing-all') {
+        responseHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+    }
+    
+    return NextResponse.json(data, { headers: responseHeaders });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
