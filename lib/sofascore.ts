@@ -21,6 +21,34 @@ function normalizeTeamName(name: string): string {
     .replace(/ac /g, "")
     .replace(/ calcio/g, "")
     .trim();
+    
+  const teamNameMap: Record<string, string> = {
+    "hellas verona": "verona",
+    "juventus fc": "juventus",
+    "fc internazionale": "inter",
+    "ac milan": "milan",
+    "as roma": "roma",
+    "ss lazio": "lazio",
+    "bologna fc": "bologna",
+    "torino fc": "torino",
+    "genoa cfc": "genoa",
+    "udinese calcio": "udinese",
+    "parma calcio 1913": "parma",
+    "como 1907": "como",
+    "us lecce": "lecce",
+    "empoli fc": "empoli",
+    "ac monza": "monza",
+    "venezia fc": "venezia",
+    "cagliari calcio": "cagliari"
+  };
+  
+  if (teamNameMap[name.toLowerCase()]) {
+     return teamNameMap[name.toLowerCase()];
+  }
+  
+  if (teamNameMap[normalized]) {
+     return teamNameMap[normalized];
+  }
   
   // Specific fallbacks for Italian teams
   if (normalized.includes("inter")) return "inter";
@@ -54,15 +82,20 @@ export async function fetchMatchEvents(homeName: string, awayName: string, dateS
 
     // Find the right event
     const matchEvent = events.find((evt: any) => {
-       const evtHome = normalizeTeamName(evt?.homeTeam?.name || "");
-       const evtAway = normalizeTeamName(evt?.awayTeam?.name || "");
+       const evtHomeAPI = evt?.homeTeam?.name || "";
+       const evtAwayAPI = evt?.awayTeam?.name || "";
        
-       return (evtHome.includes(nHome) || nHome.includes(evtHome)) && 
-              (evtAway.includes(nAway) || nAway.includes(evtAway));
+       const evtHome = normalizeTeamName(evtHomeAPI);
+       const evtAway = normalizeTeamName(evtAwayAPI);
+       
+       const isHomeMatch = evtHome.includes(nHome) || nHome.includes(evtHome);
+       const isAwayMatch = evtAway.includes(nAway) || nAway.includes(evtAway);
+       
+       return isHomeMatch && isAwayMatch;
     });
 
     if (!matchEvent || !matchEvent.id) {
-       console.warn("Match non trovato su Sofascore per:", homeName, awayName);
+       console.warn(`Match non trovato su Sofascore. Cercavo: [Home: "${homeName}" -> "${nHome}"] | [Away: "${awayName}" -> "${nAway}"]. Data: ${isoDate}`);
        return [];
     }
 

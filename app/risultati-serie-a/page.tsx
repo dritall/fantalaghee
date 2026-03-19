@@ -614,9 +614,9 @@ export default function ScoutHub() {
                             return (
                               <div key={i} className="mb-6">
                                 <div className="flex justify-between text-xs text-white mb-2 items-end">
-                                  <span className="font-black text-lg italic" style={{ color: dColorHome }}>{stat.stats[0]}</span>
+                                  <span className="font-black text-lg italic text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)]">{stat.stats[0]}</span>
                                   <span className="text-slate-500 uppercase tracking-widest text-[10px] font-black pb-1">{trTitle}</span>
-                                  <span className="font-black text-lg italic" style={{ color: dColorAway }}>{stat.stats[1]}</span>
+                                  <span className="font-black text-lg italic text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)]">{stat.stats[1]}</span>
                                 </div>
                                 <div className="flex w-full h-6 bg-white/5 rounded-lg overflow-hidden border border-white/5 relative">
                                   <div className="h-full transition-all duration-1000 ease-out relative" style={{ width: `${w0}%`, backgroundColor: dColorHome }}>
