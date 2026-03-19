@@ -17,18 +17,20 @@ import * as Dialog from '@radix-ui/react-dialog';
 // --- Interfaces ---
 interface Match {
   id: string;
+  statusId?: number;
   round: string;
   status: {
     finished: boolean;
     started: boolean;
     cancelled: boolean;
-    scoreStr?: string;
-    reason?: { short: string; long: any };
-    liveTime?: { short: string };
+    scoreStr?: string | null;
+    reason?: any;
+    liveTime?: any;
     startTime?: string;
   };
-  home: { name: string; id: string; };
-  away: { name: string; id: string; };
+  home: { name: string; id: string; score?: number; };
+  away: { name: string; id: string; score?: number; };
+  time?: string;
   scorers?: { name: string; time: number; }[];
 }
 
@@ -86,6 +88,29 @@ const STATS_TRANSLATIONS: Record<string, string> = {
   "Corner kicks": "Calci d'angolo"
 };
 
+// --- Bulletproof Parsers ---
+const getStandings = (data: any) => {
+  const res = data?.raw?.response || data?.response || {};
+  return Array.isArray(res.standing) ? res.standing : [];
+};
+
+const getMatches = (data: any) => {
+  const res = data?.raw?.response || data?.response || [];
+  if (Array.isArray(res)) {
+    // If it's an array of objects containing matches
+    if (res[0]?.matches) return res.flatMap((r: any) => r.matches || []);
+    // If it's the matches array directly
+    return res;
+  }
+  if (res.matches) return res.matches;
+  return [];
+};
+
+const getStats = (data: any) => {
+  const res = data?.raw?.response || data?.response || {};
+  return res.stats || [];
+};
+
 export default function ScoutHub() {
   const [activeTab, setActiveTab] = useState<'calendario' | 'classifica'>('calendario');
   const [rounds, setRounds] = useState<Match[][]>([]);
@@ -109,44 +134,44 @@ export default function ScoutHub() {
           fetch('/api/football?endpoint=football-get-standing-all&leagueid=55').then(res => res.json()).catch(() => null)
         ]);
         
-        let validMatchesData = matchesRes;
-
         // Process Standings
-        const tableData = standingsRes?.response?.standing || standingsRes?.raw?.response?.[0]?.league?.standings?.[0] || [];
-        setStandings(tableData);
+        const standingsData = getStandings(standingsRes);
+        setStandings(standingsData);
 
         // Process Matches
-        let matchesArray: Match[] = [];
-        const rawMatches = validMatchesData?.raw?.response?.matches || validMatchesData?.response?.matches;
-        if (rawMatches) {
-          matchesArray = rawMatches.map((e: any) => {
-            const realStatus = e.status?.reason?.long || e.status?.reason || e.status;
-            const isFinished = realStatus?.finished === true || realStatus?.reason?.short === 'FT' || e.status_short === 'FT';
-            const startTime = e.fixture?.date || e.date || e.status?.startTime || new Date().toISOString();
-
-            return {
-              id: e.id,
-              round: "",
-              status: {
-                finished: isFinished,
-                started: (e.status_started || isFinished) && e.status_short !== 'NS',
-                cancelled: e.status === 'Cancelled',
-                scoreStr: realStatus?.scoreStr || (e.home?.score !== null ? `${e.home?.score} - ${e.away?.score}` : '- - -'),
-                reason: { short: e.status_short || (isFinished ? 'FT' : 'NS'), long: realStatus },
-                liveTime: { short: e.time_status },
-                startTime: startTime
-              },
-              home: { name: e.home?.name, id: e.home?.id },
-              away: { name: e.away?.name, id: e.away?.id },
-              scorers: (e.goals || e.incidents || []).filter((inc: any) => inc.type === 'goal').map((inc: any) => ({
-                name: inc.player_name || inc.player?.name,
-                time: inc.minute || inc.time
-              }))
-            };
-          });
-        }
+        const allMatchesRaw = getMatches(matchesRes);
+        const matchesArray: Match[] = allMatchesRaw.map((e: any) => {
+          const isFinished = e.status?.finished || e.status?.reason?.short === 'FT' || e.status_short === 'FT';
+          const isStarted = e.status?.started === true || e.statusId === 6 || isFinished;
+          
+          return {
+            id: e.id,
+            statusId: e.statusId,
+            round: "",
+            status: {
+              finished: isFinished,
+              started: isStarted,
+              cancelled: e.status === 'Cancelled' || e.statusId === 4,
+              scoreStr: e.status?.scoreStr || (e.home?.score !== undefined ? `${e.home?.score} - ${e.away?.score}` : null),
+              startTime: e.status?.utcTime || e.status?.startTime || e.fixture?.date || e.date || new Date().toISOString(),
+              reason: e.status?.reason,
+              liveTime: e.status?.liveTime
+            },
+            home: { 
+              name: e.home?.name || e.home?.nameStr, 
+              id: e.home?.id,
+              score: e.home?.score
+            },
+            away: { 
+              name: e.away?.name || e.away?.nameStr, 
+              id: e.away?.id,
+              score: e.away?.score
+            },
+            time: e.status?.time || e.time_status || e.time
+          };
+        });
         
-        // Sort matches by date
+        // Sort matches by timestamp
         matchesArray.sort((a, b) => new Date(a.status.startTime || 0).getTime() - new Date(b.status.startTime || 0).getTime());
 
         // Chunk into 38 matchdays (10 matches each)
@@ -197,8 +222,8 @@ export default function ScoutHub() {
     setModalLoading(true);
     
     try {
-      const statsRes = await fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json());
-      setStatsData(statsRes);
+      const res = await fetch(`/api/football?endpoint=football-get-match-all-stats&eventid=${m.id}`).then(res => res.json());
+      setStatsData(getStats(res));
     } catch (err) {
       console.error("Match detail fetch error:", err);
     } finally {
@@ -316,13 +341,14 @@ export default function ScoutHub() {
                           </div>
 
                           <div className="flex-1 flex flex-col items-center justify-center">
-                            {m.status?.started === true ? (
+                            {(m.status?.started === true || m.statusId === 6) ? (
                               <div className="font-bold text-white text-xl">
-                                {m.status.scoreStr || '0 - 0'}
+                                {m.status.scoreStr || (m.home.score !== undefined ? `${m.home.score} - ${m.away.score}` : '0 - 0')}
                               </div>
                             ) : (
-                              <div className="text-sm font-bold text-slate-400">
-                                TBD <span className="block text-xs font-normal">{new Date(m.status?.startTime || Date.now()).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</span>
+                              <div className="flex flex-col items-center gap-1">
+                                <span className="text-sm font-bold text-slate-400">TBD</span>
+                                <span className="text-xs text-slate-500">{m.time}</span>
                               </div>
                             )}
                           </div>
@@ -438,7 +464,7 @@ export default function ScoutHub() {
               ) : (
                 <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
                   {(() => {
-                    const topStats = statsData?.raw?.response?.stats?.find((g: any) => g.key === 'top_stats')?.stats || [];
+                    const topStats = statsData?.find((g: any) => g.key === 'top_stats')?.stats || [];
                     const dColorHome = SERIE_A_COLORS[modalFixture?.home.name || ""] || "#22d3ee";
                     const dColorAway = SERIE_A_COLORS[modalFixture?.away.name || ""] || "#34d399";
 
