@@ -17,13 +17,10 @@ export default function Home() {
           setRound(events[0].roundInfo?.round || 1);
           setResults(events.slice(0, 10));
         }
-      })
-      .catch(e => {
-        console.error("🔥 [HOME ERROR] Fallito il fetch dei last-matches:", e);
       });
   }, []);
 
-  const getLogo = (id: number) => `/api/sofascore?endpoint=teams/get-logo&teamId=${id}`;
+  const getLogo = (id: number) => "/api/sofascore?endpoint=teams/get-logo&teamId=" + id;
 
   return (
     <main className="min-h-screen bg-black text-white pt-24 p-4">
@@ -36,15 +33,15 @@ export default function Home() {
           <Link href="/regolamento" className="bg-zinc-900 p-6 rounded-2xl text-center border border-white/5 hover:bg-zinc-800"><Clock className="w-6 h-6 mx-auto mb-2 text-indigo-400"/> REGOLE</Link>
         </div>
         <div className="bg-zinc-900/50 p-6 rounded-[2rem] border border-white/5">
-          <h3 className="font-black italic mb-4 text-cyan-400">SERIE A • GIORNATA {round}</h3>
+          <h3 className="font-black italic mb-4 text-cyan-400 uppercase tracking-widest">SERIE A • GIORNATA {round}</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
             {results.map((m, i) => (
               <div key={i} className="bg-black/40 p-3 rounded-xl border border-white/5 flex flex-col items-center gap-1">
                 <div className="flex items-center justify-between w-full text-[10px] font-bold">
-                  <img src={getLogo(m.homeTeam.id)} className="w-5 h-5" /> <span>{m.homeScore.current}</span>
+                  <img src={getLogo(m.homeTeam.id)} className="w-5 h-5" alt=""/> <span>{m.homeScore.current}</span>
                 </div>
                 <div className="flex items-center justify-between w-full text-[10px] font-bold">
-                  <img src={getLogo(m.awayTeam.id)} className="w-5 h-5" /> <span>{m.awayScore.current}</span>
+                  <img src={getLogo(m.awayTeam.id)} className="w-5 h-5" alt=""/> <span>{m.awayScore.current}</span>
                 </div>
               </div>
             ))}

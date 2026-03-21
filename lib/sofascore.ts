@@ -1,9 +1,9 @@
 export async function fetchMatchDetails(matchId: number) {
   try {
     const [statsRes, incidentsRes, lineupsRes] = await Promise.all([
-      fetch(`/api/sofascore?endpoint=matches/get-statistics&matchId=${matchId}`).then(res => res.json()),
-      fetch(`/api/sofascore?endpoint=matches/get-incidents&matchId=${matchId}`).then(res => res.json()),
-      fetch(`/api/sofascore?endpoint=matches/get-lineups&matchId=${matchId}`).then(res => res.json())
+      fetch("/api/sofascore?endpoint=matches/get-statistics&matchId=" + matchId).then(res => res.json()),
+      fetch("/api/sofascore?endpoint=matches/get-incidents&matchId=" + matchId).then(res => res.json()),
+      fetch("/api/sofascore?endpoint=matches/get-lineups&matchId=" + matchId).then(res => res.json())
     ]);
 
     const incidents = incidentsRes?.incidents || [];
@@ -26,8 +26,5 @@ export async function fetchMatchDetails(matchId: number) {
       incidents: incidents.filter((i: any) => ['goal', 'card', 'substitution'].includes(i.incidentType)),
       lineups: { home: parseL(lineupsRes?.home), away: parseL(lineupsRes?.away) }
     };
-  } catch (e) { 
-    console.error(`🔥 [LIB ERROR] fetchMatchDetails fallita per Match ID ${matchId}:`, e);
-    return { stats: [], incidents: [], lineups: null }; 
-  }
+  } catch (e) { return { stats: [], incidents: [], lineups: null }; }
 }
