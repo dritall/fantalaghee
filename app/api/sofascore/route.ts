@@ -8,8 +8,8 @@ export async function GET(request: Request) {
   if (!endpoint) return NextResponse.json({ error: 'Missing endpoint' }, { status: 400 });
 
   try {
-    const query = new URLSearchParams(Array.from(searchParams.entries()).filter(([k]) => k !== 'endpoint')).toString();
-    const url = `https://sofascore.p.rapidapi.com/${endpoint}${query ? `?${query}` : ''}`;
+    const queryParams = new URLSearchParams(Array.from(searchParams.entries()).filter(([k]) => k !== 'endpoint')).toString();
+    const url = `https://sofascore.p.rapidapi.com/${endpoint}${queryParams ? \`?\${queryParams}\` : ''}`;
     
     const res = await fetch(url, {
       headers: {
@@ -19,14 +19,20 @@ export async function GET(request: Request) {
       cache: 'no-store'
     });
 
+    // Gestione loghi (binario)
     if (endpoint.includes('get-logo')) {
       const blob = await res.blob();
       return new Response(blob, { headers: { 'Content-Type': 'image/png' } });
     }
 
+    // Se l'API fallisce, restituiamo un oggetto vuoto invece di crashare il server
+    if (!res.ok) {
+      return NextResponse.json({ events: [], standings: [], incidents: [] });
+    }
+
     const data = await res.json();
     return NextResponse.json(data);
   } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    return NextResponse.json({ error: String(e), events: [] }, { status: 200 });
   }
 }
