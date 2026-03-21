@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Loader2, Trophy } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { fetchMatchDetails } from '@/lib/sofascore';
@@ -12,9 +12,7 @@ export default function ScoutHub() {
   const [loading, setLoading] = useState(true);
   const [modalFixture, setModalFixture] = useState<any>(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const [statsData, setStatsData] = useState<any[]>([]);
   const [incidentsData, setIncidentsData] = useState<any[]>([]);
-  const [modalTab, setModalTab] = useState<'timeline' | 'stats'>('timeline');
 
   useEffect(() => {
     const load = async () => {
@@ -24,8 +22,9 @@ export default function ScoutHub() {
           fetch('/api/sofascore?endpoint=tournaments/v1/get-standings&tournamentId=23&seasonId=76457').then(r => r.json())
         ]);
         setStandings(sRes?.standings?.[0]?.rows || []);
+        const events = mRes?.events || [];
         const roundsMap: Record<number, any[]> = {};
-        (mRes?.events || []).forEach((e: any) => {
+        events.forEach((e: any) => {
           const r = e.roundInfo?.round || 1;
           if (!roundsMap[r]) roundsMap[r] = [];
           roundsMap[r].push(e);
@@ -39,12 +38,12 @@ export default function ScoutHub() {
   }, []);
 
   const openMatch = async (m: any) => {
-    setModalFixture(m); setModalTab('timeline'); setModalLoading(true);
+    setModalFixture(m); setModalLoading(true);
     const d = await fetchMatchDetails(m.id);
-    setStatsData(d.stats); setIncidentsData(d.incidents); setModalLoading(false);
+    setIncidentsData(d.incidents); setModalLoading(false);
   };
 
-  if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-cyan-400 font-black animate-pulse">CARICAMENTO...</div>;
+  if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-cyan-400 font-black animate-pulse">SINCRONIZZAZIONE...</div>;
 
   return (
     <div className="min-h-screen bg-[#050505] text-white p-8 pt-32">
@@ -62,18 +61,18 @@ export default function ScoutHub() {
                 <button key={i} onClick={() => setSelectedRoundIndex(i)} className={`min-w-[70px] py-2 rounded-lg font-black text-xs border ${selectedRoundIndex === i ? 'border-cyan-400 bg-cyan-400/10 text-white' : 'border-white/10 text-slate-500'}`}>G.{i+1}</button>
               ))}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {rounds[selectedRoundIndex]?.map(m => (
                 <div key={m.id} onClick={() => openMatch(m)} className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-cyan-500/30 transition-all cursor-pointer">
                   <div className="flex justify-between items-center">
-                    <div className="flex flex-col items-center gap-2 w-1/3">
+                    <div className="flex flex-col items-center gap-2 w-1/3 text-center">
                       <img src={`https://api.sofascore.app/api/v1/team/${m.homeTeam.id}/image`} className="w-10 h-10" />
-                      <span className="text-[9px] font-black uppercase truncate w-full text-center">{m.homeTeam.name}</span>
+                      <span className="text-[9px] font-black uppercase truncate w-full">{m.homeTeam.name}</span>
                     </div>
                     <div className="text-xl font-black italic">{m.homeScore.current ?? 0} - {m.awayScore.current ?? 0}</div>
-                    <div className="flex flex-col items-center gap-2 w-1/3">
+                    <div className="flex flex-col items-center gap-2 w-1/3 text-center">
                       <img src={`https://api.sofascore.app/api/v1/team/${m.awayTeam.id}/image`} className="w-10 h-10" />
-                      <span className="text-[9px] font-black uppercase truncate w-full text-center">{m.awayTeam.name}</span>
+                      <span className="text-[9px] font-black uppercase truncate w-full">{m.awayTeam.name}</span>
                     </div>
                   </div>
                 </div>
@@ -102,22 +101,20 @@ export default function ScoutHub() {
           <Dialog.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-xl bg-[#0a0a0a] border border-white/10 rounded-[2rem] z-[101] overflow-hidden flex flex-col max-h-[85vh]">
             <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-              <h3 className="text-sm font-black uppercase tracking-tighter text-cyan-400">{modalFixture?.homeTeam.name} VS {modalFixture?.awayTeam.name}</h3>
+              <h3 className="text-sm font-black uppercase text-cyan-400">{modalFixture?.homeTeam.name} vs {modalFixture?.awayTeam.name}</h3>
               <button onClick={() => setModalFixture(null)}><X className="w-5 h-5 text-slate-500"/></button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {modalLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto text-cyan-400" /> : (
-                <div className="space-y-4">
-                  {incidentsData.map((inc, i) => (
-                    <div key={i} className={`flex items-center gap-4 ${inc.isHome ? 'flex-row' : 'flex-row-reverse text-right'}`}>
-                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">{inc.incidentType === 'goal' ? '⚽' : '🟨'}</div>
-                      <div>
-                        <p className="text-xs font-black uppercase">{inc.player?.name}</p>
-                        <p className="text-[10px] text-slate-500">{inc.time}'</p>
-                      </div>
+                incidentsData.map((inc, i) => (
+                  <div key={i} className={`flex items-center gap-4 ${inc.isHome ? 'flex-row' : 'flex-row-reverse text-right'}`}>
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">{inc.incidentType === 'goal' ? '⚽' : '🟨'}</div>
+                    <div>
+                      <p className="text-xs font-black uppercase">{inc.player?.name}</p>
+                      <p className="text-[10px] text-slate-500">{inc.time}'</p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))
               )}
             </div>
           </Dialog.Content>

@@ -22,7 +22,6 @@ export async function fetchMatchDetails(matchId: number) {
         incidentClass: inc.incidentClass,
         time: inc.time,
         player: inc.player ? { name: inc.player.shortName || inc.player.name, id: inc.player.id } : (inc.playerName ? { name: inc.playerName } : null),
-        // Gli assist in Sofascore sono spesso nell'array footballPassingNetworkAction o come assist1
         assist1: inc.assist1 ? { name: inc.assist1.shortName || inc.assist1.name } : null,
         isHome: inc.isHome
       }));
@@ -32,6 +31,7 @@ export async function fetchMatchDetails(matchId: number) {
       incidents: parsedIncidents.sort((a,b) => a.time - b.time) 
     };
   } catch (error) {
+    console.error("Dettagli falliti:", error);
     return { stats: [], incidents: [] };
   }
 }
