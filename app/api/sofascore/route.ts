@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-
 export const runtime = 'edge';
 
 export async function GET(request: Request) {
@@ -14,25 +13,20 @@ export async function GET(request: Request) {
     const res = await fetch(url, {
       headers: {
         'x-rapidapi-host': 'sofascore.p.rapidapi.com',
-        'x-rapidapi-key': process.env.RAPIDAPI_KEY || '3b9798580fmsh5505297c4cba235p1158b4jsn3683c74d3ef0'
+        'x-rapidapi-key': '3b9798580fmsh5505297c4cba235p1158b4jsn3683c74d3ef0'
       },
       cache: 'no-store'
     });
 
-    // Gestione loghi (binario)
     if (endpoint.includes('get-logo')) {
       const blob = await res.blob();
-      return new Response(blob, { headers: { 'Content-Type': 'image/png' } });
-    }
-
-    // Se l'API fallisce, restituiamo un oggetto vuoto invece di crashare il server
-    if (!res.ok) {
-      return NextResponse.json({ events: [], standings: [], incidents: [] });
+      return new Response(blob, { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' } });
     }
 
     const data = await res.json();
     return NextResponse.json(data);
   } catch (e) {
-    return NextResponse.json({ error: String(e), events: [] }, { status: 200 });
+    console.error("🔥 [API ERROR] Sofascore Route Exception:", e);
+    return NextResponse.json({ events: [], standings: [], error: String(e) }, { status: 200 });
   }
 }
