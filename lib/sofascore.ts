@@ -9,7 +9,7 @@ export async function fetchMatchDetails(matchId: number) {
     const rawIncidents = incidentsRes?.incidents || [];
     const subsInMap: Record<number, number> = {};
     
-    // Mappa per sapere a che minuto è entrato un panchinaro
+    // Mappiamo i minuti di ingresso dei panchinari
     rawIncidents.forEach((inc: any) => {
       if (inc.incidentType === 'substitution' && inc.playerIn) {
         subsInMap[Number(inc.playerIn.id)] = inc.time;
@@ -20,7 +20,7 @@ export async function fetchMatchDetails(matchId: number) {
       .filter((i: any) => ['goal', 'card', 'substitution'].includes(i.incidentType))
       .map((inc: any) => ({
         type: inc.incidentType,
-        class: inc.incidentClass, // 'yellow', 'red', 'regular'
+        class: inc.incidentClass, // 'yellow', 'red'
         time: inc.time,
         isHome: inc.isHome,
         playerName: String(inc.player?.shortName || inc.playerName || "Sconosciuto"),
@@ -31,10 +31,14 @@ export async function fetchMatchDetails(matchId: number) {
 
     const parseSide = (side: any) => ({
       starters: (side?.players || []).filter((p: any) => !p.substitute).map((p: any) => ({
-        id: p.player.id, name: String(p.player.shortName || p.player.name), number: p.shirtNumber
+        id: p.player.id, 
+        name: String(p.player.shortName || p.player.name), 
+        number: p.shirtNumber
       })),
       subs: (side?.players || []).filter((p: any) => p.substitute).map((p: any) => ({
-        id: p.player.id, name: String(p.player.shortName || p.player.name), number: p.shirtNumber,
+        id: p.player.id, 
+        name: String(p.player.shortName || p.player.name), 
+        number: p.shirtNumber,
         enteredAt: subsInMap[Number(p.player.id)] || null
       }))
     });
@@ -46,6 +50,6 @@ export async function fetchMatchDetails(matchId: number) {
     };
   } catch (e) { 
     console.error("🔥 [LIB ERROR] fetchMatchDetails fallita per Match ID " + matchId + ":", e);
-    return { stats: [], incidents: [], lineups: null }; 
+    return { stats: [], incidents: [], lineups: { home: { starters: [], subs: [] }, away: { starters: [], subs: [] } } }; 
   }
 }
