@@ -9,22 +9,30 @@ export async function fetchMatchDetails(matchId: number) {
     const incidents = incidentsRes?.incidents || [];
     const subsIn: Record<number, number> = {};
     incidents.forEach((inc: any) => {
-      if (inc.incidentType === 'substitution' && inc.playerIn) subsIn[inc.playerIn.id] = inc.time;
+      if (inc.incidentType === 'substitution' && inc.playerIn) subsIn[Number(inc.playerIn.id)] = inc.time;
     });
 
     const parseL = (side: any) => ({
       starters: (side?.players || []).filter((p: any) => !p.substitute).map((p: any) => ({
-        id: p.player.id, name: p.player.shortName || p.player.name, number: p.shirtNumber
+        id: p.player.id, name: String(p.player.shortName || p.player.name), number: p.shirtNumber
       })),
       subs: (side?.players || []).filter((p: any) => p.substitute).map((p: any) => ({
-        id: p.player.id, name: p.player.shortName || p.player.name, number: p.shirtNumber, enteredAt: subsIn[p.player.id] || null
+        id: p.player.id, name: String(p.player.shortName || p.player.name), number: p.shirtNumber, enteredAt: subsIn[Number(p.player.id)] || null
       }))
     });
 
     return { 
       stats: statsRes?.statistics?.[0]?.groups || [], 
-      incidents: incidents.filter((i: any) => ['goal', 'card', 'substitution'].includes(i.incidentType)),
+      incidents: incidents.filter((i: any) => ['goal', 'card', 'substitution'].includes(i.incidentType)).map((inc: any) => ({
+        type: inc.incidentType, class: inc.incidentClass, time: inc.time, isHome: inc.isHome,
+        playerName: String(inc.player?.shortName || inc.playerName || "Sconosciuto"),
+        playerInName: inc.playerIn ? String(inc.playerIn.shortName) : "",
+        playerOutName: inc.playerOut ? String(inc.playerOut.shortName) : ""
+      })),
       lineups: { home: parseL(lineupsRes?.home), away: parseL(lineupsRes?.away) }
     };
-  } catch (e) { return { stats: [], incidents: [], lineups: null }; }
+  } catch (e) { 
+    console.error("🔥 [LIB ERROR] fetchMatchDetails fallita per Match ID " + matchId + ":", e);
+    return { stats: [], incidents: [], lineups: null }; 
+  }
 }
