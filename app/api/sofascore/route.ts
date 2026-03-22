@@ -16,8 +16,7 @@ export async function GET(request: Request) {
         'x-rapidapi-host': 'sofascore.p.rapidapi.com',
         'x-rapidapi-key': process.env.RAPIDAPI_KEY || '3b9798580fmsh5505297c4cba235p1158b4jsn3683c74d3ef0'
       },
-      // Cache di 5 minuti per i dati live, 24 ore per i loghi
-      next: { revalidate: endpoint.includes('get-logo') ? 86400 : 300 }
+      next: { revalidate: 60 }
     });
 
     if (endpoint.includes('get-logo')) {
@@ -28,7 +27,6 @@ export async function GET(request: Request) {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (e) {
-    console.error("🔥 [API ERROR] Sofascore Route Exception:", e);
-    return NextResponse.json({ events: [], standings: [], error: String(e) }, { status: 200 });
+    return NextResponse.json({ events: [], standings: [] }, { status: 200 });
   }
 }
