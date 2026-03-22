@@ -8,6 +8,7 @@ export async function fetchMatchDetails(matchId: number) {
 
     const incidents = incidentsRes?.incidents || [];
     const subsIn: Record<number, number> = {};
+    
     incidents.forEach((inc: any) => {
       if (inc.incidentType === 'substitution' && inc.playerIn) {
         subsIn[Number(inc.playerIn.id)] = inc.time;
@@ -17,12 +18,12 @@ export async function fetchMatchDetails(matchId: number) {
     const parseL = (side: any) => ({
       starters: (side?.players || []).filter((p: any) => !p.substitute).map((p: any) => ({
         id: p.player.id, 
-        name: String(p.player.shortName || p.player.name || "Sconosciuto"), 
+        name: String(p.player.shortName || p.player.name), 
         number: p.shirtNumber
       })),
       subs: (side?.players || []).filter((p: any) => p.substitute).map((p: any) => ({
         id: p.player.id, 
-        name: String(p.player.shortName || p.player.name || "Sconosciuto"), 
+        name: String(p.player.shortName || p.player.name), 
         number: p.shirtNumber, 
         enteredAt: subsIn[Number(p.player.id)] || null
       }))
@@ -34,8 +35,10 @@ export async function fetchMatchDetails(matchId: number) {
         type: inc.incidentType,
         class: inc.incidentClass,
         time: inc.time,
-        playerName: String(inc.player?.shortName || inc.player?.name || inc.playerName || "Sconosciuto"),
+        playerName: String(inc.player?.shortName || inc.playerName || "Sconosciuto"),
         playerInName: inc.playerIn ? String(inc.playerIn.shortName) : "",
+        playerOutName: inc.playerOut ? String(inc.playerOut.shortName) : "",
+        assistName: inc.assist1 ? String(inc.assist1.shortName || inc.assist1.name) : null,
         isHome: inc.isHome
       }));
 
@@ -45,6 +48,7 @@ export async function fetchMatchDetails(matchId: number) {
       lineups: { home: parseL(lineupsRes?.home), away: parseL(lineupsRes?.away) }
     };
   } catch (e) { 
-    return { stats: [], incidents: [], lineups: null }; 
+    console.error("🔥 [LIB ERROR] fetchMatchDetails fallita per Match ID " + matchId + ":", e);
+    return { stats: [], incidents: [], lineups: { home: { starters: [], subs: [] }, away: { starters: [], subs: [] } } }; 
   }
 }
