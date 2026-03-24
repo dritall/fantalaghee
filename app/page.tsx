@@ -30,7 +30,7 @@ export default function Home() {
   const getLogo = (id: number) => "/api/sofascore?endpoint=teams/get-logo&teamId=" + id;
 
   const navItems = [
-    { href: "/risultati-serie-a", icon: Activity, title: "RISULTATI", desc: "La Serie A?", color: "text-cyan-400", hex: "#22d3ee" },
+    { href: "/risultati-serie-a", icon: Activity, title: "RISULTATI", desc: "La Serie A", color: "text-cyan-400", hex: "#22d3ee" },
     { href: "/classifica", icon: Trophy, title: "CLASSIFICA", desc: "Chi domina la lega?", color: "text-amber-400", hex: "#fbbf24" },
     { href: "/verdetto", icon: ShieldCheck, title: "VERDETTO", desc: "Statistiche e Premi", color: "text-emerald-400", hex: "#34d399" },
     { href: "/regolamento", icon: Clock, title: "REGOLE", desc: "Tutto quello che ti serve", color: "text-indigo-400", hex: "#818cf8" }
@@ -38,6 +38,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen text-white pt-24 p-4 font-sans selection:bg-cyan-500/30 relative z-10">
+      <div className="fixed inset-0 bg-[url('/image/bg-homepage-final.png')] bg-cover bg-center bg-fixed opacity-20 pointer-events-none z-[-1]" />
       <div className="max-w-4xl mx-auto space-y-12 pb-20">
         
         <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="flex justify-center">
@@ -53,7 +54,7 @@ export default function Home() {
                 <div className="flex items-center space-x-3 mb-4">
                   <span className="text-rose-500 font-bold text-xs tracking-[0.3em] uppercase px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full">La Gazzetta</span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-black font-oswald text-white leading-tight uppercase">{latestArticle.title}</h2>
+                <h2 className="text-3xl md:text-5xl font-black font-oswald tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-300 to-zinc-600 drop-shadow-lg uppercase leading-tight">{latestArticle.title}</h2>
                 <p className="mt-3 text-sm text-zinc-400 line-clamp-2 md:max-w-2xl font-serif italic">{latestArticle.description}</p>
               </div>
             </MagicCard>

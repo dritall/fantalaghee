@@ -96,12 +96,12 @@ export default function ClassificaPage() {
                                         </td>
 
                                         {/* Team Name */}
-                                        <td className="sticky left-[4rem] z-30 bg-[#111] p-4 font-medium text-white border-r border-white/5 shadow-xl">
+                                        <td className="sticky left-[4rem] z-30 bg-[#111] p-4 font-medium text-white border-r border-white/5 shadow-xl max-w-[100px] sm:max-w-none truncate">
                                             {team.Team}
                                         </td>
 
                                         {/* Total Score */}
-                                        <td className="sticky left-[calc(4rem+200px)] z-30 bg-[#111] p-4 text-right font-bold text-white border-r border-white/10 bg-white/5 shadow-xl">
+                                        <td className="sticky left-[calc(4rem+200px)] z-30 bg-[#111] p-4 font-bold text-white border-r border-white/10 bg-white/5 shadow-xl w-12 text-right sm:text-center font-black">
                                             {team.Generale}
                                         </td>
 
