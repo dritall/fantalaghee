@@ -95,13 +95,15 @@ export default function ClassificaPage() {
                                             </div>
                                         </td>
 
-                                        {/* Team Name */}
-                                        <td className="sticky left-[4rem] z-30 bg-[#111] p-4 font-medium text-white border-r border-white/5 shadow-xl max-w-[100px] sm:max-w-none truncate">
+                                        <td className="py-3 px-2 sticky left-[4rem] z-30 bg-[#111] border-r border-white/5 shadow-xl">
+                                          {/* Forziamo un taglio del testo su mobile per non far sfasare la tabella */}
+                                          <div className="w-[110px] sm:w-auto truncate font-bold text-sm sm:text-base">
                                             {team.Team}
+                                          </div>
                                         </td>
 
                                         {/* Total Score */}
-                                        <td className="sticky left-[calc(4rem+200px)] z-30 bg-[#111] p-4 font-bold text-white border-r border-white/10 bg-white/5 shadow-xl w-12 text-right sm:text-center font-black">
+                                        <td className="py-3 px-2 w-16 text-right sm:text-center font-black text-cyan-400 text-lg sm:text-xl sticky left-[calc(4rem+200px)] z-30 bg-[#111] border-r border-white/10 bg-white/5 shadow-xl">
                                             {team.Generale}
                                         </td>
 

@@ -54,7 +54,7 @@ export default function Home() {
                 <div className="flex items-center space-x-3 mb-4">
                   <span className="text-rose-500 font-bold text-xs tracking-[0.3em] uppercase px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full">La Gazzetta</span>
                 </div>
-                <h2 className="text-3xl md:text-5xl font-black font-oswald tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-300 to-zinc-600 drop-shadow-lg uppercase leading-tight">{latestArticle.title}</h2>
+                <h2 className="text-3xl md:text-5xl font-black font-oswald text-3d-metallic uppercase leading-tight tracking-tight">{latestArticle.title}</h2>
                 <p className="mt-3 text-sm text-zinc-400 line-clamp-2 md:max-w-2xl font-serif italic">{latestArticle.description}</p>
               </div>
             </MagicCard>
@@ -69,9 +69,9 @@ export default function Home() {
                 <TrophyIcon className="absolute -right-4 -top-4 w-32 h-32 text-orange-500/10 rotate-12 pointer-events-none" />
                 <div className="text-orange-500 font-black text-[10px] tracking-[0.3em] uppercase mb-6 px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full">Finale Coppa UEFA</div>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full text-xl font-oswald font-black uppercase">
-                  <span className="text-white">Cippalippa418</span>
+                  <span className="text-3d-metallic">Cippalippa418</span>
                   <Swords className="w-5 h-5 text-orange-500 mx-2 animate-pulse" />
-                  <span className="text-white">FATTORE C</span>
+                  <span className="text-3d-metallic">FATTORE C</span>
                 </div>
               </div>
             </MagicCard>
@@ -82,9 +82,9 @@ export default function Home() {
                 <TrophyIcon className="absolute -right-4 -top-4 w-32 h-32 text-purple-500/10 rotate-12 pointer-events-none" />
                 <div className="text-purple-400 font-black text-[10px] tracking-[0.3em] uppercase mb-6 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full">Finale Super Lega</div>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full text-xl font-oswald font-black uppercase">
-                  <span className="text-white">Cuccioloni</span>
+                  <span className="text-3d-metallic">Cuccioloni</span>
                   <Swords className="w-5 h-5 text-purple-400 mx-2 animate-pulse" />
-                  <span className="text-white">Bollicine25</span>
+                  <span className="text-3d-metallic">Bollicine25</span>
                 </div>
               </div>
             </MagicCard>

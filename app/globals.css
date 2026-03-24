@@ -93,9 +93,21 @@
 ::-webkit-scrollbar-thumb:hover { background: #444; }
 
 @keyframes chrome-sweep {
-  0% { transform: rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  25% { transform: rotate(360deg); opacity: 1; }
-  30% { transform: rotate(360deg); opacity: 0; }
+  0% { transform: rotate(0deg); opacity: 1; }
+  30% { transform: rotate(360deg); opacity: 1; }
+  40% { transform: rotate(360deg); opacity: 0; }
   100% { transform: rotate(360deg); opacity: 0; }
+}
+
+/* Questa classe fa partire l'animazione SOLO in hover */
+.group:hover .animate-sweep {
+  animation: chrome-sweep 2.5s infinite linear;
+}
+
+/* Effetto Testo 3D Premium */
+.text-3d-metallic {
+  background: linear-gradient(to bottom, #ffffff 20%, #d4d4d8 50%, #71717a 60%, #e4e4e7 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.8)) drop-shadow(0px 1px 1px rgba(255,255,255,0.2));
 }
