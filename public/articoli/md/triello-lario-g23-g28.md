@@ -4,7 +4,7 @@ date: "2026-03-11"
 description: "Una frenata in vetta compatta il gruppo di testa in 10 punti. Il filotto brutale di Cippalippa1418 e tutti i verdetti spietati di Super Lega e Coppa UEFA."
 author: "Caporedattore"
 category: "Campionato & Coppe"
-image: "public/image/gazzetta/gazzetta-g28-triello-onda.png"
+image: "/image/gazzetta/gazzetta-g28-triello-onda.png"
 ---
 
 # IL TRIELLO DEL LARIO E L'ONDA ANOMALA: SEI SETTIMANE IN APNEA
