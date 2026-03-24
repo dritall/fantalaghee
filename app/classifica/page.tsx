@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MagicCard } from "@/components/ui/MagicCard";
 
 export default function ClassificaPage() {
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -60,7 +61,7 @@ export default function ClassificaPage() {
                 </div>
 
                 {/* Main Table Container - Explicit overflow handling */}
-                <div className="flex-1 w-full relative border border-white/10 rounded-xl bg-[#111]/80 backdrop-blur-sm overflow-hidden flex flex-col shadow-sm">
+                <MagicCard glowColor="#fbbf24" className="flex-1 w-full relative border border-white/10 rounded-xl bg-[#111]/80 backdrop-blur-sm overflow-hidden flex flex-col shadow-sm">
 
                     {/* Scrollable Wrapper */}
                     <div className="overflow-auto w-full h-full max-h-[80vh] custom-scrollbar">
@@ -71,7 +72,7 @@ export default function ClassificaPage() {
                                     <th className="sticky left-[4rem] z-50 bg-[#111] p-4 font-semibold text-white min-w-[200px] border-r border-white/5 shadow-xl">Squadra</th>
                                     <th className="sticky left-[calc(4rem+200px)] z-50 bg-[#111] p-4 font-bold text-white text-right border-r border-white/10 bg-white/5 shadow-xl">TOTALE</th>
                                     {matchdays.map(g => (
-                                        <th key={g} className="p-3 font-medium text-gray-500 text-center min-w-[60px] border-r border-white/5">{g}</th>
+                                        <th key={g} className="hidden sm:table-cell p-3 font-medium text-gray-500 text-center min-w-[60px] border-r border-white/5">{g}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -106,7 +107,7 @@ export default function ClassificaPage() {
 
                                         {/* Matchdays */}
                                         {matchdays.map(g => (
-                                            <td key={g} className="p-3 text-center border-r border-white/5 text-gray-300">
+                                            <td key={g} className="hidden sm:table-cell p-3 text-center border-r border-white/5 text-gray-300">
                                                 {team[g] || "-"}
                                             </td>
                                         ))}
@@ -115,7 +116,7 @@ export default function ClassificaPage() {
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </MagicCard>
             </div>
 
         </main >

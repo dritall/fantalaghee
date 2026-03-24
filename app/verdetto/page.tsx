@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
+import { MagicCard } from '@/components/ui/MagicCard';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -158,53 +159,62 @@ export default function VerdettoPage() {
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }}
                         style={{ '--team-color': '250, 204, 21' } as any}
-                        className="glass-card p-6 rounded-2xl relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]"
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Trophy className="w-24 h-24 text-yellow-400" />
-                        </div>
-                        <div className="relative z-10">
-                            <h3 className="text-xl font-bold uppercase text-yellow-500 tracking-widest mb-3">Leader Attuale</h3>
-                            <p className="text-3xl md:text-5xl font-bold text-white break-words">{data.leaderAttuale}</p>
-                        </div>
+                        <MagicCard glowColor="#34d399" className="h-full">
+                            <div className="p-6 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]">
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <Trophy className="w-24 h-24 text-yellow-400" />
+                                </div>
+                                <div className="relative z-10">
+                                    <h3 className="text-xl font-bold uppercase text-yellow-500 tracking-widest mb-3">Leader Attuale</h3>
+                                    <p className="text-3xl md:text-5xl font-bold text-white break-words">{data.leaderAttuale}</p>
+                                </div>
+                            </div>
+                        </MagicCard>
                     </motion.div>
 
                     {/* Record */}
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2 }}
                         style={{ '--team-color': '249, 115, 22' } as any}
-                        className="glass-card p-6 rounded-2xl relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]"
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Flame className="w-24 h-24 text-orange-500" />
-                        </div>
-                        <div className="relative z-10">
-                            <h3 className="text-xl font-bold uppercase text-orange-400 tracking-widest mb-3">Record Assoluto</h3>
-                            <div className="space-y-1">
-                                <p className="text-2xl font-bold text-white">{data.recordAssoluto.punteggio}</p>
-                                <p className="text-lg text-gray-300">{data.recordAssoluto.squadra}</p>
-                                <p className="text-sm text-muted-foreground uppercase">{data.recordAssoluto.giornata}</p>
+                        <MagicCard glowColor="#34d399" className="h-full">
+                            <div className="p-6 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]">
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <Flame className="w-24 h-24 text-orange-500" />
+                                </div>
+                                <div className="relative z-10">
+                                    <h3 className="text-xl font-bold uppercase text-orange-400 tracking-widest mb-3">Record Assoluto</h3>
+                                    <div className="space-y-1">
+                                        <p className="text-2xl font-bold text-white">{data.recordAssoluto.punteggio}</p>
+                                        <p className="text-lg text-gray-300">{data.recordAssoluto.squadra}</p>
+                                        <p className="text-sm text-muted-foreground uppercase">{data.recordAssoluto.giornata}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </MagicCard>
                     </motion.div>
 
                     {/* Cucchiaio */}
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.3 }}
                         style={{ '--team-color': '248, 113, 113' } as any}
-                        className="glass-card p-6 rounded-2xl relative overflow-hidden group border-red-900/30 bg-red-900/10 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)]"
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <ThumbsDown className="w-24 h-24 text-red-400" />
-                        </div>
-                        <div className="relative z-10">
-                            <h3 className="text-xl font-bold uppercase text-red-400 tracking-widest mb-3">Cucchiaio di Legno</h3>
-                            <div className="space-y-1">
-                                <p className="text-2xl font-bold text-white">{data.cucchiaioDiLegno.punteggio}</p>
-                                <p className="text-lg text-gray-300">{data.cucchiaioDiLegno.squadra}</p>
-                                <p className="text-sm text-muted-foreground uppercase">{data.cucchiaioDiLegno.giornata}</p>
+                        <MagicCard glowColor="#34d399" className="h-full">
+                            <div className="p-6 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(var(--team-color),0.5)] bg-red-900/10">
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <ThumbsDown className="w-24 h-24 text-red-400" />
+                                </div>
+                                <div className="relative z-10">
+                                    <h3 className="text-xl font-bold uppercase text-red-400 tracking-widest mb-3">Cucchiaio di Legno</h3>
+                                    <div className="space-y-1">
+                                        <p className="text-2xl font-bold text-white">{data.cucchiaioDiLegno.punteggio}</p>
+                                        <p className="text-lg text-gray-300">{data.cucchiaioDiLegno.squadra}</p>
+                                        <p className="text-sm text-muted-foreground uppercase">{data.cucchiaioDiLegno.giornata}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </MagicCard>
                     </motion.div>
 
                 </div>
@@ -215,31 +225,39 @@ export default function VerdettoPage() {
                     {/* Chart */}
                     <motion.div
                         initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}
-                        className="lg:col-span-2 glass p-6 rounded-2xl flex flex-col"
+                        className="lg:col-span-2 flex flex-col h-full"
                     >
-                        <h3 className={`${oswald.className} text-2xl text-white mb-6 pl-2 border-l-4 border-indigo-500`}>TOP 5 CLASSIFICA</h3>
-                        <div className="flex-1 min-h-[300px]">
-                            <Bar data={chartData} options={chartOptions} />
-                        </div>
+                        <MagicCard glowColor="#34d399" className="h-full">
+                            <div className="p-6 flex flex-col h-full">
+                                <h3 className={`${oswald.className} text-2xl text-white mb-6 pl-2 border-l-4 border-indigo-500`}>TOP 5 CLASSIFICA</h3>
+                                <div className="flex-1 min-h-[300px]">
+                                    <Bar data={chartData} options={chartOptions} />
+                                </div>
+                            </div>
+                        </MagicCard>
                     </motion.div>
 
                     {/* Podium */}
                     <motion.div
                         initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }}
-                        className="glass p-6 rounded-2xl flex flex-col"
+                        className="flex flex-col h-full"
                     >
-                        <h3 className={`${oswald.className} text-2xl text-white mb-6 pl-2 border-l-4 border-yellow-500`}>PODIO DI GIORNATA</h3>
-                        <div className="space-y-4 flex-1">
-                            {data.podio.map((p: any, i: number) => (
-                                <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-white/5 border border-white/5">
-                                    <span className="text-3xl filter drop-shadow-lg">{['🥇', '🥈', '🥉'][i]}</span>
-                                    <div>
-                                        <p className="font-bold text-white text-lg">{p.squadra}</p>
-                                        <p className="text-sm text-indigo-300 font-mono">{p.punteggio} pts</p>
-                                    </div>
+                        <MagicCard glowColor="#34d399" className="h-full">
+                            <div className="p-6 flex flex-col h-full">
+                                <h3 className={`${oswald.className} text-2xl text-white mb-6 pl-2 border-l-4 border-yellow-500`}>PODIO DI GIORNATA</h3>
+                                <div className="space-y-4 flex-1">
+                                    {data.podio.map((p: any, i: number) => (
+                                        <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-white/5 border border-white/5">
+                                            <span className="text-3xl filter drop-shadow-lg">{['🥇', '🥈', '🥉'][i]}</span>
+                                            <div>
+                                                <p className="font-bold text-white text-lg">{p.squadra}</p>
+                                                <p className="text-sm text-indigo-300 font-mono">{p.punteggio} pts</p>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        </MagicCard>
                     </motion.div>
                 </div>
 
@@ -255,39 +273,51 @@ export default function VerdettoPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                         {/* Classifica Premi */}
-                        <div className="glass p-5 rounded-xl border-amber-500/20">
-                            <h4 className="text-center font-bold text-indigo-300 mb-6 uppercase tracking-wide text-lg">Classifica Generale</h4>
-                            <div className="space-y-2">
-                                {data.premi.classifica.map((p: any, i: number) => (
-                                    <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
-                                        <span className="text-gray-300">{p.squadra}</span>
-                                        <span className="font-bold text-amber-400">{p.premio} 🍆</span>
+                        <div className="h-full">
+                            <MagicCard glowColor="#34d399" className="h-full">
+                                <div className="p-5 flex flex-col h-full">
+                                    <h4 className="text-center font-bold text-indigo-300 mb-6 uppercase tracking-wide text-lg">Classifica Generale</h4>
+                                    <div className="space-y-2">
+                                        {data.premi.classifica.map((p: any, i: number) => (
+                                            <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+                                                <span className="text-gray-300">{p.squadra}</span>
+                                                <span className="font-bold text-amber-400">{p.premio} 🍆</span>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            </MagicCard>
                         </div>
 
                         {/* Giornata Premi */}
-                        <div className="glass p-5 rounded-xl border-amber-500/20">
-                            <h4 className="text-center font-bold text-indigo-300 mb-6 uppercase tracking-wide text-lg">Premi di Giornata</h4>
-                            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                {data.premi.giornata.map((p: any, i: number) => (
-                                    <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
-                                        <span className="text-gray-300">{p.squadra}</span>
-                                        <span className="font-bold text-amber-400">{p.premio} 🍆</span>
+                        <div className="h-full">
+                            <MagicCard glowColor="#34d399" className="h-full">
+                                <div className="p-5 flex flex-col h-full">
+                                    <h4 className="text-center font-bold text-indigo-300 mb-6 uppercase tracking-wide text-lg">Premi di Giornata</h4>
+                                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar flex-1">
+                                        {data.premi.giornata.map((p: any, i: number) => (
+                                            <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+                                                <span className="text-gray-300">{p.squadra}</span>
+                                                <span className="font-bold text-amber-400">{p.premio} 🍆</span>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            </MagicCard>
                         </div>
 
                         {/* Miglior Punteggio */}
-                        <div className="glass p-5 rounded-xl border-amber-500/20 flex flex-col items-center justify-center text-center space-y-3 relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
-                            <h4 className="font-bold text-indigo-300 uppercase tracking-wide text-lg relative z-10">Miglior Punteggio</h4>
-                            <div className="py-4">
-                                <p className="text-white font-semibold text-lg">{data.premi.migliorPunteggio.info}</p>
-                                <p className="text-4xl font-bold text-amber-400 mt-2">{data.premi.migliorPunteggio.premio} 🍆</p>
-                            </div>
+                        <div className="h-full">
+                            <MagicCard glowColor="#34d399" className="h-full">
+                                <div className="p-5 flex flex-col items-center justify-center text-center space-y-3 relative overflow-hidden h-full">
+                                    <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
+                                    <h4 className="font-bold text-indigo-300 uppercase tracking-wide text-lg relative z-10">Miglior Punteggio</h4>
+                                    <div className="py-4">
+                                        <p className="text-white font-semibold text-lg">{data.premi.migliorPunteggio.info}</p>
+                                        <p className="text-4xl font-bold text-amber-400 mt-2">{data.premi.migliorPunteggio.premio} 🍆</p>
+                                    </div>
+                                </div>
+                            </MagicCard>
                         </div>
 
                     </div>
