@@ -7,6 +7,7 @@ import { Activity, Trophy, ShieldCheck, Clock } from "lucide-react";
 export default function Home() {
   const [results, setResults] = useState<any[]>([]);
   const [round, setRound] = useState(0);
+  const [latestArticle, setLatestArticle] = useState<any>(null);
 
   useEffect(() => {
     fetch('/api/sofascore?endpoint=tournaments/get-last-matches&tournamentId=23&seasonId=76457')
@@ -21,6 +22,15 @@ export default function Home() {
         }
       })
       .catch(e => console.error("🔥 [HOME ERROR] Fallimento caricamento risultati:", e));
+
+    fetch('/api/articles')
+      .then(res => res.json())
+      .then(data => {
+         if (data && data.length > 0) {
+            setLatestArticle(data[0]);
+         }
+      })
+      .catch(e => console.error("🔥 [HOME ERROR] Fallimento caricamento articoli:", e));
   }, []);
 
   const getLogo = (id: number) => "/api/sofascore?endpoint=teams/get-logo&teamId=" + id;
@@ -32,6 +42,21 @@ export default function Home() {
           <Image src="/image/logo-fantalaghee.png" alt="Logo Fantalaghee" width={350} height={150} priority className="hover:scale-105 transition-transform duration-500" />
         </div>
         
+        {latestArticle && (
+          <Link href={`/gazzetta/${latestArticle.id}`} className="block relative bg-zinc-900/40 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-rose-500/30 group shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
+            <div className="absolute inset-0 bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${latestArticle.imageUrl})` }} />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent" />
+            <div className="relative z-10 p-8 md:p-10 flex flex-col justify-end min-h-[300px]">
+              <div className="flex items-center space-x-3 mb-4">
+                <span className="text-rose-500 font-bold text-xs tracking-[0.3em] uppercase px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full">La Gazzetta del Laghèe</span>
+                {latestArticle.highlight && <span className="text-amber-400 font-bold text-[10px] tracking-widest uppercase px-3 py-1 bg-amber-400/10 border border-amber-400/20 rounded-full">In Evidenza</span>}
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black font-oswald text-white leading-tight group-hover:text-rose-400 transition-colors uppercase">{latestArticle.title}</h2>
+              <p className="mt-3 text-sm text-zinc-400 line-clamp-2 md:max-w-2xl font-serif italic">{latestArticle.description}</p>
+            </div>
+          </Link>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { href: "/risultati-serie-a", icon: Activity, text: "RISULTATI", color: "text-cyan-400" },

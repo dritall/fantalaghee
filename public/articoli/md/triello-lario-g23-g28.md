@@ -1,48 +1,37 @@
 ---
-title: 'Il Triello del Lario e l''Onda Anomala: Sei Settimane in Apnea'
-date: '2026-03-11'
-description: 'Il Triello del Lario e l''Onda Anomala: Sei Settimane in Apnea'
-author: La Redazione
-image: /image/gazzetta/gazzetta-g28-triello-onda.png
----
-**Una frenata in vetta compatta il gruppo di testa in un fazzoletto di punti. Nel frattempo, dalle nebbie del lago emerge il filotto brutale di Cippalippa1418. Nelle Coppe, il pallottoliere miete vittime illustri.**
-
-Da Cernobbio a Varenna, il vento è cambiato. Il blocco di giornate compreso tra la ventitreesima e la ventottesima non ha emesso sentenze definitive in campionato, ma ha trasformato il vertice della classifica in una trincea. Abbiamo assistito a un logoramento tattico dove ogni mezzo punto lasciato per strada pesa come un macigno nelle acque gelide del nostro lago. Non si fugge più, si sopravvive.
-
-**Cuccioloni** guarda ancora tutti dal gradino più alto, assestandosi a quota 2180.5. Tuttavia, l'andatura non è più quella spavalda del mese scorso: la brusca frenata della ventottesima giornata (un modesto 68.5) ha riaperto prepotentemente i giochi, dimostrando che anche le corazzate possono imbarcare acqua. 
-
-Sulla sua scia, pronti a sfruttare ogni minimo errore di virata, troviamo **Stoke Azzo** (2172.5) e **Raga di Oporto** (2170). Dieci miseri punti racchiudono tre squadre al vertice. Non è più un campionato, è una gara di apnea in cui chi respira per primo è perduto. Poco più dietro, **Fantagiulia** (2137.5) resta in agguato, sorniona, attendendo il passo falso del trio di testa.
-
-### 🌊 IL RUGGITO DALLE RETROVIE E LE ANCORE SUL FONDALE
-Se là davanti si procede a sportellate abbassando i ritmi, dalle retrovie si è alzata un'onda anomala che ha travolto ogni schema tattico. **Cippalippa1418** ha innestato una marcia brutale, macinando la mostruosità di **432 punti** nelle ultime cinque uscite. Parliamo di una media di 86.4 a partita: un dominio assoluto sui campi pesanti che sa di epica sportiva. Un ritmo del genere, utile a scalare posizioni cruciali, è stato parzialmente replicato solo da **BrosInc** (401 punti nel parziale).
-
-Chi invece sembra aver perso la bussola tra le correnti lariane sono formazioni come **AS Tronzi** e **Atletico Selva**, inchiodate da punteggi asfittici che assomigliano a pesanti ancore gettate sul fondale sbagliato.
-
+title: "IL TRIELLO DEL LARIO: STOKE AZZO È IL NUOVO RE!"
+date: "2026-03-24"
+description: "Cuccioloni detronizzato (-10.5 PT), I Raga di Oporto a soli 5 punti. Rush finale infuocato."
+author: "La Redazione"
+image: "/image/gazzetta/gazzetta-g30-sorpasso.png"
 ---
 
-### ⚔️ SPECIALE COPPE: IL PALLOTTOLIERE NON FA SCONTI
+# IL TRIELLO DEL LARIO: STOKE AZZO È IL NUOVO RE!
 
-Il fango delle eliminatorie ha emesso le sue sentenze. Dimenticate la singola prestazione: il tabellone a eliminazione diretta sui 180 minuti premia chi sa gestire nervi, bonus e, quando serve, i maledetti criteri di spareggio.
+**Cuccioloni crolla, i Raga di Oporto sentono l'odore del sangue. Il FantaLaghèe si prepara al rush finale più infuocato di sempre.**
 
-**🏆 SUPER LEGA: Scontri tra Titani e Sopravvivenza**
-L'élite del Laghèe ha regalato un tabellone che profuma di storia fin dagli Ottavi, dove **Raga di Oporto** e **Fantagiulia** avevano spazzato via rispettivamente Fantamagica (12-3) e Brianza Boys (13-7). Ma è ai Quarti che si è consumato il vero dramma. Il match clou ha visto scontrarsi le due grandi potenze del campionato: **Cuccioloni** e **Raga di Oporto**. Dopo aver incassato un 2-1 all'andata, la capolista ha ribaltato tutto con un brutale 6-3 al ritorno (8-5 il totale), ricordando a tutti chi comanda. 
+### L'ANALISI TATTICA: IL CROLLO DI UN IMPERO (G29-G30)
+Quello che fino a poche settimane fa sembrava un dominio incontrastato si è trasformato in una caduta. Cuccioloni, l'ex capolista indiscussa, ha subito un logoramento tattico e psicologico devastante nelle ultime due giornate. Le prestazioni opache (culminate con i modesti 68.5 punti della G30) hanno eroso tutto il vantaggio accumulato, dimostrando che nel fango del Lario nessuna rendita di posizione è mai al sicuro. Il contraccolpo psicologico è servito: l'impero è caduto e i Cuccioloni scivolano al secondo posto a quota 2319.5.
 
-Il thriller per eccellenza si è però consumato tra **BNG Milan** e **Stoke Azzo**: un 5-5 complessivo (frutto di un 4-2 e un 1-3) che ha premiato BNG Milan solo grazie al regolamento, rispedendo a casa una delle corazzate più temibili del torneo. Avanzano con merito anche **Steven Bradbury**, che liquida Starsgravellona con un netto 6-3 totale (dopo aver superato Enfola agli ottavi solo per spareggio), e **Bollicine25**, capace di schiantare Fantagiulia con un pesantissimo 4-1 nel match di ritorno.
-🔥 **Le Semifinali:** BNG Milan vs Cuccioloni | Steven Bradbury vs Bollicine25.
+### STOKE AZZO: LA COSTANZA COME STRATEGIA VINCENTE
+Il nuovo padrone del Lario è Stoke Azzo. Con una progressione inesorabile e una solidità di rosa invidiabile, la nuova capolista si issa a quota 2330.0 punti. Non servono sempre i fuochi d'artificio per vincere: la vera forza di Stoke Azzo è stata la costanza, mantenendo una media punti stratosferica (77.6) e approfittando chirurgicamente di ogni passo falso della concorrenza. Ora, però, inizia la fase più difficile: difendere il primato con il fiato sul collo degli inseguitori.
 
-**🇪🇺 COPPA UEFA: Valanghe di Gol e l'Inerzia di Cippalippa**
-Nella seconda competizione lariana, l'imbuto dagli Ottavi ai Quarti si è trasformato in una fiera del gol. Fa rumore la marcia trionfale degli **Old Lions**: dopo aver domato Ssc Appella (9-6), asfaltano l'Atletico Selva con un 7-1 complessivo senza diritto di replica. Impressionante anche l'accelerazione di **Fattore C**: sopravvissuto agli ottavi contro Mojito Fc per un pelo (8-8 e spareggio), distrugge The Porks nei quarti con un clamoroso 6-0 al ritorno (7-1 totale). 
+### L'ONDA ANOMALA SI AVVICINA: I RAGA DI OPORTO E IL RUSH FINALE
+Se in vetta c'è stato il ribaltone, subito dietro si prepara la tempesta perfetta. I Raga di Oporto non si accontentano del gradino più basso del podio. Con 2314.5 punti, fiutano la preda e si portano a sole 5 lunghezze dai Cuccioloni e a 15.5 dalla vetta. L'inerzia psicologica è tutta dalla loro parte: il Triello è ufficialmente una rissa all'ultimo bonus. Da non sottovalutare anche chi insegue: Fantagiulia (2287.5) e Caniggia Vola (2281.0) restano alla finestra sperando in un crollo là davanti.
 
-La notizia vera, però, è che l'onda anomala di **Cippalippa1418** travolge anche l'Europa. Dopo aver inflitto un tennistico e umiliante 15-3 al Bayern Nargen negli ottavi, in un quarto di finale al cardiopalma supera Sove1907 per 8-7 (decisivo il 5-4 del ritorno). Chiude il quadro delle semifinaliste **Caniggia Vola**, che prima disinnesca Leombarde (11-6) e poi vola sopra Odioalserio imponendosi per 5-2.
-🔥 **Le Semifinali:** Old Lions vs Cippalippa1418 | Fattore C vs Caniggia Vola.
+### I VERDETTI DELLE COPPE E LE FINALI
+Mentre il campionato brucia, le Coppe hanno emesso le loro sentenze inappellabili dopo i 180 minuti delle semifinali.
+* **Coppa UEFA:** Sarà scontro totale tra Cippalippa418 e FATTORE C. Cippalippa ha disintegrato gli Old Lions con un 6-4 complessivo (vittoria 3-1 all'andata, pareggio 3-3 al ritorno). FATTORE C ha invece domato Caniggia Vola in una semifinale pirotecnica chiusa sul 7-5 totale (3-1 e 4-4).
+* **Super Lega:** La finale sarà un testa a testa da brividi tra Cuccioloni e Bollicine25. I Cuccioloni sono sopravvissuti a BNG Milan grazie ai criteri di spareggio dopo un doppio pareggio al cardiopalma (0-0 e 3-3). Attenzione però a Bollicine25: sono in forma atomica, reduci dall'eliminazione di Steven Bradbury (8-6 totale, con un clamoroso 6-4 al ritorno) e freschi di un top score di 87.5 in campionato nella G30.
 
----
+### IL RECORD CHE RIMARRÀ NELLA STORIA (CIPPALIPPA 112.5 PT)
+In mezzo a tutta questa bagarre, è doveroso fermare le rotative per celebrare un'impresa che resterà incisa negli annali del FantaLaghèe. L'onda anomala di Cippalippa1418 non ha solo conquistato la finale di UEFA, ma ha blindato il Record Assoluto di punteggio in campionato con un mostruoso e fantascientifico 112.5 PT. Un limite che difficilmente verrà mai eguagliato.
 
-### 🔮 L'ORACOLO DEL LAGHÈE
-*Le visioni mistiche in vista del rush finale.*
+### L'ORACOLO DEL LAGHÈE: IL RUSH FINALE
+*Le visioni mistiche in vista dell'apocalisse.*
 
-> **Il Triello in Vetta:** La statistica parla chiaro. Il logoramento di Cuccioloni e Raga di Oporto è evidente. L'Oracolo prevede un ribaltone clamoroso in testa alla classifica entro tre giornate lavorative.
+> **Il Crollo Mentale:** Cuccioloni riuscirà a riprendersi o la botta della detronizzazione e la fatica per la finale di Super Lega porteranno a una disfatta totale? L'Oracolo prevede un altro passo falso fatale nella G31.
 > 
-> **La Maledizione delle Coppe:** Attenzione alle semifinaliste! Lo sforzo europeo drenerà energie. L'Oracolo vede almeno due top team crollare clamorosamente in Serie A per colpa del turnover da coppa.
+> **L'Aggancio:** I Raga di Oporto completeranno la rimonta. È scritto nelle stelle del lago. Previsto l'aggancio al secondo posto nel prossimo weekend.
 >
-> **L'Uomo del Destino:** Cippalippa1418 non si fermerà. L'inerzia psicologica è tutta dalla sua parte, le vele sono gonfie. Previsto un altro +3 pesante a centrocampo nel prossimo weekend.
+> **L'Uomo Copertina:** Bollicine25 sarà la mina vagante capace di decidere le sorti non solo della Super Lega, ma dell'intero podio.
