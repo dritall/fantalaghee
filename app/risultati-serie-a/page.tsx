@@ -17,21 +17,25 @@ export default function ScoutHub() {
   useEffect(() => {
     async function load() {
       try {
-        const [last, next, std] = await Promise.all([
-          fetch('/api/sofascore?endpoint=tournaments/get-last-matches&tournamentId=23&seasonId=76457').then(r => r.json()),
-          fetch('/api/sofascore?endpoint=tournaments/get-next-matches&tournamentId=23&seasonId=76457').then(r => r.json()),
-          fetch('/api/sofascore?endpoint=tournaments/get-standings&tournamentId=23&seasonId=76457').then(r => r.json())
+        const [matchesRes, stdRes] = await Promise.all([
+          fetch('/api/football?endpoint=matches').then(r => r.json()),
+          fetch('/api/football?endpoint=standings').then(r => r.json())
         ]);
-        const all = [...(last?.events || []), ...(next?.events || [])];
+        
+        const all = matchesRes.data || (Array.isArray(matchesRes) ? matchesRes : []);
         const map: Record<number, any[]> = {};
-        all.forEach(e => {
-          const r = e.roundInfo?.round || 1;
+        all.forEach((e: any) => {
+          const r = e.matchday || 1;
           if (!map[r]) map[r] = [];
-          if (!map[r].find(m => m.id === e.id)) map[r].push(e);
+          if (!map[r].find((m: any) => (m.matchId || m.id) === (e.matchId || e.id))) map[r].push(e);
         });
         setRoundsMatches(map);
-        setStandings(std?.standings?.[0]?.rows || []);
-        const playedRounds = all.filter(m => m.status.type === 'finished').map(m => m.roundInfo?.round || 0);
+        
+        let stdRows = stdRes.data || [];
+        if (stdRows[0]?.rows) stdRows = stdRows[0].rows;
+        setStandings(stdRows);
+        
+        const playedRounds = all.filter((m: any) => ['Played', 'Completed', 'finished'].includes(m.matchStatus) || ['Played', 'Completed'].includes(m.matchdayStatus)).map((m: any) => m.matchday || 0);
         if (playedRounds.length > 0) setSelectedRound(Math.max(...playedRounds));
       } catch (e) {
         console.error("🔥 [UI ERROR] Errore sincronizzazione Hub Serie A:", e);
@@ -46,7 +50,7 @@ export default function ScoutHub() {
     setMatchDetails(d);
   };
 
-  const getLogo = (id: number) => "/api/sofascore?endpoint=teams/get-logo&teamId=" + id;
+  const getLogo = (val: string | number) => `https://img.legaseriea.it/vimages/${val}`;
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-cyan-400 font-bold uppercase tracking-[0.3em] animate-pulse italic text-sm">Sincronizzazione Serie A...</div>;
 
@@ -66,22 +70,35 @@ export default function ScoutHub() {
               ))}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {roundsMatches[selectedRound] ? roundsMatches[selectedRound].map(m => (
-                <div key={m.id} onClick={() => openMatch(m)} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex justify-between items-center cursor-pointer hover:bg-zinc-800 hover:border-white/20 transition-all group shadow-lg">
-                  <div className="flex items-center gap-4 w-[42%]"><img src={getLogo(m.homeTeam.id)} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt=""/><span className="text-xs font-black uppercase truncate group-hover:text-cyan-400 transition-colors">{m.homeTeam.shortName || m.homeTeam.name}</span></div>
-                  <div className="text-center font-black text-cyan-400 italic text-sm tracking-tighter shadow-cyan-500/10 drop-shadow-md">{m.status.type === 'notstarted' ? 'VS' : (m.homeScore?.current ?? 0) + "-" + (m.awayScore?.current ?? 0)}</div>
-                  <div className="flex items-center gap-4 w-[42%] justify-end text-right"><span className="text-xs font-black uppercase truncate group-hover:text-cyan-400 transition-colors">{m.awayTeam.shortName || m.awayTeam.name}</span><img src={getLogo(m.awayTeam.id)} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt=""/></div>
+              {roundsMatches[selectedRound] ? roundsMatches[selectedRound].map((m, idx) => {
+                const homeLogo = m.homeTeam?.imagery?.teamLogo || m.homeTeam?.id;
+                const awayLogo = m.awayTeam?.imagery?.teamLogo || m.awayTeam?.id;
+                const isNotStarted = ['To Be Played', 'notstarted', 'Fixture'].includes(m.matchStatus) || ['To Be Played'].includes(m.matchdayStatus) || m.status?.type === 'notstarted';
+                const isLive = ['Live', 'Playing', 'inprogress'].includes(m.matchStatus);
+                return (
+                <div key={m.matchId || m.id || idx} onClick={() => openMatch(m)} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex justify-between items-center cursor-pointer hover:bg-zinc-800 hover:border-white/20 transition-all group shadow-lg">
+                  <div className="flex items-center gap-4 w-[42%]"><img src={getLogo(homeLogo)} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt=""/><span className="text-xs font-black uppercase truncate group-hover:text-cyan-400 transition-colors">{m.homeTeam?.shortName || m.homeTeam?.name}</span></div>
+                  <div className="text-center font-black text-cyan-400 italic text-sm tracking-tighter shadow-cyan-500/10 drop-shadow-md">
+                    {isNotStarted ? 'VS' : (
+                      <div className="flex flex-col items-center">
+                        <span>{(m.providerHomeScore ?? m.homeScore?.current ?? 0)} - {(m.providerAwayScore ?? m.awayScore?.current ?? 0)}</span>
+                        {isLive && <span className="text-[9px] text-red-500 animate-pulse mt-1">LIVE</span>}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 w-[42%] justify-end text-right"><span className="text-xs font-black uppercase truncate group-hover:text-cyan-400 transition-colors">{m.awayTeam?.shortName || m.awayTeam?.name}</span><img src={getLogo(awayLogo)} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt=""/></div>
                 </div>
-              )) : <div className="col-span-full py-20 text-center text-zinc-700 font-black uppercase text-xs tracking-[0.4em] opacity-50">Giornata non ancora disponibile</div>}
+                )
+              }) : <div className="col-span-full py-20 text-center text-zinc-700 font-black uppercase text-xs tracking-[0.4em] opacity-50">Giornata non ancora disponibile</div>}
             </div>
           </div>
         ) : (
           <div className="bg-zinc-900/40 rounded-[2.5rem] p-8 border border-white/5 backdrop-blur-sm shadow-2xl">
             {standings.map((t, i) => (
-              <div key={t.team.id} className="grid grid-cols-12 items-center py-4 border-b border-white/5 last:border-0 hover:bg-white/5 px-6 rounded-2xl transition-all group">
+              <div key={t.team?.id || t.teamId || i} className="grid grid-cols-12 items-center py-4 border-b border-white/5 last:border-0 hover:bg-white/5 px-6 rounded-2xl transition-all group">
                 <span className="col-span-1 text-[10px] font-black text-zinc-600 group-hover:text-cyan-500 transition-colors">{(i+1).toString().padStart(2,'0')}</span>
-                <div className="col-span-8 flex items-center gap-4"><img src={getLogo(t.team.id)} className="w-8 h-8 object-contain" alt="" /><span className="text-sm font-bold uppercase tracking-tight group-hover:translate-x-1 transition-transform">{t.team.name}</span></div>
-                <span className="col-span-3 text-right font-black text-cyan-400 tracking-tighter group-hover:scale-110 transition-transform">{t.points} PT</span>
+                <div className="col-span-8 flex items-center gap-4"><img src={getLogo(t.team?.imagery?.teamLogo || t.team?.id)} className="w-8 h-8 object-contain" alt="" /><span className="text-sm font-bold uppercase tracking-tight group-hover:translate-x-1 transition-transform">{t.team?.shortName || t.team?.name || t.name}</span></div>
+                <span className="col-span-3 text-right font-black text-cyan-400 tracking-tighter group-hover:scale-110 transition-transform">{t.points ?? t.totalPoints ?? t.pts ?? 0} PT</span>
               </div>
             ))}
           </div>
@@ -96,9 +113,9 @@ export default function ScoutHub() {
             <Dialog.Description className="sr-only">Resoconto eventi, statistiche e formazioni ufficiali.</Dialog.Description>
             <div className="p-8 bg-white/5 border-b border-white/5 flex flex-col items-center">
                <div className="flex justify-between items-center mb-8 px-4 w-full">
-                  <div className="flex flex-col items-center gap-3 w-1/3 text-center"><img src={getLogo(modalFixture?.homeTeam.id)} className="w-16 h-16 object-contain" alt="" /><span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{modalFixture?.homeTeam.name}</span></div>
-                  <div className="text-6xl font-black italic tracking-tighter italic text-white shadow-cyan-500/20 drop-shadow-2xl">{modalFixture?.homeScore?.current ?? 0} - {modalFixture?.awayScore?.current ?? 0}</div>
-                  <div className="flex flex-col items-center gap-3 w-1/3 text-center"><img src={getLogo(modalFixture?.awayTeam.id)} className="w-16 h-16 object-contain" alt="" /><span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{modalFixture?.awayTeam.name}</span></div>
+                  <div className="flex flex-col items-center gap-3 w-1/3 text-center"><img src={getLogo(modalFixture?.homeTeam?.imagery?.teamLogo || modalFixture?.homeTeam?.id)} className="w-16 h-16 object-contain" alt="" /><span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{modalFixture?.homeTeam?.shortName || modalFixture?.homeTeam?.name}</span></div>
+                  <div className="text-6xl font-black italic tracking-tighter italic text-white shadow-cyan-500/20 drop-shadow-2xl">{modalFixture?.providerHomeScore ?? modalFixture?.homeScore?.current ?? 0} - {modalFixture?.providerAwayScore ?? modalFixture?.awayScore?.current ?? 0}</div>
+                  <div className="flex flex-col items-center gap-3 w-1/3 text-center"><img src={getLogo(modalFixture?.awayTeam?.imagery?.teamLogo || modalFixture?.awayTeam?.id)} className="w-16 h-16 object-contain" alt="" /><span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{modalFixture?.awayTeam?.shortName || modalFixture?.awayTeam?.name}</span></div>
                </div>
                <div className="flex bg-black p-1 rounded-2xl border border-white/5 w-full max-w-md mx-auto shadow-inner">
                   {[ {id:'cronaca', i:Clock}, {id:'stats', i:BarChart3}, {id:'formazioni', i:Users} ].map(t => (
