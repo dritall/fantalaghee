@@ -3,19 +3,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, Loader2, Users, BarChart3, Clock, Construction } from 'lucide-react';
 
-// --- COMPONENTE LOGO ---
 const TeamLogo = ({ logo, name, className }: { logo?: string, name: string, className: string }) => {
     const [imgError, setImgError] = useState(false);
-    const src = logo ? (logo.startsWith('http') ? logo : `https://img.legaseriea.it/vimages/${logo}`) : null;
+    
+    // Anti-Blocco DNS: Usiamo il proxy gratuito wsrv.nl per aggirare l'errore ERR_NAME_NOT_RESOLVED
+    let src = null;
+    if (logo) {
+        if (logo.startsWith('http')) {
+            src = logo;
+        } else {
+            src = `https://wsrv.nl/?url=https://img.legaseriea.it/vimages/${logo.replace(/^\//, '')}`;
+        }
+    }
     
     if (!src || imgError) {
         return (
             <div className={`flex items-center justify-center bg-zinc-800 border border-white/10 rounded-full font-black text-zinc-400 text-[9px] tracking-tighter ${className}`}>
-                {name.substring(0, 3).toUpperCase()}
+                {name && name !== "TBD" ? name.substring(0, 3).toUpperCase() : '?'}
             </div>
         );
     }
-    return <img src={src} onError={() => setImgError(true)} className={`${className} object-contain`} alt={name} />;
+    return <img src={src} onError={() => setImgError(true)} className={`${className} object-contain`} alt={name} crossOrigin="anonymous" />;
 };
 
 export default function ScoutHub() {
@@ -38,95 +46,54 @@ export default function ScoutHub() {
           fetch('/api/football?endpoint=standings').then(r => r.json())
         ]);
 
-        // --- 1. DEEP SCANNER: CLASSIFICA E MAPPA LOGHI ---
-        const standingsList: any[] = [];
-        const searchStandings = (obj: any) => {
-            if (!obj) return;
-            if (Array.isArray(obj)) {
-                obj.forEach(searchStandings);
-            } else if (typeof obj === 'object') {
-                if (obj.stats && Array.isArray(obj.stats) && (obj.teamId || obj.team)) {
-                    standingsList.push(obj);
-                } else {
-                    Object.values(obj).forEach(searchStandings);
-                }
-            }
-        };
-        searchStandings(standingsRes);
-
+        // --- 1. CLASSIFICA (Ripristino logica diretta) ---
+        const teamsList = standingsRes.teams || standingsRes.data?.teams || standingsRes.data || [];
+        
         const tMap: Record<string, any> = {};
-        const parsedStandings = standingsList.map((row: any) => {
-           const teamNode = row.team || row;
-           const name = teamNode.shortName || teamNode.officialName || teamNode.name || "TBD";
-           const id = teamNode.teamId || teamNode.id || name;
-           
-           // Estrazione logo profonda
-           let logo = teamNode.imagery?.teamLogo || teamNode.logo;
-           if (!logo) {
-               const str = JSON.stringify(teamNode);
-               const match = str.match(/"(?:teamLogo|logo|url)"\s*:\s*"([^"]+\.(?:png|webp|jpg))"/i) || str.match(/"teamLogo"\s*:\s*"([^"]+)"/i);
-               if (match) logo = match[1];
-           }
-
-           const getStat = (statId: string) => {
-               const s = row.stats?.find((x: any) => x.statsId === statId);
+        const parsedStandings = teamsList.map((t: any) => {
+           const getStat = (id: string) => {
+               const s = t.stats?.find((x: any) => x.statsId === id);
                return s ? parseInt(s.statsValue) : 0;
            };
 
-           const pts = getStat('points') || row.points || 0;
-           
-           tMap[id] = { name, logo };
-           tMap[name.toLowerCase()] = { name, logo };
+           const pts = getStat('points') || t.points || 0;
+           const logo = t.imagery?.teamLogo;
+           const name = t.shortName || t.officialName || t.name || "TBD";
+           const tId = t.teamId || t.id || name;
+
+           tMap[tId] = { name, logo };
+           if (name !== "TBD") tMap[name.toLowerCase()] = { name, logo };
 
            return { 
-               id, name, logo, points: pts,
-               played: getStat('matches-played') || 0,
-               win: getStat('win') || 0,
-               draw: getStat('draw') || 0,
-               lose: getStat('lose') || 0,
-               gd: getStat('goal-difference') || 0
+               id: tId, name, logo, points: pts,
+               played: getStat('matches-played'),
+               win: getStat('win'),
+               draw: getStat('draw'),
+               lose: getStat('lose'),
+               gd: getStat('goal-difference')
            };
         });
 
-        // Deduping in caso di righe doppie
-        const uniqueStandings = Array.from(new Map(parsedStandings.map(item => [item.id, item])).values());
-        uniqueStandings.sort((a: any, b: any) => b.points - a.points);
-        
-        setStandings(uniqueStandings);
+        parsedStandings.sort((a: any, b: any) => b.points - a.points);
+        setStandings(parsedStandings);
         setTeamMap(tMap);
 
-        // --- 2. DEEP SCANNER: CALENDARIO E GIORNATE ---
-        const matchesList: any[] = [];
-        const searchMatches = (obj: any) => {
-            if (!obj) return;
-            if (Array.isArray(obj)) {
-                obj.forEach(searchMatches);
-            } else if (typeof obj === 'object') {
-                if (obj.homeTeam && obj.awayTeam) {
-                    matchesList.push(obj);
-                } else {
-                    Object.values(obj).forEach(searchMatches);
-                }
-            }
-        };
-        searchMatches(matchesRes);
-
+        // --- 2. CALENDARIO (Mappatura sicura delle 38 giornate) ---
+        const allMatches = matchesRes.data || matchesRes.matches || (Array.isArray(matchesRes) ? matchesRes : []);
+        
+        const uniqueMatchDays = Array.from(new Set(allMatches.map((m: any) => m.matchDayId).filter(Boolean)));
         const map: Record<number, any[]> = {};
-        const uniqueMatchDays = Array.from(new Set(matchesList.map((m: any) => m.matchDayId || m.round?.id || m.roundId).filter(Boolean)));
         let currentR = 1;
 
-        matchesList.forEach((m: any) => {
-          const mId = m.matchDayId || m.round?.id || m.roundId;
-          let r = uniqueMatchDays.indexOf(mId) + 1 || 1; 
-          
-          const mStr = JSON.stringify(m);
-          const roundMatch = mStr.match(/(?:Matchday|Giornata|Round)\s*(\d+)/i);
-          if (roundMatch) r = parseInt(roundMatch[1]);
+        allMatches.forEach((m: any) => {
+          if (!m.homeTeam || !m.awayTeam) return; 
+
+          let r = uniqueMatchDays.indexOf(m.matchDayId) + 1; 
+          if (r === 0) r = 1;
 
           if (!map[r]) map[r] = [];
           
-          // Evita duplicati dello stesso match
-          if (!map[r].find(x => (x.matchId && x.matchId === m.matchId) || (x.homeTeam?.teamId === m.homeTeam?.teamId))) {
+          if (!map[r].find(x => x.matchId === m.matchId)) {
               map[r].push(m);
           }
         });
@@ -164,14 +131,14 @@ export default function ScoutHub() {
   };
 
   const resolveTeam = (teamObj: any, fallbackName: string) => {
-      const name = teamObj?.shortName || teamObj?.name || fallbackName;
-      let logo = teamObj?.imagery?.teamLogo || teamObj?.logo;
+      let name = teamObj?.shortName || teamObj?.officialName || teamObj?.name;
+      let logo = teamObj?.imagery?.teamLogo;
       const id = teamObj?.teamId || teamObj?.id;
 
       if (!logo && id && teamMap[id]) logo = teamMap[id].logo;
-      if (!logo && teamMap[name.toLowerCase()]) logo = teamMap[name.toLowerCase()].logo;
+      if (!name && id && teamMap[id]) name = teamMap[id].name;
       
-      return { name: name !== "TBD" ? name : fallbackName, logo };
+      return { name: name || fallbackName, logo };
   };
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-cyan-400 font-bold uppercase tracking-[0.3em] animate-pulse italic text-sm">Sincronizzazione Serie A...</div>;
@@ -196,12 +163,12 @@ export default function ScoutHub() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {roundsMatches[selectedRound] ? roundsMatches[selectedRound].map((m, idx) => {
-                const homeScore = m.providerHomeScore ?? m.homeScore;
-                const awayScore = m.providerAwayScore ?? m.awayScore;
+                const homeScore = m.providerHomeScore;
+                const awayScore = m.providerAwayScore;
                 const isPlayed = homeScore !== null && homeScore !== undefined;
 
-                const home = resolveTeam(m.homeTeam, "Casa");
-                const away = resolveTeam(m.awayTeam, "Ospite");
+                const home = resolveTeam(m.homeTeam, "TBD");
+                const away = resolveTeam(m.awayTeam, "TBD");
 
                 return (
                   <div key={m.matchId || idx} onClick={() => openMatch(m)} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex justify-between items-center cursor-pointer hover:bg-zinc-800 hover:border-white/20 transition-all group shadow-lg">
@@ -269,15 +236,15 @@ export default function ScoutHub() {
             <div className="p-8 bg-white/5 border-b border-white/5 flex flex-col items-center">
                <div className="flex justify-between items-center mb-8 px-4 w-full">
                   <div className="flex flex-col items-center gap-3 w-1/3 text-center">
-                      <TeamLogo logo={resolveTeam(modalFixture?.homeTeam, "Casa").logo} name={resolveTeam(modalFixture?.homeTeam, "Casa").name} className="w-16 h-16" />
-                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{resolveTeam(modalFixture?.homeTeam, "Casa").name}</span>
+                      <TeamLogo logo={resolveTeam(modalFixture?.homeTeam, "TBD").logo} name={resolveTeam(modalFixture?.homeTeam, "TBD").name} className="w-16 h-16" />
+                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{resolveTeam(modalFixture?.homeTeam, "TBD").name}</span>
                   </div>
                   <div className="text-6xl font-black italic tracking-tighter text-white shadow-cyan-500/20 drop-shadow-2xl">
-                      {modalFixture?.providerHomeScore ?? modalFixture?.homeScore ?? 0} - {modalFixture?.providerAwayScore ?? modalFixture?.awayScore ?? 0}
+                      {modalFixture?.providerHomeScore ?? 0} - {modalFixture?.providerAwayScore ?? 0}
                   </div>
                   <div className="flex flex-col items-center gap-3 w-1/3 text-center">
-                      <TeamLogo logo={resolveTeam(modalFixture?.awayTeam, "Ospite").logo} name={resolveTeam(modalFixture?.awayTeam, "Ospite").name} className="w-16 h-16" />
-                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{resolveTeam(modalFixture?.awayTeam, "Ospite").name}</span>
+                      <TeamLogo logo={resolveTeam(modalFixture?.awayTeam, "TBD").logo} name={resolveTeam(modalFixture?.awayTeam, "TBD").name} className="w-16 h-16" />
+                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{resolveTeam(modalFixture?.awayTeam, "TBD").name}</span>
                   </div>
                </div>
                
