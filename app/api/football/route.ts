@@ -3,47 +3,6 @@ import { NextResponse } from 'next/server';
 const SEASON_ID = 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
 const BASE = `https://api-sdp.legaseriea.it/v1/serie-a/football/seasons/${SEASON_ID}`;
 
-const MATCHDAY_IDS: Record<number, string> = {
-  1:  'serie-a%3A%3AFootball_MatchDay%3A%3Ab1e1578e184c4376bc7197668c64197a',
-  2:  'serie-a%3A%3AFootball_MatchDay%3A%3A88d2f767b8d14b2ea2380592208e94dc',
-  3:  'serie-a%3A%3AFootball_MatchDay%3A%3Ad78fbb367b6d48c49766b52aad7c9dbf',
-  4:  'serie-a%3A%3AFootball_MatchDay%3A%3A9ddc353a21c540eebf0547a7b8a9d64a',
-  5:  'serie-a%3A%3AFootball_MatchDay%3A%3Acdaf759b85f445579ae97638e1658911',
-  6:  'serie-a%3A%3AFootball_MatchDay%3A%3Aa59442353e2e4da9878ef983a7e72bf0',
-  7:  'serie-a%3A%3AFootball_MatchDay%3A%3A4b68c43aeee946768d544b2bc946f791',
-  8:  'serie-a%3A%3AFootball_MatchDay%3A%3Ae1f79a3ba75f46938b865ebb18dff64e',
-  9:  'serie-a%3A%3AFootball_MatchDay%3A%3A54add330b7774bc18dc4f7aef6af14f8',
-  10: 'serie-a%3A%3AFootball_MatchDay%3A%3A5cc9eb75a21d4a4b9130047d37b9b063',
-  11: 'serie-a%3A%3AFootball_MatchDay%3A%3A68dd0faafc084276b4fd467ecfdef254',
-  12: 'serie-a%3A%3AFootball_MatchDay%3A%3A9d407554653b426ab0c7eb5f7e62a1a1',
-  13: 'serie-a%3A%3AFootball_MatchDay%3A%3A975ddee90e63469a8f960ddf2bf5b958',
-  14: 'serie-a%3A%3AFootball_MatchDay%3A%3A0eab96e36e7e4f0387420e570e93b0e0',
-  15: 'serie-a%3A%3AFootball_MatchDay%3A%3A44a2c07580284268b06fe4660ef30d5c',
-  16: 'serie-a%3A%3AFootball_MatchDay%3A%3A5c3bebb509214dcf855c2c401a71f39e',
-  17: 'serie-a%3A%3AFootball_MatchDay%3A%3A3c66c6664d7840c2905a6b88672c69db',
-  18: 'serie-a%3A%3AFootball_MatchDay%3A%3A329dec16ac8641f99b0653359ac93ed2',
-  19: 'serie-a%3A%3AFootball_MatchDay%3A%3Aae87867ae32146108edabe7e52e48892',
-  20: 'serie-a%3A%3AFootball_MatchDay%3A%3A82319652c8424a96aad1fbd5fede0387',
-  21: 'serie-a%3A%3AFootball_MatchDay%3A%3A455e8502f3f74600910ada6ec756ed5b',
-  22: 'serie-a%3A%3AFootball_MatchDay%3A%3A4cbe273f4e734eaba401c81497f3b90e',
-  23: 'serie-a%3A%3AFootball_MatchDay%3A%3A92c7bfdecc6947508a82549c7e34e3a8',
-  24: 'serie-a%3A%3AFootball_MatchDay%3A%3A952075d1808649e8b1db2698a2741fec',
-  25: 'serie-a%3A%3AFootball_MatchDay%3A%3A52459b0209194e698dddd12e9a09dd9c',
-  26: 'serie-a%3A%3AFootball_MatchDay%3A%3A5478571c5c57429887055a49822e37ba',
-  27: 'serie-a%3A%3AFootball_MatchDay%3A%3A88693dd38bfe4705ae69bcda7a488f8c',
-  28: 'serie-a%3A%3AFootball_MatchDay%3A%3Adba0b1f7837c4e8b85f07d97d543b6fd',
-  29: 'serie-a%3A%3AFootball_MatchDay%3A%3A158e473b6726423cbf29f55fe11b9fb4',
-  30: 'serie-a%3A%3AFootball_MatchDay%3A%3Abc03bc54bcd544bd9b5484803be6142a',
-  31: 'serie-a%3A%3AFootball_MatchDay%3A%3Aba40a3d8193142ec9d04e1538299532c',
-  32: 'serie-a%3A%3AFootball_MatchDay%3A%3A1190d91acddd4b019a89ef103ee78ccf',
-  33: 'serie-a%3A%3AFootball_MatchDay%3A%3Af697ee91109246b3a5731e47c25f9d1e',
-  34: 'serie-a%3A%3AFootball_MatchDay%3A%3Ade3fea643f6d40e6b9f80247914b701b',
-  35: 'serie-a%3A%3AFootball_MatchDay%3A%3A270c7fb11e9d4661bf656cdda0f9907b',
-  36: 'serie-a%3A%3AFootball_MatchDay%3A%3A94c43cdac0af41b9992b6659420121c7',
-  37: 'serie-a%3A%3AFootball_MatchDay%3A%3Aa7670060382040eeafcfd656c5fd32b4',
-  38: 'serie-a%3A%3AFootball_MatchDay%3A%3A9c6f1f31a7a34da3bea1d38536e0c3e1',
-};
-
 const HEADERS: HeadersInit = {
   'User-Agent': 'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
   'accept': 'text/plain; x-api-version=1.0',
@@ -63,6 +22,92 @@ async function legaFetch(url: string) {
   }
 
   return res.json();
+}
+
+function extractRoundNumber(value?: string | null): number | null {
+  if (!value) return null;
+  const s = String(value);
+
+  let m = s.match(/matchday\s*(\d{1,2})/i);
+  if (m) return Number(m[1]);
+
+  m = s.match(/giornata\s*(\d{1,2})/i);
+  if (m) return Number(m[1]);
+
+  m = s.match(/matchday(\d{1,2})/i);
+  if (m) return Number(m[1]);
+
+  return null;
+}
+
+async function getMatchdayMap() {
+  const candidates = [
+    `${BASE}/matches?locale=it-IT`,
+    `${BASE}/calendar?locale=it-IT`,
+    `${BASE}?locale=it-IT`,
+  ];
+
+  for (const url of candidates) {
+    try {
+      const data = await legaFetch(url);
+
+      const buckets = [
+        data?.matchSets,
+        data?.calendar?.matchSets,
+        data?.competition?.matchSets,
+        data?.matches,
+      ].filter(Boolean);
+
+      const roundMap: Record<number, string> = {};
+
+      for (const bucket of buckets) {
+        for (const item of bucket || []) {
+          // Prova a estrarre dal set o dal singolo match
+          const itemRound =
+            extractRoundNumber(item?.name) ??
+            extractRoundNumber(item?.shortName) ??
+            extractRoundNumber(item?.description) ??
+            extractRoundNumber(item?.providerId);
+
+          const itemId =
+            item?.matchSetId ||
+            item?.id ||
+            item?.matchdayId ||
+            item?.matchSet?.matchSetId ||
+            item?.matchSet?.id;
+
+          if (itemRound && itemId && !roundMap[itemRound]) {
+            roundMap[itemRound] = encodeURIComponent(String(itemId)).replace(/%253A/g, '%3A');
+          }
+
+          // Prova a estrarre dal matchSet annidato (tipico di endpoint matches)
+          const nestedMatchSet = item?.matchSet;
+          if (nestedMatchSet) {
+            const nestedRound =
+              extractRoundNumber(nestedMatchSet?.name) ??
+              extractRoundNumber(nestedMatchSet?.shortName) ??
+              extractRoundNumber(nestedMatchSet?.providerId);
+
+            const nestedId =
+              nestedMatchSet?.matchSetId ||
+              nestedMatchSet?.id;
+
+            if (nestedRound && nestedId && !roundMap[nestedRound]) {
+              roundMap[nestedRound] = encodeURIComponent(String(nestedId)).replace(/%253A/g, '%3A');
+            }
+          }
+        }
+      }
+
+      if (Object.keys(roundMap).length >= 20) {
+        return roundMap;
+      }
+    } catch (e) {
+      // Prova il candidato successivo
+    }
+  }
+
+  throw new Error('Impossibile costruire la mappa giornate della stagione 2025/2026');
 }
 
 export async function GET(request: Request) {
@@ -92,9 +137,25 @@ export async function GET(request: Request) {
         return NextResponse.json({ ok: false, error: 'round 1-38' }, { status: 400 });
       }
 
-      const matchDayId = MATCHDAY_IDS[round];
+      // Recupera la mappa dinamica delle giornate
+      const roundMap = await getMatchdayMap();
+      const matchDayId = roundMap[round];
+
+      if (!matchDayId) {
+        return NextResponse.json(
+          { ok: false, error: `giornata ${round} non trovata per la stagione 2025/2026` },
+          { status: 404 }
+        );
+      }
+
       const data = await legaFetch(`${BASE}/matches?matchDayId=${matchDayId}&locale=it-IT`);
-      const matches = data?.matches || [];
+      
+      // Ordinamento cronologico
+      const matches = [...(data?.matches || [])].sort((a: any, b: any) => {
+        const da = new Date(a?.matchDateUtc || a?.matchDateLocal || 0).getTime();
+        const db = new Date(b?.matchDateUtc || b?.matchDateLocal || 0).getTime();
+        return da - db;
+      });
 
       return NextResponse.json(
         {
@@ -104,6 +165,10 @@ export async function GET(request: Request) {
             seasonName: data?.competition?.seasonName || '2025/2026',
             round,
             matches,
+            debug: {
+              requestedRound: round,
+              resolvedMatchDayId: matchDayId,
+            }
           },
         },
         { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=60' } }
