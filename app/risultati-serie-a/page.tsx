@@ -19,7 +19,8 @@ const TEAM_LOGOS: Record<string, string> = {
   Bologna: 'https://tmssl.akamaized.net/images/wappen/head/1025.png',
   Fiorentina: 'https://tmssl.akamaized.net/images/wappen/head/430.png',
   Torino: 'https://tmssl.akamaized.net/images/wappen/head/416.png',
-  Genoa: 'https://tmssl.akamaized.net/images/wappen/head/2521.png',
+  Genoa: 'https://tmssl.akamaized.net/images/wappen/head/252.png',
+  'Genoa CFC': 'https://tmssl.akamaized.net/images/wappen/head/252.png',
   Udinese: 'https://tmssl.akamaized.net/images/wappen/head/410.png',
   Lecce: 'https://tmssl.akamaized.net/images/wappen/head/1005.png',
   Verona: 'https://tmssl.akamaized.net/images/wappen/head/276.png',
@@ -27,8 +28,10 @@ const TEAM_LOGOS: Record<string, string> = {
   Cagliari: 'https://tmssl.akamaized.net/images/wappen/head/1390.png',
   Parma: 'https://tmssl.akamaized.net/images/wappen/head/130.png',
   Sassuolo: 'https://tmssl.akamaized.net/images/wappen/head/6574.png',
-  Como: 'https://tmssl.akamaized.net/images/wappen/head/10400.png',
-  Pisa: 'https://tmssl.akamaized.net/images/wappen/head/543.png',
+  Como: 'https://tmssl.akamaized.net/images/wappen/head/1047.png',
+  'Como 1907': 'https://tmssl.akamaized.net/images/wappen/head/1047.png',
+  Pisa: 'https://tmssl.akamaized.net/images/wappen/head/4172.png',
+  'Pisa Sporting Club': 'https://tmssl.akamaized.net/images/wappen/head/4172.png',
   Cremonese: 'https://tmssl.akamaized.net/images/wappen/head/1511.png',
   Monza: 'https://tmssl.akamaized.net/images/wappen/head/2919.png',
   Empoli: 'https://tmssl.akamaized.net/images/wappen/head/749.png',
@@ -37,12 +40,22 @@ const TEAM_LOGOS: Record<string, string> = {
 
 const normalizeTeamName = (name?: string) => {
   if (!name) return '';
-  return name
+
+  const cleaned = name
     .replace(/\s+FC$/i, '')
     .replace(/\s+AC$/i, '')
     .replace(/\s+1907$/i, '')
     .replace(/\s+1908$/i, '')
     .trim();
+
+  const aliases: Record<string, string> = {
+    'Como 1907': 'Como',
+    'Genoa CFC': 'Genoa',
+    'Pisa Sporting Club': 'Pisa',
+    'Hellas Verona': 'Verona',
+  };
+
+  return aliases[name] || aliases[cleaned] || cleaned;
 };
 
 const TeamLogo = ({
@@ -78,6 +91,7 @@ const TeamLogo = ({
     />
   );
 };
+
 
 
 export default function ScoutHub() {
@@ -132,13 +146,21 @@ export default function ScoutHub() {
       const res = await fetch(`/api/football?endpoint=matches&round=${round}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'Errore sconosciuto');
-      setMatches(json.data?.matches || []);
+      
+      const rawMatches = json.data?.matches || [];
+      const sortedMatches = [...rawMatches].sort((a: any, b: any) => {
+        const da = new Date(a.matchDateUtc || a.matchDateLocal || 0).getTime();
+        const db = new Date(b.matchDateUtc || b.matchDateLocal || 0).getTime();
+        return da - db;
+      });
+      setMatches(sortedMatches);
     } catch (e: any) {
       setMatchError(e.message);
     } finally {
       setLoadingMatches(false);
     }
   }, []);
+
 
   useEffect(() => { loadRound(30); }, [loadRound]);
 
@@ -265,38 +287,65 @@ export default function ScoutHub() {
           <div className="bg-zinc-900/40 rounded-[2.5rem] p-4 md:p-8 border border-white/5 backdrop-blur-sm shadow-2xl overflow-x-auto">
             <div className="min-w-[640px]">
               <div className="grid grid-cols-12 items-center py-2 px-4 text-[9px] font-black uppercase text-zinc-500 border-b border-white/10 mb-1 tracking-widest">
-                <span className="col-span-1">#</span>
+                <span className="col-span-1 text-center">#</span>
                 <span className="col-span-4">Squadra</span>
                 <span className="col-span-1 text-center">G</span>
                 <span className="col-span-1 text-center text-emerald-500">V</span>
                 <span className="col-span-1 text-center">N</span>
                 <span className="col-span-1 text-center text-red-500">P</span>
                 <span className="col-span-1 text-center">DR</span>
-                <span className="col-span-2 text-center">Forma</span>
-                <span className="col-span-1 text-right text-cyan-400">PTS</span>
+                <span className="col-span-1 text-center">Forma</span>
+                <span className="col-span-1 text-center text-cyan-400">PTS</span>
               </div>
+
               {loadingStandings ? (
                 <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-cyan-400 animate-spin" /></div>
               ) : standings.map((t: any, i: number) => {
                 const isZone = i < 4 ? 'border-l-2 border-cyan-500' : i < 6 ? 'border-l-2 border-orange-400' : i >= 17 ? 'border-l-2 border-red-500' : '';
                 return (
-                  <div key={t.id} className={`grid grid-cols-12 items-center py-3 border-b border-white/5 last:border-0 hover:bg-white/5 px-4 rounded-xl transition-all group ${isZone}`}>
-                    <span className="col-span-1 text-[11px] font-black text-zinc-600 group-hover:text-cyan-500">{i + 1}</span>
-                    <div className="col-span-4 flex items-center gap-3">
-                      <TeamLogo logo={t.logo} name={t.name} className="w-7 h-7" />
-                      <span className="text-xs font-bold uppercase tracking-tight truncate">{t.name}</span>
+                  <div
+                    key={t.id}
+                    className={`grid grid-cols-12 items-center py-3 border-b border-white/5 last:border-0 hover:bg-white/5 px-4 rounded-xl transition-all group ${isZone}`}
+                  >
+                    <span className="col-span-1 text-center text-[11px] font-black text-zinc-600 group-hover:text-cyan-500">
+                      {i + 1}
+                    </span>
+
+                    <div className="col-span-4 flex items-center gap-3 min-w-0">
+                      <TeamLogo name={t.name} className="w-7 h-7 shrink-0" />
+                      <span className="text-xs font-bold uppercase tracking-tight truncate">
+                        {t.name}
+                      </span>
                     </div>
-                    <span className="col-span-1 text-center text-xs font-mono text-white/60">{t.played}</span>
-                    <span className="col-span-1 text-center text-xs font-mono text-emerald-400">{t.win}</span>
-                    <span className="col-span-1 text-center text-xs font-mono text-zinc-400">{t.draw}</span>
-                    <span className="col-span-1 text-center text-xs font-mono text-red-400">{t.lose}</span>
-                    <span className="col-span-1 text-center text-xs font-mono font-bold text-white/50">{t.gd > 0 ? `+${t.gd}` : t.gd}</span>
-                    <div className="col-span-2 flex justify-center gap-0.5">
-                      {(t.form || []).slice(-5).map((f: string, fi: number) => <FormDot key={fi} type={f} />)}
+
+                    <span className="col-span-1 text-center text-xs font-mono text-white/70">
+                      {t.played}
+                    </span>
+                    <span className="col-span-1 text-center text-xs font-mono text-emerald-400">
+                      {t.win}
+                    </span>
+                    <span className="col-span-1 text-center text-xs font-mono text-zinc-400">
+                      {t.draw}
+                    </span>
+                    <span className="col-span-1 text-center text-xs font-mono text-red-400">
+                      {t.lose}
+                    </span>
+                    <span className="col-span-1 text-center text-xs font-mono font-bold text-white/60">
+                      {t.gd > 0 ? `+${t.gd}` : t.gd}
+                    </span>
+
+                    <div className="col-span-1 flex justify-center gap-0.5">
+                      {(t.form || []).slice(-3).map((f: string, fi: number) => (
+                        <FormDot key={fi} type={f} />
+                      ))}
                     </div>
-                    <span className="col-span-1 text-right font-black text-cyan-400 text-sm">{t.points}</span>
+
+                    <span className="col-span-1 text-center font-black text-cyan-400 text-sm">
+                      {t.points}
+                    </span>
                   </div>
                 );
+
               })}
             </div>
           </div>
