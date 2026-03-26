@@ -204,6 +204,110 @@ export default function ScoutHub() {
     return <span className={`w-2 h-2 rounded-full inline-block ${colors[type] || 'bg-zinc-600'}`} />;
   };
 
+  const MatchTimeline = ({ detail, homeName, awayName }: any) => {
+    const events: any[] = [];
+    
+    // Extract from events API
+    if (detail.events?.events) {
+      detail.events.events.forEach((ev: any) => {
+        events.push({
+          minute: ev.minute,
+          second: ev.second || 0,
+          type: ev.type,
+          player: ev.player?.shortName || ev.player?.officialName || 'Player',
+          team: ev.teamId === detail.header?.homeTeam?.teamId ? 'home' : 'away',
+          related: ev.relatedPlayer?.shortName,
+          subOn: ev.subOn?.shortName,
+          subOff: ev.subOff?.shortName,
+        });
+      });
+    } else {
+      // Fallback from lineups
+      const parseLineup = (players: any[], side: 'home' | 'away') => {
+        players.forEach(p => {
+          (p.events || []).forEach((ev: any) => {
+            events.push({
+              minute: ev.minute,
+              type: ev.type,
+              player: p.player?.shortName || p.officialName || p.shortName || 'Player',
+              team: side,
+              subOff: ev.subOffPlayer?.shortName
+            });
+          });
+        });
+      };
+      if (detail.lineups?.home) {
+        parseLineup(detail.lineups.home.fielded || [], 'home');
+        parseLineup(detail.lineups.home.benched || [], 'home');
+      }
+      if (detail.lineups?.away) {
+        parseLineup(detail.lineups.away.fielded || [], 'away');
+        parseLineup(detail.lineups.away.benched || [], 'away');
+      }
+    }
+
+    const sorted = [...events].sort((a, b) => a.minute - b.minute);
+    if (sorted.length === 0) return <p className="text-center text-zinc-600 text-[10px] py-4 uppercase tracking-widest">Nessun evento registrato</p>;
+
+    const getTypeLabel = (t: string) => {
+      if (t.includes('goal')) return '⚽';
+      if (t.includes('yellow')) return '🟨';
+      if (t.includes('red')) return '🟥';
+      if (t.includes('substitution')) return '🔄';
+      return '•';
+    };
+
+    return (
+      <div className="space-y-3 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-px before:bg-white/5">
+        {sorted.map((ev, i) => (
+          <div key={i} className="flex items-start gap-4 text-xs relative px-4">
+            <span className="w-8 text-[9px] font-black text-cyan-400 mt-0.5">{ev.minute}&apos;</span>
+            <div className={`mt-0.5 w-4 h-4 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-[8px] z-10`}>
+              {getTypeLabel(ev.type)}
+            </div>
+            <div className="flex-1">
+              <span className={`font-bold ${ev.team === 'home' ? 'text-white' : 'text-zinc-400'}`}>{ev.player}</span>
+              {ev.type.includes('substitution') && ev.subOff && (
+                <span className="text-zinc-500 text-[10px] ml-2 italic">per {ev.subOff}</span>
+              )}
+              <div className="text-[9px] text-zinc-600 uppercase tracking-tighter">
+                {ev.team === 'home' ? homeName : awayName}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const TacticalPitch = ({ lineup, side }: any) => {
+    if (!lineup?.fielded) return null;
+    return (
+      <div className="relative aspect-[3/4] bg-zinc-900/50 rounded-2xl border border-white/5 overflow-hidden p-4">
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="absolute inset-4 border border-white rounded-lg" />
+          <div className="absolute left-1/2 top-4 bottom-4 w-px bg-white -translate-x-1/2" />
+          <div className="absolute left-1/2 top-1/2 w-20 h-20 border border-white rounded-full -translate-x-1/2 -translate-y-1/2" />
+        </div>
+        {lineup.fielded.map((p: any, i: number) => {
+          const x = p.tacticalXPosition || 50;
+          const y = side === 'away' ? (100 - (p.tacticalYPosition || 50)) : (p.tacticalYPosition || 50);
+          return (
+            <div key={i} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1" style={{ left: `${x}%`, top: `${y}%` }}>
+              <div className="w-6 h-6 rounded-full bg-zinc-800 border-2 border-cyan-400 flex items-center justify-center text-[10px] font-black shadow-lg">
+                {p.jerseyNumber}
+              </div>
+              <span className="text-[8px] font-bold text-white whitespace-nowrap bg-black/50 px-1 rounded truncate max-w-[50px]">
+                {p.player?.shortName || p.shortName}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+
   return (
     <div className="min-h-screen bg-black text-white p-4 pt-24 font-sans selection:bg-cyan-500/30">
       <div className="max-w-5xl mx-auto">
@@ -289,14 +393,15 @@ export default function ScoutHub() {
               <div className="grid grid-cols-12 items-center py-2 px-4 text-[9px] font-black uppercase text-zinc-500 border-b border-white/10 mb-1 tracking-widest">
                 <span className="col-span-1 text-center">#</span>
                 <span className="col-span-4">Squadra</span>
+                <span className="col-span-1 text-center text-cyan-400">PTS</span>
                 <span className="col-span-1 text-center">G</span>
                 <span className="col-span-1 text-center text-emerald-500">V</span>
                 <span className="col-span-1 text-center">N</span>
                 <span className="col-span-1 text-center text-red-500">P</span>
                 <span className="col-span-1 text-center">DR</span>
                 <span className="col-span-1 text-center">Forma</span>
-                <span className="col-span-1 text-center text-cyan-400">PTS</span>
               </div>
+
 
               {loadingStandings ? (
                 <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-cyan-400 animate-spin" /></div>
@@ -317,6 +422,10 @@ export default function ScoutHub() {
                         {t.name}
                       </span>
                     </div>
+
+                    <span className="col-span-1 text-center font-black text-cyan-400 text-sm">
+                      {t.points}
+                    </span>
 
                     <span className="col-span-1 text-center text-xs font-mono text-white/70">
                       {t.played}
@@ -339,12 +448,9 @@ export default function ScoutHub() {
                         <FormDot key={fi} type={f} />
                       ))}
                     </div>
-
-                    <span className="col-span-1 text-center font-black text-cyan-400 text-sm">
-                      {t.points}
-                    </span>
                   </div>
                 );
+
 
               })}
             </div>
@@ -385,37 +491,92 @@ export default function ScoutHub() {
               );
             })()}
 
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-10 custom-scrollbar">
               {loadingModal ? (
-                <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div>
-              ) : matchDetails?.stats ? (
-                <div className="space-y-4">
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4">Statistiche</h3>
-                  {(matchDetails.stats?.homeTeamStats || []).map((stat: any, i: number) => {
-                    const hv = parseInt(stat.value) || 0;
-                    const av = parseInt(matchDetails.stats?.awayTeamStats?.[i]?.value) || 0;
-                    const total = hv + av || 1;
-                    return (
-                      <div key={stat.label || i} className="space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold text-zinc-400">
-                          <span className="text-white">{hv}</span>
-                          <span className="uppercase tracking-widest">{stat.label}</span>
-                          <span className="text-white">{av}</span>
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">Caricamento dettagli...</p>
+                </div>
+              ) : matchDetails ? (
+                <>
+                  <section>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-2">
+                       Timeline Match
+                    </h3>
+                    <MatchTimeline detail={matchDetails} homeName={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} awayName={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} />
+                  </section>
+
+                  {matchDetails.stats && (
+                    <section>
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6">Statistiche</h3>
+                      <div className="space-y-4">
+                        {(matchDetails.stats?.homeTeamStats || []).map((stat: any, i: number) => {
+                          const hv = parseInt(stat.value) || 0;
+                          const av = parseInt(matchDetails.stats?.awayTeamStats?.[i]?.value) || 0;
+                          const total = hv + av || 1;
+                          return (
+                            <div key={stat.label || i} className="space-y-1">
+                              <div className="flex justify-between text-[10px] font-bold text-zinc-400 px-1">
+                                <span className={hv > av ? 'text-cyan-400' : 'text-white'}>{hv}{stat.value.includes('%') ? '%' : ''}</span>
+                                <span className="uppercase tracking-[0.1em] opacity-40">{stat.label}</span>
+                                <span className={av > hv ? 'text-cyan-400' : 'text-white'}>{av}{stat.value.includes('%') ? '%' : ''}</span>
+                              </div>
+                              <div className="flex gap-1 h-1 rounded-full overflow-hidden bg-white/5">
+                                <div className="bg-cyan-400 h-full transition-all duration-700" style={{ width: `${(hv / total) * 100}%` }} />
+                                <div className="bg-zinc-700 h-full transition-all duration-700" style={{ width: `${(av / total) * 100}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
+
+                  {matchDetails.lineups && (
+                    <section>
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6">Formazioni Ufficiali</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[9px] font-black text-cyan-400 uppercase mb-2 text-center">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</p>
+                          <TacticalPitch lineup={matchDetails.lineups.home} side="home" />
                         </div>
-                        <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden bg-zinc-800">
-                          <div className="bg-cyan-400 rounded-l-full transition-all" style={{ width: `${(hv / total) * 100}%` }} />
-                          <div className="bg-zinc-600 rounded-r-full transition-all" style={{ width: `${(av / total) * 100}%` }} />
+                        <div>
+                          <p className="text-[9px] font-black text-white uppercase mb-2 text-center">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</p>
+                          <TacticalPitch lineup={matchDetails.lineups.away} side="away" />
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </section>
+                  )}
+
+                  <section className="bg-white/5 rounded-3xl p-6 border border-white/5">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 text-center">Panchine</h3>
+                    <div className="grid grid-cols-2 gap-8">
+                       <div className="space-y-2">
+                         {(matchDetails.lineups?.home?.benched || []).map((p: any, i: number) => (
+                           <div key={i} className="flex items-center justify-between text-[10px]">
+                             <span className="text-zinc-400 truncate w-[70px]">{p.player?.shortName || p.shortName}</span>
+                             {p.events?.some((e: any) => e.type === 'substitution-in') && <span className="text-emerald-400 font-bold shrink-0">IN</span>}
+                           </div>
+                         ))}
+                       </div>
+                       <div className="space-y-2 text-right">
+                         {(matchDetails.lineups?.away?.benched || []).map((p: any, i: number) => (
+                           <div key={i} className="flex items-center justify-between text-[10px] flex-row-reverse">
+                             <span className="text-zinc-400 truncate w-[70px] text-right">{p.player?.shortName || p.shortName}</span>
+                             {p.events?.some((e: any) => e.type === 'substitution-in') && <span className="text-emerald-400 font-bold shrink-0">IN</span>}
+                           </div>
+                         ))}
+                       </div>
+                    </div>
+                  </section>
+                </>
               ) : (
-                <p className="text-center text-zinc-600 text-xs uppercase tracking-widest py-10">
-                  Statistiche non disponibili per questa partita
+                <p className="text-center text-zinc-600 text-[10px] uppercase tracking-widest py-10 font-bold">
+                  Dati non ancora disponibili per questo match
                 </p>
               )}
             </div>
+
 
             <button onClick={() => { setModalFixture(null); setMatchDetails(null); }}
               className="absolute top-6 right-6 p-2.5 bg-zinc-900/80 rounded-full border border-white/10 hover:bg-red-500 hover:border-red-500 transition-all">

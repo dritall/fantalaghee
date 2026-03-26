@@ -183,9 +183,12 @@ export async function GET(request: Request) {
 
       const enc = encodeURIComponent(matchId);
 
-      const [header, stats] = await Promise.allSettled([
+      const [header, stats, lineups, events1, events2] = await Promise.allSettled([
         legaFetch(`${BASE}/matches/${enc}/header?locale=it-IT`),
         legaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`),
+        legaFetch(`${BASE}/matches/${enc}/lineups?locale=it-IT`),
+        legaFetch(`${BASE}/matches/${enc}/events?locale=it-IT`),
+        legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`),
       ]);
 
       return NextResponse.json(
@@ -194,11 +197,14 @@ export async function GET(request: Request) {
           data: {
             header: header.status === 'fulfilled' ? header.value : null,
             stats: stats.status === 'fulfilled' ? stats.value : null,
+            lineups: lineups.status === 'fulfilled' ? lineups.value : null,
+            events: (events1.status === 'fulfilled' ? events1.value : null) || (events2.status === 'fulfilled' ? events2.value : null),
           },
         },
         { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' } }
       );
     }
+
 
     return NextResponse.json(
       {
