@@ -1,10 +1,8 @@
-// app/api/football/route.ts
 import { NextResponse } from 'next/server';
 
 const SEASON_ID = 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
 const BASE = `https://api-sdp.legaseriea.it/v1/serie-a/football/seasons/${SEASON_ID}`;
 
-// ✅ Tutti e 38 i matchDayId estratti dal HAR, in ordine di giornata
 const MATCHDAY_IDS: Record<number, string> = {
   1:  'serie-a%3A%3AFootball_MatchDay%3A%3A88d2f767b8d14b2ea2380592208e94dc',
   2:  'serie-a%3A%3AFootball_MatchDay%3A%3Ad78fbb367b6d48c49766b52aad7c9dbf',
@@ -47,13 +45,10 @@ const MATCHDAY_IDS: Record<number, string> = {
 };
 
 const HEADERS: HeadersInit = {
-  "User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
-  "accept": "text/plain; x-api-version=1.0",
-  "Referer": "https://www.legaseriea.it/",
-  "Origin": "https://www.legaseriea.it",
-  "sec-ch-ua": '"Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"',
-  "sec-ch-ua-mobile": "?0",
-  "sec-ch-ua-platform": '"Chrome OS"',
+  'User-Agent': 'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+  'accept': 'text/plain; x-api-version=1.0',
+  'Referer': 'https://www.legaseriea.it/',
+  'Origin': 'https://www.legaseriea.it',
 };
 
 async function leagaFetch(url: string) {
@@ -70,59 +65,56 @@ export async function GET(request: Request) {
   const endpoint = searchParams.get('endpoint');
 
   try {
-    // ✅ CLASSIFICA
     if (endpoint === 'standings') {
       const data = await leagaFetch(`${BASE}/standings/overall?locale=it-IT`);
-      // Normalizza: restituisce { teams: [...20 squadre...] }
-      const teams = data?.standings?.[0]?.teams || data?.teams || [];
+      const teams = data?.standings?.[0]?.teams || [];
       return NextResponse.json({ ok: true, data: { teams } }, {
         headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' }
       });
     }
 
-    // ✅ PARTITE - richiede round=1..38
     if (endpoint === 'matches') {
-      const round = parseInt(searchParams.get('round') || '1');
-      if (round < 1 || round > 38) {
-        return NextResponse.json({ error: 'round deve essere tra 1 e 38' }, { status: 400 });
-      }
-      const matchDayId = MATCHDAY_IDS[round];
-      const data = await leagaFetch(`${BASE}/matches?matchDayId=${matchDayId}&locale=it-IT`);
-      const matches = data?.matches || data?.data?.matches || (Array.isArray(data) ? data : []);
-      return NextResponse.json({ ok: true, data: { matches, round, matchDayId } }, {
+      const round = parseInt(searchParams.get('round') || '30');
+      if (round < 1 || round > 38) return NextResponse.json({ error: 'round 1-38' }, { status: 400 });
+      const data = await leagaFetch(`${BASE}/matches?matchDayId=${MATCHDAY_IDS[round]}&locale=it-IT`);
+      const matches = data?.matches || (Array.isArray(data) ? data : []);
+      return NextResponse.json({ ok: true, data: { matches, round } }, {
         headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=60' }
       });
     }
 
-    // ✅ DETTAGLIO SINGOLA PARTITA (header + lineups + stats)
     if (endpoint === 'match') {
       const matchId = searchParams.get('id');
       if (!matchId) return NextResponse.json({ error: 'id mancante' }, { status: 400 });
-      const encodedId = encodeURIComponent(matchId);
-      const [header, lineups, stats] = await Promise.allSettled([
-        leagaFetch(`${BASE}/matches/${encodedId}/header?locale=it-IT`),
-        leagaFetch(`${BASE}/matches/${encodedId}/lineups?locale=it-IT`),
-        leagaFetch(`${BASE}/match/${encodedId}/teamstats?locale=it-IT`),
+      const enc = encodeURIComponent(matchId);
+      const [header, stats] = await Promise.allSettled([
+        leagaFetch(`${BASE}/matches/${enc}/header?locale=it-IT`),
+        leagaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`),
       ]);
       return NextResponse.json({
         ok: true,
         data: {
-          header:  header.status  === 'fulfilled' ? header.value  : null,
-          lineups: lineups.status === 'fulfilled' ? lineups.value : null,
-          stats:   stats.status   === 'fulfilled' ? stats.value   : null,
+          header: header.status === 'fulfilled' ? header.value : null,
+          stats:  stats.status  === 'fulfilled' ? stats.value  : null,
         }
       }, { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' } });
     }
 
-    // ✅ LISTA GIORNATE (solo gli ID, utile per debug)
-    if (endpoint === 'matchdays') {
-      return NextResponse.json({ ok: true, data: { matchdays: MATCHDAY_IDS } });
+    if (endpoint === 'logo') {
+      const logoPath = searchParams.get('path');
+      if (!logoPath) return new NextResponse(null, { status: 400 });
+      const res = await fetch(`https://img.legaseriea.it/vimages/${logoPath}`, { headers: HEADERS });
+      if (!res.ok) return new NextResponse(null, { status: res.status });
+      const blob = await res.arrayBuffer();
+      return new NextResponse(blob, {
+        headers: {
+          'Content-Type': res.headers.get('content-type') || 'image/webp',
+          'Cache-Control': 'public, max-age=86400',
+        }
+      });
     }
 
-    return NextResponse.json({
-      error: 'Endpoint non riconosciuto',
-      disponibili: ['standings', 'matches?round=1..38', 'match?id=<matchId>', 'matchdays']
-    }, { status: 400 });
+    return NextResponse.json({ error: 'Endpoint non valido' }, { status: 400 });
 
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e.message }, { status: 500 });
