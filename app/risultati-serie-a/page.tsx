@@ -22,15 +22,13 @@ export default function ScoutHub() {
           fetch('/api/football?endpoint=standings').then(r => r.json())
         ]);
 
-        // --- 1. ESTRAZIONE CLASSIFICA (E CROSS-REFERENCE LOGHI) ---
+        // --- 1. ESTRAZIONE CLASSIFICA E LOGHI (METODO REGEX) ---
         let teamsList: any[] = [];
         const findTeams = (obj: any) => {
           if (!obj) return false;
-          if (Array.isArray(obj)) {
-            if (obj.length > 0 && obj[0].teamId) { teamsList = obj; return true; }
-            for (let item of obj) if (findTeams(item)) return true;
-          } else if (typeof obj === 'object') {
-            if (obj.teams && Array.isArray(obj.teams) && obj.teams[0]?.teamId) { teamsList = obj.teams; return true; }
+          if (Array.isArray(obj) && obj.length > 0 && (obj[0].teamId || obj[0].points)) { teamsList = obj; return true; }
+          if (typeof obj === 'object') {
+            if (obj.teams && Array.isArray(obj.teams)) { teamsList = obj.teams; return true; }
             for (let key in obj) if (findTeams(obj[key])) return true;
           }
           return false;
@@ -41,37 +39,64 @@ export default function ScoutHub() {
         const parsedStandings = teamsList.map((t: any) => {
            const ptsObj = t.stats?.find((s: any) => s.statsId === 'points');
            const pts = ptsObj ? parseInt(ptsObj.statsValue) : (t.points || 0);
-           const logo = t.imagery?.teamLogo || t.logo;
-           const name = t.shortName || t.officialName || t.name;
-           
-           // Salviamo in memoria per usare i loghi nel calendario!
-           tMap[t.teamId] = { name, logo }; 
-           return { id: t.teamId, name, logo, points: pts };
+
+           // Cerchiamo il logo ovunque nell'oggetto stringificato
+           const tStr = JSON.stringify(t);
+           const logoMatch = tStr.match(/"(?:teamLogo|logo|url)"\s*:\s*"([^"]+\.(?:png|webp|jpg))"/i) || tStr.match(/"teamLogo"\s*:\s*"([^"]+)"/i);
+           const logo = logoMatch ? logoMatch[1] : null;
+
+           const nameMatch = tStr.match(/"(?:shortName|officialName|name)"\s*:\s*"([^"]+)"/i);
+           const name = nameMatch ? nameMatch[1] : (t.shortName || "TBD");
+           const tId = t.teamId || t.id || name;
+
+           // Mappiamo per ID e per Nome (tutto minuscolo) per fare un cross-reference infallibile col calendario
+           tMap[tId] = { name, logo };
+           tMap[name.toLowerCase()] = { name, logo };
+
+           return { id: tId, name, logo, points: pts };
         });
 
         parsedStandings.sort((a: any, b: any) => b.points - a.points);
         setStandings(parsedStandings);
         setTeamMap(tMap);
 
-        // --- 2. ESTRAZIONE CALENDARIO (1-38 GIORNATE) ---
-        const allMatches = matchesRes.data || matchesRes.matches || (Array.isArray(matchesRes) ? matchesRes : []);
-        
-        // Estrai gli Hash alfanumerici univoci mantenendo l'ordine cronologico
-        const uniqueMatchDays = Array.from(new Set(allMatches.map((m: any) => m.matchDayId || m.round?.id || m.roundId).filter(Boolean)));
-        
+        // --- 2. ESTRAZIONE CALENDARIO E GIORNATE (1-38) ---
+        let allMatches: any[] = [];
+        const findMatches = (obj: any) => {
+          if (!obj) return false;
+          if (Array.isArray(obj) && obj.length > 0 && (obj[0].matchId || obj[0].homeTeam)) { allMatches = obj; return true; }
+          if (typeof obj === 'object') {
+            for (let key in obj) if (findMatches(obj[key])) return true;
+          }
+          return false;
+        };
+        findMatches(matchesRes);
+
         const map: Record<number, any[]> = {};
         let maxPlayedRound = 1;
 
         allMatches.forEach((m: any) => {
-          const mId = m.matchDayId || m.round?.id || m.roundId;
-          const r = uniqueMatchDays.indexOf(mId) + 1 || 1; // Converte l'Hash in numero 1-38
+          let r = 1;
+          const mStr = JSON.stringify(m);
+
+          // Strappiamo il numero di giornata direttamente dalla dicitura "Matchday 30" o "Giornata 30"
+          const roundMatch = mStr.match(/(?:Matchday|Giornata|Round)\s*(\d+)/i);
+          if (roundMatch) {
+              r = parseInt(roundMatch[1]);
+          }
 
           if (!map[r]) map[r] = [];
           map[r].push(m);
 
-          if (m.matchdayStatus === 'Played' || m.scheduleStatus === 'Played' || m.providerHomeScore !== null) {
+          if (mStr.includes('"matchdayStatus":"Played"') || mStr.includes('"scheduleStatus":"Played"') || m.providerHomeScore !== null) {
             if (r > maxPlayedRound) maxPlayedRound = r;
           }
+        });
+
+        // Ordina cronologicamente se i match in una giornata sono sparsi
+        Object.keys(map).forEach((key) => {
+            const kNum = parseInt(key);
+            map[kNum].sort((a, b) => new Date(a.dateUtc || a.startDateUtc || 0).getTime() - new Date(b.dateUtc || b.startDateUtc || 0).getTime());
         });
 
         setRoundsMatches(map);
@@ -93,7 +118,23 @@ export default function ScoutHub() {
     setTimeout(() => setMatchDetails({ wip: true }), 1000);
   };
 
-  const getLogo = (logoCode?: string) => logoCode ? `https://img.legaseriea.it/vimages/${logoCode}` : "";
+  const getLogo = (logoCode?: string) => {
+      if (!logoCode) return "/globe.svg"; // Fallback se non trovato
+      if (logoCode.startsWith('http')) return logoCode;
+      return `https://img.legaseriea.it/vimages/${logoCode}`;
+  };
+
+  const resolveTeamInfo = (teamObj: any, fallbackName: string) => {
+      const name = teamObj?.shortName || teamObj?.name || fallbackName;
+      let logo = teamObj?.imagery?.teamLogo || teamObj?.logo;
+      const id = teamObj?.teamId || teamObj?.id;
+
+      // Recupero dal DB incrociato
+      if (!logo && id && teamMap[id]) logo = teamMap[id].logo;
+      if (!logo && teamMap[name.toLowerCase()]) logo = teamMap[name.toLowerCase()].logo;
+
+      return { name, logo };
+  };
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-cyan-400 font-bold uppercase tracking-[0.3em] animate-pulse italic text-sm">Sincronizzazione Serie A...</div>;
 
@@ -110,37 +151,35 @@ export default function ScoutHub() {
         {activeTab === 'calendario' ? (
           <div className="space-y-6">
             <div className="flex overflow-x-auto gap-2 pb-4 no-scrollbar scroll-smooth">
-              {Array.from({length: Object.keys(roundsMatches).length || 38}, (_, i) => i + 1).map((r) => (
+              {/* Mostriamo solo i bottoni delle giornate che hanno effettivamente match */}
+              {Object.keys(roundsMatches).map(Number).sort((a,b)=>a-b).map((r) => (
                 <button key={r} onClick={() => setSelectedRound(r)} className={`px-5 py-2 rounded-xl shrink-0 font-bold text-xs border transition-all duration-300 ${selectedRound===r?'border-cyan-400 bg-cyan-400/10 text-white shadow-[0_0_15px_rgba(34,211,238,0.1)]':'border-white/5 text-zinc-600 hover:border-white/20'}`}>G.{r}</button>
               ))}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {roundsMatches[selectedRound] ? roundsMatches[selectedRound].map(m => {
-                const homeScore = m.providerHomeScore;
-                const awayScore = m.providerAwayScore;
-                const isPlayed = m.matchdayStatus === 'Played' || m.scheduleStatus === 'Played' || homeScore !== null;
+              {roundsMatches[selectedRound] ? roundsMatches[selectedRound].map((m, idx) => {
+                const homeScore = m.providerHomeScore ?? m.homeScore;
+                const awayScore = m.providerAwayScore ?? m.awayScore;
+                const isPlayed = m.matchdayStatus === 'Played' || m.scheduleStatus === 'Played' || homeScore !== null && homeScore !== undefined;
 
-                // Cross-reference con la mappa estratta dalla classifica
-                const hLogo = m.homeTeam?.imagery?.teamLogo || teamMap[m.homeTeam?.teamId]?.logo;
-                const aLogo = m.awayTeam?.imagery?.teamLogo || teamMap[m.awayTeam?.teamId]?.logo;
-                const hName = m.homeTeam?.shortName || teamMap[m.homeTeam?.teamId]?.name || "TBD";
-                const aName = m.awayTeam?.shortName || teamMap[m.awayTeam?.teamId]?.name || "TBD";
+                const home = resolveTeamInfo(m.homeTeam, "TBD");
+                const away = resolveTeamInfo(m.awayTeam, "TBD");
 
                 return (
-                  <div key={m.matchId || Math.random()} onClick={() => openMatch(m)} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex justify-between items-center cursor-pointer hover:bg-zinc-800 hover:border-white/20 transition-all group shadow-lg">
+                  <div key={m.matchId || idx} onClick={() => openMatch(m)} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex justify-between items-center cursor-pointer hover:bg-zinc-800 hover:border-white/20 transition-all group shadow-lg">
                     <div className="flex items-center gap-4 w-[42%]">
-                        <img src={getLogo(hLogo)} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt=""/>
-                        <span className="text-xs font-black uppercase truncate group-hover:text-cyan-400 transition-colors">{hName}</span>
+                        <img src={getLogo(home.logo)} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt=""/>
+                        <span className="text-xs font-black uppercase truncate group-hover:text-cyan-400 transition-colors">{home.name}</span>
                     </div>
                     
                     <div className="text-center font-black text-cyan-400 italic text-sm tracking-tighter shadow-cyan-500/10 drop-shadow-md">
-                        {!isPlayed ? 'VS' : `${homeScore ?? 0} - ${awayScore ?? 0}`}
+                        {!isPlayed ? 'VS' : `${homeScore} - ${awayScore}`}
                     </div>
                     
                     <div className="flex items-center gap-4 w-[42%] justify-end text-right">
-                        <span className="text-xs font-black uppercase truncate group-hover:text-cyan-400 transition-colors">{aName}</span>
-                        <img src={getLogo(aLogo)} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt=""/>
+                        <span className="text-xs font-black uppercase truncate group-hover:text-cyan-400 transition-colors">{away.name}</span>
+                        <img src={getLogo(away.logo)} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt=""/>
                     </div>
                   </div>
                 )
@@ -175,15 +214,15 @@ export default function ScoutHub() {
             <div className="p-8 bg-white/5 border-b border-white/5 flex flex-col items-center">
                <div className="flex justify-between items-center mb-8 px-4 w-full">
                   <div className="flex flex-col items-center gap-3 w-1/3 text-center">
-                      <img src={getLogo(modalFixture?.homeTeam?.imagery?.teamLogo || teamMap[modalFixture?.homeTeam?.teamId]?.logo)} className="w-16 h-16 object-contain" alt="" />
-                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{modalFixture?.homeTeam?.shortName || teamMap[modalFixture?.homeTeam?.teamId]?.name}</span>
+                      <img src={getLogo(resolveTeamInfo(modalFixture?.homeTeam, "TBD").logo)} className="w-16 h-16 object-contain" alt="" />
+                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{resolveTeamInfo(modalFixture?.homeTeam, "TBD").name}</span>
                   </div>
                   <div className="text-6xl font-black italic tracking-tighter text-white shadow-cyan-500/20 drop-shadow-2xl">
-                      {modalFixture?.providerHomeScore ?? 0} - {modalFixture?.providerAwayScore ?? 0}
+                      {modalFixture?.providerHomeScore ?? modalFixture?.homeScore ?? 0} - {modalFixture?.providerAwayScore ?? modalFixture?.awayScore ?? 0}
                   </div>
                   <div className="flex flex-col items-center gap-3 w-1/3 text-center">
-                      <img src={getLogo(modalFixture?.awayTeam?.imagery?.teamLogo || teamMap[modalFixture?.awayTeam?.teamId]?.logo)} className="w-16 h-16 object-contain" alt="" />
-                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{modalFixture?.awayTeam?.shortName || teamMap[modalFixture?.awayTeam?.teamId]?.name}</span>
+                      <img src={getLogo(resolveTeamInfo(modalFixture?.awayTeam, "TBD").logo)} className="w-16 h-16 object-contain" alt="" />
+                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{resolveTeamInfo(modalFixture?.awayTeam, "TBD").name}</span>
                   </div>
                </div>
                
