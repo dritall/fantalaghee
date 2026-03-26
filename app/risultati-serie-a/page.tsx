@@ -8,30 +8,77 @@ import { X, Loader2, AlertTriangle } from 'lucide-react';
 
 const TOTAL_ROUNDS = 38;
 
-const TeamLogo = ({ logo, name, className }: { logo?: string; name: string; className: string }) => {
+const TEAM_LOGOS: Record<string, string> = {
+  Inter: 'https://tmssl.akamaized.net/images/wappen/head/46.png',
+  Milan: 'https://tmssl.akamaized.net/images/wappen/head/5.png',
+  Napoli: 'https://tmssl.akamaized.net/images/wappen/head/6195.png',
+  Juventus: 'https://tmssl.akamaized.net/images/wappen/head/506.png',
+  Roma: 'https://tmssl.akamaized.net/images/wappen/head/12.png',
+  Lazio: 'https://tmssl.akamaized.net/images/wappen/head/398.png',
+  Atalanta: 'https://tmssl.akamaized.net/images/wappen/head/800.png',
+  Bologna: 'https://tmssl.akamaized.net/images/wappen/head/1025.png',
+  Fiorentina: 'https://tmssl.akamaized.net/images/wappen/head/430.png',
+  Torino: 'https://tmssl.akamaized.net/images/wappen/head/416.png',
+  Genoa: 'https://tmssl.akamaized.net/images/wappen/head/2521.png',
+  Udinese: 'https://tmssl.akamaized.net/images/wappen/head/410.png',
+  Lecce: 'https://tmssl.akamaized.net/images/wappen/head/1005.png',
+  Verona: 'https://tmssl.akamaized.net/images/wappen/head/276.png',
+  'Hellas Verona': 'https://tmssl.akamaized.net/images/wappen/head/276.png',
+  Cagliari: 'https://tmssl.akamaized.net/images/wappen/head/1390.png',
+  Parma: 'https://tmssl.akamaized.net/images/wappen/head/130.png',
+  Sassuolo: 'https://tmssl.akamaized.net/images/wappen/head/6574.png',
+  Como: 'https://tmssl.akamaized.net/images/wappen/head/10400.png',
+  Pisa: 'https://tmssl.akamaized.net/images/wappen/head/543.png',
+  Cremonese: 'https://tmssl.akamaized.net/images/wappen/head/1511.png',
+  Monza: 'https://tmssl.akamaized.net/images/wappen/head/2919.png',
+  Empoli: 'https://tmssl.akamaized.net/images/wappen/head/749.png',
+  Venezia: 'https://tmssl.akamaized.net/images/wappen/head/607.png',
+};
+
+const normalizeTeamName = (name?: string) => {
+  if (!name) return '';
+  return name
+    .replace(/\s+FC$/i, '')
+    .replace(/\s+AC$/i, '')
+    .replace(/\s+1907$/i, '')
+    .replace(/\s+1908$/i, '')
+    .trim();
+};
+
+const TeamLogo = ({
+  name,
+  className,
+}: {
+  logo?: string;
+  name: string;
+  className: string;
+}) => {
   const [imgError, setImgError] = useState(false);
-  const src = logo && !imgError
-    ? `/api/football?endpoint=logo&path=${encodeURIComponent(logo)}`
-    : null;
+
+  const normalized = normalizeTeamName(name);
+  const src = !imgError ? TEAM_LOGOS[normalized] || TEAM_LOGOS[name] || null : null;
+
   if (!src) {
-    const short = name?.substring(0, 3).toUpperCase() || '?';
+    const short = (normalized || name || '?').substring(0, 3).toUpperCase();
     return (
       <img
-        src={`https://ui-avatars.com/api/?name=${short}&background=27272a&color=22d3ee&rounded=true&bold=true&font-size=0.4`}
+        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(short)}&background=27272a&color=22d3ee&rounded=true&bold=true&font-size=0.4`}
         className={`${className} object-contain rounded-full`}
         alt={name}
       />
     );
   }
+
   return (
     <img
       src={src}
-      onError={() => setImgError(true)}
-      className={`${className} object-contain`}
       alt={name}
+      className={`${className} object-contain`}
+      onError={() => setImgError(true)}
     />
   );
 };
+
 
 export default function ScoutHub() {
   const [activeTab, setActiveTab]           = useState('calendario');
@@ -150,6 +197,13 @@ export default function ScoutHub() {
           ))}
         </div>
 
+        <div className="text-center mb-10">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400/60 bg-cyan-400/5 px-4 py-1.5 rounded-full border border-cyan-400/10">
+            Stagione 2025/2026
+          </span>
+        </div>
+
+
         {/* ===== CALENDARIO ===== */}
         {activeTab === 'calendario' && (
           <div className="space-y-6">
@@ -255,6 +309,10 @@ export default function ScoutHub() {
           <Dialog.Overlay className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100]" />
           <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#080808] border border-white/10 rounded-[3rem] w-[95vw] max-w-xl z-[101] overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
             <Dialog.Title className="sr-only">Dettagli Partita</Dialog.Title>
+            <Dialog.Description className="sr-only">
+              Dettagli e statistiche della partita selezionata
+            </Dialog.Description>
+
 
             {modalFixture && (() => {
               const home = resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa');
