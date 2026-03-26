@@ -3,17 +3,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, Loader2, Users, BarChart3, Clock, Construction } from 'lucide-react';
 
+// --- COMPONENTE LOGO CON PROXY FORZATO (ANTI-BLOCCO DNS) ---
 const TeamLogo = ({ logo, name, className }: { logo?: string, name: string, className: string }) => {
     const [imgError, setImgError] = useState(false);
     
-    // Anti-Blocco DNS: Usiamo il proxy gratuito wsrv.nl per aggirare l'errore ERR_NAME_NOT_RESOLVED
     let src = null;
     if (logo) {
-        if (logo.startsWith('http')) {
-            src = logo;
-        } else {
-            src = `https://wsrv.nl/?url=https://img.legaseriea.it/vimages/${logo.replace(/^\//, '')}`;
-        }
+        // Uniformiamo l'URL
+        const fullUrl = logo.startsWith('http') ? logo : `https://img.legaseriea.it/vimages/${logo.replace(/^\//, '')}`;
+        // FORZATURA PROXY: Passiamo TUTTO da wsrv.nl per aggirare ERR_NAME_NOT_RESOLVED
+        src = `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}`;
     }
     
     if (!src || imgError) {
@@ -46,58 +45,98 @@ export default function ScoutHub() {
           fetch('/api/football?endpoint=standings').then(r => r.json())
         ]);
 
-        // --- 1. CLASSIFICA (Ripristino logica diretta) ---
-        const teamsList = standingsRes.teams || standingsRes.data?.teams || standingsRes.data || [];
+        // --- 1. ESTRAZIONE CLASSIFICA (Deep Scanner mirato) ---
+        let teamsList: any[] = [];
         
+        // Prima prova percorsi noti
+        if (Array.isArray(standingsRes?.data?.teams)) teamsList = standingsRes.data.teams;
+        else if (Array.isArray(standingsRes?.teams)) teamsList = standingsRes.teams;
+        else if (Array.isArray(standingsRes?.data)) teamsList = standingsRes.data;
+        else if (Array.isArray(standingsRes?.data?.rows)) teamsList = standingsRes.data.rows;
+
+        // Se fallisce, Deep Scan ricorsivo
+        if (teamsList.length === 0) {
+            const findTeams = (obj: any) => {
+              if (!obj) return false;
+              if (Array.isArray(obj) && obj.length > 0 && (obj[0].teamId || obj[0].points || obj[0].team)) { teamsList = obj; return true; }
+              if (typeof obj === 'object') {
+                if (obj.teams && Array.isArray(obj.teams)) { teamsList = obj.teams; return true; }
+                for (let key in obj) if (findTeams(obj[key])) return true;
+              }
+              return false;
+            };
+            findTeams(standingsRes);
+        }
+
         const tMap: Record<string, any> = {};
-        const parsedStandings = teamsList.map((t: any) => {
+        const parsedStandings = teamsList.map((row: any) => {
+           const t = row.team || row;
+           const statsArr = t.stats || row.stats || [];
+           
            const getStat = (id: string) => {
-               const s = t.stats?.find((x: any) => x.statsId === id);
+               const s = statsArr.find((x: any) => x.statsId === id);
                return s ? parseInt(s.statsValue) : 0;
            };
 
-           const pts = getStat('points') || t.points || 0;
-           const logo = t.imagery?.teamLogo;
-           const name = t.shortName || t.officialName || t.name || "TBD";
+           const pts = getStat('points') || t.points || row.points || 0;
+           let logo = t.imagery?.teamLogo || row.logo;
+           
+           // Regex extraction fallback per i loghi nascosti
+           if (!logo) {
+               const str = JSON.stringify(t);
+               const match = str.match(/"(?:teamLogo|logo|url)"\s*:\s*"([^"]+\.(?:png|webp|jpg))"/i) || str.match(/"teamLogo"\s*:\s*"([^"]+)"/i);
+               if (match) logo = match[1];
+           }
+
+           const name = t.shortName || t.officialName || t.name || row.name || "TBD";
            const tId = t.teamId || t.id || name;
 
+           // Popolamento mappa incrociata
            tMap[tId] = { name, logo };
            if (name !== "TBD") tMap[name.toLowerCase()] = { name, logo };
 
            return { 
                id: tId, name, logo, points: pts,
-               played: getStat('matches-played'),
-               win: getStat('win'),
-               draw: getStat('draw'),
-               lose: getStat('lose'),
-               gd: getStat('goal-difference')
+               played: getStat('matches-played') || row.played || 0,
+               win: getStat('win') || row.win || 0,
+               draw: getStat('draw') || row.draw || 0,
+               lose: getStat('lose') || row.lose || 0,
+               gd: getStat('goal-difference') || row.gd || 0
            };
         });
 
-        parsedStandings.sort((a: any, b: any) => b.points - a.points);
-        setStandings(parsedStandings);
+        // Deduplicazione e Ordinamento
+        const uniqueStandings = Array.from(new Map(parsedStandings.map(item => [item.id, item])).values());
+        uniqueStandings.sort((a: any, b: any) => b.points - a.points);
+        
+        setStandings(uniqueStandings);
         setTeamMap(tMap);
 
-        // --- 2. CALENDARIO (Mappatura sicura delle 38 giornate) ---
-        const allMatches = matchesRes.data || matchesRes.matches || (Array.isArray(matchesRes) ? matchesRes : []);
+        // --- 2. ESTRAZIONE CALENDARIO (Percorso Diretto e Sicuro) ---
+        let allMatches = matchesRes?.data?.matches || matchesRes?.data || matchesRes?.matches || (Array.isArray(matchesRes) ? matchesRes : []);
+        // Pulizia: filtra solo oggetti che sembrano partite reali
+        allMatches = allMatches.filter((m: any) => m.homeTeam && m.awayTeam);
         
-        const uniqueMatchDays = Array.from(new Set(allMatches.map((m: any) => m.matchDayId).filter(Boolean)));
         const map: Record<number, any[]> = {};
+        const uniqueMatchDays = Array.from(new Set(allMatches.map((m: any) => m.matchDayId || m.roundId).filter(Boolean)));
         let currentR = 1;
 
         allMatches.forEach((m: any) => {
-          if (!m.homeTeam || !m.awayTeam) return; 
+          const mId = m.matchDayId || m.roundId;
+          let r = uniqueMatchDays.indexOf(mId) + 1 || 1; 
 
-          let r = uniqueMatchDays.indexOf(m.matchDayId) + 1; 
-          if (r === 0) r = 1;
+          // Fallback con Regex se la Lega usa "Matchday XX"
+          const mStr = JSON.stringify(m);
+          const roundMatch = mStr.match(/(?:Matchday|Giornata|Round)\s*(\d+)/i);
+          if (roundMatch) r = parseInt(roundMatch[1]);
 
           if (!map[r]) map[r] = [];
-          
           if (!map[r].find(x => x.matchId === m.matchId)) {
               map[r].push(m);
           }
         });
 
+        // Calcolo ultima giornata giocata
         Object.keys(map).forEach(rKey => {
             const rNum = parseInt(rKey);
             map[rNum].sort((a, b) => new Date(a.dateUtc || a.startDateUtc || 0).getTime() - new Date(b.dateUtc || b.startDateUtc || 0).getTime());
@@ -116,6 +155,7 @@ export default function ScoutHub() {
     load();
   }, []);
 
+  // --- AUTO SCROLL CALENDARIO ---
   useEffect(() => {
       if (scrollRef.current && activeTab === 'calendario') {
           const activeBtn = scrollRef.current.querySelector('.active-round-btn');
@@ -130,13 +170,15 @@ export default function ScoutHub() {
     setTimeout(() => setMatchDetails({ wip: true }), 1000);
   };
 
+  // Funzione incrociata per Loghi e Nomi (Usa la Mappa della Classifica)
   const resolveTeam = (teamObj: any, fallbackName: string) => {
       let name = teamObj?.shortName || teamObj?.officialName || teamObj?.name;
-      let logo = teamObj?.imagery?.teamLogo;
+      let logo = teamObj?.imagery?.teamLogo || teamObj?.logo;
       const id = teamObj?.teamId || teamObj?.id;
 
       if (!logo && id && teamMap[id]) logo = teamMap[id].logo;
       if (!name && id && teamMap[id]) name = teamMap[id].name;
+      if (!logo && name && teamMap[name.toLowerCase()]) logo = teamMap[name.toLowerCase()].logo;
       
       return { name: name || fallbackName, logo };
   };
@@ -147,12 +189,14 @@ export default function ScoutHub() {
     <div className="min-h-screen bg-black text-white p-4 pt-24 font-sans selection:bg-cyan-500/30">
       <div className="max-w-5xl mx-auto">
         
+        {/* TAB HEADER */}
         <div className="flex bg-zinc-900 p-1.5 rounded-2xl mb-8 max-w-xs mx-auto border border-white/5 shadow-2xl">
           {['calendario', 'classifica'].map(t => (
             <button key={t} onClick={() => setActiveTab(t)} className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all duration-300 ${activeTab === t ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20' : 'text-zinc-500 hover:text-white'}`}>{t}</button>
           ))}
         </div>
 
+        {/* CONTENUTO CALENDARIO */}
         {activeTab === 'calendario' ? (
           <div className="space-y-6">
             <div ref={scrollRef} className="flex overflow-x-auto gap-2 pb-4 no-scrollbar scroll-smooth">
@@ -163,12 +207,12 @@ export default function ScoutHub() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {roundsMatches[selectedRound] ? roundsMatches[selectedRound].map((m, idx) => {
-                const homeScore = m.providerHomeScore;
-                const awayScore = m.providerAwayScore;
+                const homeScore = m.providerHomeScore ?? m.homeScore;
+                const awayScore = m.providerAwayScore ?? m.awayScore;
                 const isPlayed = homeScore !== null && homeScore !== undefined;
 
-                const home = resolveTeam(m.homeTeam, "TBD");
-                const away = resolveTeam(m.awayTeam, "TBD");
+                const home = resolveTeam(m.homeTeam, "Casa");
+                const away = resolveTeam(m.awayTeam, "Ospite");
 
                 return (
                   <div key={m.matchId || idx} onClick={() => openMatch(m)} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex justify-between items-center cursor-pointer hover:bg-zinc-800 hover:border-white/20 transition-all group shadow-lg">
@@ -191,6 +235,7 @@ export default function ScoutHub() {
             </div>
           </div>
         ) : (
+          /* CONTENUTO CLASSIFICA */
           <div className="bg-zinc-900/40 rounded-[2.5rem] p-4 md:p-8 border border-white/5 backdrop-blur-sm shadow-2xl overflow-x-auto">
             <div className="min-w-[600px]">
                 <div className="grid grid-cols-12 items-center py-2 px-6 text-[10px] font-black uppercase text-zinc-500 border-b border-white/10 mb-2">
@@ -205,7 +250,7 @@ export default function ScoutHub() {
                 </div>
 
                 {standings.length === 0 ? (
-                    <div className="text-center py-10 text-zinc-600 uppercase font-black tracking-widest text-xs animate-pulse">Elaborazione Statistiche...</div>
+                    <div className="text-center py-10 text-zinc-600 uppercase font-black tracking-widest text-xs animate-pulse">Elaborazione Classifica...</div>
                 ) : standings.map((t, i) => (
                   <div key={t.id} className="grid grid-cols-12 items-center py-3.5 border-b border-white/5 last:border-0 hover:bg-white/5 px-6 rounded-2xl transition-all group">
                     <span className="col-span-1 text-[11px] font-black text-zinc-600 group-hover:text-cyan-500 transition-colors">{(i+1).toString().padStart(2,'0')}</span>
@@ -226,6 +271,7 @@ export default function ScoutHub() {
         )}
       </div>
 
+      {/* MODALE DETTAGLIO PARTITA */}
       <Dialog.Root open={!!modalFixture} onOpenChange={() => setModalFixture(null)}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100]" />
@@ -236,43 +282,5 @@ export default function ScoutHub() {
             <div className="p-8 bg-white/5 border-b border-white/5 flex flex-col items-center">
                <div className="flex justify-between items-center mb-8 px-4 w-full">
                   <div className="flex flex-col items-center gap-3 w-1/3 text-center">
-                      <TeamLogo logo={resolveTeam(modalFixture?.homeTeam, "TBD").logo} name={resolveTeam(modalFixture?.homeTeam, "TBD").name} className="w-16 h-16" />
-                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{resolveTeam(modalFixture?.homeTeam, "TBD").name}</span>
-                  </div>
-                  <div className="text-6xl font-black italic tracking-tighter text-white shadow-cyan-500/20 drop-shadow-2xl">
-                      {modalFixture?.providerHomeScore ?? 0} - {modalFixture?.providerAwayScore ?? 0}
-                  </div>
-                  <div className="flex flex-col items-center gap-3 w-1/3 text-center">
-                      <TeamLogo logo={resolveTeam(modalFixture?.awayTeam, "TBD").logo} name={resolveTeam(modalFixture?.awayTeam, "TBD").name} className="w-16 h-16" />
-                      <span className="text-[10px] uppercase text-zinc-500 font-extrabold tracking-widest">{resolveTeam(modalFixture?.awayTeam, "TBD").name}</span>
-                  </div>
-               </div>
-               
-               <div className="flex bg-black p-1 rounded-2xl border border-white/5 w-full max-w-md mx-auto shadow-inner">
-                  {[ {id:'cronaca', i:Clock}, {id:'stats', i:BarChart3}, {id:'formazioni', i:Users} ].map(t => (
-                    <button key={t.id} onClick={() => setMatchTab(t.id as any)} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 transition-all duration-300 ${matchTab === t.id ? 'bg-zinc-800 text-cyan-400 shadow-md' : 'text-zinc-600 hover:text-white'}`}><t.i className="w-3 h-3"/>{t.id}</button>
-                  ))}
-               </div>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
-               {!matchDetails ? (
-                   <div className="flex flex-col items-center justify-center h-full gap-4 py-20 text-zinc-500">
-                       <Loader2 className="w-10 h-10 animate-spin text-cyan-400" />
-                       <span className="text-[10px] font-black uppercase tracking-widest italic">Sincronizzazione Dati...</span>
-                   </div>
-               ) : (
-                   <div className="flex flex-col items-center justify-center h-full gap-4 py-20 text-zinc-500">
-                       <Construction className="w-12 h-12 text-zinc-700" />
-                       <span className="text-xs font-black uppercase tracking-[0.2em]">Integrazione Feed API in corso...</span>
-                       <span className="text-[10px] w-2/3 text-center opacity-60">I dettagli dei singoli match verranno aggiunti con i nuovi endpoint di Matchday.</span>
-                   </div>
-               )}
-            </div>
-            <button onClick={() => setModalFixture(null)} className="absolute top-8 right-8 p-3 bg-zinc-900/50 rounded-full border border-white/10 hover:bg-red-500 hover:text-white text-zinc-500 transition-all duration-300 shadow-2xl backdrop-blur-md flex items-center justify-center active:scale-95"><X className="w-5 h-5"/></button>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-    </div>
-  );
-}
+                      <TeamLogo logo={resolveTeam(modalFixture?.homeTeam, "Casa").logo} name={resolveTeam(modalFixture?.homeTeam, "Casa").name} className="w-16 h-16" />
+                      <span className
