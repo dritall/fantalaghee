@@ -6,13 +6,23 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X, Loader2, Users, BarChart3, Clock, Construction, AlertTriangle } from 'lucide-react';
 
-// --- COMPONENTE LOGO CON PROXY ANTI-BLOCCO ---
+// --- COMPONENTE LOGO (FIX URL E PROXY ALLORIGINS) ---
 const TeamLogo = ({ logo, name, className }: { logo?: string, name: string, className: string }) => {
     const [imgError, setImgError] = useState(false);
+    
     let src = null;
     if (logo) {
-        const fullUrl = logo.startsWith('http') ? logo : `https://img.legaseriea.it/vimages/${logo.replace(/^\//, '')}`;
-        src = `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}`;
+        // Fix: Il DB Lega spesso restituisce link senza https o doppi. Puliamo la stringa.
+        let cleanUrl = logo.replace(/^(https?:\/\/)?/, ''); // Rimuove eventuali protocolli
+        cleanUrl = cleanUrl.replace(/^\/*/, ''); // Rimuove eventuali slash iniziali
+        
+        // Se non è già un link della lega, aggiungiamo il prefisso base
+        if (!cleanUrl.includes('img.legaseriea.it')) {
+            cleanUrl = `img.legaseriea.it/vimages/${cleanUrl}`;
+        }
+        
+        // Proxy proxy infallibile per aggirare blocchi CORS e DNS
+        src = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://' + cleanUrl)}`;
     }
     
     if (!src || imgError) {
@@ -35,109 +45,117 @@ export default function ScoutHub() {
   const [modalFixture, setModalFixture] = useState<any>(null);
   const [matchDetails, setMatchDetails] = useState<any>(null);
   const [matchTab, setMatchTab] = useState<'cronaca' | 'stats' | 'formazioni'>('cronaca');
-  const [debugRaw, setDebugRaw] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function load() {
       try {
         const [matchesRes, standingsRes] = await Promise.all([
-          fetch('/api/football?endpoint=matches').then(r => r.json()).catch(e => ({ error: String(e) })),
-          fetch('/api/football?endpoint=standings').then(r => r.json()).catch(e => ({ error: String(e) }))
+          fetch('/api/football?endpoint=matches').then(r => r.json()).catch(() => ({})),
+          fetch('/api/football?endpoint=standings').then(r => r.json()).catch(() => ({}))
         ]);
 
-        setDebugRaw({ matches: matchesRes, standings: standingsRes });
-
-        // --- 1. DEEP SCANNER: CLASSIFICA E LOGHI ---
-        const standingsList: any[] = [];
-        const searchStandings = (obj: any) => {
-            if (!obj) return;
-            if (Array.isArray(obj)) {
-                obj.forEach(searchStandings);
-            } else if (typeof obj === 'object') {
-                // Riconosciamo una riga della classifica se ha 'stats' e un riferimento alla squadra
-                if (obj.stats && Array.isArray(obj.stats) && (obj.teamId || obj.team)) {
-                    standingsList.push(obj);
-                } else {
-                    Object.values(obj).forEach(searchStandings);
+        // --- 1. ESTRAZIONE SICURA CLASSIFICA ---
+        let teamsList = standingsRes?.data?.teams || standingsRes?.teams || standingsRes?.data?.rows || standingsRes?.data || [];
+        
+        // Se l'array diretto fallisce, cerca il primo array con elementi validi
+        if (!Array.isArray(teamsList) || teamsList.length === 0) {
+            const findArray = (obj: any): any[] | null => {
+                if (!obj) return null;
+                if (Array.isArray(obj) && obj.length > 0 && (obj[0].teamId || obj[0].team || obj[0].points)) return obj;
+                if (typeof obj === 'object') {
+                    for (let key of Object.keys(obj)) {
+                        const res = findArray(obj[key]);
+                        if (res) return res;
+                    }
                 }
-            }
-        };
-        searchStandings(standingsRes);
+                return null;
+            };
+            teamsList = findArray(standingsRes) || [];
+        }
 
         const tMap: Record<string, any> = {};
-        const parsedStandings = standingsList.map((row: any) => {
-           const teamNode = row.team || row;
-           const name = teamNode.shortName || teamNode.officialName || teamNode.name || row.name || "TBD";
-           const tId = teamNode.teamId || teamNode.id || row.id || name;
-
-           // Estrazione robusta stats
-           const statsArr = row.stats || teamNode.stats || [];
+        const parsedStandings = teamsList.map((row: any) => {
+           const t = row.team || row;
+           const statsArr = t.stats || row.stats || [];
            const getStat = (id: string) => {
                const s = statsArr.find((x: any) => x.statsId === id);
                return s ? parseInt(s.statsValue) : 0;
            };
 
-           const pts = getStat('points') || row.points || teamNode.points || 0;
-           let logo = teamNode.imagery?.teamLogo || row.logo;
-           
+           const pts = getStat('points') || t.points || row.points || 0;
+           let logo = t.imagery?.teamLogo || row.logo;
            if (!logo) {
-               const str = JSON.stringify(teamNode);
-               const match = str.match(/"(?:teamLogo|logo|url)"\s*:\s*"([^"]+\.(?:png|webp|jpg))"/i) || str.match(/"teamLogo"\s*:\s*"([^"]+)"/i);
+               const str = JSON.stringify(t);
+               const match = str.match(/"(?:teamLogo|logo|url)"\s*:\s*"([^"]+\.(?:png|webp|jpg))"/i);
                if (match) logo = match[1];
            }
+
+           const name = t.shortName || t.officialName || t.name || row.name || "TBD";
+           const tId = t.teamId || t.id || name;
 
            tMap[tId] = { name, logo };
            if (name !== "TBD") tMap[name.toLowerCase()] = { name, logo };
 
            return { 
                id: tId, name, logo, points: pts,
-               played: getStat('matches-played') || 0,
-               win: getStat('win') || 0,
-               draw: getStat('draw') || 0,
-               lose: getStat('lose') || 0,
-               gd: getStat('goal-difference') || 0
+               played: getStat('matches-played') || row.played || 0,
+               win: getStat('win') || row.win || 0,
+               draw: getStat('draw') || row.draw || 0,
+               lose: getStat('lose') || row.lose || 0,
+               gd: getStat('goal-difference') || row.gd || 0
            };
         });
 
+        // Deduplica
         const uniqueStandings = Array.from(new Map(parsedStandings.map(item => [item.id, item])).values());
         uniqueStandings.sort((a: any, b: any) => b.points - a.points);
         setStandings(uniqueStandings);
         setTeamMap(tMap);
 
-        // --- 2. DEEP SCANNER: CALENDARIO ---
-        const matchesList: any[] = [];
-        const searchMatches = (obj: any) => {
-            if (!obj) return;
-            if (Array.isArray(obj)) {
-                obj.forEach(searchMatches);
-            } else if (typeof obj === 'object') {
-                if (obj.homeTeam && obj.awayTeam && obj.matchId) {
-                    matchesList.push(obj);
-                } else {
-                    Object.values(obj).forEach(searchMatches);
+        // --- 2. ESTRAZIONE SICURA CALENDARIO ---
+        let allMatches = matchesRes?.data?.matches || matchesRes?.matches || matchesRes?.data || [];
+        if (!Array.isArray(allMatches) || allMatches.length === 0) {
+            const findMatchesArray = (obj: any): any[] | null => {
+                if (!obj) return null;
+                if (Array.isArray(obj) && obj.length > 0 && obj[0].matchId) return obj;
+                if (typeof obj === 'object') {
+                    for (let key of Object.keys(obj)) {
+                        const res = findMatchesArray(obj[key]);
+                        if (res) return res;
+                    }
                 }
-            }
-        };
-        searchMatches(matchesRes);
-
+                return null;
+            };
+            allMatches = findMatchesArray(matchesRes) || [];
+        }
+        
+        allMatches = allMatches.filter((m: any) => m.homeTeam && m.awayTeam);
         const map: Record<number, any[]> = {};
-        const uniqueMatchDays = Array.from(new Set(matchesList.map((m: any) => m.matchDayId || m.round?.id || m.roundId).filter(Boolean)));
+        
+        // Array degli Hash univoci delle giornate per stabilire l'ordine 1-38
+        const uniqueMatchDays = Array.from(new Set(allMatches.map((m: any) => m.matchDayId || m.round?.id || m.roundId).filter(Boolean)));
         let currentR = 1;
 
-        matchesList.forEach((m: any) => {
+        allMatches.forEach((m: any) => {
+          let r = 1;
           const mId = m.matchDayId || m.round?.id || m.roundId;
-          let r = uniqueMatchDays.indexOf(mId) + 1 || 1; 
-
+          
+          if (mId) {
+              const index = uniqueMatchDays.indexOf(mId);
+              r = index >= 0 ? index + 1 : 1;
+          }
+          
+          // Regex di backup: intercetta "Matchday 23"
           const mStr = JSON.stringify(m);
-          const roundMatch = mStr.match(/(?:Matchday|Giornata|Round)\s*(\d+)/i);
-          if (roundMatch) r = parseInt(roundMatch[1]);
+          const roundMatch = mStr.match(/(?:Matchday|Giornata|Round)[\s_]*(\d+)/i);
+          if (roundMatch) r = parseInt(roundMatch[1], 10);
 
           if (!map[r]) map[r] = [];
           if (!map[r].find(x => x.matchId === m.matchId)) map[r].push(m);
         });
 
-        // Calcolo ultima giornata giocata in base agli Status Ufficiali
+        // Calcolo ultima giornata giocata
         Object.keys(map).forEach(rKey => {
             const rNum = parseInt(rKey);
             map[rNum].sort((a, b) => new Date(a.dateUtc || a.startDateUtc || 0).getTime() - new Date(b.dateUtc || b.startDateUtc || 0).getTime());
@@ -162,13 +180,13 @@ export default function ScoutHub() {
     load();
   }, []);
 
-  // --- AUTO SCROLL ---
+  // --- AUTO SCROLL CALENDARIO ---
   useEffect(() => {
       if (scrollRef.current && activeTab === 'calendario') {
           setTimeout(() => {
               const activeBtn = scrollRef.current?.querySelector('.active-round-btn');
               if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-          }, 150);
+          }, 200);
       }
   }, [selectedRound, roundsMatches, activeTab]);
 
@@ -205,7 +223,7 @@ export default function ScoutHub() {
             <div ref={scrollRef} className="flex overflow-x-auto gap-2 pb-4 no-scrollbar scroll-smooth">
               {Object.keys(roundsMatches).length > 0 ? Object.keys(roundsMatches).map(Number).sort((a,b)=>a-b).map((r) => (
                 <button key={r} onClick={() => setSelectedRound(r)} className={`px-5 py-2 rounded-xl shrink-0 font-bold text-xs border transition-all duration-300 ${selectedRound===r?'active-round-btn border-cyan-400 bg-cyan-400/10 text-white shadow-[0_0_15px_rgba(34,211,238,0.1)]':'border-white/5 text-zinc-600 hover:border-white/20'}`}>G.{r}</button>
-              )) : null}
+              )) : <div className="text-zinc-600 font-bold uppercase text-xs">Nessuna giornata disponibile</div>}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -232,14 +250,7 @@ export default function ScoutHub() {
                     </div>
                   </div>
                 )
-              }) : (
-                <div className="col-span-full py-10 bg-red-900/20 border border-red-500/30 rounded-3xl p-6">
-                    <div className="flex items-center gap-2 text-red-400 font-bold mb-4 uppercase text-xs tracking-widest"><AlertTriangle className="w-4 h-4"/> Debug Calendario</div>
-                    <pre className="text-left text-[10px] text-zinc-400 whitespace-pre-wrap overflow-auto max-h-64 custom-scrollbar">
-                        {JSON.stringify(debugRaw?.matches, null, 2)?.slice(0, 1500) || "Nessun dato."}
-                    </pre>
-                </div>
-              )}
+              }) : <div className="col-span-full py-20 text-center text-zinc-700 font-black uppercase text-xs tracking-[0.4em] opacity-50">Giornata non disponibile</div>}
             </div>
           </div>
         ) : (
@@ -257,12 +268,7 @@ export default function ScoutHub() {
                 </div>
 
                 {standings.length === 0 ? (
-                    <div className="col-span-full py-10 bg-red-900/20 border border-red-500/30 rounded-3xl p-6 mt-4">
-                        <div className="flex items-center gap-2 text-red-400 font-bold mb-4 uppercase text-xs tracking-widest"><AlertTriangle className="w-4 h-4"/> Debug Classifica</div>
-                        <pre className="text-left text-[10px] text-zinc-400 whitespace-pre-wrap overflow-auto max-h-64 custom-scrollbar">
-                            {JSON.stringify(debugRaw?.standings, null, 2)?.slice(0, 1500) || "Nessun dato."}
-                        </pre>
-                    </div>
+                    <div className="text-center py-10 text-zinc-600 uppercase font-black tracking-widest text-xs animate-pulse">Elaborazione Classifica...</div>
                 ) : standings.map((t, i) => (
                   <div key={t.id} className="grid grid-cols-12 items-center py-3.5 border-b border-white/5 last:border-0 hover:bg-white/5 px-6 rounded-2xl transition-all group">
                     <span className="col-span-1 text-[11px] font-black text-zinc-600 group-hover:text-cyan-500 transition-colors">{(i+1).toString().padStart(2,'0')}</span>
