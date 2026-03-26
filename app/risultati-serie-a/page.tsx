@@ -58,6 +58,35 @@ const normalizeTeamName = (name?: string) => {
   return aliases[name] || aliases[cleaned] || cleaned;
 };
 
+const getDisplayPlayerName = (p: any) => {
+  if (!p) return 'Player';
+  const player = p.player || p;
+  
+  // User wants short names. Prioritize last names / shirt names.
+  let name = player.mediaLastName || player.shirtName || player.displayName;
+  
+  // Fallback to shortName if primary ones are missing or too long
+  if (!name || (name.length > 15 && (player.shortName || player.officialName))) {
+    name = player.shortName || player.officialName || 'Player';
+  }
+
+  // Cleanup: Common string artifacts
+  name = name.replace(/\.\.\./g, '').trim();
+  
+  // If we have an initial like "V. Carboni", keep only the last part if it seems more "short"
+  if (/^[A-Z]\.\s+/.test(name)) {
+    name = name.replace(/^[A-Z]\.\s+/, '');
+  }
+  
+  // If name is still very long and has spaces, take the last part
+  if (name.length > 18 && name.includes(' ')) {
+    const parts = name.split(' ');
+    name = parts[parts.length - 1];
+  }
+
+  return name;
+};
+
 const TeamLogo = ({
   logo,
   name,
@@ -71,24 +100,22 @@ const TeamLogo = ({
 }) => {
   const [imgError, setImgError] = useState(false);
 
-  // 1. Try the logo provided directly from the API object
-  // Cremonese teamId is typically 1511 in some contexts, but let's be generic
-  let src = !imgError ? logo : null;
+  // Normalize name for local mapping lookup
+  const norm = normalizeTeamName(name);
 
-  // 2. Fallback to local mapping if API logo fails or is missing
-  if (!src) {
-    const normalized = normalizeTeamName(name);
-    src = !imgError ? TEAM_LOGOS[normalized] || TEAM_LOGOS[name] || null : null;
-  }
+  // Robust source selection
+  let src = !imgError ? (logo || TEAM_LOGOS[norm] || TEAM_LOGOS[name]) : null;
 
-  if (!src) {
-    const short = (normalizeTeamName(name) || name || '?').substring(0, 3).toUpperCase();
+  if (!src || imgError) {
+    const short = (norm || name || '?').substring(0, 3).toUpperCase();
     return (
-      <img
-        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(short)}&background=27272a&color=22d3ee&rounded=true&bold=true&font-size=0.4`}
-        className={`${className} object-contain rounded-full`}
-        alt={name}
-      />
+      <div className={`${className} bg-zinc-800 rounded-full flex items-center justify-center border border-white/10 shrink-0 shadow-inner overflow-hidden`}>
+        <img
+          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(short)}&background=27272a&color=22d3ee&rounded=true&bold=true&font-size=0.4`}
+          className="w-full h-full object-cover"
+          alt={name}
+        />
+      </div>
     );
   }
 
@@ -96,7 +123,7 @@ const TeamLogo = ({
     <img
       src={src}
       alt={name}
-      className={`${className} object-contain`}
+      className={`${className} object-contain shrink-0 drop-shadow-md`}
       onError={() => {
         console.warn(`Logo load failed for ${name} (${teamId}), fallback triggered.`);
         setImgError(true);
@@ -238,12 +265,12 @@ export default function ScoutHub() {
           minuteRaw:      ev.time || ev.minute || 0,
           additionalTime: ev.additionalTime || 0,
           type:           ev.type,
-          player:         ev.player?.shortName || ev.player?.officialName || 'Player',
+          player:         getDisplayPlayerName(ev),
           playerId:       ev.playerId || ev.player?.playerId,
           team:           ev.teamId === detail.header?.homeTeam?.teamId ? 'home' : 'away',
           relatedId:      ev.relatedPlayerId || ev.subOff?.playerId || ev.subOn?.playerId,
-          subOn:          ev.subOn?.shortName,
-          subOff:         ev.subOff?.shortName,
+          subOn:          getDisplayPlayerName(ev.subOn),
+          subOff:         getDisplayPlayerName(ev.subOff),
         });
       });
     } else {
@@ -255,11 +282,11 @@ export default function ScoutHub() {
               minuteRaw:      ev.time || ev.minute || 0,
               additionalTime: ev.additionalTime || 0,
               type:           ev.type,
-              player:         p.player?.shortName || p.officialName || p.shortName || 'Player',
+              player:         getDisplayPlayerName(p),
               playerId:       p.playerId || p.id,
               team:           side,
-              relatedId:      ev.relatedPlayerId || ev.subOffPlayer?.playerId,
-              subOff:         ev.subOffPlayer?.shortName || ev.relatedPlayerName
+              relatedId:      ev.relatedPlayerId || ev.subOffPlayer?.playerId || ev.subOnPlayer?.playerId,
+              subOff:         ev.subOffPlayer ? getDisplayPlayerName(ev.subOffPlayer) : (ev.relatedPlayerName ? getDisplayPlayerName({shortName: ev.relatedPlayerName}) : null)
             });
           });
         });
@@ -333,32 +360,35 @@ export default function ScoutHub() {
     }
 
     const getTypeLabel = (t: string) => {
-      if (t.includes('goal')) return '⚽';
-      if (t.includes('yellow')) return '🟨';
-      if (t.includes('red')) return '🟥';
-      if (t.includes('substitution')) return '🔄';
+      const type = t.toLowerCase();
+      if (type.includes('goal')) return '⚽';
+      if (type.includes('yellow')) return '🟨';
+      if (type.includes('red')) return '🟥';
+      if (type.includes('substitution') || type === 'substitution') return '🔄';
       return '•';
     };
 
     return (
-      <div className="space-y-4 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-px before:bg-white/5">
+      <div className="space-y-6 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-px before:bg-white/5 mx-2">
         {mergedEvents.map((ev, i) => (
           <div key={i} className="flex items-start gap-5 text-xs relative" style={{ paddingLeft: '8px' }}>
-            <span className="w-10 text-[10px] font-black text-cyan-400 mt-0.5 text-right shrink-0">{ev.minuteStr}</span>
-            <div className="mt-0.5 w-5 h-5 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-[10px] z-10 shrink-0">
+            <span className="w-10 text-[10px] font-black text-cyan-400 mt-0.5 text-right shrink-0 font-mono">{ev.minuteStr}</span>
+            <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] z-10 shrink-0 border border-white/10 ${ev.type.includes('red') ? 'bg-red-500/20' : ev.type.includes('yellow') ? 'bg-yellow-500/20' : 'bg-zinc-900'}`}>
               {getTypeLabel(ev.type)}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className={`font-black text-sm ${ev.team === 'home' ? 'text-white' : 'text-zinc-400'}`}>{ev.player}</span>
+                <span className={`font-black text-sm tracking-tight ${ev.team === 'home' ? 'text-white' : 'text-zinc-300'}`}>{ev.player}</span>
                 {ev.subOff && (
-                  <span className="text-zinc-500 text-[11px] italic">per {ev.subOff}</span>
+                  <span className="text-zinc-500 text-[11px] font-medium flex items-center gap-1.5">
+                    <span className="opacity-40">←</span> {ev.subOff}
+                  </span>
                 )}
               </div>
-              <div className="text-[9px] text-zinc-600 uppercase tracking-widest mt-1 font-bold">
+              <div className="text-[9px] text-zinc-500 uppercase tracking-[0.2em] mt-1 font-black flex items-center gap-2">
                 {ev.team === 'home' ? homeName : awayName}
-                {ev.type === 'penalty-goal' && ' • RIGORE'}
-                {ev.type === 'own-goal' && ' • AUTOGOL'}
+                {ev.type === 'penalty-goal' && <span className="text-emerald-500 bg-emerald-500/10 px-1 rounded">RIGORE</span>}
+                {ev.type === 'own-goal' && <span className="text-red-500 bg-red-500/10 px-1 rounded">AUTOGOL</span>}
               </div>
             </div>
           </div>
@@ -390,58 +420,79 @@ export default function ScoutHub() {
 
   const TacticalPitch = ({ lineup, side }: any) => {
     if (!lineup?.fielded || lineup.fielded.length === 0) {
-       return <p className="text-center text-zinc-500 text-[10px] py-4 uppercase">Formazione non comunicata</p>;
+       return (
+         <div className="bg-zinc-900/40 rounded-3xl p-12 border border-white/5 flex flex-col items-center justify-center gap-4">
+           <AlertTriangle className="w-8 h-8 text-zinc-700" />
+           <p className="text-center text-zinc-500 text-[10px] uppercase tracking-widest font-black">Formazione non disponibile</p>
+         </div>
+       );
     }
 
-    // Group by role for fallback positioning
     const roles: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [] };
     lineup.fielded.forEach((p: any) => {
       if (roles[p.role]) roles[p.role].push(p);
-      else roles[3].push(p); // default to mid
+      else roles[3].push(p);
     });
 
     return (
-      <div className="mt-4">
+      <div className="w-full">
         {lineup.coach?.shortName && (
-          <p className="text-[9px] text-zinc-500 uppercase text-center mb-3">All: <span className="text-zinc-300">{lineup.coach.shortName}</span></p>
-        )}
-        <div className="relative w-full h-[320px] md:h-[420px] bg-zinc-900/50 rounded-2xl border border-white/5 overflow-hidden">
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <div className="absolute inset-4 border border-white rounded-lg" />
-            <div className="absolute left-1/2 top-4 bottom-4 w-px bg-white -translate-x-1/2" />
-            <div className="absolute left-1/2 top-1/2 w-20 h-20 border border-white rounded-full -translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute left-1/2 top-4 w-32 h-16 border border-white -translate-x-1/2" />
-            <div className="absolute left-1/2 bottom-4 w-32 h-16 border border-white -translate-x-1/2" />
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">In panchina:</span>
+            <span className="text-[10px] font-black text-white uppercase tracking-widest">{lineup.coach.shortName}</span>
           </div>
+        )}
+        <div className="relative w-full aspect-[3/4] md:aspect-[4/3] bg-[#0c1a10] rounded-[2rem] border-4 border-white/10 overflow-hidden shadow-2xl">
+          {/* Pitch Markings */}
+          <div className="absolute inset-x-8 inset-y-8 border-2 border-white/20 rounded-lg pointer-events-none">
+            {/* Half line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/20 -translate-x-1/2" />
+            {/* Center circle */}
+            <div className="absolute left-1/2 top-1/2 w-32 h-32 border-2 border-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute left-1/2 top-1/2 w-1 h-1 bg-white/40 rounded-full -translate-x-1/2 -translate-y-1/2" />
+            {/* Penalty areas */}
+            <div className="absolute left-0 top-1/2 w-24 h-48 border-2 border-white/20 -translate-y-1/2 border-l-0" />
+            <div className="absolute right-0 top-1/2 w-24 h-48 border-2 border-white/20 -translate-y-1/2 border-r-0" />
+            {/* Small areas */}
+            <div className="absolute left-0 top-1/2 w-10 h-24 border-2 border-white/20 -translate-y-1/2 border-l-0" />
+            <div className="absolute right-0 top-1/2 w-10 h-24 border-2 border-white/20 -translate-y-1/2 border-r-0" />
+          </div>
+
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent pointer-events-none" />
           
           {lineup.fielded.map((p: any) => {
             const roleArray = roles[p.role] || roles[3];
             const roleIndex = roleArray.findIndex(x => x.playerId === p.playerId);
             const pos = getPlayerPosition(p, roleIndex, roleArray.length);
 
-            // Invert Y for away team so they face each other visually
-            const topStr = side === 'away' ? `${100 - parseFloat(pos.top)}%` : pos.top;
+            let left = pos.left;
+            if (side === 'away') {
+              left = `${100 - parseFloat(pos.left)}%`;
+            }
 
-            // Find key events
-            const goals = p.events?.filter((e: any) => e.type.includes('goal')).length || 0;
-            const yellow = p.events?.some((e: any) => e.type === 'yellow-card' || e.type === 'second-yellow');
+            const goals = p.events?.filter((e: any) => e.type.match(/goal/)).length || 0;
+            const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
             const red = p.events?.some((e: any) => e.type === 'red-card');
 
             return (
-              <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 w-16" style={{ left: pos.left, top: topStr }}>
-                <div className="relative">
-                  <div className={`w-7 h-7 rounded-full bg-zinc-800 border-2 ${side === 'home' ? 'border-cyan-400' : 'border-white'} flex items-center justify-center text-[10px] font-black shadow-lg`}>
+              <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5 z-20 transition-all duration-700 hover:scale-110" style={{ left, top: pos.top }}>
+                <div className="relative group/player">
+                  <div className={`w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center text-[10px] md:text-xs font-black shadow-2xl transition-all duration-300 border-2
+                    ${side === 'home' ? 'bg-cyan-500 border-white text-black' : 'bg-zinc-100 border-zinc-400 text-black'}`}>
                     {p.jerseyNumber}
                   </div>
-                  {/* Event Badges */}
-                  <div className="absolute -top-1 -right-4 flex gap-0.5">
-                    {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[8px]">⚽</span>)}
-                    {red ? <div className="w-2 h-3 bg-red-500 rounded-sm border border-red-700" /> : yellow ? <div className="w-2 h-3 bg-yellow-400 rounded-sm border border-yellow-600" /> : null}
+                  
+                  {/* Event markers */}
+                  <div className="absolute -top-1 -right-4 flex flex-col gap-0.5">
+                    {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] drop-shadow-md">⚽</span>)}
+                    {red ? <div className="w-2.5 h-3.5 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
                   </div>
                 </div>
-                <span className="text-[8px] font-bold text-white whitespace-nowrap bg-black/60 px-1.5 py-0.5 rounded truncate max-w-full text-center">
-                  {p.player?.shortName || p.shortName}
-                </span>
+                <div className="bg-black/80 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg shadow-xl">
+                  <span className="text-[9px] md:text-[11px] font-black text-white whitespace-nowrap uppercase tracking-tight">
+                    {getDisplayPlayerName(p)}
+                  </span>
+                </div>
               </div>
             );
           })}
@@ -451,61 +502,66 @@ export default function ScoutHub() {
   };
 
   const extractStatMap = (statsPayload: any) => {
-    // Debug logging to help identify statsId names
-    if (statsPayload) {
-      const ids = [...(statsPayload.homeTeamStats || []), ...(statsPayload.awayTeamStats || [])].map(s => s.statsId || s.id);
-      if (ids.length > 0) console.log('MATCH STATS IDS:', [...new Set(ids)]);
+    // 1. Precise check for payload structure
+    const statsData = statsPayload?.homeTeamStats ? statsPayload : (statsPayload?.teamstats || statsPayload?.statistics);
+    
+    if (!statsData) {
+      console.warn("No stats data found in payload:", statsPayload);
+      return null;
     }
 
-    if (!statsPayload || (!statsPayload.homeTeamStats && !statsPayload.awayTeamStats)) return null;
-    
+    const homeRaw = statsData.homeTeamStats || statsData.home || [];
+    const awayRaw = statsData.awayTeamStats || statsData.away || [];
+
+    if (homeRaw.length === 0 && awayRaw.length === 0) return null;
+
     const map: Record<string, any> = {};
-    const processTeam = (teamStats: any[], side: 'home' | 'away') => {
-       if (!teamStats) return;
-       teamStats.forEach(s => {
-         const id = s.statsId || s.id;
-         if (!id) return;
-         if (!map[id]) map[id] = { label: s.label || id, home: 0, away: 0 };
-         map[id][side] = parseFloat(s.value) || 0;
-       });
+    const process = (arr: any[], side: 'home' | 'away') => {
+      arr.forEach(s => {
+        const id = (s.statsId || s.id || s.type || '').toLowerCase();
+        if (!id) return;
+        if (!map[id]) map[id] = { label: s.label || s.title || id, home: 0, away: 0 };
+        map[id][side] = parseFloat(s.value || s.statsValue || 0);
+      });
     };
 
-    processTeam(statsPayload.homeTeamStats, 'home');
-    processTeam(statsPayload.awayTeamStats, 'away');
+    process(homeRaw, 'home');
+    process(awayRaw, 'away');
 
-    // Expected keys mapping with aliases
-    const findStat = (aliases: string[], label: string) => {
-       for (const a of aliases) {
-         if (map[a]) {
-           const isPercent = map[a].home > 100 || map[a].away > 100 ? false : (a.toLowerCase().includes('percentage') || a.toLowerCase().includes('perc') || String(map[a].label).includes('%'));
-           return { ...map[a], label, isPercent };
-         }
-       }
-       return null;
+    const find = (aliases: string[], label: string) => {
+      for (const a of aliases) {
+        const key = a.toLowerCase();
+        if (map[key]) {
+          const isPercent = (key.includes('percentage') || key.includes('perc') || String(map[key].label).includes('%') || map[key].home === 0 && map[key].away === 0 ? false : (map[key].home <= 100 && map[key].away <= 100 && (map[key].home + map[key].away === 100)));
+          return { ...map[key], label, isPercent: isPercent || key.includes('possession') };
+        }
+      }
+      return null;
     };
 
     const result = [
-      findStat(['possession', 'possession-percentage', 'possessionPercentage'], 'Possesso Palla'),
-      findStat(['expected-goals', 'expectedGoals'], 'Expected Goals (xG)'),
-      findStat(['shots', 'total-shots', 'totalScoringAtt'], 'Tiri Totali'),
-      findStat(['shots-on-target', 'ontargetScoringAtt'], 'Tiri in Porta'),
-      findStat(['big-chances', 'bigChanceCreated'], 'Grandi Occasioni'),
-      findStat(['passes', 'totalPass'], 'Passaggi'),
-      findStat(['accurate-pass-percentage', 'accuratePassPercentage'], 'Precisione Passaggi'),
-      findStat(['corners', 'cornerTaken'], 'Calci d\'Angolo'),
-      findStat(['offsides', 'offside'], 'Fuorigioco'),
-      findStat(['saves', 'totalSaves'], 'Parate'),
-      findStat(['fouls', 'foulsCommitted'], 'Falli'),
-      findStat(['yellow-cards', 'totalYellowCard'], 'Ammonizioni'),
-      findStat(['red-cards', 'totalRedCard'], 'Espulsioni'),
+      find(['possession', 'possession-percentage', 'ball_possession', 'possession_percentage'], 'Possesso Palla'),
+      find(['expected-goals', 'expected_goals', 'xg'], 'Expected Goals (xG)'),
+      find(['total-shots', 'shots', 'total_shots', 'shots_total'], 'Tiri Totali'),
+      find(['shots-on-target', 'shots_on_target', 'ontarget_scoring_att'], 'Tiri in Porta'),
+      find(['big-chances', 'big_chances_created', 'big_chance_created'], 'Grandi Occasioni'),
+      find(['passes', 'total_pass', 'total-passes'], 'Passaggi'),
+      find(['accurate-pass-percentage', 'pass_accuracy', 'accurate_pass_percentage', 'passes_accuracy'], 'Precisione Passaggi'),
+      find(['corners', 'corner_taken', 'corners_total'], 'Calci d\'Angolo'),
+      find(['fouls', 'fouls_committed', 'fouls_total'], 'Falli Commessi'),
+      find(['yellow-cards', 'yellow_cards', 'total_yellow_card'], 'Ammonizioni'),
+      find(['red-cards', 'red_cards', 'total_red_card'], 'Espulsioni'),
     ].filter(Boolean);
 
-    // If no mapped stats found, try to use ALL available stats as fallback if any exist
-    if (result.length < 3 && Object.keys(map).length > 0) {
-      return Object.values(map).slice(0, 10).map(s => ({ ...s, isPercent: false }));
+    // Dynamic Fallback: if we find nothing with aliases, show everything we have
+    if (result.length < 3) {
+      return Object.entries(map)
+        .filter(([k]) => !k.includes('id') && !k.includes('name'))
+        .slice(0, 15)
+        .map(([k, v]) => ({ ...v, isPercent: false }));
     }
 
-    return result.length >= 3 ? result : null;
+    return result;
   };
 
 
@@ -694,54 +750,69 @@ export default function ScoutHub() {
               );
             })()}
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-10 space-y-8 md:space-y-12 custom-scrollbar bg-black/60">
+            <div className="flex-1 overflow-y-auto p-4 md:p-10 space-y-12 md:space-y-20 custom-scrollbar bg-[#050505]">
               {loadingModal ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-4">
-                  <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">Caricamento dettagli...</p>
+                <div className="flex flex-col items-center justify-center py-24 gap-6">
+                  <div className="relative">
+                    <Loader2 className="w-12 h-12 text-cyan-400 animate-spin" />
+                    <div className="absolute inset-0 bg-cyan-400/20 blur-xl rounded-full animate-pulse" />
+                  </div>
+                  <p className="text-[11px] text-zinc-500 uppercase tracking-[0.3em] font-black">Sincronizzazione dati...</p>
                 </div>
               ) : matchDetails ? (
-                <>
+                <div className="space-y-16 pb-12">
+                  
                   {/* ====== EVENTI ====== */}
-                  <section className="bg-zinc-900/40 rounded-[2.5rem] p-6 md:p-10 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500/50" />
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-400 mb-8 flex items-center gap-3">
-                       <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-                       Timeline Match
-                    </h3>
-                    <MatchTimeline detail={matchDetails} homeName={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} awayName={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} />
+                  <section className="relative px-4 md:px-0">
+                    <div className="flex items-center gap-4 mb-10">
+                      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
+                      <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-cyan-400 flex items-center gap-3">
+                         <span className="w-2 h-2 bg-cyan-500 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
+                         Timeline
+                      </h3>
+                      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+                    </div>
+                    <div className="bg-zinc-900/20 rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl backdrop-blur-sm">
+                      <MatchTimeline detail={matchDetails} homeName={getDisplayPlayerName(resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa'))} awayName={getDisplayPlayerName(resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite'))} />
+                    </div>
                   </section>
 
                   {/* ====== STATISTICHE ====== */}
                   {(() => {
                     const statsMap = extractStatMap(matchDetails.stats);
-                    if (!statsMap) return null;
+                    if (!statsMap || statsMap.length === 0) return null;
                     return (
-                      <section className="bg-zinc-900/40 rounded-[2.5rem] p-6 md:p-10 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50" />
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400 mb-8 flex items-center gap-3">
-                           <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                           Statistiche Partita
-                        </h3>
-                        <div className="space-y-7">
-                          {statsMap.map((stat: any, i: number) => {
-                            const total = stat.home + stat.away || 1;
-                            const hPerc = stat.isPercent ? stat.home : (stat.home / total) * 100;
-                            const aPerc = stat.isPercent ? stat.away : (stat.away / total) * 100;
-                            return (
-                              <div key={i} className="space-y-2.5">
-                                <div className="flex justify-between items-end text-[10px] font-black text-zinc-400 px-1">
-                                  <span className={`w-12 text-base ${stat.home > stat.away ? 'text-cyan-400' : 'text-white'}`}>{stat.home}{stat.isPercent ? '%' : ''}</span>
-                                  <span className="uppercase tracking-[0.2em] opacity-60 flex-1 text-center text-[9px]">{stat.label}</span>
-                                  <span className={`w-12 text-right text-base ${stat.away > stat.home ? 'text-cyan-400' : 'text-white'}`}>{stat.away}{stat.isPercent ? '%' : ''}</span>
+                      <section className="relative px-4 md:px-0">
+                        <div className="flex items-center gap-4 mb-10">
+                          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
+                          <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-emerald-400 flex items-center gap-3">
+                             <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                             Statistiche
+                          </h3>
+                          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+                        </div>
+                        <div className="bg-zinc-900/20 rounded-[3rem] p-10 md:p-14 border border-white/5 shadow-2xl backdrop-blur-sm">
+                          <div className="space-y-10">
+                            {statsMap.map((stat: any, i: number) => {
+                              const total = stat.home + stat.away || 1;
+                              const hPerc = stat.isPercent ? stat.home : (stat.home / total) * 100;
+                              const aPerc = stat.isPercent ? stat.away : (stat.away / total) * 100;
+                              return (
+                                <div key={i} className="space-y-4">
+                                  <div className="flex justify-between items-end px-2">
+                                    <span className={`text-xl font-black ${stat.home >= stat.away ? 'text-cyan-400' : 'text-zinc-500'}`}>{stat.home}{stat.isPercent ? '%' : ''}</span>
+                                    <span className="uppercase tracking-[0.25em] text-[10px] font-black text-zinc-500 pb-1">{stat.label}</span>
+                                    <span className={`text-xl font-black ${stat.away >= stat.home ? 'text-zinc-100' : 'text-zinc-500'}`}>{stat.away}{stat.isPercent ? '%' : ''}</span>
+                                  </div>
+                                  <div className="flex h-1.5 rounded-full overflow-hidden bg-white/5 relative">
+                                    <div className="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full transition-all duration-1000 ease-out" style={{ width: `${hPerc}%` }} />
+                                    <div className="w-px h-full bg-black/40 z-10" />
+                                    <div className="bg-zinc-600 h-full transition-all duration-1000 ease-out" style={{ width: `${aPerc}%` }} />
+                                  </div>
                                 </div>
-                                <div className="flex gap-1.5 h-2 rounded-full overflow-hidden bg-white/5 border border-white/5">
-                                  <div className="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full transition-all duration-1000 rounded-full" style={{ width: `${hPerc}%` }} />
-                                  <div className="bg-gradient-to-l from-zinc-500 to-zinc-700 h-full transition-all duration-1000 rounded-full" style={{ width: `${aPerc}%` }} />
-                                </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
                         </div>
                       </section>
                     );
@@ -749,109 +820,99 @@ export default function ScoutHub() {
 
                   {/* ====== FORMAZIONI ====== */}
                   {matchDetails.lineups && (
-                    <section className="bg-zinc-900/40 rounded-[2.5rem] p-6 md:p-10 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-1 h-full bg-white/20" />
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-8 flex items-center gap-3">
-                         <span className="w-2 h-2 bg-white/40 rounded-full animate-pulse" />
-                         Formazioni Titolari
-                      </h3>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3 justify-center bg-white/5 py-2 rounded-2xl border border-white/5">
-                             <TeamLogo logo={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').logo} name={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} teamId={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').id} className="w-6 h-6" />
-                             <p className="text-[11px] font-black text-cyan-400 uppercase tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</p>
-                          </div>
-                          <TacticalPitch lineup={matchDetails.lineups.home} side="home" />
-                        </div>
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3 justify-center bg-white/5 py-2 rounded-2xl border border-white/5">
-                             <TeamLogo logo={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').logo} name={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} teamId={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').id} className="w-6 h-6" />
-                             <p className="text-[11px] font-black text-white uppercase tracking-widest">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</p>
-                          </div>
-                          <TacticalPitch lineup={matchDetails.lineups.away} side="away" />
-                        </div>
+                    <section className="relative px-4 md:px-0">
+                      <div className="flex items-center gap-4 mb-12">
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
+                        <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 flex items-center gap-3">
+                           <span className="w-2 h-2 bg-zinc-500 rounded-full" />
+                           Campo Di Gioco
+                        </h3>
+                        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
                       </div>
-                    </section>
-                  )}
+                      
+                      <div className="space-y-12">
+                        <div className="bg-zinc-900/20 rounded-[3rem] p-6 md:p-10 border border-white/5 shadow-2xl">
+                          <div className="flex items-center justify-between mb-8 px-4">
+                            <div className="flex items-center gap-3">
+                              <TeamLogo logo={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').logo} name={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} className="w-8 h-8" />
+                              <span className="text-[11px] font-black uppercase text-cyan-400 tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</span>
+                            </div>
+                            <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">VS</span>
+                            <div className="flex items-center gap-3 text-right">
+                              <span className="text-[11px] font-black uppercase text-white tracking-widest">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</span>
+                              <TeamLogo logo={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').logo} name={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} className="w-8 h-8" />
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                            <TacticalPitch lineup={matchDetails.lineups.home} side="home" />
+                            <TacticalPitch lineup={matchDetails.lineups.away} side="away" />
+                          </div>
+                        </div>
 
-                  {/* ====== PANCHINE E CAMBI ====== */}
-                  {matchDetails.lineups && (
-                    <section className="bg-zinc-900/40 rounded-[2.5rem] p-6 md:p-10 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-1 h-full bg-orange-500/50" />
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-400 mb-10 text-center flex items-center justify-center gap-3">
-                        <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
-                        Panchina e Sostituzioni
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 divide-y md:divide-y-0 md:divide-x divide-white/10">
-                         <div className="space-y-5 pr-0 md:pr-6 pb-8 md:pb-0">
-                           <div className="flex items-center gap-2 mb-4">
-                             <TeamLogo logo={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').logo} name={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} teamId={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').id} className="w-5 h-5" />
-                             <p className="text-[10px] font-black text-cyan-400/80 uppercase tracking-widest">Casa</p>
-                           </div>
-                           {(matchDetails.lineups?.home?.benched || [])
-                             .sort((a: any, b: any) => {
-                               const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
-                               const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
-                               return aIn === bIn ? 0 : aIn ? -1 : 1;
-                             })
-                             .map((p: any) => {
-                             const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
-                             return (
-                               <div key={p.playerId || p.id} className="flex items-start justify-between text-[11px] pb-3 border-b border-white/5 last:border-0 last:pb-0 group">
-                                 <div className="min-w-0 flex-1">
-                                   <span className={`block truncate transition-colors ${subInEvent ? 'text-white font-black' : 'text-zinc-500 group-hover:text-zinc-400'}`}>{p.player?.shortName || p.shortName}</span>
-                                   {subInEvent && <span className="text-[9px] text-zinc-500 italic block mt-1 font-bold">Entra {formatEventMinute(subInEvent)}</span>}
-                                 </div>
-                                 <div className="flex items-center gap-2 shrink-0 ml-4">
-                                   {p.events?.some((e: any) => e.type === 'red-card') && <span className="text-[10px]">🟥</span>}
-                                   {p.events?.some((e: any) => e.type === 'yellow-card') && <span className="text-[10px]">🟨</span>}
-                                   {p.events?.some((e: any) => e.type.includes('goal')) && <span className="text-[10px]">⚽</span>}
-                                   {subInEvent && <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 text-[9px] font-black border border-emerald-500/20 shadow-sm">IN</span>}
-                                 </div>
+                        {/* ====== PANCHINE E CAMBI ====== */}
+                        <div className="bg-zinc-900/40 rounded-[3rem] p-10 md:p-16 border border-white/10 shadow-3xl relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-400 mb-16 text-center">Panchine Strategiche</h4>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 divide-y md:divide-y-0 md:divide-x divide-white/5">
+                            {/* Casa Bench */}
+                            <div className="space-y-6 pr-0 md:pr-10 pb-12 md:pb-0">
+                               <div className="flex items-center gap-3 mb-6 bg-white/5 py-2 px-4 rounded-full w-fit">
+                                 <TeamLogo logo={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').logo} name={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} className="w-5 h-5" />
+                                 <p className="text-[9px] font-black text-cyan-400 uppercase tracking-[0.2em]">Casa</p>
                                </div>
-                             );
-                           })}
-                         </div>
-                         <div className="space-y-5 pl-0 md:pl-6 pt-8 md:pt-0">
-                           <div className="flex items-center gap-2 mb-4 justify-end">
-                             <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">Trasferta</p>
-                             <TeamLogo logo={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').logo} name={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} teamId={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').id} className="w-5 h-5" />
-                           </div>
-                           {(matchDetails.lineups?.away?.benched || [])
-                             .sort((a: any, b: any) => {
-                               const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
-                               const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
-                               return aIn === bIn ? 0 : aIn ? -1 : 1;
-                             })
-                             .map((p: any) => {
-                             const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
-                             return (
-                               <div key={p.playerId || p.id} className="flex items-start justify-between flex-row-reverse text-[11px] pb-3 border-b border-white/5 last:border-0 last:pb-0 group">
-                                 <div className="min-w-0 flex-1 text-right">
-                                   <span className={`block truncate transition-colors ${subInEvent ? 'text-white font-black' : 'text-zinc-500 group-hover:text-zinc-400'}`}>{p.player?.shortName || p.shortName}</span>
-                                   {subInEvent && <span className="text-[9px] text-zinc-500 italic block mt-1 font-bold">Entra {formatEventMinute(subInEvent)}</span>}
-                                 </div>
-                                 <div className="flex items-center gap-2 shrink-0 mr-4 flex-row-reverse">
-                                   {p.events?.some((e: any) => e.type === 'red-card') && <span className="text-[10px]">🟥</span>}
-                                   {p.events?.some((e: any) => e.type === 'yellow-card') && <span className="text-[10px]">🟨</span>}
-                                   {p.events?.some((e: any) => e.type.includes('goal')) && <span className="text-[10px]">⚽</span>}
-                                   {subInEvent && <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 text-[9px] font-black border border-emerald-500/20 shadow-sm">IN</span>}
-                                 </div>
+                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                 {(matchDetails.lineups?.home?.benched || []).map((p: any) => {
+                                   const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
+                                   return (
+                                     <div key={p.playerId || p.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group">
+                                       <div className="flex flex-col min-w-0">
+                                         <span className={`text-[11px] font-black truncate ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p)}</span>
+                                         {subInEvent && <span className="text-[9px] text-emerald-500 font-bold mt-0.5">Entrato {formatEventMinute(subInEvent)}</span>}
+                                       </div>
+                                       {subInEvent && <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
+                                     </div>
+                                   );
+                                 })}
                                </div>
-                             );
-                           })}
-                         </div>
+                            </div>
+                            {/* Trasferta Bench */}
+                            <div className="space-y-6 pl-0 md:pl-10 pt-12 md:pt-0">
+                               <div className="flex items-center gap-3 mb-6 bg-white/5 py-2 px-4 rounded-full w-fit ml-auto">
+                                 <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">Ospite</p>
+                                 <TeamLogo logo={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').logo} name={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} className="w-5 h-5" />
+                               </div>
+                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                 {(matchDetails.lineups?.away?.benched || []).map((p: any) => {
+                                   const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
+                                   return (
+                                     <div key={p.playerId || p.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group flex-row-reverse text-right">
+                                       <div className="flex flex-col min-w-0">
+                                         <span className={`text-[11px] font-black truncate ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p)}</span>
+                                         {subInEvent && <span className="text-[9px] text-emerald-500 font-bold mt-0.5">Entrato {formatEventMinute(subInEvent)}</span>}
+                                       </div>
+                                       {subInEvent && <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
+                                     </div>
+                                   );
+                                 })}
+                               </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </section>
                   )}
-                </>
+                </div>
               ) : (
-                <div className="bg-zinc-900/40 rounded-[2.5rem] p-16 border border-white/10 flex flex-col items-center justify-center backdrop-blur-xl shadow-2xl">
-                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
-                     <AlertTriangle className="w-8 h-8 text-zinc-600" />
+                <div className="bg-zinc-900/20 rounded-[3rem] p-24 border border-white/5 flex flex-col items-center justify-center backdrop-blur-xl shadow-2xl mx-4">
+                  <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 relative">
+                     <AlertTriangle className="w-10 h-10 text-zinc-700" />
+                     <div className="absolute inset-0 bg-red-500/5 blur-2xl rounded-full" />
                   </div>
-                  <p className="text-center text-zinc-500 text-[11px] uppercase tracking-[0.3em] font-black">
-                    Dati non ancora disponibili per questo match
+                  <h5 className="text-zinc-400 font-black text-[12px] uppercase tracking-[0.4em] mb-4">Dati Non Pervenuti</h5>
+                  <p className="text-center text-zinc-600 text-[10px] uppercase tracking-[0.2em] font-bold max-w-xs leading-relaxed">
+                    Le informazioni per questo incontro non sono ancora state caricate nel database ufficiale.
                   </p>
                 </div>
               )}
