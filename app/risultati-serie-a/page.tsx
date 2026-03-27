@@ -8,9 +8,36 @@ import { X, Loader2, AlertTriangle } from 'lucide-react';
 
 const TOTAL_ROUNDS = 38;
 
-const getTeamLogo = (team: any) => {
-  if (!team) return null;
-  return team.teamLogo || team.teamLogoLight || team.teamImage || team.imagery?.teamLogo || team.logo || null;
+const resolveImageUrl = (path: string) => {
+  if (!path || typeof path !== 'string') return null;
+  if (path.startsWith('http')) return path;
+  
+  if (path.startsWith('clubLogos') || path.startsWith('teamImages') || path.startsWith('stadiums')) {
+    return `https://img.legaseriea.it/vimages/64x64/${path}`;
+  }
+  
+  return null;
+};
+
+const getTeamLogoUrl = (team: any) => {
+  if (!team || typeof team !== 'object') return null;
+  
+  const raw1 = team.teamLogo;
+  const raw2 = team.teamLogoLight;
+  const raw3 = team.teamImage || team.imagery?.teamLogo || team.logo;
+
+  const resolved = resolveImageUrl(raw1) || resolveImageUrl(raw2) || resolveImageUrl(raw3);
+
+  console.log('Resolving Logo for Team:', {
+    teamShortName: team.shortName || team.name,
+    teamId: team.teamId || team.id,
+    rawTeamLogo: raw1,
+    rawTeamLogoLight: raw2,
+    rawTeamImage: raw3,
+    resolvedFinalUrl: resolved,
+  });
+
+  return resolved;
 };
 
 const getDisplayPlayerName = (p: any) => {
@@ -52,7 +79,7 @@ const TeamLogo = ({
   className: string;
 }) => {
   const [imgError, setImgError] = useState(false);
-  const src = !imgError ? getTeamLogo(team) : null;
+  const src = !imgError ? getTeamLogoUrl(team) : null;
   const teamName = team?.name || team?.shortName || team?.officialName || '?';
 
   if (!src) {
@@ -184,7 +211,7 @@ export default function ScoutHub() {
       ...teamObj,
       id:   teamObj?.teamId || teamObj?.id,
       name: teamObj?.shortName || teamObj?.officialName || teamObj?.name || fallback,
-      logo: getTeamLogo(teamObj),
+      logo: getTeamLogoUrl(teamObj),
     };
   };
 
@@ -430,17 +457,52 @@ export default function ScoutHub() {
     );
   };
 
-  const buildStatsRows = (statsPayload: any) => {
-    const statsData = statsPayload?.homeTeamStats ? statsPayload : (statsPayload?.teamstats || statsPayload?.statistics || statsPayload);
-    if (!statsData) return null;
+  const normalizeStatsInput = (rawStats: any) => {
+    console.log('rawStats before normalization:', rawStats);
+    
+    if (!rawStats || typeof rawStats !== 'object') return { home: [], away: [] };
 
-    const homeRaw = statsData.homeTeamStats || statsData.home || [];
-    const awayRaw = statsData.awayTeamStats || statsData.away || [];
+    const extractArray = (value: any) => {
+      if (Array.isArray(value)) return value;
+      if (value && typeof value === 'object') return Object.values(value);
+      return [];
+    };
+
+    let home: any[] = [];
+    let away: any[] = [];
+
+    if (rawStats.homeTeamStats || rawStats.awayTeamStats) {
+      home = extractArray(rawStats.homeTeamStats);
+      away = extractArray(rawStats.awayTeamStats);
+    } else if (rawStats.home || rawStats.away) {
+      home = extractArray(rawStats.home);
+      away = extractArray(rawStats.away);
+    } else if (rawStats.teamstats?.home || rawStats.teamstats?.away) {
+      home = extractArray(rawStats.teamstats.home);
+      away = extractArray(rawStats.teamstats.away);
+    } else if (Array.isArray(rawStats)) {
+      home = rawStats;
+    }
+
+    const normalizedStats = { home, away };
+    console.log('normalizedStats:', normalizedStats);
+    
+    return normalizedStats;
+  };
+
+  const buildStatsRows = (rawStatsPayload: any) => {
+    const normalizedStats = normalizeStatsInput(rawStatsPayload);
+    const homeRaw = normalizedStats.home;
+    const awayRaw = normalizedStats.away;
+    
     if (homeRaw.length === 0 && awayRaw.length === 0) return null;
 
     const map: Record<string, any> = {};
-    const process = (arr: any[], side: 'home' | 'away') => {
+    const processArray = (arr: any[], side: 'home' | 'away') => {
+      if (!Array.isArray(arr)) return;
+      
       arr.forEach(s => {
+        if (!s || typeof s !== 'object') return;
         const id = (s.statsId || s.id || s.type || s.name || '').toLowerCase();
         if (!id) return;
         if (!map[id]) map[id] = { label: s.label || s.title || s.name || id, home: 0, away: 0 };
@@ -448,8 +510,8 @@ export default function ScoutHub() {
       });
     };
 
-    process(homeRaw, 'home');
-    process(awayRaw, 'away');
+    processArray(homeRaw, 'home');
+    processArray(awayRaw, 'away');
 
     const findKey = (aliases: string[]) => {
       for (const a of aliases) {
