@@ -8,12 +8,28 @@ import { X, Loader2, AlertTriangle } from 'lucide-react';
 
 const TOTAL_ROUNDS = 38;
 
-const resolveImageUrl = (path: string) => {
+const resolveImageUrl = (path: string | null | undefined): string | null => {
   if (!path || typeof path !== 'string') return null;
   if (path.startsWith('http')) return path;
   
-  if (path.startsWith('clubLogos') || path.startsWith('teamImages') || path.startsWith('stadiums')) {
-    return `https://img.legaseriea.it/vimages/64x64/${path}`;
+  let cleanPath = path.trim();
+  if (cleanPath.startsWith('clubLogos') && !cleanPath.startsWith('clubLogos/')) {
+    cleanPath = cleanPath.replace(/^clubLogos/, 'clubLogos/');
+  } else if (cleanPath.startsWith('teamImages') && !cleanPath.startsWith('teamImages/')) {
+    cleanPath = cleanPath.replace(/^teamImages/, 'teamImages/');
+  } else if (cleanPath.startsWith('teamLogoLight') && !cleanPath.startsWith('teamLogoLight/')) {
+    cleanPath = cleanPath.replace(/^teamLogoLight/, 'teamLogoLight/');
+  } else if (cleanPath.startsWith('stadiums') && !cleanPath.startsWith('stadiums/')) {
+    cleanPath = cleanPath.replace(/^stadiums/, 'stadiums/');
+  }
+
+  if (
+    cleanPath.startsWith('clubLogos') || 
+    cleanPath.startsWith('teamImages') || 
+    cleanPath.startsWith('teamLogoLight') || 
+    cleanPath.startsWith('stadiums')
+  ) {
+    return `https://img.legaseriea.it/vimages/64x64/${cleanPath}`;
   }
   
   return null;
@@ -29,7 +45,7 @@ const getTeamLogoUrl = (team: any) => {
   const resolved = resolveImageUrl(raw1) || resolveImageUrl(raw2) || resolveImageUrl(raw3);
 
   console.log('Resolving Logo for Team:', {
-    teamShortName: team.shortName || team.name,
+    teamName: team.name || team.shortName || 'Unknown',
     teamId: team.teamId || team.id,
     rawTeamLogo: raw1,
     rawTeamLogoLight: raw2,
@@ -116,6 +132,7 @@ export default function ScoutHub() {
   const [matchError, setMatchError]         = useState<string | null>(null);
   const [modalFixture, setModalFixture]     = useState<any>(null);
   const [matchDetails, setMatchDetails]     = useState<any>(null);
+  const [matchDetailsError, setMatchDetailsError] = useState<string | null>(null);
   const [loadingModal, setLoadingModal]     = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -193,13 +210,17 @@ export default function ScoutHub() {
   const openMatch = async (m: any) => {
     setModalFixture(m);
     setMatchDetails(null);
+    setMatchDetailsError(null);
     setLoadingModal(true);
     try {
       const matchId = m.matchId || m.id;
       const res = await fetch(`/api/football?endpoint=match&id=${encodeURIComponent(matchId)}`);
       const json = await res.json();
-      setMatchDetails(json.ok ? json.data : null);
-    } catch {
+      if (!json.ok) throw new Error(json.error || 'API Match: risposta non OK');
+      setMatchDetails(json.data);
+    } catch (err: any) {
+      console.error('Match Details fetch err:', err);
+      setMatchDetailsError(err.message || 'Errore fetch dettagli partita');
       setMatchDetails(null);
     } finally {
       setLoadingModal(false);
@@ -382,9 +403,9 @@ export default function ScoutHub() {
     const roleMap: Record<number, number> = { 1: 90, 2: 70, 3: 42, 4: 18 };
     const yPos = roleMap[p.role] || 50;
     
-    // Spread horizontally across 80% of width
+    // Spread horizontally across a bit more space to prevent overlap
     const xPos = totalInRole > 1 
-      ? 12 + ((76 / (totalInRole - 1)) * roleIndex)
+      ? 15 + ((70 / (totalInRole - 1)) * roleIndex)
       : 50;
 
     return { left: `${xPos}%`, top: `${yPos}%` };
@@ -393,7 +414,7 @@ export default function ScoutHub() {
   const TacticalPitch = ({ lineup, side, label }: any) => {
     if (!lineup?.fielded || lineup.fielded.length === 0) {
        return (
-         <div className="bg-zinc-900/40 rounded-[2.5rem] p-12 border border-white/5 flex flex-col items-center justify-center gap-4 w-full aspect-[3/4] md:aspect-[4/5]">
+         <div className="bg-zinc-900/40 rounded-[2.5rem] p-12 border border-white/5 flex flex-col items-center justify-center gap-4 w-full aspect-[2/3] md:aspect-[3/4]">
            <AlertTriangle className="w-8 h-8 text-zinc-700" />
            <p className="text-center text-zinc-500 text-[10px] uppercase tracking-widest font-black">Formazione non disponibile</p>
          </div>
@@ -407,19 +428,19 @@ export default function ScoutHub() {
     });
 
     return (
-      <div className="w-full flex-1 border border-white/5 rounded-[2.5rem] p-6 md:p-10 bg-[#060606] shadow-2xl relative overflow-hidden">
+      <div className="w-full flex-1 border border-white/5 rounded-[2.5rem] p-4 md:p-8 bg-[#060606] shadow-2xl relative overflow-hidden">
         {lineup.coach && (
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10 w-full justify-center">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10 w-full justify-center">
             <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
             <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-900/20 px-3 py-1 rounded-full border border-cyan-500/10 shadow-sm">{getDisplayPlayerName({player: lineup.coach})}</span>
           </div>
         )}
-        <div className="relative w-full aspect-[4/5] bg-gradient-to-b from-[#112a17] to-[#0a180d] rounded-[2rem] border-8 border-[#0c1a10] overflow-hidden mt-8 shadow-[0_15px_60px_-15px_rgba(34,197,94,0.1)]">
-          <div className="absolute inset-x-8 inset-y-8 border-2 border-white/10 rounded-xl" />
+        <div className="relative w-full aspect-[2/3] bg-gradient-to-b from-[#112a17] to-[#0a180d] rounded-[2rem] border-[6px] border-[#0c1a10] overflow-hidden mt-8 shadow-[0_15px_60px_-15px_rgba(34,197,94,0.1)]">
+          <div className="absolute inset-x-6 inset-y-6 border-2 border-white/10 rounded-xl" />
           <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/10 -translate-x-1/2" />
-          <div className="absolute left-1/2 top-1/2 w-32 h-32 border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute left-1/2 top-0 w-48 h-28 border-2 border-white/10 border-t-0 -translate-x-1/2" />
-          <div className="absolute left-1/2 bottom-0 w-48 h-28 border-2 border-white/10 border-b-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 top-1/2 w-24 h-24 md:w-32 md:h-32 border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute left-1/2 top-0 w-36 h-20 md:w-48 md:h-28 border-2 border-white/10 border-t-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 bottom-0 w-36 h-20 md:w-48 md:h-28 border-2 border-white/10 border-b-0 -translate-x-1/2" />
           
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-black/60" />
           
@@ -435,19 +456,14 @@ export default function ScoutHub() {
             return (
               <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5 z-20 group transition-transform duration-500 hover:scale-110 hover:z-30" style={{ left: pos.left, top: pos.top }}>
                 <div className="relative">
-                  <div className={`w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center text-[11px] md:text-xs font-black shadow-2xl border-[3px] transition-colors
-                    ${side === 'home' ? 'bg-cyan-500 border-white text-black drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 text-black drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`}>
+                  <div className={`w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center text-[11px] md:text-sm font-black shadow-2xl border-2 md:border-[3px] transition-colors
+                    ${side === 'home' ? 'bg-cyan-500 border-white text-black drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 text-black drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]'}`}>
                     {p.jerseyNumber}
                   </div>
-                  <div className="absolute -top-1 -right-4 flex flex-col gap-0.5">
-                    {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] drop-shadow-md">⚽</span>)}
+                  <div className="absolute -top-1 -right-2 md:-right-3 flex flex-col gap-0.5">
+                    {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[14px] drop-shadow-md">⚽</span>)}
                     {red ? <div className="w-2.5 h-3.5 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
                   </div>
-                </div>
-                <div className="bg-black/80 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded shadow-xl whitespace-nowrap">
-                  <span className="text-[9px] font-black text-white uppercase tracking-widest text-shadow-sm">
-                    {getDisplayPlayerName(p)}
-                  </span>
                 </div>
               </div>
             );
@@ -459,38 +475,44 @@ export default function ScoutHub() {
 
   const normalizeStatsInput = (rawStats: any) => {
     console.log('rawStats before normalization:', rawStats);
+    const result = { home: [] as any[], away: [] as any[] };
     
-    if (!rawStats || typeof rawStats !== 'object') return { home: [], away: [] };
+    if (!rawStats || typeof rawStats !== 'object') {
+      console.log('normalizedStats (empty/invalid input):', result);
+      return result;
+    }
 
-    const extractArray = (value: any) => {
+    const extractArray = (value: any): any[] => {
+      if (!value) return [];
       if (Array.isArray(value)) return value;
-      if (value && typeof value === 'object') return Object.values(value);
+      if (typeof value === 'object') {
+        const vals = Object.values(value).filter(v => v !== null && typeof v === 'object');
+        return vals;
+      }
       return [];
     };
 
-    let home: any[] = [];
-    let away: any[] = [];
-
     if (rawStats.homeTeamStats || rawStats.awayTeamStats) {
-      home = extractArray(rawStats.homeTeamStats);
-      away = extractArray(rawStats.awayTeamStats);
+      result.home = extractArray(rawStats.homeTeamStats);
+      result.away = extractArray(rawStats.awayTeamStats);
     } else if (rawStats.home || rawStats.away) {
-      home = extractArray(rawStats.home);
-      away = extractArray(rawStats.away);
+      result.home = extractArray(rawStats.home);
+      result.away = extractArray(rawStats.away);
     } else if (rawStats.teamstats?.home || rawStats.teamstats?.away) {
-      home = extractArray(rawStats.teamstats.home);
-      away = extractArray(rawStats.teamstats.away);
+      result.home = extractArray(rawStats.teamstats.home);
+      result.away = extractArray(rawStats.teamstats.away);
     } else if (Array.isArray(rawStats)) {
-      home = rawStats;
+      console.warn('rawStats is a flat array, unable to map to home/away directly.');
     }
 
-    const normalizedStats = { home, away };
-    console.log('normalizedStats:', normalizedStats);
-    
-    return normalizedStats;
+    if (!Array.isArray(result.home)) result.home = [];
+    if (!Array.isArray(result.away)) result.away = [];
+
+    console.log('normalizedStats final:', result);
+    return result;
   };
 
-  const buildStatsRows = (rawStatsPayload: any) => {
+  const buildStatsGroups = (rawStatsPayload: any) => {
     const normalizedStats = normalizeStatsInput(rawStatsPayload);
     const homeRaw = normalizedStats.home;
     const awayRaw = normalizedStats.away;
@@ -535,7 +557,28 @@ export default function ScoutHub() {
       return null;
     };
 
-    const result = [
+    const overview = [
+      find(['points'], 'Punti'),
+      find(['rank', 'position'], 'Posizione'),
+      find(['matches-played', 'matches_played', 'played'], 'Partite Giocate'),
+      find(['goal-difference', 'goal_difference', 'gd'], 'Differenza Reti'),
+    ].filter(Boolean);
+
+    const performance = [
+      find(['win', 'wins'], 'Vittorie'),
+      find(['draw', 'draws'], 'Pareggi'),
+      find(['lose', 'loss', 'losses'], 'Sconfitte'),
+    ].filter(Boolean);
+
+    const attackDef = [
+      find(['goals-for', 'goals_for', 'gf', 'goals'], 'Gol Fatti'),
+      find(['goals-against', 'goals_against', 'ga'], 'Gol Subiti'),
+      find(['average-goals-for', 'average_goals_for'], 'Media Gol Fatti'),
+      find(['average-goals-against', 'average_goals_against'], 'Media Gol Subiti'),
+      find(['clean-sheet', 'clean_sheet'], 'Clean Sheets'),
+    ].filter(Boolean);
+
+    const matchStats = [
       find(['possession', 'possession-percentage', 'ball_possession', 'possession_percentage'], 'Possesso Palla'),
       find(['shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri Totali'),
       find(['shots-on-target', 'shots_on_target', 'ontarget_scoring_att', 'on_target'], 'Tiri in Porta'),
@@ -548,11 +591,11 @@ export default function ScoutHub() {
       find(['saves', 'total_saves', 'saves_total'], 'Parate'),
     ].filter(Boolean);
 
-    if (result.length === 0 && Object.keys(map).length > 0) {
-      return Object.entries(map).filter(([k]) => !k.includes('id') && !k.includes('name')).slice(0, 15).map(([k, v]) => ({ ...v, isPercent: false }));
+    if (overview.length === 0 && performance.length === 0 && attackDef.length === 0 && matchStats.length === 0 && Object.keys(map).length > 0) {
+      matchStats.push(...Object.entries(map).filter(([k]) => !k.includes('id') && !k.includes('name')).slice(0, 15).map(([, v]) => ({ ...v, isPercent: false })));
     }
 
-    return result.length > 0 ? result : null;
+    return { overview, performance, attackDef, matchStats };
   };
 
 
@@ -724,17 +767,21 @@ export default function ScoutHub() {
               const away = resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite');
               const hs = modalFixture.providerHomeScore ?? modalFixture.homeScore ?? '-';
               const as_ = modalFixture.providerAwayScore ?? modalFixture.awayScore ?? '-';
+              const statusText = modalFixture.matchStatus === 'Played' ? 'Terminata' : (modalFixture.matchStatus || 'Terminata');
               return (
-                <div className="p-8 bg-white/5 border-b border-white/5 flex flex-col items-center gap-4">
-                  <div className="flex justify-between items-center w-full">
-                    <div className="flex flex-col items-center gap-3 w-1/3">
-                      <TeamLogo team={home} className="w-16 h-16 shadow-2xl" />
-                      <span className="text-[11px] uppercase text-zinc-400 font-black tracking-widest text-center">{home.name}</span>
+                <div className="p-6 md:p-10 bg-gradient-to-b from-white/10 to-transparent border-b border-white/5 flex flex-col items-center gap-2">
+                  <span className="text-[9px] uppercase tracking-[0.3em] font-black text-cyan-400/80 bg-cyan-400/10 px-3 py-1 rounded-full mb-2">{statusText}</span>
+                  <div className="flex justify-between items-center w-full max-w-lg mx-auto">
+                    <div className="flex flex-col items-center gap-4 w-[35%]">
+                      <TeamLogo team={home} className="w-16 h-16 md:w-20 md:h-20 shadow-2xl drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform" />
+                      <span className="text-[10px] md:text-sm uppercase text-white/90 font-black tracking-widest text-center leading-tight break-words h-10 flex items-start justify-center">{home.name}</span>
                     </div>
-                    <div className="text-6xl font-black italic tracking-tighter text-white drop-shadow-2xl">{hs} – {as_}</div>
-                    <div className="flex flex-col items-center gap-3 w-1/3">
-                      <TeamLogo team={away} className="w-16 h-16 shadow-2xl" />
-                      <span className="text-[11px] uppercase text-zinc-400 font-black tracking-widest text-center">{away.name}</span>
+                    <div className="text-5xl md:text-7xl font-black italic tracking-tighter text-white drop-shadow-[0_4px_24px_rgba(255,255,255,0.2)] shrink-0 tabular-nums">
+                      {hs} – {as_}
+                    </div>
+                    <div className="flex flex-col items-center gap-4 w-[35%]">
+                      <TeamLogo team={away} className="w-16 h-16 md:w-20 md:h-20 shadow-2xl drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform" />
+                      <span className="text-[10px] md:text-sm uppercase text-white/90 font-black tracking-widest text-center leading-tight break-words h-10 flex items-start justify-center">{away.name}</span>
                     </div>
                   </div>
                 </div>
@@ -770,40 +817,64 @@ export default function ScoutHub() {
 
                   {/* ====== STATISTICHE ====== */}
                   {(() => {
-                    const statsMap = buildStatsRows(matchDetails.stats);
-                    if (!statsMap || statsMap.length === 0) return null;
+                    const statsGroups = buildStatsGroups(matchDetails.stats);
+                    if (!statsGroups || (statsGroups.overview.length === 0 && statsGroups.performance.length === 0 && statsGroups.attackDef.length === 0 && statsGroups.matchStats.length === 0)) return null;
+                    
+                    const StatBar = ({ stat }: { stat: any }) => {
+                      const total = stat.home + stat.away || 1;
+                      const hPerc = stat.isPercent ? stat.home : (stat.home / total) * 100;
+                      const aPerc = stat.isPercent ? stat.away : (stat.away / total) * 100;
+                      return (
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-end px-2 gap-2">
+                            <span className={`text-lg md:text-xl font-black shrink-0 ${stat.home >= stat.away && stat.home > 0 ? 'text-cyan-400' : 'text-zinc-500'}`}>{stat.home}{stat.isPercent ? '%' : ''}</span>
+                            <span className="uppercase tracking-[0.1em] md:tracking-[0.2em] text-[9px] md:text-[10px] font-black text-zinc-500 pb-1 text-center truncate px-2 min-w-0 flex-1">{stat.label}</span>
+                            <span className={`text-lg md:text-xl font-black shrink-0 ${stat.away >= stat.home && stat.away > 0 ? 'text-zinc-100' : 'text-zinc-500'}`}>{stat.away}{stat.isPercent ? '%' : ''}</span>
+                          </div>
+                          <div className="flex h-1.5 rounded-full overflow-hidden bg-white/5 relative">
+                            <div className="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full transition-all duration-1000 ease-out" style={{ width: `${hPerc}%` }} />
+                            <div className="w-px h-full bg-black/40 z-10" />
+                            <div className="bg-zinc-600 h-full transition-all duration-1000 ease-out" style={{ width: `${aPerc}%` }} />
+                          </div>
+                        </div>
+                      );
+                    };
+
+                    const StatCard = ({ title, stats, iconColor }: { title: string, stats: any[], iconColor: string }) => {
+                      if (!stats || stats.length === 0) return null;
+                      return (
+                        <div className="bg-zinc-900/40 rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl backdrop-blur-sm flex flex-col gap-6 h-full transition-all hover:bg-zinc-900/60 hover:border-white/10">
+                          <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 ${iconColor} mb-2`}>
+                             <span className={`w-2 h-2 rounded-full shadow-lg bg-current`} />
+                             {title}
+                          </h4>
+                          <div className="space-y-6 flex-1">
+                            {stats.map((stat: any, i: number) => <StatBar key={i} stat={stat} />)}
+                          </div>
+                        </div>
+                      );
+                    };
+
                     return (
                       <section className="relative px-4 md:px-0 mt-8">
-                        <div className="flex items-center gap-4 mb-10">
+                        <div className="flex items-center gap-4 mb-8">
                           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
                           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-emerald-400 flex items-center gap-3">
-                             <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                             <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
                              Statistiche
                           </h3>
                           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
                         </div>
-                        <div className="bg-zinc-900/20 rounded-[3rem] p-10 md:p-14 border border-white/5 shadow-2xl backdrop-blur-sm">
-                          <div className="space-y-10">
-                            {statsMap.map((stat: any, i: number) => {
-                              const total = stat.home + stat.away || 1;
-                              const hPerc = stat.isPercent ? stat.home : (stat.home / total) * 100;
-                              const aPerc = stat.isPercent ? stat.away : (stat.away / total) * 100;
-                              return (
-                                <div key={i} className="space-y-4">
-                                  <div className="flex justify-between items-end px-2">
-                                    <span className={`text-xl font-black ${stat.home >= stat.away ? 'text-cyan-400' : 'text-zinc-500'}`}>{stat.home}{stat.isPercent ? '%' : ''}</span>
-                                    <span className="uppercase tracking-[0.25em] text-[10px] font-black text-zinc-500 pb-1">{stat.label}</span>
-                                    <span className={`text-xl font-black ${stat.away >= stat.home ? 'text-zinc-100' : 'text-zinc-500'}`}>{stat.away}{stat.isPercent ? '%' : ''}</span>
-                                  </div>
-                                  <div className="flex h-1.5 rounded-full overflow-hidden bg-white/5 relative">
-                                    <div className="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full transition-all duration-1000 ease-out" style={{ width: `${hPerc}%` }} />
-                                    <div className="w-px h-full bg-black/40 z-10" />
-                                    <div className="bg-zinc-600 h-full transition-all duration-1000 ease-out" style={{ width: `${aPerc}%` }} />
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                          {statsGroups.overview.length > 0 && <StatCard title="Overview" stats={statsGroups.overview} iconColor="text-blue-400" />}
+                          {statsGroups.performance.length > 0 && <StatCard title="Rendimento" stats={statsGroups.performance} iconColor="text-purple-400" />}
+                          {statsGroups.attackDef.length > 0 && <StatCard title="Attacco & Difesa" stats={statsGroups.attackDef} iconColor="text-orange-400" />}
+                          {statsGroups.matchStats.length > 0 && (
+                            <div className={(statsGroups.overview.length === 0 && statsGroups.performance.length === 0 && statsGroups.attackDef.length === 0) ? "col-span-1 md:col-span-2" : ""}>
+                              <StatCard title="Match Stats" stats={statsGroups.matchStats} iconColor="text-emerald-400" />
+                            </div>
+                          )}
                         </div>
                       </section>
                     );
@@ -907,12 +978,14 @@ export default function ScoutHub() {
               ) : (
                 <div className="bg-zinc-900/20 rounded-[3rem] p-24 border border-white/5 flex flex-col items-center justify-center backdrop-blur-xl shadow-2xl mx-4">
                   <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 relative">
-                     <AlertTriangle className="w-10 h-10 text-zinc-700" />
+                     <AlertTriangle className={`w-10 h-10 ${matchDetailsError ? 'text-red-500' : 'text-zinc-700'}`} />
                      <div className="absolute inset-0 bg-red-500/5 blur-2xl rounded-full" />
                   </div>
-                  <h5 className="text-zinc-400 font-black text-[12px] uppercase tracking-[0.4em] mb-4">Dati Non Pervenuti</h5>
+                  <h5 className="text-zinc-400 font-black text-[12px] uppercase tracking-[0.4em] mb-4">
+                    {matchDetailsError ? "Errore di Rete / API" : "Dati Non Pervenuti"}
+                  </h5>
                   <p className="text-center text-zinc-600 text-[10px] uppercase tracking-[0.2em] font-bold max-w-xs leading-relaxed">
-                    Le informazioni per questo incontro non sono ancora state caricate nel database ufficiale.
+                    {matchDetailsError ? `Dettaglio Errore: ${matchDetailsError}` : "Le informazioni per questo incontro non sono ancora state caricate nel database ufficiale."}
                   </p>
                 </div>
               )}
