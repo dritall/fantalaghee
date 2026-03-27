@@ -295,10 +295,14 @@ export default function ScoutHub() {
   };
 
   const formatEventMinute = (ev: any) => {
-    if (ev.additionalTime && ev.additionalTime > 0) {
-      return `${ev.minute || ev.time}+${ev.additionalTime}'`;
+    const base = ev.time || ev.minute || ev.minuteRaw;
+    if (base != null && base !== 0 && base !== '') {
+      if (ev.additionalTime && ev.additionalTime > 0) {
+        return `${base}+${ev.additionalTime}'`;
+      }
+      return `${base}'`;
     }
-    return ev.minute || ev.time ? `${ev.minute || ev.time}'` : '';
+    return '';
   };
 
   const MatchTimeline = ({ detail, homeName, awayName }: any) => {
@@ -431,11 +435,12 @@ export default function ScoutHub() {
                 </div>
                 <div className={`flex-1 min-w-0 flex flex-col pt-1 md:pt-1.5 ${isHome ? 'items-end text-right' : 'items-start text-left'}`}>
                   <div className={`flex flex-wrap items-baseline gap-1 md:gap-2 ${isHome ? 'justify-end' : 'justify-start'}`}>
-                    <span className={`font-black text-[11px] md:text-sm tracking-tight text-white`}>{ev.player}</span>
-                    {ev.subOff && (
-                      <span className="text-zinc-500 text-[9px] md:text-[11px] font-bold flex items-center gap-1">
-                        <span className="opacity-40">←</span> {ev.subOff}
+                    {ev.type === 'substitution' ? (
+                      <span className="font-black text-[11px] md:text-[13px] tracking-tight text-white flex items-center gap-1.5">
+                        <span>{ev.player}</span> <span className="text-zinc-500 font-bold px-0.5">↔</span> <span className="text-zinc-400">{ev.subOff}</span>
                       </span>
+                    ) : (
+                      <span className={`font-black text-[11px] md:text-sm tracking-tight text-white`}>{ev.player}</span>
                     )}
                   </div>
                   <div className={`text-[8px] md:text-[9px] text-zinc-500 uppercase tracking-[0.1em] md:tracking-[0.2em] mt-1 md:mt-1.5 font-black flex items-center gap-1.5 flex-wrap ${isHome ? 'justify-end' : 'justify-start'}`}>
@@ -528,19 +533,17 @@ export default function ScoutHub() {
 
       return (
         <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 group transition-transform duration-500 hover:scale-125 hover:z-30" style={{ left, top }}>
-          <div className="relative">
-            <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-[11px] md:text-sm font-black shadow-2xl border-2 transition-colors
-              ${side === 'home' ? 'bg-cyan-500 border-white text-black drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 text-black drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`}>
-              {p.jerseyNumber}
-            </div>
-            <div className="absolute -top-1 -right-2 flex flex-col gap-0.5">
+          <div className="relative flex justify-center mt-1">
+            <div className={`w-3 h-3 md:w-4 md:h-4 rounded-full shadow-lg border-2 transition-colors
+              ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`} />
+            <div className="absolute -top-1 -right-3 flex flex-col gap-0.5">
               {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[12px] drop-shadow-md">⚽</span>)}
-              {red ? <div className="w-2.5 h-3.5 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
+              {red ? <div className="w-1.5 h-2 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-1.5 h-2 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
             </div>
           </div>
-          <div className="mt-0.5 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded border border-white/5 opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            <span className="text-[9px] font-black uppercase text-white tracking-widest text-shadow-sm">
-              {getDisplayPlayerName(p)}
+          <div className="mt-0.5 whitespace-nowrap flex flex-col items-center bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded outline outline-1 outline-white/5">
+            <span className="text-[8px] md:text-[9px] font-black uppercase text-white tracking-widest text-shadow-sm drop-shadow-md truncate max-w-[70px] md:max-w-[90px]">
+              {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p).split(' ').pop()}
             </span>
           </div>
         </div>
@@ -632,19 +635,17 @@ export default function ScoutHub() {
 
             return (
               <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 group transition-transform duration-500 hover:scale-110 hover:z-30" style={{ left: pos.left, top: pos.top }}>
-                <div className="relative">
-                  <div className={`w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center text-[11px] md:text-sm font-black shadow-2xl border-2 md:border-[3px] transition-colors
-                    ${side === 'home' ? 'bg-cyan-500 border-white text-black drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 text-black drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]'}`}>
-                    {p.jerseyNumber}
-                  </div>
-                  <div className="absolute -top-1 -right-2 md:-right-3 flex flex-col gap-0.5">
+                <div className="relative flex justify-center mt-1">
+                  <div className={`w-3 h-3 md:w-4 md:h-4 rounded-full shadow-lg border-2 transition-colors
+                    ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`} />
+                  <div className="absolute -top-1 -right-3 flex flex-col gap-0.5">
                     {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[14px] drop-shadow-md">⚽</span>)}
-                    {red ? <div className="w-2.5 h-3.5 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
+                    {red ? <div className="w-1.5 h-2 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-1.5 h-2 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
                   </div>
                 </div>
-                <div className="mt-0.5 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-md border border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
-                  <span className="text-[7.5px] md:text-[9px] font-black uppercase text-white tracking-widest text-shadow-sm whitespace-nowrap truncate max-w-[50px] md:max-w-[70px] inline-block">
-                    {getDisplayPlayerName(p).split(' ').pop()}
+                <div className="mt-0.5 whitespace-nowrap flex flex-col items-center bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded outline outline-1 outline-white/5">
+                  <span className="text-[7.5px] md:text-[9.5px] font-black uppercase text-white tracking-widest text-shadow-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] truncate max-w-[60px] md:max-w-[70px]">
+                    {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p).split(' ').pop()}
                   </span>
                 </div>
               </div>
@@ -739,66 +740,45 @@ export default function ScoutHub() {
       return null;
     };
 
-    const general = [
-      find(['possession', 'possession-percentage', 'ball_possession', 'possession_percentage'], 'Possesso Palla'),
+    const attacco = [
+      find(['shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri Totali'),
+      find(['shots-on-target', 'shots_on_target', 'ontarget_scoring_att', 'on_target', 'shots_on_goal'], 'Tiri in Porta'),
+      find(['expected-goals', 'expected_goals', 'xg'], 'Expected Goals (xG)'),
       find(['big-chances', 'big_chances', 'clear_chances'], 'Grandi Occasioni'),
+    ].filter(Boolean);
+
+    const possesso = [
+      find(['possession', 'possession-percentage', 'ball_possession', 'possession_percentage'], 'Possesso Palla'),
+      find(['passes', 'total_passes'], 'Passaggi Totali'),
+      find(['accurate-pass-percentage', 'pass_accuracy', 'accurate_pass_percentage', 'passes_accuracy'], 'Precisione Passaggi'),
+      find(['key-passes', 'key_passes'], 'Key Passes'),
+      find(['crosses', 'total_cross'], 'Cross'),
+    ].filter(Boolean);
+
+    const difesa = [
+      find(['saves', 'total_saves', 'saves_total'], 'Parate / Salvataggi'),
+      find(['clearances', 'total_clearance'], 'Clearances'),
       find(['blocked-shots', 'blocked_shots'], 'Tiri Rimpallati'),
-      find(['corners', 'corner_taken', 'corners_total'], 'Calci d\'Angolo'),
       find(['offsides', 'offside'], 'Fuorigioco'),
     ].filter(Boolean);
 
-    const attack = [
-      find(['goals', 'goals-for', 'goals_for', 'gf'], 'Gol Fatti'),
-      find(['shots-on-target', 'shots_on_target', 'ontarget_scoring_att', 'on_target', 'shots_on_goal'], 'Tiri in Porta'),
-      find(['shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri Totali'),
-      find(['expected-goals', 'expected_goals', 'xg'], 'Expected Goals (xG)'),
+    const duelli = [
+      find(['duels-won', 'duels_won', 'won_contest'], 'Duelli Vinti'),
+      find(['tackles', 'total_tackle'], 'Tackle'),
     ].filter(Boolean);
 
-    const passes = [
-      find(['passes', 'accurate-pass-percentage', 'pass_accuracy', 'accurate_pass_percentage', 'passes_accuracy'], 'Precisione Passaggi'),
-      find(['assists', 'assist'], 'Assist'),
-    ].filter(Boolean);
-
-    const defense = [
-      find(['goals-against', 'goals_against', 'ga'], 'Gol Subiti'),
-      find(['clean-sheet', 'clean_sheet'], 'Clean Sheets'),
-      find(['saves', 'total_saves', 'saves_total'], 'Parate'),
-    ].filter(Boolean);
-
-    const intensity = [
-      find(['distance-covered', 'distance_covered', 'kilometers_run'], 'Distanza Percorsa (km)'),
-      find(['distance-covered-jogging', 'distance_covered_jogging'], 'Corsa Leggera (km)'),
-      find(['distance-covered-low-intensity-running', 'distance_covered_low'], 'Corsa Bassa Int. (km)'),
-      find(['distance-covered-high-intensity-running', 'distance_covered_high'], 'Corsa Alta Int. (km)'),
-      find(['distance-covered-sprinting', 'distance_covered_sprinting', 'sprints'], 'Scatto (km)'),
-      find(['distance-covered-walking', 'distance_covered_walking', 'walking'], 'Camminata (km)'),
-      find(['average-speed-jogging', 'average_speed_jogging'], 'Vel. Media Leggera (km/h)'),
-      find(['average-speed-low-intensity-running', 'average_speed_low'], 'Vel. Media Bassa (km/h)'),
-      find(['average-speed-high-intensity-running', 'average_speed_high'], 'Vel. Media Alta (km/h)'),
-      find(['average-speed-walking', 'average_speed_walking'], 'Vel. Media Camminata (km/h)'),
-    ].filter(Boolean);
-
-    const discipline = [
+    const fisico = [
       find(['fouls', 'fouls_committed', 'fouls_total'], 'Falli Commessi'),
       find(['yellow-cards', 'yellow_cards', 'total_yellow_card'], 'Ammonizioni'),
       find(['red-cards', 'red_cards', 'total_red_card'], 'Espulsioni'),
+      find(['corners', 'corner_taken', 'corners_total'], 'Calci d\'Angolo'),
     ].filter(Boolean);
 
-    const overview = [
-      find(['points'], 'Punti'),
-      find(['rank', 'position'], 'Posizione'),
-      find(['matches-played', 'matches_played', 'played'], 'Partite Giocate'),
-      find(['goal-difference', 'goal_difference', 'gd'], 'Differenza Reti'),
-      find(['win', 'wins'], 'Vittorie'),
-      find(['draw', 'draws'], 'Pareggi'),
-      find(['lose', 'loss', 'losses'], 'Sconfitte'),
-    ].filter(Boolean);
-
-    if (general.length === 0 && attack.length === 0 && passes.length === 0 && defense.length === 0 && Object.keys(map).length > 0) {
+    if (attacco.length === 0 && possesso.length === 0 && Object.keys(map).length > 0) {
       general.push(...Object.entries(map).filter(([k]) => !k.includes('id') && !k.includes('name')).slice(0, 15).map(([, v]) => ({ ...v, isPercent: false })));
     }
 
-    return { general, attack, passes, defense, intensity, discipline, overview };
+    return { attacco, possesso, difesa, duelli, fisico };
   };
 
 
@@ -1086,13 +1066,11 @@ export default function ScoutHub() {
                     return (
                       <section className="relative px-4 md:px-0">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                          {statsGroups.general.length > 0 && <StatCard title="General" stats={statsGroups.general} iconColor="text-blue-400" />}
-                          {statsGroups.attack.length > 0 && <StatCard title="Attack" stats={statsGroups.attack} iconColor="text-orange-400" />}
-                          {statsGroups.passes.length > 0 && <StatCard title="Passes" stats={statsGroups.passes} iconColor="text-cyan-400" />}
-                          {statsGroups.defense.length > 0 && <StatCard title="Defense" stats={statsGroups.defense} iconColor="text-emerald-400" />}
-                          {statsGroups.intensity.length > 0 && <StatCard title="Game Intensity" stats={statsGroups.intensity} iconColor="text-purple-400" />}
-                          {statsGroups.discipline.length > 0 && <StatCard title="Discipline" stats={statsGroups.discipline} iconColor="text-red-400" />}
-                          {statsGroups.overview.length > 0 && <StatCard title="Season Overview" stats={statsGroups.overview} iconColor="text-zinc-400" />}
+                          {statsGroups.attacco.length > 0 && <StatCard title="Attacco" stats={statsGroups.attacco} iconColor="text-orange-400" />}
+                          {statsGroups.possesso.length > 0 && <StatCard title="Possesso e Passaggi" stats={statsGroups.possesso} iconColor="text-cyan-400" />}
+                          {statsGroups.difesa.length > 0 && <StatCard title="Difesa" stats={statsGroups.difesa} iconColor="text-blue-500" />}
+                          {statsGroups.duelli.length > 0 && <StatCard title="Duelli" stats={statsGroups.duelli} iconColor="text-purple-400" />}
+                          {statsGroups.fisico.length > 0 && <StatCard title="Fisico / Avanzate" stats={statsGroups.fisico} iconColor="text-red-500" />}
                         </div>
                       </section>
                     );
@@ -1193,72 +1171,99 @@ export default function ScoutHub() {
 
                   {/* ====== TAB: STATISTICHE GIOCATORI ====== */}
                   {modalTab === 'player-stats' && (() => {
-                     const renderPlayerRow = (p: any, isHome: boolean) => {
-                       const goals = p.events?.filter((e: any) => e.type.match(/goal/) && e.type !== 'own-goal').length || 0;
-                       const aut = p.events?.filter((e: any) => e.type === 'own-goal').length || 0;
-                       const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
-                       const red = p.events?.some((e: any) => e.type === 'red-card');
-                       const subIn = p.events?.find((e: any) => e.type === 'substitution-in');
-                       const subOut = p.events?.find((e: any) => e.type === 'substitution-out');
+                     const PlayerStatsTable = ({ players, teamName }: { players: any[], teamName: string }) => {
+                       if (!players || players.length === 0) return null;
                        
-                       // Only render if they played or have events
-                       if (!subIn && !p.tacticalXPosition && !p.tacticalYPosition && matchDetails.lineups?.[isHome ? 'home' : 'away']?.benched?.find((x:any)=>x.playerId===p.playerId)) return null;
+                       const getStat = (p: any, keys: string[], suffix = '') => {
+                         if (!p.stats) return '-';
+                         for (const k of keys) {
+                           if (p.stats[k] !== undefined && p.stats[k] !== null) return `${p.stats[k]}${suffix}`;
+                         }
+                         return '-';
+                       };
+
+                       const activePlayers = players.filter(p => {
+                         const played = p.stats?.mins_played || p.stats?.minutesPlayed || p.stats?.minutes_played;
+                         const subIn = p.events?.some((e: any) => e.type === 'substitution-in');
+                         const wasFielded = p.tacticalXPosition != null;
+                         return played > 0 || subIn || wasFielded;
+                       });
+
+                       if (activePlayers.length === 0) return null;
 
                        return (
-                         <div key={p.playerId || p.id} className={`flex items-center justify-between p-3 border-b border-white/5 hover:bg-white/5 transition-colors group ${isHome ? '' : 'flex-row-reverse text-right'}`}>
-                           <div className={`flex items-center gap-3 ${isHome ? '' : 'flex-row-reverse'}`}>
-                             <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-[10px] md:text-[12px] font-black shadow-lg border-2 shrink-0 ${isHome ? 'bg-cyan-500 border-white text-black' : 'bg-white border-zinc-200 text-black'}`}>
-                               {p.jerseyNumber}
-                             </div>
-                             <div className={`flex flex-col ${isHome ? 'items-start' : 'items-end'}`}>
-                               <span className="text-[11px] md:text-[13px] font-black uppercase tracking-widest text-zinc-200 group-hover:text-white transition-colors">{getDisplayPlayerName(p)}</span>
-                               {(subIn || subOut) && <span className="text-[9px] font-bold text-zinc-500">{subIn ? `Entrato ${formatEventMinute(subIn)}` : subOut ? `Uscito ${formatEventMinute(subOut)}` : ''}</span>}
-                             </div>
-                           </div>
-                           <div className={`flex items-center gap-2 ${isHome ? 'pr-2' : 'pl-2'}`}>
-                             {goals > 0 && <span className="text-[14px]">⚽ <span className="text-[9px] text-zinc-400">x{goals}</span></span>}
-                             {aut > 0 && <span className="text-[14px]">🤦‍♂️ <span className="text-[9px] text-red-400">Aut.</span></span>}
-                             {yellow && <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" />}
-                             {red && <div className="w-2.5 h-3.5 bg-red-500 rounded-sm border border-red-700 shadow-sm" />}
+                         <div className="bg-zinc-900/20 rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl backdrop-blur-sm mb-8 overflow-hidden">
+                           <h4 className="text-[12px] font-black uppercase text-cyan-400 tracking-widest mb-6 flex items-center gap-3">
+                             <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-lg" />
+                             {teamName}
+                           </h4>
+                           <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                             <table className="w-full text-left border-collapse min-w-[700px]">
+                               <thead>
+                                 <tr className="border-b border-white/10 text-[8.5px] uppercase tracking-[0.2em] text-zinc-500 font-black">
+                                   <th className="py-3 px-3 sticky left-0 bg-[#0c1210] z-10 w-48 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">Giocatore</th>
+                                   <th className="py-3 px-3 text-center">Minuti</th>
+                                   <th className="py-3 px-3 text-center">Tiri (In P.)</th>
+                                   <th className="py-3 px-3 text-center">Pass. (%)</th>
+                                   <th className="py-3 px-3 text-center">Key Pass</th>
+                                   <th className="py-3 px-3 text-center">Duelli V.</th>
+                                   <th className="py-3 px-3 text-center">Tackle</th>
+                                   <th className="py-3 px-3 text-center">Falli</th>
+                                 </tr>
+                               </thead>
+                               <tbody className="text-[11px] font-medium text-zinc-300">
+                                 {activePlayers.map(p => {
+                                   const goals = p.events?.filter((e: any) => e.type.match(/goal/) && e.type !== 'own-goal').length || 0;
+                                   const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
+                                   const red = p.events?.some((e: any) => e.type === 'red-card');
+                                   
+                                   const tiri = getStat(p, ['shots', 'total_scoring_att', 'total_shots', 'shots_total']);
+                                   const tiriPorta = getStat(p, ['shots-on-target', 'shots_on_target', 'ontarget_scoring_att', 'shots_on_goal']);
+                                   
+                                   const passaggi = getStat(p, ['passes', 'total_passes']);
+                                   const passPerc = getStat(p, ['accurate-pass-percentage', 'pass_accuracy', 'accurate_pass_percentage', 'passes_accuracy'], '%');
+                                   
+                                   return (
+                                     <tr key={p.playerId || p.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
+                                       <td className="py-3 px-3 sticky left-0 bg-[#0a0f0d] group-hover:bg-[#111815] transition-colors z-10 font-black uppercase tracking-wider text-white flex items-center gap-3 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
+                                         <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] bg-zinc-800 border border-white/10 shrink-0 text-zinc-400">
+                                           {p.jerseyNumber}
+                                         </div>
+                                         <div className="flex flex-col min-w-0">
+                                           <span className="truncate" title={getDisplayPlayerName(p)}>
+                                             {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p)}
+                                           </span>
+                                           <div className="flex gap-1 mt-0.5">
+                                             {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px]">⚽</span>)}
+                                             {yellow && <div className="w-2 h-3 bg-yellow-400 rounded-[1px]" />}
+                                             {red && <div className="w-2 h-3 bg-red-500 rounded-[1px]" />}
+                                           </div>
+                                         </div>
+                                       </td>
+                                       <td className="py-3 px-3 text-center font-bold text-zinc-500">{getStat(p, ['mins_played', 'minutesPlayed', 'minutes_played'])}</td>
+                                       <td className="py-3 px-3 text-center font-bold">{tiri !== '-' ? `${tiri} (${tiriPorta})` : '-'}</td>
+                                       <td className="py-3 px-3 text-center font-bold">{passaggi !== '-' ? `${passaggi} (${passPerc})` : '-'}</td>
+                                       <td className="py-3 px-3 text-center font-bold">{getStat(p, ['key_passes', 'key-passes'])}</td>
+                                       <td className="py-3 px-3 text-center font-bold">{getStat(p, ['won_contest', 'duels-won', 'duels_won'])}</td>
+                                       <td className="py-3 px-3 text-center font-bold">{getStat(p, ['tackles', 'total_tackle'])}</td>
+                                       <td className="py-3 px-3 text-center font-bold">{getStat(p, ['fouls', 'fouls_committed', 'fouls_total'])}</td>
+                                     </tr>
+                                   );
+                                 })}
+                               </tbody>
+                             </table>
                            </div>
                          </div>
                        );
                      };
 
+                     const homeRos = [...(matchDetails.lineups?.home?.fielded || []), ...(matchDetails.lineups?.home?.benched || [])];
+                     const awayRos = [...(matchDetails.lineups?.away?.fielded || []), ...(matchDetails.lineups?.away?.benched || [])];
+
                      return (
-                       <section className="relative px-4 md:px-0">
-                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                           <div className="bg-zinc-900/20 rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl backdrop-blur-sm">
-                             <div className="flex items-center gap-4 mb-8">
-                               <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-10 h-10" />
-                               <span className="text-[14px] font-black uppercase text-cyan-400 tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</span>
-                             </div>
-                             <div className="flex flex-col">
-                               {[...(matchDetails.lineups?.home?.fielded || []), ...(matchDetails.lineups?.home?.benched || [])]
-                                  .sort((a,b) => {
-                                      const aRole = a.role || 3;
-                                      const bRole = b.role || 3;
-                                      return aRole - bRole;
-                                  })
-                                  .map(p => renderPlayerRow(p, true))}
-                             </div>
-                           </div>
-                           <div className="bg-zinc-900/20 rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl backdrop-blur-sm">
-                             <div className="flex items-center gap-4 mb-8 justify-end text-right">
-                               <span className="text-[14px] font-black uppercase text-white tracking-widest">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</span>
-                               <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-10 h-10" />
-                             </div>
-                             <div className="flex flex-col">
-                               {[...(matchDetails.lineups?.away?.fielded || []), ...(matchDetails.lineups?.away?.benched || [])]
-                                  .sort((a,b) => {
-                                      const aRole = a.role || 3;
-                                      const bRole = b.role || 3;
-                                      return aRole - bRole;
-                                  })
-                                  .map(p => renderPlayerRow(p, false))}
-                             </div>
-                           </div>
-                         </div>
+                       <section className="relative px-0">
+                         <PlayerStatsTable players={homeRos} teamName={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} />
+                         <PlayerStatsTable players={awayRos} teamName={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} />
                        </section>
                      );
                   })()}
