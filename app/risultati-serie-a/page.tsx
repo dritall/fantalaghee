@@ -134,6 +134,7 @@ export default function ScoutHub() {
   const [matchDetails, setMatchDetails]     = useState<any>(null);
   const [matchDetailsError, setMatchDetailsError] = useState<string | null>(null);
   const [loadingModal, setLoadingModal]     = useState(false);
+  const [modalTab, setModalTab]             = useState('overview');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -211,6 +212,7 @@ export default function ScoutHub() {
     setModalFixture(m);
     setMatchDetails(null);
     setMatchDetailsError(null);
+    setModalTab('overview');
     setLoadingModal(true);
     try {
       const matchId = m.matchId || m.id;
@@ -362,30 +364,39 @@ export default function ScoutHub() {
     };
 
     return (
-      <div className="space-y-6 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-px before:bg-white/5 mx-2">
-        {mergedEvents.map((ev, i) => (
-          <div key={i} className="flex items-start gap-5 text-xs relative" style={{ paddingLeft: '8px' }}>
-            <span className="w-10 text-[10px] font-black text-cyan-400 mt-0.5 text-right shrink-0 font-mono">{ev.minuteStr}</span>
-            <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] z-10 shrink-0 border border-white/10 ${ev.type.includes('red') ? 'bg-red-500/20' : ev.type.includes('yellow') ? 'bg-yellow-500/20' : 'bg-zinc-900'}`}>
-              {getTypeLabel(ev.type)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-2 flex-wrap">
-                <span className={`font-black text-sm tracking-tight ${ev.team === 'home' ? 'text-white' : 'text-zinc-300'}`}>{ev.player}</span>
-                {ev.subOff && (
-                  <span className="text-zinc-500 text-[11px] font-medium flex items-center gap-1.5">
-                    <span className="opacity-40">←</span> {ev.subOff}
-                  </span>
-                )}
+      <div className="relative py-4 md:py-8">
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10 -translate-x-1/2" />
+        <div className="space-y-6 md:space-y-10 relative">
+          {mergedEvents.map((ev, i) => {
+            const isHome = ev.team === 'home';
+            return (
+              <div key={i} className={`flex items-start w-full gap-2 md:gap-6 ${isHome ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className="flex-1" />
+                <div className="relative flex flex-col items-center justify-start shrink-0 z-10 w-10 md:w-16 pt-0.5">
+                  <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-[12px] font-black shadow-lg border border-white/10 ${ev.type.includes('red') ? 'bg-red-500 text-white shadow-[0_0_10px_rgba(239,68,68,0.4)]' : ev.type.includes('yellow') ? 'bg-yellow-400 text-black shadow-[0_0_10px_rgba(250,204,21,0.4)]' : ev.type.includes('goal') ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.4)]' : 'bg-zinc-800 text-white'}`}>
+                    {getTypeLabel(ev.type)}
+                  </div>
+                  <span className="text-[8px] md:text-[10px] font-black text-white mt-2 bg-zinc-900 border border-white/10 px-2 py-0.5 rounded-full z-20 shadow-md">{ev.minuteStr}</span>
+                </div>
+                <div className={`flex-1 min-w-0 flex flex-col pt-1 md:pt-1.5 ${isHome ? 'items-end text-right' : 'items-start text-left'}`}>
+                  <div className={`flex flex-wrap items-baseline gap-1 md:gap-2 ${isHome ? 'justify-end' : 'justify-start'}`}>
+                    <span className={`font-black text-[11px] md:text-sm tracking-tight text-white`}>{ev.player}</span>
+                    {ev.subOff && (
+                      <span className="text-zinc-500 text-[9px] md:text-[11px] font-bold flex items-center gap-1">
+                        <span className="opacity-40">←</span> {ev.subOff}
+                      </span>
+                    )}
+                  </div>
+                  <div className={`text-[8px] md:text-[9px] text-zinc-500 uppercase tracking-[0.1em] md:tracking-[0.2em] mt-1 md:mt-1.5 font-black flex items-center gap-1.5 flex-wrap ${isHome ? 'justify-end' : 'justify-start'}`}>
+                    {isHome ? homeName : awayName}
+                    {ev.type === 'penalty-goal' && <span className="text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-sm">RIG.</span>}
+                    {ev.type === 'own-goal' && <span className="text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-sm">AUT.</span>}
+                  </div>
+                </div>
               </div>
-              <div className="text-[9px] text-zinc-500 uppercase tracking-[0.2em] mt-1 font-black flex items-center gap-2">
-                {ev.team === 'home' ? homeName : awayName}
-                {ev.type === 'penalty-goal' && <span className="text-emerald-500 bg-emerald-500/10 px-1 rounded">RIGORE</span>}
-                {ev.type === 'own-goal' && <span className="text-red-500 bg-red-500/10 px-1 rounded">AUTOGOL</span>}
-              </div>
-            </div>
-          </div>
-        ))}
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -454,7 +465,7 @@ export default function ScoutHub() {
             const red = p.events?.some((e: any) => e.type === 'red-card');
 
             return (
-              <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5 z-20 group transition-transform duration-500 hover:scale-110 hover:z-30" style={{ left: pos.left, top: pos.top }}>
+              <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 group transition-transform duration-500 hover:scale-110 hover:z-30" style={{ left: pos.left, top: pos.top }}>
                 <div className="relative">
                   <div className={`w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center text-[11px] md:text-sm font-black shadow-2xl border-2 md:border-[3px] transition-colors
                     ${side === 'home' ? 'bg-cyan-500 border-white text-black drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 text-black drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]'}`}>
@@ -464,6 +475,11 @@ export default function ScoutHub() {
                     {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[14px] drop-shadow-md">⚽</span>)}
                     {red ? <div className="w-2.5 h-3.5 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
                   </div>
+                </div>
+                <div className="mt-0.5 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-md border border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[7.5px] md:text-[9px] font-black uppercase text-white tracking-widest text-shadow-sm whitespace-nowrap truncate max-w-[50px] md:max-w-[70px] inline-block">
+                    {getDisplayPlayerName(p).split(' ').pop()}
+                  </span>
                 </div>
               </div>
             );
@@ -557,45 +573,66 @@ export default function ScoutHub() {
       return null;
     };
 
+    const general = [
+      find(['possession', 'possession-percentage', 'ball_possession', 'possession_percentage'], 'Possesso Palla'),
+      find(['big-chances', 'big_chances', 'clear_chances'], 'Grandi Occasioni'),
+      find(['blocked-shots', 'blocked_shots'], 'Tiri Rimpallati'),
+      find(['corners', 'corner_taken', 'corners_total'], 'Calci d\'Angolo'),
+      find(['offsides', 'offside'], 'Fuorigioco'),
+    ].filter(Boolean);
+
+    const attack = [
+      find(['goals', 'goals-for', 'goals_for', 'gf'], 'Gol Fatti'),
+      find(['shots-on-target', 'shots_on_target', 'ontarget_scoring_att', 'on_target', 'shots_on_goal'], 'Tiri in Porta'),
+      find(['shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri Totali'),
+      find(['expected-goals', 'expected_goals', 'xg'], 'Expected Goals (xG)'),
+    ].filter(Boolean);
+
+    const passes = [
+      find(['passes', 'accurate-pass-percentage', 'pass_accuracy', 'accurate_pass_percentage', 'passes_accuracy'], 'Precisione Passaggi'),
+      find(['assists', 'assist'], 'Assist'),
+    ].filter(Boolean);
+
+    const defense = [
+      find(['goals-against', 'goals_against', 'ga'], 'Gol Subiti'),
+      find(['clean-sheet', 'clean_sheet'], 'Clean Sheets'),
+      find(['saves', 'total_saves', 'saves_total'], 'Parate'),
+    ].filter(Boolean);
+
+    const intensity = [
+      find(['distance-covered', 'distance_covered', 'kilometers_run'], 'Distanza Percorsa (km)'),
+      find(['distance-covered-jogging', 'distance_covered_jogging'], 'Corsa Leggera (km)'),
+      find(['distance-covered-low-intensity-running', 'distance_covered_low'], 'Corsa Bassa Int. (km)'),
+      find(['distance-covered-high-intensity-running', 'distance_covered_high'], 'Corsa Alta Int. (km)'),
+      find(['distance-covered-sprinting', 'distance_covered_sprinting', 'sprints'], 'Scatto (km)'),
+      find(['distance-covered-walking', 'distance_covered_walking', 'walking'], 'Camminata (km)'),
+      find(['average-speed-jogging', 'average_speed_jogging'], 'Vel. Media Leggera (km/h)'),
+      find(['average-speed-low-intensity-running', 'average_speed_low'], 'Vel. Media Bassa (km/h)'),
+      find(['average-speed-high-intensity-running', 'average_speed_high'], 'Vel. Media Alta (km/h)'),
+      find(['average-speed-walking', 'average_speed_walking'], 'Vel. Media Camminata (km/h)'),
+    ].filter(Boolean);
+
+    const discipline = [
+      find(['fouls', 'fouls_committed', 'fouls_total'], 'Falli Commessi'),
+      find(['yellow-cards', 'yellow_cards', 'total_yellow_card'], 'Ammonizioni'),
+      find(['red-cards', 'red_cards', 'total_red_card'], 'Espulsioni'),
+    ].filter(Boolean);
+
     const overview = [
       find(['points'], 'Punti'),
       find(['rank', 'position'], 'Posizione'),
       find(['matches-played', 'matches_played', 'played'], 'Partite Giocate'),
       find(['goal-difference', 'goal_difference', 'gd'], 'Differenza Reti'),
-    ].filter(Boolean);
-
-    const performance = [
       find(['win', 'wins'], 'Vittorie'),
       find(['draw', 'draws'], 'Pareggi'),
       find(['lose', 'loss', 'losses'], 'Sconfitte'),
     ].filter(Boolean);
 
-    const attackDef = [
-      find(['goals-for', 'goals_for', 'gf', 'goals'], 'Gol Fatti'),
-      find(['goals-against', 'goals_against', 'ga'], 'Gol Subiti'),
-      find(['average-goals-for', 'average_goals_for'], 'Media Gol Fatti'),
-      find(['average-goals-against', 'average_goals_against'], 'Media Gol Subiti'),
-      find(['clean-sheet', 'clean_sheet'], 'Clean Sheets'),
-    ].filter(Boolean);
-
-    const matchStats = [
-      find(['possession', 'possession-percentage', 'ball_possession', 'possession_percentage'], 'Possesso Palla'),
-      find(['shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri Totali'),
-      find(['shots-on-target', 'shots_on_target', 'ontarget_scoring_att', 'on_target'], 'Tiri in Porta'),
-      find(['expected-goals', 'expected_goals', 'xg'], 'Expected Goals (xG)'),
-      find(['passes', 'accurate-pass-percentage', 'pass_accuracy', 'accurate_pass_percentage', 'passes_accuracy'], 'Precisione Passaggi'),
-      find(['corners', 'corner_taken', 'corners_total'], 'Calci d\'Angolo'),
-      find(['fouls', 'fouls_committed', 'fouls_total'], 'Falli Commessi'),
-      find(['yellow-cards', 'yellow_cards', 'total_yellow_card'], 'Ammonizioni'),
-      find(['red-cards', 'red_cards', 'total_red_card'], 'Espulsioni'),
-      find(['saves', 'total_saves', 'saves_total'], 'Parate'),
-    ].filter(Boolean);
-
-    if (overview.length === 0 && performance.length === 0 && attackDef.length === 0 && matchStats.length === 0 && Object.keys(map).length > 0) {
-      matchStats.push(...Object.entries(map).filter(([k]) => !k.includes('id') && !k.includes('name')).slice(0, 15).map(([, v]) => ({ ...v, isPercent: false })));
+    if (general.length === 0 && attack.length === 0 && passes.length === 0 && defense.length === 0 && Object.keys(map).length > 0) {
+      general.push(...Object.entries(map).filter(([k]) => !k.includes('id') && !k.includes('name')).slice(0, 15).map(([, v]) => ({ ...v, isPercent: false })));
     }
 
-    return { overview, performance, attackDef, matchStats };
+    return { general, attack, passes, defense, intensity, discipline, overview };
   };
 
 
@@ -788,7 +825,27 @@ export default function ScoutHub() {
               );
             })()}
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-10 space-y-12 md:space-y-20 custom-scrollbar bg-[#050505]">
+            {/* TAB SELECTOR */}
+            <div className="flex overflow-x-auto no-scrollbar border-b border-white/5 bg-[#080808] shrink-0 custom-scrollbar">
+              {[
+                { id: 'overview', label: 'Overview' },
+                { id: 'eventi', label: 'Eventi' },
+                { id: 'formazioni', label: 'Formazioni' },
+                { id: 'club-stats', label: 'Statistiche Club' },
+                { id: 'player-stats', label: 'Statistiche Giocatori' },
+                { id: 'games', label: 'Games' },
+                { id: 'info', label: 'Info & Download' },
+              ].map(tab => (
+                <button key={tab.id} onClick={() => setModalTab(tab.id)}
+                  className={`px-5 py-4 whitespace-nowrap text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all relative
+                  ${modalTab === tab.id ? 'text-cyan-400' : 'text-zinc-500 hover:text-white'}`}>
+                  {tab.label}
+                  {modalTab === tab.id && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]" />}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#050505]">
               {loadingModal ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <div className="relative">
@@ -798,27 +855,32 @@ export default function ScoutHub() {
                   <p className="text-[11px] text-zinc-500 uppercase tracking-[0.3em] font-black">Sincronizzazione dati...</p>
                 </div>
               ) : matchDetails ? (
-                <div className="space-y-16 pb-12">
+                <div className="pb-12 h-full">
                   
-                  {/* ====== EVENTI ====== */}
-                  <section className="relative px-4 md:px-0">
-                    <div className="flex items-center gap-4 mb-10">
-                      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-                      <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-cyan-400 flex items-center gap-3">
-                         <span className="w-2 h-2 bg-cyan-500 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-                         Timeline
-                      </h3>
-                      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+                  {/* ====== TAB: OVERVIEW ====== */}
+                  {(modalTab === 'overview') && (
+                    <div className="space-y-16">
+                      <section className="relative px-4 md:px-0">
+                        <div className="bg-zinc-900/20 rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl backdrop-blur-sm">
+                          <MatchTimeline detail={matchDetails} homeName={getDisplayPlayerName(resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa'))} awayName={getDisplayPlayerName(resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite'))} />
+                        </div>
+                      </section>
                     </div>
-                    <div className="bg-zinc-900/20 rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl backdrop-blur-sm">
-                      <MatchTimeline detail={matchDetails} homeName={getDisplayPlayerName(resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa'))} awayName={getDisplayPlayerName(resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite'))} />
-                    </div>
-                  </section>
+                  )}
 
-                  {/* ====== STATISTICHE ====== */}
-                  {(() => {
+                  {/* ====== TAB: EVENTI ====== */}
+                  {(modalTab === 'eventi') && (
+                     <section className="relative px-4 md:px-0">
+                        <div className="bg-zinc-900/20 rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl backdrop-blur-sm">
+                          <MatchTimeline detail={matchDetails} homeName={getDisplayPlayerName(resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa'))} awayName={getDisplayPlayerName(resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite'))} />
+                        </div>
+                     </section>
+                  )}
+
+                  {/* ====== TAB: STATISTICHE CLUB ====== */}
+                  {(modalTab === 'club-stats') && (() => {
                     const statsGroups = buildStatsGroups(matchDetails.stats);
-                    if (!statsGroups || (statsGroups.overview.length === 0 && statsGroups.performance.length === 0 && statsGroups.attackDef.length === 0 && statsGroups.matchStats.length === 0)) return null;
+                    if (!statsGroups) return <div className="py-24 text-center"><span className="text-[10px] text-zinc-600 font-black tracking-widest uppercase">Nessuna statistica disponibile</span></div>;
                     
                     const StatBar = ({ stat }: { stat: any }) => {
                       const total = stat.home + stat.away || 1;
@@ -856,42 +918,23 @@ export default function ScoutHub() {
                     };
 
                     return (
-                      <section className="relative px-4 md:px-0 mt-8">
-                        <div className="flex items-center gap-4 mb-8">
-                          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-                          <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-emerald-400 flex items-center gap-3">
-                             <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
-                             Statistiche
-                          </h3>
-                          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
-                        </div>
-                        
+                      <section className="relative px-4 md:px-0">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                          {statsGroups.overview.length > 0 && <StatCard title="Overview" stats={statsGroups.overview} iconColor="text-blue-400" />}
-                          {statsGroups.performance.length > 0 && <StatCard title="Rendimento" stats={statsGroups.performance} iconColor="text-purple-400" />}
-                          {statsGroups.attackDef.length > 0 && <StatCard title="Attacco & Difesa" stats={statsGroups.attackDef} iconColor="text-orange-400" />}
-                          {statsGroups.matchStats.length > 0 && (
-                            <div className={(statsGroups.overview.length === 0 && statsGroups.performance.length === 0 && statsGroups.attackDef.length === 0) ? "col-span-1 md:col-span-2" : ""}>
-                              <StatCard title="Match Stats" stats={statsGroups.matchStats} iconColor="text-emerald-400" />
-                            </div>
-                          )}
+                          {statsGroups.general.length > 0 && <StatCard title="General" stats={statsGroups.general} iconColor="text-blue-400" />}
+                          {statsGroups.attack.length > 0 && <StatCard title="Attack" stats={statsGroups.attack} iconColor="text-orange-400" />}
+                          {statsGroups.passes.length > 0 && <StatCard title="Passes" stats={statsGroups.passes} iconColor="text-cyan-400" />}
+                          {statsGroups.defense.length > 0 && <StatCard title="Defense" stats={statsGroups.defense} iconColor="text-emerald-400" />}
+                          {statsGroups.intensity.length > 0 && <StatCard title="Game Intensity" stats={statsGroups.intensity} iconColor="text-purple-400" />}
+                          {statsGroups.discipline.length > 0 && <StatCard title="Discipline" stats={statsGroups.discipline} iconColor="text-red-400" />}
+                          {statsGroups.overview.length > 0 && <StatCard title="Season Overview" stats={statsGroups.overview} iconColor="text-zinc-400" />}
                         </div>
                       </section>
                     );
                   })()}
 
-                  {/* ====== FORMAZIONI ====== */}
-                  {matchDetails.lineups && (
-                    <section className="relative px-4 md:px-0 mt-20">
-                      <div className="flex items-center gap-4 mb-16">
-                        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-                        <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 flex items-center gap-3">
-                           <span className="w-2 h-2 bg-zinc-500 rounded-full" />
-                           Formazioni
-                        </h3>
-                        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
-                      </div>
-                      
+                  {/* ====== TAB: FORMAZIONI ====== */}
+                  {(modalTab === 'formazioni') && matchDetails.lineups && (
+                    <section className="relative px-4 md:px-0">
                       <div className="space-y-16">
                         <div className="flex flex-col lg:flex-row gap-8">
                           <div className="flex-1 flex flex-col gap-8">
@@ -916,7 +959,7 @@ export default function ScoutHub() {
                         </div>
 
                         {/* ====== PANCHINE E CAMBI ====== */}
-                        <div className="bg-zinc-900/40 rounded-[3rem] p-10 md:p-16 border border-white/10 shadow-3xl relative overflow-hidden">
+                        <div className="bg-zinc-900/40 rounded-[3rem] p-10 md:p-16 border border-white/10 shadow-3xl relative overflow-hidden mt-8">
                           <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
                           <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-400 mb-16 text-center">Panchine Strategiche</h4>
                           
@@ -974,6 +1017,14 @@ export default function ScoutHub() {
                       </div>
                     </section>
                   )}
+
+                  {/* ====== EMPTY TABS ====== */}
+                  {['player-stats', 'games', 'info'].includes(modalTab) && (
+                     <div className="py-24 text-center border border-white/5 bg-white/[0.02] rounded-[3rem] mx-4 md:mx-0 mt-8">
+                        <span className="text-[10px] text-zinc-600 font-black tracking-widest uppercase">In fase di sviluppo</span>
+                     </div>
+                  )}
+
                 </div>
               ) : (
                 <div className="bg-zinc-900/20 rounded-[3rem] p-24 border border-white/5 flex flex-col items-center justify-center backdrop-blur-xl shadow-2xl mx-4">
