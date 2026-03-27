@@ -8,6 +8,56 @@ import { X, Loader2, AlertTriangle } from 'lucide-react';
 
 const TOTAL_ROUNDS = 38;
 
+const TEAM_LOGOS: Record<string, string> = {
+  Inter: 'https://tmssl.akamaized.net/images/wappen/head/46.png',
+  Milan: 'https://tmssl.akamaized.net/images/wappen/head/5.png',
+  Napoli: 'https://tmssl.akamaized.net/images/wappen/head/6195.png',
+  Juventus: 'https://tmssl.akamaized.net/images/wappen/head/506.png',
+  Roma: 'https://tmssl.akamaized.net/images/wappen/head/12.png',
+  Lazio: 'https://tmssl.akamaized.net/images/wappen/head/398.png',
+  Atalanta: 'https://tmssl.akamaized.net/images/wappen/head/800.png',
+  Bologna: 'https://tmssl.akamaized.net/images/wappen/head/1025.png',
+  Fiorentina: 'https://tmssl.akamaized.net/images/wappen/head/430.png',
+  Torino: 'https://tmssl.akamaized.net/images/wappen/head/416.png',
+  Genoa: 'https://tmssl.akamaized.net/images/wappen/head/252.png',
+  'Genoa CFC': 'https://tmssl.akamaized.net/images/wappen/head/252.png',
+  Udinese: 'https://tmssl.akamaized.net/images/wappen/head/410.png',
+  Lecce: 'https://tmssl.akamaized.net/images/wappen/head/1005.png',
+  Verona: 'https://tmssl.akamaized.net/images/wappen/head/276.png',
+  'Hellas Verona': 'https://tmssl.akamaized.net/images/wappen/head/276.png',
+  Cagliari: 'https://tmssl.akamaized.net/images/wappen/head/1390.png',
+  Parma: 'https://tmssl.akamaized.net/images/wappen/head/130.png',
+  Sassuolo: 'https://tmssl.akamaized.net/images/wappen/head/6574.png',
+  Como: 'https://tmssl.akamaized.net/images/wappen/head/1047.png',
+  'Como 1907': 'https://tmssl.akamaized.net/images/wappen/head/1047.png',
+  Pisa: 'https://tmssl.akamaized.net/images/wappen/head/4172.png',
+  'Pisa Sporting Club': 'https://tmssl.akamaized.net/images/wappen/head/4172.png',
+  Cremonese: 'https://tmssl.akamaized.net/images/wappen/head/1511.png',
+  Monza: 'https://tmssl.akamaized.net/images/wappen/head/2919.png',
+  Empoli: 'https://tmssl.akamaized.net/images/wappen/head/749.png',
+  Venezia: 'https://tmssl.akamaized.net/images/wappen/head/607.png',
+};
+
+const normalizeTeamName = (name?: string) => {
+  if (!name) return '';
+
+  const cleaned = name
+    .replace(/\s+FC$/i, '')
+    .replace(/\s+AC$/i, '')
+    .replace(/\s+1907$/i, '')
+    .replace(/\s+1908$/i, '')
+    .trim();
+
+  const aliases: Record<string, string> = {
+    'Como 1907': 'Como',
+    'Genoa CFC': 'Genoa',
+    'Pisa Sporting Club': 'Pisa',
+    'Hellas Verona': 'Verona',
+  };
+
+  return aliases[name] || aliases[cleaned] || cleaned;
+};
+
 const resolveImageUrl = (path: string | null | undefined): string | null => {
   if (!path || typeof path !== 'string') return null;
   if (path.startsWith('http')) return path;
@@ -38,20 +88,22 @@ const resolveImageUrl = (path: string | null | undefined): string | null => {
 const getTeamLogoUrl = (team: any) => {
   if (!team || typeof team !== 'object') return null;
   
+  const teamName = team.name || team.shortName || team.officialName;
+  const normalized = normalizeTeamName(teamName);
+  
+  // Prefer Transfermarkt stable logo if available to prevent API 404 spam.
+  if (normalized && TEAM_LOGOS[normalized]) {
+    return TEAM_LOGOS[normalized];
+  }
+  if (teamName && TEAM_LOGOS[teamName]) {
+    return TEAM_LOGOS[teamName];
+  }
+
   const raw1 = team.teamLogo;
   const raw2 = team.teamLogoLight;
   const raw3 = team.teamImage || team.imagery?.teamLogo || team.logo;
 
   const resolved = resolveImageUrl(raw1) || resolveImageUrl(raw2) || resolveImageUrl(raw3);
-
-  console.log('Resolving Logo for Team:', {
-    teamName: team.name || team.shortName || 'Unknown',
-    teamId: team.teamId || team.id,
-    rawTeamLogo: raw1,
-    rawTeamLogoLight: raw2,
-    rawTeamImage: raw3,
-    resolvedFinalUrl: resolved,
-  });
 
   return resolved;
 };
@@ -113,7 +165,6 @@ const TeamLogo = ({
       alt={teamName}
       className={`${className} object-contain shrink-0 drop-shadow-md`}
       onError={() => {
-        console.warn(`Logo load failed for ${teamName} (${team?.teamId || team?.id}), fallback triggered. URL: ${src}`);
         setImgError(true);
       }}
     />
@@ -134,7 +185,7 @@ export default function ScoutHub() {
   const [matchDetails, setMatchDetails]     = useState<any>(null);
   const [matchDetailsError, setMatchDetailsError] = useState<string | null>(null);
   const [loadingModal, setLoadingModal]     = useState(false);
-  const [modalTab, setModalTab]             = useState('overview');
+  const [modalTab, setModalTab]             = useState('eventi');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -388,7 +439,6 @@ export default function ScoutHub() {
                     )}
                   </div>
                   <div className={`text-[8px] md:text-[9px] text-zinc-500 uppercase tracking-[0.1em] md:tracking-[0.2em] mt-1 md:mt-1.5 font-black flex items-center gap-1.5 flex-wrap ${isHome ? 'justify-end' : 'justify-start'}`}>
-                    {isHome ? homeName : awayName}
                     {ev.type === 'penalty-goal' && <span className="text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-sm">RIG.</span>}
                     {ev.type === 'own-goal' && <span className="text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-sm">AUT.</span>}
                   </div>
@@ -420,6 +470,122 @@ export default function ScoutHub() {
       : 50;
 
     return { left: `${xPos}%`, top: `${yPos}%` };
+  };
+
+  const CombinedTacticalPitch = ({ matchDetails, homeTeam, awayTeam }: any) => {
+    if (!matchDetails?.lineups?.home?.fielded || !matchDetails?.lineups?.away?.fielded) return null;
+
+    const homeLineup = matchDetails.lineups.home;
+    const awayLineup = matchDetails.lineups.away;
+
+    const rolesHome: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [] };
+    homeLineup.fielded.forEach((p: any) => {
+      if (rolesHome[p.role]) rolesHome[p.role].push(p); else rolesHome[3].push(p);
+    });
+
+    const rolesAway: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [] };
+    awayLineup.fielded.forEach((p: any) => {
+      if (rolesAway[p.role]) rolesAway[p.role].push(p); else rolesAway[3].push(p);
+    });
+
+    const renderPlayer = (p: any, side: 'home'|'away', roleArray: any[]) => {
+      const roleIndex = roleArray.findIndex(x => x.playerId === p.playerId);
+      const pos = getPlayerPosition(p, roleIndex, roleArray.length);
+      
+      // Home plays bottom-up (GK at bottom -> top 90%). 
+      // Away plays top-down (Flip Y and X to face Home).
+      let top = pos.top;
+      let left = pos.left;
+      
+      if (side === 'away') {
+         // getPlayerPosition returns top in % (e.g. "90%"). Parse and invert.
+         const y = parseFloat(pos.top);
+         const x = parseFloat(pos.left);
+         top = `${100 - y}%`;
+         left = `${100 - x}%`; // invert X so LB is on the correct side
+      } else {
+         // Home defaults to bottom half, we need them to be exactly in their half,
+         // but getPlayerPosition distributes across 0-100%. 
+         // Since they share the pitch, maybe we scale Y to 50-100 for home and 0-50 for away?
+         // Actually, "tacticalYPosition" comes from API as 0-1 for the full pitch.
+         if (typeof p.tacticalYPosition !== 'number') {
+            const y = parseFloat(pos.top);
+            // Default role mapper gives Y=90 for GK, 18 for FWD.
+            // On a shared pitch, Home GK is at 95%, FWD at 55%.
+            top = `${50 + (y / 2)}%`;
+         }
+      }
+
+      if (side === 'away' && typeof p.tacticalYPosition !== 'number') {
+         const y = parseFloat(pos.top); 
+         // Away GK at 5%, FWD at 45%
+         top = `${50 - (y / 2)}%`;
+      }
+
+      const goals = p.events?.filter((e: any) => e.type.match(/goal/)).length || 0;
+      const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
+      const red = p.events?.some((e: any) => e.type === 'red-card');
+
+      return (
+        <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 group transition-transform duration-500 hover:scale-125 hover:z-30" style={{ left, top }}>
+          <div className="relative">
+            <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-[11px] md:text-sm font-black shadow-2xl border-2 transition-colors
+              ${side === 'home' ? 'bg-cyan-500 border-white text-black drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 text-black drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`}>
+              {p.jerseyNumber}
+            </div>
+            <div className="absolute -top-1 -right-2 flex flex-col gap-0.5">
+              {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[12px] drop-shadow-md">⚽</span>)}
+              {red ? <div className="w-2.5 h-3.5 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
+            </div>
+          </div>
+          <div className="mt-0.5 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded border border-white/5 opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            <span className="text-[9px] font-black uppercase text-white tracking-widest text-shadow-sm">
+              {getDisplayPlayerName(p)}
+            </span>
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="w-full max-w-4xl mx-auto flex-1 border border-white/5 rounded-[2.5rem] p-6 md:p-10 bg-[#060606] shadow-2xl relative overflow-hidden aspect-[3/4] md:aspect-[4/3] lg:aspect-auto lg:h-[700px]">
+        {homeLineup.coach && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
+            <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-900/20 px-3 py-1 rounded-full border border-cyan-500/10 shadow-sm">{getDisplayPlayerName({player: homeLineup.coach})}</span>
+          </div>
+        )}
+        {awayLineup.coach && (
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
+            <span className="text-[10px] font-black text-white uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full border border-white/10 shadow-sm">{getDisplayPlayerName({player: awayLineup.coach})}</span>
+          </div>
+        )}
+        
+        <div className="relative w-full h-full bg-gradient-to-b from-[#0a180d] via-[#112a17] to-[#0a180d] rounded-[2rem] border-8 border-[#0c1a10] overflow-hidden mt-0 shadow-[0_15px_60px_-15px_rgba(34,197,94,0.1)]">
+          {/* Pitch Lines */}
+          <div className="absolute inset-x-8 inset-y-8 border-2 border-white/10 rounded-xl" />
+          <div className="absolute left-8 right-8 top-1/2 h-0.5 bg-white/10 -translate-y-1/2" />
+          <div className="absolute left-1/2 top-1/2 w-40 h-40 border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute left-1/2 top-1/2 w-2 h-2 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
+          
+          {/* Home Area (Bottom) */}
+          <div className="absolute left-1/2 bottom-8 w-64 h-32 border-2 border-white/10 border-b-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 bottom-8 w-24 h-12 border-2 border-white/10 border-b-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 bottom-[calc(2rem+32px)] w-24 h-16 border-2 border-white/10 border-b-0 -translate-x-1/2 rounded-t-full scale-y-50 origin-bottom opacity-50" />
+
+          {/* Away Area (Top) */}
+          <div className="absolute left-1/2 top-8 w-64 h-32 border-2 border-white/10 border-t-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 top-8 w-24 h-12 border-2 border-white/10 border-t-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 top-[calc(2rem+32px)] w-24 h-16 border-2 border-white/10 border-t-0 -translate-x-1/2 rounded-b-full scale-y-50 origin-top opacity-50" />
+          
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-black/60" />
+          
+          {homeLineup.fielded.map((p: any) => renderPlayer(p, 'home', rolesHome[p.role] || rolesHome[3]))}
+          {awayLineup.fielded.map((p: any) => renderPlayer(p, 'away', rolesAway[p.role] || rolesAway[3]))}
+        </div>
+      </div>
+    );
   };
 
   const TacticalPitch = ({ lineup, side, label }: any) => {
@@ -937,24 +1103,31 @@ export default function ScoutHub() {
                     <section className="relative px-4 md:px-0">
                       <div className="space-y-16">
                         <div className="flex flex-col lg:flex-row gap-8">
-                          <div className="flex-1 flex flex-col gap-8">
-                            <div className="flex items-center gap-4 justify-center bg-white/5 py-4 rounded-3xl border border-white/5 shadow-inner">
-                              <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-8 h-8" />
-                              <span className="text-[12px] font-black uppercase text-cyan-400 tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</span>
+                          {/* Mobile Layout (separate pitches) */}
+                          <div className="flex flex-col gap-8 lg:hidden w-full">
+                            <div className="flex-1 flex flex-col gap-4">
+                              <div className="flex items-center gap-4 justify-center bg-white/5 py-4 rounded-3xl border border-white/5 shadow-inner">
+                                <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-8 h-8" />
+                                <span className="text-[12px] font-black uppercase text-cyan-400 tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</span>
+                              </div>
+                              <TacticalPitch lineup={matchDetails.lineups.home} side="home" />
                             </div>
-                            <TacticalPitch lineup={matchDetails.lineups.home} side="home" />
-                          </div>
-                          
-                          <div className="hidden lg:flex flex-col items-center justify-center -mx-4 z-10">
-                            <span className="text-[10px] font-black text-zinc-700 uppercase tracking-widest rotate-90 whitespace-nowrap bg-[#050505] px-4">Campo di Gioco</span>
+                            <div className="flex-1 flex flex-col gap-4">
+                              <div className="flex items-center gap-4 justify-center bg-white/5 py-4 rounded-3xl border border-white/5 shadow-inner">
+                                <span className="text-[12px] font-black uppercase text-white tracking-widest">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</span>
+                                <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-8 h-8" />
+                              </div>
+                              <TacticalPitch lineup={matchDetails.lineups.away} side="away" />
+                            </div>
                           </div>
 
-                          <div className="flex-1 flex flex-col gap-8">
-                            <div className="flex items-center gap-4 justify-center bg-white/5 py-4 rounded-3xl border border-white/5 shadow-inner">
-                              <span className="text-[12px] font-black uppercase text-white tracking-widest">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</span>
-                              <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-8 h-8" />
-                            </div>
-                            <TacticalPitch lineup={matchDetails.lineups.away} side="away" />
+                          {/* Desktop Layout (combined pitch) */}
+                          <div className="hidden lg:flex w-full items-center justify-center">
+                            <CombinedTacticalPitch 
+                               matchDetails={matchDetails} 
+                               homeTeam={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} 
+                               awayTeam={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')}
+                             />
                           </div>
                         </div>
 
@@ -970,47 +1143,47 @@ export default function ScoutHub() {
                                  <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-5 h-5" />
                                  <p className="text-[9px] font-black text-cyan-400 uppercase tracking-[0.2em]">Casa</p>
                                </div>
-                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                 {(matchDetails.lineups?.home?.benched || [])
-                                   .sort((a: any, b: any) => {
-                                      const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
-                                      const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
-                                      return aIn === bIn ? 0 : aIn ? -1 : 1;
-                                   })
-                                   .map((p: any) => {
-                                   const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
-                                   return (
-                                     <div key={p.playerId || p.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group">
-                                       <div className="flex flex-col min-w-0">
-                                         <span className={`text-[11px] font-black truncate ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p)}</span>
-                                         {subInEvent && <span className="text-[9px] text-emerald-500 font-bold mt-0.5">Entrato {formatEventMinute(subInEvent)}</span>}
+                                 <div className="flex flex-col gap-2">
+                                   {(matchDetails.lineups?.home?.benched || [])
+                                     .sort((a: any, b: any) => {
+                                        const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
+                                        const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
+                                        return aIn === bIn ? 0 : aIn ? -1 : 1;
+                                     })
+                                     .map((p: any) => {
+                                     const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
+                                     return (
+                                       <div key={p.playerId || p.id} className="flex items-center gap-2">
+                                         <span className={`text-[11px] font-black truncate uppercase tracking-widest ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p).split(' ').pop()}</span>
+                                         {subInEvent && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
                                        </div>
-                                       {subInEvent && <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
-                                     </div>
-                                   );
-                                 })}
-                               </div>
-                            </div>
-                            {/* Trasferta Bench */}
-                            <div className="space-y-6 pl-0 md:pl-10 pt-12 md:pt-0">
-                               <div className="flex items-center gap-3 mb-6 bg-white/5 py-2 px-4 rounded-full w-fit ml-auto">
-                                 <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">Ospite</p>
-                                 <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-5 h-5" />
-                               </div>
-                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                 {(matchDetails.lineups?.away?.benched || []).map((p: any) => {
-                                   const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
-                                   return (
-                                     <div key={p.playerId || p.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group flex-row-reverse text-right">
-                                       <div className="flex flex-col min-w-0">
-                                         <span className={`text-[11px] font-black truncate ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p)}</span>
-                                         {subInEvent && <span className="text-[9px] text-emerald-500 font-bold mt-0.5">Entrato {formatEventMinute(subInEvent)}</span>}
+                                     );
+                                   })}
+                                 </div>
+                              </div>
+                              {/* Trasferta Bench */}
+                              <div className="space-y-6 pl-0 md:pl-10 pt-12 md:pt-0">
+                                 <div className="flex items-center gap-3 mb-6 bg-white/5 py-2 px-4 rounded-full w-fit ml-auto">
+                                   <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">Ospite</p>
+                                   <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-5 h-5" />
+                                 </div>
+                                 <div className="flex flex-col gap-2 items-end text-right">
+                                   {(matchDetails.lineups?.away?.benched || [])
+                                     .sort((a: any, b: any) => {
+                                        const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
+                                        const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
+                                        return aIn === bIn ? 0 : aIn ? -1 : 1;
+                                     })
+                                     .map((p: any) => {
+                                     const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
+                                     return (
+                                       <div key={p.playerId || p.id} className="flex items-center gap-2 justify-end">
+                                         {subInEvent && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
+                                         <span className={`text-[11px] font-black truncate uppercase tracking-widest ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p).split(' ').pop()}</span>
                                        </div>
-                                       {subInEvent && <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
-                                     </div>
-                                   );
-                                 })}
-                               </div>
+                                     );
+                                   })}
+                                 </div>
                             </div>
                           </div>
                         </div>
@@ -1018,8 +1191,80 @@ export default function ScoutHub() {
                     </section>
                   )}
 
+                  {/* ====== TAB: STATISTICHE GIOCATORI ====== */}
+                  {modalTab === 'player-stats' && (() => {
+                     const renderPlayerRow = (p: any, isHome: boolean) => {
+                       const goals = p.events?.filter((e: any) => e.type.match(/goal/) && e.type !== 'own-goal').length || 0;
+                       const aut = p.events?.filter((e: any) => e.type === 'own-goal').length || 0;
+                       const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
+                       const red = p.events?.some((e: any) => e.type === 'red-card');
+                       const subIn = p.events?.find((e: any) => e.type === 'substitution-in');
+                       const subOut = p.events?.find((e: any) => e.type === 'substitution-out');
+                       
+                       // Only render if they played or have events
+                       if (!subIn && !p.tacticalXPosition && !p.tacticalYPosition && matchDetails.lineups?.[isHome ? 'home' : 'away']?.benched?.find((x:any)=>x.playerId===p.playerId)) return null;
+
+                       return (
+                         <div key={p.playerId || p.id} className={`flex items-center justify-between p-3 border-b border-white/5 hover:bg-white/5 transition-colors group ${isHome ? '' : 'flex-row-reverse text-right'}`}>
+                           <div className={`flex items-center gap-3 ${isHome ? '' : 'flex-row-reverse'}`}>
+                             <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-[10px] md:text-[12px] font-black shadow-lg border-2 shrink-0 ${isHome ? 'bg-cyan-500 border-white text-black' : 'bg-white border-zinc-200 text-black'}`}>
+                               {p.jerseyNumber}
+                             </div>
+                             <div className={`flex flex-col ${isHome ? 'items-start' : 'items-end'}`}>
+                               <span className="text-[11px] md:text-[13px] font-black uppercase tracking-widest text-zinc-200 group-hover:text-white transition-colors">{getDisplayPlayerName(p)}</span>
+                               {(subIn || subOut) && <span className="text-[9px] font-bold text-zinc-500">{subIn ? `Entrato ${formatEventMinute(subIn)}` : subOut ? `Uscito ${formatEventMinute(subOut)}` : ''}</span>}
+                             </div>
+                           </div>
+                           <div className={`flex items-center gap-2 ${isHome ? 'pr-2' : 'pl-2'}`}>
+                             {goals > 0 && <span className="text-[14px]">⚽ <span className="text-[9px] text-zinc-400">x{goals}</span></span>}
+                             {aut > 0 && <span className="text-[14px]">🤦‍♂️ <span className="text-[9px] text-red-400">Aut.</span></span>}
+                             {yellow && <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" />}
+                             {red && <div className="w-2.5 h-3.5 bg-red-500 rounded-sm border border-red-700 shadow-sm" />}
+                           </div>
+                         </div>
+                       );
+                     };
+
+                     return (
+                       <section className="relative px-4 md:px-0">
+                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                           <div className="bg-zinc-900/20 rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl backdrop-blur-sm">
+                             <div className="flex items-center gap-4 mb-8">
+                               <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-10 h-10" />
+                               <span className="text-[14px] font-black uppercase text-cyan-400 tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</span>
+                             </div>
+                             <div className="flex flex-col">
+                               {[...(matchDetails.lineups?.home?.fielded || []), ...(matchDetails.lineups?.home?.benched || [])]
+                                  .sort((a,b) => {
+                                      const aRole = a.role || 3;
+                                      const bRole = b.role || 3;
+                                      return aRole - bRole;
+                                  })
+                                  .map(p => renderPlayerRow(p, true))}
+                             </div>
+                           </div>
+                           <div className="bg-zinc-900/20 rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl backdrop-blur-sm">
+                             <div className="flex items-center gap-4 mb-8 justify-end text-right">
+                               <span className="text-[14px] font-black uppercase text-white tracking-widest">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</span>
+                               <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-10 h-10" />
+                             </div>
+                             <div className="flex flex-col">
+                               {[...(matchDetails.lineups?.away?.fielded || []), ...(matchDetails.lineups?.away?.benched || [])]
+                                  .sort((a,b) => {
+                                      const aRole = a.role || 3;
+                                      const bRole = b.role || 3;
+                                      return aRole - bRole;
+                                  })
+                                  .map(p => renderPlayerRow(p, false))}
+                             </div>
+                           </div>
+                         </div>
+                       </section>
+                     );
+                  })()}
+
                   {/* ====== EMPTY TABS ====== */}
-                  {['player-stats', 'games', 'info'].includes(modalTab) && (
+                  {['games', 'info'].includes(modalTab) && (
                      <div className="py-24 text-center border border-white/5 bg-white/[0.02] rounded-[3rem] mx-4 md:mx-0 mt-8">
                         <span className="text-[10px] text-zinc-600 font-black tracking-widest uppercase">In fase di sviluppo</span>
                      </div>
