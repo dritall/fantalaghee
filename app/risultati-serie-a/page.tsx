@@ -35,6 +35,7 @@ const TEAM_LOGOS: Record<string, string> = {
   Monza: 'https://tmssl.akamaized.net/images/wappen/head/2919.png',
   Empoli: 'https://tmssl.akamaized.net/images/wappen/head/749.png',
   Venezia: 'https://tmssl.akamaized.net/images/wappen/head/607.png',
+  Cremonese: 'https://tmssl.akamaized.net/images/wappen/head/2239.png',
 };
 
 const normalizeTeamName = (name?: string) => {
@@ -172,7 +173,207 @@ const TeamLogo = ({
 
 
 
-export default function ScoutHub() {
+const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
+    // 1. Precise coordinates from API
+    if (typeof p.tacticalXPosition === 'number' && typeof p.tacticalYPosition === 'number') {
+       return {
+         left: `${p.tacticalXPosition * 100}%`,
+         top:  `${(1 - p.tacticalYPosition) * 100}%`
+       };
+    }
+
+    // 2. Role-based fallback (Goal, Def, Mid, Fwd)
+    const roleMap: Record<number, number> = { 1: 90, 2: 70, 3: 42, 4: 18 };
+    const yPos = roleMap[p.role] || 50;
+    
+    // Spread horizontally across a bit more space to prevent overlap
+    const xPos = totalInRole > 1 
+      ? 15 + ((70 / (totalInRole - 1)) * roleIndex)
+      : 50;
+
+    return { left: `${xPos}%`, top: `${yPos}%` };
+  };
+
+  const CombinedTacticalPitch = ({ matchDetails, homeTeam, awayTeam }: any) => {
+    if (!matchDetails?.lineups?.home?.fielded || !matchDetails?.lineups?.away?.fielded) return null;
+
+    const homeLineup = matchDetails.lineups.home;
+    const awayLineup = matchDetails.lineups.away;
+
+    const rolesHome: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [] };
+    homeLineup.fielded.forEach((p: any) => {
+      if (rolesHome[p.role]) rolesHome[p.role].push(p); else rolesHome[3].push(p);
+    });
+
+    const rolesAway: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [] };
+    awayLineup.fielded.forEach((p: any) => {
+      if (rolesAway[p.role]) rolesAway[p.role].push(p); else rolesAway[3].push(p);
+    });
+
+    const renderPlayer = (p: any, side: 'home'|'away', roleArray: any[]) => {
+      const roleIndex = roleArray.findIndex(x => x.playerId === p.playerId);
+      const pos = getPlayerPosition(p, roleIndex, roleArray.length);
+      
+      // Home plays bottom-up (GK at bottom -> top 90%). 
+      // Away plays top-down (Flip Y and X to face Home).
+      let top = pos.top;
+      let left = pos.left;
+      
+      if (side === 'away') {
+         // getPlayerPosition returns top in % (e.g. "90%"). Parse and invert.
+         const y = parseFloat(pos.top);
+         const x = parseFloat(pos.left);
+         top = `${100 - y}%`;
+         left = `${100 - x}%`; // invert X so LB is on the correct side
+      } else {
+         // Home defaults to bottom half, we need them to be exactly in their half,
+         // but getPlayerPosition distributes across 0-100%. 
+         // Since they share the pitch, maybe we scale Y to 50-100 for home and 0-50 for away?
+         // Actually, "tacticalYPosition" comes from API as 0-1 for the full pitch.
+         if (typeof p.tacticalYPosition !== 'number') {
+            const y = parseFloat(pos.top);
+            // Default role mapper gives Y=90 for GK, 18 for FWD.
+            // On a shared pitch, Home GK is at 95%, FWD at 55%.
+            top = `${50 + (y / 2)}%`;
+         }
+      }
+
+      if (side === 'away' && typeof p.tacticalYPosition !== 'number') {
+         const y = parseFloat(pos.top); 
+         // Away GK at 5%, FWD at 45%
+         top = `${50 - (y / 2)}%`;
+      }
+
+      const goals = p.events?.filter((e: any) => e.type.match(/goal/)).length || 0;
+      const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
+      const red = p.events?.some((e: any) => e.type === 'red-card');
+
+      return (
+        <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 group transition-transform duration-500 hover:scale-125 hover:z-30" style={{ left, top }}>
+          <div className="relative flex justify-center mt-1">
+            <div className={`w-3 h-3 md:w-4 md:h-4 rounded-full shadow-lg border-2 transition-colors
+              ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`} />
+            <div className="absolute -top-1 -right-3 flex flex-col gap-0.5">
+              {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[12px] drop-shadow-md">⚽</span>)}
+              {red ? <div className="w-1.5 h-2 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-1.5 h-2 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
+            </div>
+          </div>
+          <div className="mt-0.5 whitespace-nowrap flex flex-col items-center bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded outline outline-1 outline-white/5">
+            <span className="text-[8px] md:text-[9px] font-black uppercase text-white tracking-widest text-shadow-sm drop-shadow-md truncate max-w-[70px] md:max-w-[90px]">
+              {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p).split(' ').pop()}
+            </span>
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="w-full max-w-4xl mx-auto flex-1 border border-white/5 rounded-[2.5rem] p-6 md:p-10 bg-[#060606] shadow-2xl relative overflow-hidden aspect-[3/4] md:aspect-[4/3] lg:aspect-auto lg:h-[700px]">
+        {homeLineup.coach && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
+            <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-900/20 px-3 py-1 rounded-full border border-cyan-500/10 shadow-sm">{getDisplayPlayerName({player: homeLineup.coach})}</span>
+          </div>
+        )}
+        {awayLineup.coach && (
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
+            <span className="text-[10px] font-black text-white uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full border border-white/10 shadow-sm">{getDisplayPlayerName({player: awayLineup.coach})}</span>
+          </div>
+        )}
+        
+        <div className="relative w-full h-full bg-gradient-to-b from-[#0a180d] via-[#112a17] to-[#0a180d] rounded-[2rem] border-8 border-[#0c1a10] overflow-hidden mt-0 shadow-[0_15px_60px_-15px_rgba(34,197,94,0.1)]">
+          {/* Pitch Lines */}
+          <div className="absolute inset-x-8 inset-y-8 border-2 border-white/10 rounded-xl" />
+          <div className="absolute left-8 right-8 top-1/2 h-0.5 bg-white/10 -translate-y-1/2" />
+          <div className="absolute left-1/2 top-1/2 w-40 h-40 border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute left-1/2 top-1/2 w-2 h-2 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
+          
+          {/* Home Area (Bottom) */}
+          <div className="absolute left-1/2 bottom-8 w-64 h-32 border-2 border-white/10 border-b-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 bottom-8 w-24 h-12 border-2 border-white/10 border-b-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 bottom-[calc(2rem+32px)] w-24 h-16 border-2 border-white/10 border-b-0 -translate-x-1/2 rounded-t-full scale-y-50 origin-bottom opacity-50" />
+
+          {/* Away Area (Top) */}
+          <div className="absolute left-1/2 top-8 w-64 h-32 border-2 border-white/10 border-t-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 top-8 w-24 h-12 border-2 border-white/10 border-t-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 top-[calc(2rem+32px)] w-24 h-16 border-2 border-white/10 border-t-0 -translate-x-1/2 rounded-b-full scale-y-50 origin-top opacity-50" />
+          
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-black/60" />
+          
+          {homeLineup.fielded.map((p: any) => renderPlayer(p, 'home', rolesHome[p.role] || rolesHome[3]))}
+          {awayLineup.fielded.map((p: any) => renderPlayer(p, 'away', rolesAway[p.role] || rolesAway[3]))}
+        </div>
+      </div>
+    );
+  };
+
+  const TacticalPitch = ({ lineup, side, label }: any) => {
+    if (!lineup?.fielded || lineup.fielded.length === 0) {
+       return (
+         <div className="bg-zinc-900/40 rounded-[2.5rem] p-12 border border-white/5 flex flex-col items-center justify-center gap-4 w-full aspect-[2/3] md:aspect-[3/4]">
+           <AlertTriangle className="w-8 h-8 text-zinc-700" />
+           <p className="text-center text-zinc-500 text-[10px] uppercase tracking-widest font-black">Formazione non disponibile</p>
+         </div>
+       );
+    }
+
+    const roles: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [] };
+    lineup.fielded.forEach((p: any) => {
+      if (roles[p.role]) roles[p.role].push(p);
+      else roles[3].push(p);
+    });
+
+    return (
+      <div className="w-full flex-1 border border-white/5 rounded-[2.5rem] p-4 md:p-8 bg-[#060606] shadow-2xl relative overflow-hidden">
+        {lineup.coach && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10 w-full justify-center">
+            <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
+            <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-900/20 px-3 py-1 rounded-full border border-cyan-500/10 shadow-sm">{getDisplayPlayerName({player: lineup.coach})}</span>
+          </div>
+        )}
+        <div className="relative w-full aspect-[2/3] bg-gradient-to-b from-[#112a17] to-[#0a180d] rounded-[2rem] border-[6px] border-[#0c1a10] overflow-hidden mt-8 shadow-[0_15px_60px_-15px_rgba(34,197,94,0.1)]">
+          <div className="absolute inset-x-6 inset-y-6 border-2 border-white/10 rounded-xl" />
+          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/10 -translate-x-1/2" />
+          <div className="absolute left-1/2 top-1/2 w-24 h-24 md:w-32 md:h-32 border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute left-1/2 top-0 w-36 h-20 md:w-48 md:h-28 border-2 border-white/10 border-t-0 -translate-x-1/2" />
+          <div className="absolute left-1/2 bottom-0 w-36 h-20 md:w-48 md:h-28 border-2 border-white/10 border-b-0 -translate-x-1/2" />
+          
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-black/60" />
+          
+          {lineup.fielded.map((p: any) => {
+            const roleArray = roles[p.role] || roles[3];
+            const roleIndex = roleArray.findIndex(x => x.playerId === p.playerId);
+            const pos = getPlayerPosition(p, roleIndex, roleArray.length);
+
+            const goals = p.events?.filter((e: any) => e.type.match(/goal/)).length || 0;
+            const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
+            const red = p.events?.some((e: any) => e.type === 'red-card');
+
+            return (
+              <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 group transition-transform duration-500 hover:scale-110 hover:z-30" style={{ left: pos.left, top: pos.top }}>
+                <div className="relative flex justify-center mt-1">
+                  <div className={`w-3 h-3 md:w-4 md:h-4 rounded-full shadow-lg border-2 transition-colors
+                    ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`} />
+                  <div className="absolute -top-1 -right-3 flex flex-col gap-0.5">
+                    {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[14px] drop-shadow-md">⚽</span>)}
+                    {red ? <div className="w-1.5 h-2 bg-red-500 rounded-sm border border-red-700 shadow-sm" /> : yellow ? <div className="w-1.5 h-2 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm" /> : null}
+                  </div>
+                </div>
+                <div className="mt-0.5 whitespace-nowrap flex flex-col items-center bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded outline outline-1 outline-white/5">
+                  <span className="text-[7.5px] md:text-[9.5px] font-black uppercase text-white tracking-widest text-shadow-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] truncate max-w-[60px] md:max-w-[70px]">
+                    {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p).split(' ').pop()}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  export default function ScoutHub() {
   const [activeTab, setActiveTab]           = useState('calendario');
   const [selectedRound, setSelectedRound]   = useState<number>(30);
   const [matches, setMatches]               = useState<any[]>([]);
@@ -477,11 +678,10 @@ export default function ScoutHub() {
 
 
   const normalizeStatsInput = (rawStats: any) => {
-    console.log('rawStats before normalization:', rawStats);
+    // console.log('rawStats before normalization:', rawStats);
     const result = { home: [] as any[], away: [] as any[] };
     
     if (!rawStats || typeof rawStats !== 'object') {
-      console.log('normalizedStats (empty/invalid input):', result);
       return result;
     }
 
@@ -504,14 +704,29 @@ export default function ScoutHub() {
     } else if (rawStats.teamstats?.home || rawStats.teamstats?.away) {
       result.home = extractArray(rawStats.teamstats.home);
       result.away = extractArray(rawStats.teamstats.away);
+    } else if (Array.isArray(rawStats.teamstats)) {
+      if (rawStats.teamstats.length === 2 && rawStats.teamstats[0].stats) {
+        result.home = extractArray(rawStats.teamstats[0].stats);
+        result.away = extractArray(rawStats.teamstats[1].stats);
+      }
     } else if (Array.isArray(rawStats)) {
-      console.warn('rawStats is a flat array, unable to map to home/away directly.');
+      if (rawStats.length === 2 && (rawStats[0].stats || rawStats[0].teamId)) {
+         result.home = extractArray(rawStats[0].stats || rawStats[0]);
+         result.away = extractArray(rawStats[1].stats || rawStats[1]);
+      } else {
+         rawStats.forEach((s: any) => {
+           const valH = s.home ?? s.homeValue ?? s.homeTeamValue ?? s.value ?? s.statsValue;
+           const valA = s.away ?? s.awayValue ?? s.awayTeamValue ?? s.value ?? s.statsValue;
+           result.home.push({ ...s, statsValue: valH, value: valH });
+           result.away.push({ ...s, statsValue: valA, value: valA });
+         });
+      }
     }
 
     if (!Array.isArray(result.home)) result.home = [];
     if (!Array.isArray(result.away)) result.away = [];
 
-    console.log('normalizedStats final:', result);
+    // console.log('normalizedStats final:', result);
     return result;
   };
 
@@ -897,110 +1112,147 @@ export default function ScoutHub() {
                   })()}
 
                   {/* ====== TAB: FORMAZIONI ====== */}
-                  {(modalTab === 'formazioni') && matchDetails.lineups && (() => {
-                    const homeTeam = resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa');
-                    const awayTeam = resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite');
-                    const homeLineup = matchDetails.lineups.home;
-                    const awayLineup = matchDetails.lineups.away;
-
-                    const renderPlayer = (p: any, isSub: boolean = false) => {
-                      const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
-                      const subOutEvent = p.events?.find((e: any) => e.type === 'substitution-out');
-                      const goals = p.events?.filter((e: any) => e.type.match(/goal/)).length || 0;
-                      const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
-                      const red = p.events?.some((e: any) => e.type === 'red-card');
-
-                      return (
-                        <div key={p.playerId || p.id} className="flex items-center gap-3 py-1.5 px-2 hover:bg-white/5 rounded-lg transition-colors group">
-                           <div className="w-6 h-6 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] font-black text-zinc-400 shrink-0 shadow-inner">
-                             {p.jerseyNumber || '-'}
-                           </div>
-                           <div className="flex flex-col flex-1 min-w-0">
-                             <span className={`text-[11px] md:text-xs font-black uppercase tracking-widest truncate ${isSub && !subInEvent ? 'text-zinc-500' : 'text-zinc-100'} group-hover:text-cyan-400 transition-colors`}>
-                               {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p).split(' ').pop()}
-                             </span>
-                           </div>
-                           <div className="flex items-center gap-1.5 shrink-0">
-                             {subOutEvent && <span className="text-red-500 text-[10px] font-bold leading-none" title="Sub Out">↓</span>}
-                             {subInEvent && <span className="text-emerald-500 text-[10px] font-bold leading-none" title="Sub In">↑</span>}
-                             {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] drop-shadow-md">⚽</span>)}
-                             {yellow && <div className="w-2 h-3 bg-yellow-400 rounded-sm border border-yellow-600/50 shadow-sm" />}
-                             {red && <div className="w-2 h-3 bg-red-500 rounded-sm border border-red-700/50 shadow-sm" />}
-                           </div>
-                        </div>
-                      );
-                    };
-
-                    const renderColumn = (team: any, lineup: any) => {
-                      if (!lineup) return <div className="flex-1 bg-zinc-900/10 rounded-[2.5rem] border border-white/5" />;
-                      return (
-                        <div className="flex-1 bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-6 md:p-8 flex flex-col gap-6 backdrop-blur-sm shadow-2xl">
-                          <div className="flex flex-col items-center gap-3 border-b border-white/10 pb-6 relative">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-[50px] rounded-full pointer-events-none" />
-                            <TeamLogo team={team} className="w-16 h-16 drop-shadow-md hover:scale-105 transition-transform" />
-                            <h3 className="uppercase font-black tracking-widest text-[13px] md:text-sm text-center text-white/90">{team.name}</h3>
-                            {lineup.formation && (
-                              <span className="text-[10px] font-black tracking-[0.2em] bg-white/5 px-4 py-1.5 rounded-full text-cyan-400 uppercase border border-cyan-500/10 shadow-inner">
-                                {lineup.formation}
-                              </span>
-                            )}
-                          </div>
-                          
-                          <div className="flex flex-col gap-1 z-10">
-                            <h4 className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-500 mb-3 pl-2 flex items-center gap-2">
-                               <div className="w-1 h-1 rounded-full bg-cyan-500" /> Titolari
-                            </h4>
-                            {(lineup.fielded || []).map((p: any) => renderPlayer(p, false))}
-                          </div>
-
-                          <div className="flex flex-col gap-1 mt-6 z-10">
-                            <h4 className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-500 mb-3 pl-2 flex items-center gap-2">
-                               <div className="w-1 h-1 rounded-full bg-orange-400" /> Panchina
-                            </h4>
-                            {(lineup.benched || []).map((p: any) => renderPlayer(p, true))}
-                          </div>
-
-                          {lineup.coach && (
-                            <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between px-3 bg-white/[0.02] rounded-2xl p-4">
-                               <span className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-500">All.</span>
-                               <span className="text-[11px] font-black uppercase text-white tracking-widest">{getDisplayPlayerName({player: lineup.coach})}</span>
+                  {(modalTab === 'formazioni') && matchDetails.lineups && (
+                    <section className="relative px-4 md:px-0">
+                      <div className="space-y-16">
+                        <div className="flex flex-col lg:flex-row gap-8">
+                          {/* Mobile Layout (separate pitches) */}
+                          <div className="flex flex-col gap-8 lg:hidden w-full">
+                            <div className="flex-1 flex flex-col gap-4">
+                              <div className="flex items-center gap-4 justify-center bg-white/5 py-4 rounded-3xl border border-white/5 shadow-inner">
+                                <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-8 h-8" />
+                                <span className="text-[12px] font-black uppercase text-cyan-400 tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</span>
+                              </div>
+                              <TacticalPitch lineup={matchDetails.lineups.home} side="home" />
                             </div>
-                          )}
-                        </div>
-                      );
-                    };
+                            <div className="flex-1 flex flex-col gap-4">
+                              <div className="flex items-center gap-4 justify-center bg-white/5 py-4 rounded-3xl border border-white/5 shadow-inner">
+                                <span className="text-[12px] font-black uppercase text-white tracking-widest">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</span>
+                                <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-8 h-8" />
+                              </div>
+                              <TacticalPitch lineup={matchDetails.lineups.away} side="away" />
+                            </div>
+                          </div>
 
-                    return (
-                      <section className="relative px-4 md:px-0">
-                        <div className="flex flex-col md:flex-row gap-6 md:gap-8 max-w-4xl mx-auto">
-                          {renderColumn(homeTeam, homeLineup)}
-                          {renderColumn(awayTeam, awayLineup)}
+                          {/* Desktop Layout (combined pitch) */}
+                          <div className="hidden lg:flex w-full items-center justify-center">
+                            <CombinedTacticalPitch 
+                               matchDetails={matchDetails} 
+                               homeTeam={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} 
+                               awayTeam={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')}
+                             />
+                          </div>
                         </div>
-                      </section>
-                    );
-                  })()}
+
+                        {/* ====== Sostituzioni ====== */}
+                        <div className="bg-zinc-900/40 rounded-[3rem] p-10 md:p-16 border border-white/10 shadow-3xl relative overflow-hidden mt-8">
+                          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-400 mb-16 text-center">Sostituzioni</h4>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 divide-y md:divide-y-0 md:divide-x divide-white/5">
+                            {/* Casa Bench */}
+                            <div className="space-y-6 pr-0 md:pr-10 pb-12 md:pb-0">
+                               <div className="flex items-center gap-3 mb-6 bg-white/5 py-2 px-4 rounded-full w-fit">
+                                 <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-5 h-5" />
+                                 <p className="text-[9px] font-black text-cyan-400 uppercase tracking-[0.2em]">Casa</p>
+                               </div>
+                                 <div className="flex flex-col gap-2">
+                                   {(matchDetails.lineups?.home?.benched || [])
+                                     .sort((a: any, b: any) => {
+                                        const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
+                                        const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
+                                        return aIn === bIn ? 0 : aIn ? -1 : 1;
+                                     })
+                                     .map((p: any) => {
+                                     const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
+                                     return (
+                                       <div key={p.playerId || p.id} className="flex items-center gap-2">
+                                         <span className={`text-[11px] font-black truncate uppercase tracking-widest ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p).split(' ').pop()}</span>
+                                         {subInEvent && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
+                                       </div>
+                                     );
+                                   })}
+                                 </div>
+                              </div>
+                              {/* Trasferta Bench */}
+                              <div className="space-y-6 pl-0 md:pl-10 pt-12 md:pt-0">
+                                 <div className="flex items-center gap-3 mb-6 bg-white/5 py-2 px-4 rounded-full w-fit ml-auto">
+                                   <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">Ospite</p>
+                                   <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-5 h-5" />
+                                 </div>
+                                 <div className="flex flex-col gap-2 items-end text-right">
+                                   {(matchDetails.lineups?.away?.benched || [])
+                                     .sort((a: any, b: any) => {
+                                        const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
+                                        const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
+                                        return aIn === bIn ? 0 : aIn ? -1 : 1;
+                                     })
+                                     .map((p: any) => {
+                                     const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
+                                     return (
+                                       <div key={p.playerId || p.id} className="flex items-center gap-2 justify-end">
+                                         {subInEvent && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
+                                         <span className={`text-[11px] font-black truncate uppercase tracking-widest ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p).split(' ').pop()}</span>
+                                       </div>
+                                     );
+                                   })}
+                                 </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
 
                   {/* ====== TAB: STATISTICHE GIOCATORI ====== */}
                   {modalTab === 'player-stats' && (() => {
                      const PlayerStatsTable = ({ players, teamName }: { players: any[], teamName: string }) => {
                        if (!players || players.length === 0) return null;
-                       
-                       const getStat = (p: any, keys: string[], suffix = '') => {
-                         if (!p.stats) return '-';
+
+                       const getStatVal = (p: any, keys: string[]) => {
+                         if (!p.stats) return null;
                          for (const k of keys) {
-                           if (p.stats[k] !== undefined && p.stats[k] !== null) return `${p.stats[k]}${suffix}`;
+                           if (p.stats[k] !== undefined && p.stats[k] !== null && p.stats[k] !== '') {
+                             return p.stats[k];
+                           }
                          }
-                         return '-';
+                         return null;
                        };
 
                        const activePlayers = players.filter(p => {
-                         const played = p.stats?.mins_played || p.stats?.minutesPlayed || p.stats?.minutes_played;
+                         const played = getStatVal(p, ['mins_played', 'minutesPlayed', 'minutes_played']);
                          const subIn = p.events?.some((e: any) => e.type === 'substitution-in');
                          const wasFielded = p.tacticalXPosition != null;
-                         return played > 0 || subIn || wasFielded;
+                         return (played && parseInt(String(played)) > 0) || subIn || wasFielded;
                        });
 
                        if (activePlayers.length === 0) return null;
+
+                       const metrics = [
+                         { label: 'Minuti', keys: ['mins_played', 'minutesPlayed', 'minutes_played'], color: 'text-zinc-500' },
+                         { label: 'Gol', keys: ['goals', 'goal'], isEventCount: true, type: 'goal', color: 'text-cyan-400' },
+                         { label: 'Assist', keys: ['goal_assist', 'assists', 'assist'], color: 'text-emerald-400' },
+                         { label: 'Tiri', keys: ['total_scoring_att', 'shots', 'total_shots', 'shots_total'], color: 'text-white' },
+                         { label: 'Tiri P.', keys: ['ontarget_scoring_att', 'shots_on_target', 'shots-on-target', 'shotsOnTarget'], color: 'text-zinc-300' },
+                         { label: 'Occasioni', keys: ['big_chance_created', 'chances_created', 'key_passes'], color: 'text-yellow-400' },
+                         { label: 'Passaggi', keys: ['total_pass', 'total_passes', 'passes'], color: 'text-white' },
+                         { label: 'Pass. %', keys: ['accurate_pass_percentage', 'passes_accuracy', 'pass_accuracy', 'passAcc', 'accurate_pass'], applyPerc: true, color: 'text-zinc-400' },
+                         { label: 'Tocchi', keys: ['touches', 'ball_recovery'], color: 'text-zinc-400' },
+                         { label: 'Duelli V.', keys: ['won_contest', 'duelsWon', 'duels_won', 'duels-won'], color: 'text-white' },
+                         { label: 'Tackle', keys: ['total_tackle', 'tackles', 'tackle'], color: 'text-white' },
+                         { label: 'Falli', keys: ['fouls_committed', 'fouls_total', 'fouls', 'foulsCommitted'], color: 'text-red-400' },
+                         { label: 'Parate', keys: ['saves', 'total_saves', 'saves_total', 'savesTotal'], color: 'text-orange-400', roleLimit: 1 },
+                       ];
+
+                       const visibleMetrics = metrics.filter(m => {
+                         return activePlayers.some(p => {
+                           if (m.isEventCount) {
+                             return (p.events?.filter((e: any) => e.type.match(new RegExp(m.type!)) && e.type !== 'own-goal').length || 0) > 0;
+                           }
+                           const val = getStatVal(p, m.keys);
+                           return val !== null && val !== undefined && val !== 0 && val !== '0' && val !== '0%';
+                         });
+                       });
 
                        return (
                          <div className="bg-zinc-900/20 rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl backdrop-blur-sm mb-8 overflow-hidden">
@@ -1009,39 +1261,19 @@ export default function ScoutHub() {
                              {teamName}
                            </h4>
                            <div className="overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                             <table className="w-full text-left border-collapse min-w-[1000px]">
+                             <table className="w-full text-left border-collapse min-w-[max-content]">
                                <thead>
                                  <tr className="border-b border-white/10 text-[8.5px] uppercase tracking-[0.2em] text-zinc-500 font-black">
                                    <th className="py-3 px-3 sticky left-0 bg-[#0c1210] z-10 w-48 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">Giocatore</th>
-                                   <th className="py-3 px-3 text-center">Minuti</th>
-                                   <th className="py-3 px-2 text-center text-cyan-400">Gol</th>
-                                   <th className="py-3 px-2 text-center text-emerald-400">Assist</th>
-                                   <th className="py-3 px-3 text-center">Tiri (In P.)</th>
-                                   <th className="py-3 px-3 text-center">Occasioni</th>
-                                   <th className="py-3 px-3 text-center">Pass. (%)</th>
-                                   <th className="py-3 px-3 text-center">Tocchi</th>
-                                   <th className="py-3 px-3 text-center">Duelli V.</th>
-                                   <th className="py-3 px-3 text-center">Tackle</th>
-                                   <th className="py-3 px-3 text-center text-red-400">Falli</th>
-                                   <th className="py-3 px-3 text-center text-orange-400">Parate</th>
+                                   {visibleMetrics.map((m, i) => (
+                                     <th key={i} className={`py-3 px-3 text-center ${m.color}`}>{m.label}</th>
+                                   ))}
                                  </tr>
                                </thead>
                                <tbody className="text-[11px] font-medium text-zinc-300">
                                  {activePlayers.map(p => {
-                                   const goals = p.events?.filter((e: any) => e.type.match(/goal/) && e.type !== 'own-goal').length || 0;
-                                   const assists = p.stats?.assists || p.stats?.goal_assist || 0;
                                    const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
                                    const red = p.events?.some((e: any) => e.type === 'red-card');
-                                   
-                                   const tiri = getStat(p, ['shots', 'total_scoring_att', 'total_shots', 'shots_total']);
-                                   const tiriPorta = getStat(p, ['shots-on-target', 'shots_on_target', 'ontarget_scoring_att', 'shots_on_goal']);
-                                   
-                                   const passaggi = getStat(p, ['passes', 'total_passes']);
-                                   const passPerc = getStat(p, ['accurate-pass-percentage', 'pass_accuracy', 'accurate_pass_percentage', 'passes_accuracy'], '%');
-                                   
-                                   const chiavi = getStat(p, ['key_passes', 'big_chance_created', 'chances_created']);
-                                   const tocchi = getStat(p, ['touches', 'ball_recovery']);
-                                   const parate = getStat(p, ['saves', 'total_saves', 'saves_total']);
                                    
                                    return (
                                      <tr key={p.playerId || p.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
@@ -1059,17 +1291,23 @@ export default function ScoutHub() {
                                            </div>
                                          </div>
                                        </td>
-                                       <td className="py-3 px-3 text-center font-bold text-zinc-500">{getStat(p, ['mins_played', 'minutesPlayed', 'minutes_played'])}</td>
-                                       <td className="py-3 px-2 text-center font-bold text-cyan-400">{goals > 0 ? goals : '-'}</td>
-                                       <td className="py-3 px-2 text-center font-bold text-emerald-400">{assists > 0 ? assists : '-'}</td>
-                                       <td className="py-3 px-3 text-center font-bold">{tiri !== '-' ? `${tiri} (${tiriPorta})` : '-'}</td>
-                                       <td className="py-3 px-3 text-center font-bold text-yellow-400">{chiavi !== '-' && chiavi !== '0' ? chiavi : '-'}</td>
-                                       <td className="py-3 px-3 text-center font-bold">{passaggi !== '-' ? `${passaggi} (${passPerc})` : '-'}</td>
-                                       <td className="py-3 px-3 text-center font-bold text-zinc-400">{tocchi}</td>
-                                       <td className="py-3 px-3 text-center font-bold">{getStat(p, ['won_contest', 'duels-won', 'duels_won'])}</td>
-                                       <td className="py-3 px-3 text-center font-bold">{getStat(p, ['tackles', 'total_tackle'])}</td>
-                                       <td className="py-3 px-3 text-center font-bold text-red-400/80">{getStat(p, ['fouls', 'fouls_committed', 'fouls_total'])}</td>
-                                       <td className="py-3 px-3 text-center font-bold text-orange-400">{p.role === 1 ? parate : '-'}</td>
+                                       {visibleMetrics.map((m, i) => {
+                                         let val: any = '-';
+                                         if (m.isEventCount) {
+                                           const count = p.events?.filter((e: any) => e.type.match(new RegExp(m.type!)) && e.type !== 'own-goal').length || 0;
+                                           val = count > 0 ? count : '-';
+                                         } else {
+                                            if (!m.roleLimit || p.role === m.roleLimit) {
+                                              const rawVal = getStatVal(p, m.keys);
+                                              if (rawVal !== null && rawVal !== undefined) {
+                                                val = m.applyPerc && String(rawVal).indexOf('%')===-1 ? `${rawVal}%` : rawVal;
+                                              }
+                                            }
+                                         }
+                                         return (
+                                           <td key={i} className={`py-3 px-3 text-center font-bold ${val!=='-' ? m.color : 'text-zinc-600'}`}>{val}</td>
+                                         );
+                                       })}
                                      </tr>
                                    );
                                  })}
