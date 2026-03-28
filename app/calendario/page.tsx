@@ -138,24 +138,22 @@ export default function CalendarioPage() {
                                                         {/* Teams & Score */}
                                                         <div className="flex items-center justify-between">
                                                             {/* Home */}
-                                                            <div className="flex flex-col items-center gap-2 flex-1">
+                                                            <div className="flex flex-col items-center gap-2 flex-1 items-end pr-4">
                                                                 <div className="w-16 h-16 relative">
-                                                                    <img src={`${fixture.strHomeTeamBadge}/preview`} alt={fixture.strHomeTeam} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
+                                                                    <img src={`${fixture.strHomeTeamBadge}/preview`} alt={fixture.strHomeTeam} className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-300" />
                                                                 </div>
-                                                                <span className="text-sm font-bold text-center text-white leading-tight">{fixture.strHomeTeam}</span>
                                                             </div>
 
                                                             {/* Score */}
-                                                            <div className="px-4 py-2 bg-black/40 rounded-lg border border-white/10 font-mono text-2xl font-bold text-white shadow-inner">
-                                                                {fixture.intHomeScore !== null ? fixture.intHomeScore : '-'} : {fixture.intAwayScore !== null ? fixture.intAwayScore : '-'}
+                                                            <div className="px-4 py-2 bg-[#050505] rounded-xl border border-white/10 font-mono text-2xl md:text-3xl font-black italic tracking-tighter text-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] z-10 mx-4 shrink-0">
+                                                                {fixture.intHomeScore !== null ? fixture.intHomeScore : '-'} - {fixture.intAwayScore !== null ? fixture.intAwayScore : '-'}
                                                             </div>
 
                                                             {/* Away */}
-                                                            <div className="flex flex-col items-center gap-2 flex-1">
+                                                            <div className="flex flex-col items-center gap-2 flex-1 items-start pl-4">
                                                                 <div className="w-16 h-16 relative">
-                                                                    <img src={`${fixture.strAwayTeamBadge}/preview`} alt={fixture.strAwayTeam} className="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
+                                                                    <img src={`${fixture.strAwayTeamBadge}/preview`} alt={fixture.strAwayTeam} className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-300" />
                                                                 </div>
-                                                                <span className="text-sm font-bold text-center text-white leading-tight">{fixture.strAwayTeam}</span>
                                                             </div>
                                                         </div>
                                                     </div>
