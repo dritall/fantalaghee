@@ -20,18 +20,14 @@ const TEAM_LOGOS: Record<string, string> = {
   Fiorentina: 'https://tmssl.akamaized.net/images/wappen/head/430.png',
   Torino: 'https://tmssl.akamaized.net/images/wappen/head/416.png',
   Genoa: 'https://tmssl.akamaized.net/images/wappen/head/252.png',
-  'Genoa CFC': 'https://tmssl.akamaized.net/images/wappen/head/252.png',
   Udinese: 'https://tmssl.akamaized.net/images/wappen/head/410.png',
   Lecce: 'https://tmssl.akamaized.net/images/wappen/head/1005.png',
   Verona: 'https://tmssl.akamaized.net/images/wappen/head/276.png',
-  'Hellas Verona': 'https://tmssl.akamaized.net/images/wappen/head/276.png',
   Cagliari: 'https://tmssl.akamaized.net/images/wappen/head/1390.png',
   Parma: 'https://tmssl.akamaized.net/images/wappen/head/130.png',
   Sassuolo: 'https://tmssl.akamaized.net/images/wappen/head/6574.png',
   Como: 'https://tmssl.akamaized.net/images/wappen/head/1047.png',
-  'Como 1907': 'https://tmssl.akamaized.net/images/wappen/head/1047.png',
   Pisa: 'https://tmssl.akamaized.net/images/wappen/head/4172.png',
-  'Pisa Sporting Club': 'https://tmssl.akamaized.net/images/wappen/head/4172.png',
   Monza: 'https://tmssl.akamaized.net/images/wappen/head/2919.png',
   Empoli: 'https://tmssl.akamaized.net/images/wappen/head/749.png',
   Venezia: 'https://tmssl.akamaized.net/images/wappen/head/607.png',
@@ -815,6 +811,9 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       find(['saves', 'total_saves', 'saves_total'], 'Parate / Salvataggi'),
     ].filter(Boolean);
 
+    const hasAnyStats = attack.length > 0 || possession.length > 0 || defense.length > 0 || duels.length > 0 || discipline.length > 0 || physical.length > 0 || goalkeeping.length > 0;
+    if (!hasAnyStats) return null;
+
     return { attack, possession, defense, duels, discipline, physical, goalkeeping };
   };
 
@@ -1144,10 +1143,10 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                           </div>
                         </div>
 
-                        {/* ====== Sostituzioni ====== */}
+                        {/* ====== Panchina ====== */}
                         <div className="bg-zinc-900/40 rounded-[3rem] p-10 md:p-16 border border-white/10 shadow-3xl relative overflow-hidden mt-8">
                           <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
-                          <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-400 mb-16 text-center">Sostituzioni</h4>
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-400 mb-16 text-center">Panchina</h4>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 divide-y md:divide-y-0 md:divide-x divide-white/5">
                             {/* Casa Bench */}
