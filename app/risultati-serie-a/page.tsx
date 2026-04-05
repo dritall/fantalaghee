@@ -59,14 +59,8 @@ const resolveImageUrl = (path: string | null | undefined): string | null => {
   if (path.startsWith('http')) return path;
   
   let cleanPath = path.trim();
-  if (cleanPath.startsWith('clubLogos') && !cleanPath.startsWith('clubLogos/')) {
-    cleanPath = cleanPath.replace(/^clubLogos/, 'clubLogos/');
-  } else if (cleanPath.startsWith('teamImages') && !cleanPath.startsWith('teamImages/')) {
-    cleanPath = cleanPath.replace(/^teamImages/, 'teamImages/');
-  } else if (cleanPath.startsWith('teamLogoLight') && !cleanPath.startsWith('teamLogoLight/')) {
-    cleanPath = cleanPath.replace(/^teamLogoLight/, 'teamLogoLight/');
-  } else if (cleanPath.startsWith('stadiums') && !cleanPath.startsWith('stadiums/')) {
-    cleanPath = cleanPath.replace(/^stadiums/, 'stadiums/');
+  if (cleanPath.startsWith('/')) {
+    cleanPath = cleanPath.substring(1);
   }
 
   if (
@@ -75,7 +69,7 @@ const resolveImageUrl = (path: string | null | undefined): string | null => {
     cleanPath.startsWith('teamLogoLight') || 
     cleanPath.startsWith('stadiums')
   ) {
-    return `https://img.legaseriea.it/vimages/64x64/${cleanPath}`;
+    return `https://img.legaseriea.it/vimages/${cleanPath}`;
   }
   
   return null;
@@ -95,9 +89,21 @@ const getTeamLogoUrl = (team: any) => {
     return TEAM_LOGOS[teamName];
   }
 
+  if (team.teamId || team.id || team.providerId) {
+    const rawId = team.teamId || team.id || team.providerId;
+    // se l'id contiene prefix, lo usiamo così (è già validato come ID?) No, di solito è l'UUID.
+    // L'API ritorna imagery.teamLogo, usiamo quello se c'è
+    if (team.imagery?.teamLogo) {
+       return resolveImageUrl(team.imagery.teamLogo);
+    }
+    // Fallback costruttivista come richiesto
+    const idToUse = typeof rawId === 'string' && rawId.includes('::') ? rawId.split('::').pop() : rawId;
+    return `https://img.legaseriea.it/vimages/clubLogos/${idToUse}.webp`;
+  }
+
   const raw1 = team.teamLogo;
   const raw2 = team.teamLogoLight;
-  const raw3 = team.teamImage || team.imagery?.teamLogo || team.logo;
+  const raw3 = team.teamImage || team.logo;
 
   const resolved = resolveImageUrl(raw1) || resolveImageUrl(raw2) || resolveImageUrl(raw3);
 
@@ -463,7 +469,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     setLoadingModal(true);
     try {
       const matchId = m.matchId || m.id;
-      const res = await fetch(`/api/football?endpoint=match&id=${encodeURIComponent(matchId)}`);
+      const seasonId = m.seasonId || m.competition?.seasonId || m.competitionId || m.matchSet?.seasonId || 'serie-a::Football_Season::5f0e080fc3a44073984b75b3a8e06a8a';
+      const res = await fetch(`/api/football?endpoint=match&id=${encodeURIComponent(matchId)}&seasonId=${encodeURIComponent(seasonId)}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'API Match: risposta non OK');
       setMatchDetails(json.data);
@@ -694,6 +701,14 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     if (rawStats.homeTeamStats || rawStats.awayTeamStats) {
       result.home = extractArray(rawStats.homeTeamStats);
       result.away = extractArray(rawStats.awayTeamStats);
+    } else if (rawStats.stats) {
+      const arr = extractArray(rawStats.stats);
+      arr.forEach((s: any) => {
+        const valH = s.statsValueHome ?? s.home ?? s.homeValue ?? s.homeTeamValue ?? s.value ?? s.statsValue;
+        const valA = s.statsValueAway ?? s.away ?? s.awayValue ?? s.awayTeamValue ?? s.value ?? s.statsValue;
+        result.home.push({ ...s, statsValue: valH, value: valH });
+        result.away.push({ ...s, statsValue: valA, value: valA });
+      });
     } else if (rawStats.home || rawStats.away) {
       result.home = extractArray(rawStats.home);
       result.away = extractArray(rawStats.away);
@@ -711,8 +726,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
          result.away = extractArray(rawStats[1].stats || rawStats[1]);
       } else {
          rawStats.forEach((s: any) => {
-           const valH = s.home ?? s.homeValue ?? s.homeTeamValue ?? s.value ?? s.statsValue;
-           const valA = s.away ?? s.awayValue ?? s.awayTeamValue ?? s.value ?? s.statsValue;
+           const valH = s.statsValueHome ?? s.home ?? s.homeValue ?? s.homeTeamValue ?? s.value ?? s.statsValue;
+           const valA = s.statsValueAway ?? s.away ?? s.awayValue ?? s.awayTeamValue ?? s.value ?? s.statsValue;
            result.home.push({ ...s, statsValue: valH, value: valH });
            result.away.push({ ...s, statsValue: valA, value: valA });
          });
@@ -1209,10 +1224,21 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                        if (!players || players.length === 0) return null;
 
                        const getStatVal = (p: any, keys: string[]) => {
-                         if (!p.stats) return null;
+                         let pStats = p.stats;
+                         if (!pStats && matchDetails?.playerStats?.players) {
+                           const found = matchDetails.playerStats.players.find((s: any) => s.playerId === p.playerId || s.playerId === p.id);
+                           if (found && found.stats) {
+                              pStats = {};
+                              found.stats.forEach((s: any) => {
+                                 pStats[s.statsId] = s.statsValue;
+                              });
+                           }
+                         }
+
+                         if (!pStats) return null;
                          for (const k of keys) {
-                           if (p.stats[k] !== undefined && p.stats[k] !== null && p.stats[k] !== '') {
-                             return p.stats[k];
+                           if (pStats[k] !== undefined && pStats[k] !== null && pStats[k] !== '') {
+                             return pStats[k];
                            }
                          }
                          return null;
@@ -1228,17 +1254,17 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                        if (activePlayers.length === 0) return null;
 
                        const metrics = [
-                         { label: 'Minuti', keys: ['mins_played', 'minutesPlayed', 'minutes_played'], color: 'text-zinc-500' },
+                         { label: 'Minuti', keys: ['mins_played', 'minutesPlayed', 'minutes_played', 'minsPlayed'], color: 'text-zinc-500' },
                          { label: 'Gol', keys: ['goals', 'goal'], isEventCount: true, type: 'goal', color: 'text-cyan-400' },
-                         { label: 'Assist', keys: ['goal_assist', 'assists', 'assist'], color: 'text-emerald-400' },
-                         { label: 'Tiri', keys: ['total_scoring_att', 'shots', 'total_shots', 'shots_total'], color: 'text-white' },
-                         { label: 'Tiri P.', keys: ['ontarget_scoring_att', 'shots_on_target', 'shots-on-target', 'shotsOnTarget'], color: 'text-zinc-300' },
-                         { label: 'Occasioni', keys: ['big_chance_created', 'chances_created', 'key_passes'], color: 'text-yellow-400' },
-                         { label: 'Passaggi', keys: ['total_pass', 'total_passes', 'passes'], color: 'text-white' },
+                         { label: 'Assist', keys: ['goal_assist', 'assists', 'assist', 'goalAssist'], color: 'text-emerald-400' },
+                         { label: 'Tiri', keys: ['total_scoring_att', 'shots', 'total_shots', 'shots_total', 'totalScoringAtt'], color: 'text-white' },
+                         { label: 'Tiri P.', keys: ['ontarget_scoring_att', 'shots_on_target', 'shots-on-target', 'shotsOnTarget', 'ontargetScoringAtt'], color: 'text-zinc-300' },
+                         { label: 'Occasioni', keys: ['big_chance_created', 'chances_created', 'key_passes', 'keyPasses'], color: 'text-yellow-400' },
+                         { label: 'Passaggi', keys: ['total_pass', 'total_passes', 'passes', 'totalPass'], color: 'text-white' },
                          { label: 'Pass. %', keys: ['accurate_pass_percentage', 'passes_accuracy', 'pass_accuracy', 'passAcc', 'accurate_pass'], applyPerc: true, color: 'text-zinc-400' },
-                         { label: 'Tocchi', keys: ['touches', 'ball_recovery'], color: 'text-zinc-400' },
-                         { label: 'Duelli V.', keys: ['won_contest', 'duelsWon', 'duels_won', 'duels-won'], color: 'text-white' },
-                         { label: 'Tackle', keys: ['total_tackle', 'tackles', 'tackle'], color: 'text-white' },
+                         { label: 'Tocchi', keys: ['touches', 'ball_recovery', 'ballRecovery'], color: 'text-zinc-400' },
+                         { label: 'Duelli V.', keys: ['won_contest', 'duelsWon', 'duels_won', 'duels-won', 'duelWon'], color: 'text-white' },
+                         { label: 'Tackle', keys: ['total_tackle', 'tackles', 'tackle', 'totalTackle'], color: 'text-white' },
                          { label: 'Falli', keys: ['fouls_committed', 'fouls_total', 'fouls', 'foulsCommitted'], color: 'text-red-400' },
                          { label: 'Parate', keys: ['saves', 'total_saves', 'saves_total', 'savesTotal'], color: 'text-orange-400', roleLimit: 1 },
                        ];
@@ -1297,7 +1323,17 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                            val = count > 0 ? count : '-';
                                          } else {
                                             if (!m.roleLimit || p.role === m.roleLimit) {
-                                              const rawVal = getStatVal(p, m.keys);
+                                              let rawVal = getStatVal(p, m.keys);
+                                              
+                                              // Check if we need to compute passing accuracy explicitly as an exception
+                                              if (rawVal === null && m.keys.includes('passAcc')) {
+                                                 const accuratePass = getStatVal(p, ['accuratePass', 'accurate_pass']);
+                                                 const totalPass = getStatVal(p, ['totalPass', 'total_pass']);
+                                                 if (accuratePass != null && totalPass != null && totalPass > 0) {
+                                                    rawVal = Math.round((accuratePass / totalPass) * 100);
+                                                 }
+                                              }
+
                                               if (rawVal !== null && rawVal !== undefined) {
                                                 val = m.applyPerc && String(rawVal).indexOf('%')===-1 ? `${rawVal}%` : rawVal;
                                               }
@@ -1319,6 +1355,22 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
                      const homeRos = [...(matchDetails.lineups?.home?.fielded || []), ...(matchDetails.lineups?.home?.benched || [])];
                      const awayRos = [...(matchDetails.lineups?.away?.fielded || []), ...(matchDetails.lineups?.away?.benched || [])];
+
+                     // check if any player has stats or subbed in
+                     const hasActive = (arr: any[]) => arr.some(p => {
+                       let pStats = p.stats;
+                       if (!pStats && matchDetails?.playerStats?.players) {
+                         const found = matchDetails.playerStats.players.find((s: any) => s.playerId === p.playerId || s.playerId === p.id);
+                         if (found) pStats = found.stats;
+                       }
+                       const pPlayed = pStats?.find ? pStats.find((s:any)=>s.statsId==='mins_played' || s.statsId==='minutesPlayed') : (pStats && pStats['mins_played']);
+                       const played = pPlayed?.statsValue ?? pPlayed;
+                       return (played && parseInt(String(played)) > 0) || p.events?.some((e: any) => e.type === 'substitution-in') || p.tacticalXPosition != null;
+                     });
+
+                     if (!hasActive(homeRos) && !hasActive(awayRos)) {
+                       return <div className="py-24 text-center"><span className="text-[10px] text-zinc-600 font-black tracking-widest uppercase">Statistiche giocatori non disponibili</span></div>;
+                     }
 
                      return (
                        <section className="relative px-0">

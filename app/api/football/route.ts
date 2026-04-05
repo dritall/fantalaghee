@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
 
-const SEASON_ID = 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
-const BASE = `https://api-sdp.legaseriea.it/v1/serie-a/football/seasons/${SEASON_ID}`;
-
 const HEADERS: HeadersInit = {
   'User-Agent': 'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
   'accept': 'text/plain; x-api-version=1.0',
@@ -41,6 +38,9 @@ function extractRoundNumber(value?: string | null): number | null {
 }
 
 async function getMatchdayMap() {
+  const SEASON_ID = 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
+  const BASE = `https://api-sdp.legaseriea.it/v1/serie-a/football/seasons/${SEASON_ID}`;
+
   const candidates = [
     `${BASE}/matches?locale=it-IT`,
     `${BASE}/calendar?locale=it-IT`,
@@ -113,6 +113,9 @@ async function getMatchdayMap() {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const endpoint = searchParams.get('endpoint');
+  const seasonIdParam = searchParams.get('seasonId');
+  const SEASON_ID = seasonIdParam || 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
+  const BASE = `https://api-sdp.legaseriea.it/v1/serie-a/football/seasons/${SEASON_ID}`;
 
   try {
     if (endpoint === 'standings') {
@@ -183,12 +186,12 @@ export async function GET(request: Request) {
 
       const enc = encodeURIComponent(matchId);
 
-      const [header, stats, lineups, events1, events2] = await Promise.allSettled([
+      const [header, stats, lineups, events1, playerStats] = await Promise.allSettled([
         legaFetch(`${BASE}/matches/${enc}/header?locale=it-IT`),
         legaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`),
         legaFetch(`${BASE}/matches/${enc}/lineups?locale=it-IT`),
-        legaFetch(`${BASE}/matches/${enc}/events?locale=it-IT`),
-        legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`),
+        legaFetch(`${BASE}/match/${enc}/action?locale=it-IT`).catch(() => legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`)),
+        legaFetch(`${BASE}/match/${enc}/summary?locale=it-IT`).catch(() => legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`)),
       ]);
 
       return NextResponse.json(
@@ -198,7 +201,8 @@ export async function GET(request: Request) {
             header: header.status === 'fulfilled' ? header.value : null,
             stats: stats.status === 'fulfilled' ? stats.value : null,
             lineups: lineups.status === 'fulfilled' ? lineups.value : null,
-            events: (events1.status === 'fulfilled' ? events1.value : null) || (events2.status === 'fulfilled' ? events2.value : null),
+            events: events1.status === 'fulfilled' ? events1.value : null,
+            playerStats: playerStats.status === 'fulfilled' ? playerStats.value : null,
           },
         },
         { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' } }
