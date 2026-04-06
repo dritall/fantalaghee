@@ -226,7 +226,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
          top = `${50 - (y / 2)}%`;
       }
 
-      const goals = p.events?.filter((e: any) => e.type.match(/goal/)).length || 0;
+      const goals = p.events?.filter((e: any) => e.type && e.type.includes('goal')).length || 0;
       const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
       const red = p.events?.some((e: any) => e.type === 'red-card');
 
@@ -352,7 +352,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
             const roleIndex = roleArray.findIndex(x => x.playerId === p.playerId);
             const pos = getPlayerPosition(p, roleIndex, roleArray.length);
 
-            const goals = p.events?.filter((e: any) => e.type.match(/goal/)).length || 0;
+            const goals = p.events?.filter((e: any) => e.type && e.type.includes('goal')).length || 0;
             const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
             const red = p.events?.some((e: any) => e.type === 'red-card');
 
@@ -389,10 +389,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   const [matchError, setMatchError]         = useState<string | null>(null);
   const [modalFixture, setModalFixture]     = useState<any>(null);
   const [matchDetails, setMatchDetails]     = useState<any>(null);
-  const [matchDetailsError, setMatchDetailsError] = useState<string | null>(null);
-  const [loadingModal, setLoadingModal]     = useState(false);
   const [modalTab, setModalTab]             = useState('eventi');
-  const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalScrollRef = useRef<HTMLDivElement>(null);
 
@@ -826,38 +823,54 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     };
 
     const attack = [
-      find(['expectedgoals', 'expected-goals'], 'Expected Goals (xG)'),
       find(['totalscoringatt', 'shots'], 'Tiri totali'),
       find(['ontargetscoringatt', 'shots_on_target', 'shots-on-target'], 'Tiri in porta'),
-      find(['bigchances', 'big-chances'], 'Grandi occasioni')
+      find(['shotsofftarget', 'shots-off-target'], 'Tiri fuori'),
+      find(['blockedscoringatt', 'blocked-shots'], 'Tiri bloccati'),
+      find(['attemptsibox', 'shots-at-goal-inside-box'], 'Tiri da dentro area'),
+      find(['attemptsobox', 'shots-at-goal-outside-box'], 'Tiri da fuori area'),
+      find(['goals', 'goal'], 'Gol'),
+      find(['expectedgoals', 'expected-goals'], 'Expected Goals (xG)'),
     ].filter(Boolean);
 
     const passes = [
       find(['totalpass', 'total-passes', 'pass-attempts'], 'Passaggi totali'),
-      find(['accuratepass', 'passes-completed'], 'Passaggi riusciti'),
+      find(['accuratepass', 'passes-successful', 'passes-completed'], 'Passaggi riusciti'),
       findPrecisePasses(),
-      find(['key-passes', 'keypasses'], 'Key Passes')
+      find(['keypass', 'key-passes', 'keypasses', 'chances-created'], 'Passaggi chiave'),
+      find(['totalcross', 'crosses', 'openplaycross'], 'Cross'),
+      find(['cornertaken', 'corners'], 'Corner'),
+      find(['totallongballs', 'long-balls'], 'Lanci lunghi'),
+      find(['totalfinalthirdpasses', 'successfulfinalthirdpasses'], "Passaggi nell'ultimo terzo"),
     ].filter(Boolean);
 
     const defense = [
-      find(['totalclearance', 'clearences'], 'Spazzate (Clearances)'),
-      find(['blockedscoringatt', 'blocked-shots'], 'Tiri rimpallati'),
+      find(['totaltackle', 'tackles-total', 'tackles'], 'Contrasti'),
+      find(['wontackle', 'tackles-successful'], 'Contrasti vinti'),
+      find(['interception', 'interceptions'], 'Intercetti'),
+      find(['ballrecovery', 'recoveries'], 'Recuperi'),
+      find(['wasfouled', 'fouls-suffered'], 'Falli subiti'),
+      find(['fouls', 'fouls_committed', 'fouls_total', 'foulsconceded'], 'Falli commessi'),
       find(['totaloffside', 'offsides'], 'Fuorigioco'),
-      find(['totalyellowcard', 'yellow-cards'], 'Ammonizioni'),
-      find(['totalredcard', 'red-cards'], 'Espulsioni')
+      find(['saves', 'saves_total', 'total_saves'], 'Salvataggi portiere'),
     ].filter(Boolean);
 
     const general = [
       find(['possession-perc', 'possessionpercentage'], 'Possesso Palla'),
-      find(['duels-won'], 'Duelli vinti'),
-      find(['fouls', 'fouls_committed', 'fouls_total'], 'Falli'),
-      find(['cornertaken', 'corners'], "Calci d'angolo")
+      find(['totalcontest', 'duels'], 'Duelli totali'),
+      find(['woncontest', 'duels-won'], 'Duelli vinti'),
+      find(['totalballsplayed', 'dribbles'], 'Dribbling tentati'),
+      find(['succdribblingperc', 'dribbling-successful'], 'Dribbling riusciti'),
+      find(['totalyellowcard', 'yellow-cards', 'yellowcard'], 'Cartellini gialli'),
+      find(['totalredcard', 'red-cards'], 'Cartellini rossi'),
+      find(['free-kicks', 'freekickpass'], 'Calci di punizione'),
+      find(['totalthrows', 'accurate-throws'], 'Rimesse laterali'),
     ].filter(Boolean);
 
     return [
       { title: 'Attacco', stats: attack, iconColor: 'text-orange-400' },
       { title: 'Passaggi', stats: passes, iconColor: 'text-cyan-400' },
-      { title: 'Defense', stats: defense, iconColor: 'text-blue-500' },
+      { title: 'Difesa', stats: defense, iconColor: 'text-blue-500' },
       { title: 'Generali', stats: general, iconColor: 'text-purple-400' }
     ].filter(g => g.stats && g.stats.length > 0);
   };
@@ -1366,23 +1379,30 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                        if (activePlayers.length === 0) return null;
 
                        const metrics = [
+                         { label: 'Ruolo', keys: [], isCustom: true, type: 'role', color: 'text-zinc-500' },
                          { label: 'Min', keys: ['minutes', 'mins_played', 'minutesPlayed', 'minutes_played', 'minsPlayed'], color: 'text-zinc-500' },
+                         { label: 'Voto', keys: ['match_rating', 'rating'], color: 'text-cyan-400' },
                          { label: 'Gol', keys: ['goals', 'goal'], isEventCount: true, type: 'goal', color: 'text-cyan-400' },
                          { label: 'Assist', keys: ['assists', 'goal_assist', 'assist', 'goalAssist'], color: 'text-emerald-400' },
                          { label: 'Tiri', keys: ['shots', 'totalScoringAtt'], color: 'text-white' },
                          { label: 'Tiri nello specchio', keys: ['shots-on-goal', 'ontargetScoringAtt'], color: 'text-white' },
-                         { label: 'Passaggi', keys: ['pass-attempts', 'totalPass', 'passes-successful'], color: 'text-white' },
-                         { label: 'Passaggi riusciti %', keys: ['passing-accuracy-perc', 'accurate-pass-perc'], color: 'text-white', isPercent: true },
-                         { label: 'Duelli vinti', keys: ['duels-won', 'duelWon'], color: 'text-white' },
-                         { label: 'Falli', keys: ['fouls', 'foulsconceded'], color: 'text-white' },
-                         { label: 'Ammonizioni', keys: ['yellow-cards', 'yellowCard', 'totalYellowCard'], isEventCount: true, type: 'yellow-card', icon: '🟨' },
-                         { label: 'Espulsioni', keys: ['red-cards', 'redCard', 'totalRedCard'], isEventCount: true, type: 'red-card', icon: '🟥' }
+                         { label: 'Passaggi', keys: ['pass-attempts', 'totalPass'], color: 'text-white' },
+                         { label: 'Acc%', keys: ['passing-accuracy-perc', 'accurate-pass-perc'], color: 'text-white', isPercent: true },
+                         { label: 'Passaggi chiave', keys: ['keypass', 'key-passes', 'chances-created'], color: 'text-white' },
+                         { label: 'Duelli vinti', keys: ['duels-won', 'duelWon', 'woncontest'], color: 'text-white' },
+                         { label: 'Contrasti', keys: ['totaltackle', 'tackles-total'], color: 'text-white' },
+                         { label: 'Intercetti', keys: ['interception', 'interceptions'], color: 'text-white' },
+                         { label: 'Dribbling riusciti', keys: ['succdribblingperc', 'dribbling-successful'], color: 'text-white' },
+                         { label: 'Falli', keys: ['fouls', 'foulsconceded', 'fouls_committed'], color: 'text-white' },
+                         { label: 'Amm.', keys: ['yellow-cards', 'yellowCard', 'totalYellowCard'], isEventCount: true, type: 'yellow-card', icon: '🟨' },
+                         { label: 'Esp.', keys: ['red-cards', 'redCard', 'totalRedCard'], isEventCount: true, type: 'red-card', icon: '🟥' }
                        ];
 
                        const visibleMetrics = metrics.filter(m => {
                          return activePlayers.some(p => {
+                           if (m.type === 'role') return !!(p.position || p.role);
                            if (m.isEventCount) {
-                             const evCount = p.events?.filter((e: any) => e.type.match(new RegExp(m.type!)) && e.type !== 'own-goal').length || 0;
+                             const evCount = p.events?.filter((e: any) => e.type && e.type.includes(m.type!)).length || 0;
                              const val = getStatVal(p, m.keys);
                              if (evCount > 0 || (val !== null && val !== undefined && val !== 0 && val !== '0' && val !== '0%')) return true;
                              return false;
@@ -1414,7 +1434,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                    const red = p.events?.some((e: any) => e.type === 'red-card');
                                    
                                    return (
-                                     <tr key={p.playerId || p.id} onClick={() => setSelectedPlayer({ p, teamName, getStatVal })} className="cursor-pointer border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
+                                     <tr key={p.playerId || p.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
                                        <td className="py-3 px-3 sticky left-0 bg-[#0a0f0d] group-hover:bg-[#111815] transition-colors z-10 font-black uppercase tracking-wider text-white flex items-center gap-3 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                                          <div className="flex items-center gap-2">
                                             <div className="w-5 h-5 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] shrink-0 text-zinc-400">
@@ -1434,8 +1454,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                        </td>
                                        {visibleMetrics.map((m, i) => {
                                          let val: any = '-';
-                                         if (m.isEventCount) {
-                                            const evCount = p.events?.filter((e: any) => e.type.match(new RegExp(m.type!)) && e.type !== 'own-goal').length || 0;
+                                         if (m.type === 'role') {
+                                            val = p.position || p.role || '-';
+                                         }
+                                         else if (m.isEventCount) {
+                                            const evCount = p.events?.filter((e: any) => e.type && e.type.includes(m.type!)).length || 0;
                                             const stVal = getStatVal(p, m.keys);
                                             if (evCount > 0) val = evCount;
                                             else if (stVal !== null && stVal !== undefined && stVal !== '0%') val = stVal;
