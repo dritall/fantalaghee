@@ -3,7 +3,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+import { getDisplayPlayerName, getPlayerImageUrl } from './utils';
 import * as Dialog from '@radix-ui/react-dialog';
+
+const PlayerStatsTable = dynamic(() => import('./PlayerStatsTable'), { ssr: false });
 import { X, Loader2, AlertTriangle } from 'lucide-react';
 
 const TOTAL_ROUNDS = 38;
@@ -98,36 +102,7 @@ const getTeamLogoUrls = (team: any): string[] => {
 
 const getTeamLogoUrl = (team: any) => getTeamLogoUrls(team)[0] || null;
 
-const getDisplayPlayerName = (p: any) => {
-  if (!p) return 'Player';
-  const player = p.player || p;
-  
-  // Ordine: 1. displayName 2. mediaLastName
-  let name = player.displayName || player.mediaLastName;
-  
-  // 3. ultima parte utile di shirtName
-  if (!name && player.shirtName) {
-    const parts = player.shirtName.split(' ');
-    name = parts[parts.length - 1]; // "ultima parte utile"
-  }
-  
-  // 4. shortName fallback
-  if (!name) {
-    name = player.shortName || player.officialName || 'Player';
-  }
-  
-  // Pulizia
-  name = name.replace(/\.\.\./g, '').trim();
-  name = name.replace(/^[A-Z]\.\s*/, '').trim(); // "V. Carboni" -> "Carboni"
-  name = name.replace(/^[A-Z]\.\.\.\s*\.\s*/, '').trim(); // "V... . Carboni" -> "Carboni"
-  
-  if (name.length > 20 && name.includes(' ')) {
-    const parts = name.split(' ');
-    name = parts[parts.length - 1];
-  }
 
-  return name;
-};
 
 const TeamLogo = ({
   team,
@@ -186,51 +161,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     return { left: `${xPos}%`, top: `${yPos}%` };
   };
 
-export const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide: string = 'home') => {
-  if (!p) return null;
 
-  const keys = Object.keys(p);
-  const patterns = [
-    'playerImagehomeleft', 'playerImagehomemiddle', 'playerImagehomeceleb',
-    'playerImageawayleft', 'playerImageawaymiddle', 'playerImageawayceleb',
-  ];
-
-  for (const pattern of patterns) {
-    const keyToUse = keys.find(k => k.toLowerCase().startsWith(pattern.toLowerCase()));
-    if (keyToUse) {
-       let val = p[keyToUse];
-       if (typeof val === 'string' && val.includes('.webp')) {
-          if (val.startsWith('http')) return val;
-          return val.startsWith('/') ? `https://media-sdp.legaseriea.it${val}` : `https://media-sdp.legaseriea.it/${val}`;
-       } else if (keyToUse.includes('.webp') && !val) {
-          const extracted = keyToUse.substring(pattern.length);
-          if (extracted.startsWith('http')) return extracted;
-          const urlPath = extracted.startsWith('playerImages') ? `/${extracted}` : extracted;
-          return urlPath.startsWith('/') ? `https://media-sdp.legaseriea.it${urlPath}` : `https://media-sdp.legaseriea.it/${urlPath}`;
-       }
-    }
-  }
-
-  const imgFields = ['image', 'photo', 'pictureUrl', 'imageUrl'];
-  const checkFields = (obj: any) => {
-    for (const f of imgFields) {
-      if (typeof obj[f] === 'string' && obj[f].includes('.webp')) {
-         if (obj[f].startsWith('http')) return obj[f];
-         return obj[f].startsWith('/') ? `https://media-sdp.legaseriea.it${obj[f]}` : `https://media-sdp.legaseriea.it/${obj[f]}`;
-      }
-    }
-    return null;
-  };
-
-  const found = checkFields(p) || (p.details && checkFields(p.details));
-  if (found) return found;
-
-  const pId = (p.playerId || p.id || '')?.split('::').pop();
-  if (sId && tId && pId) {
-    return `https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/${sId}/${tId}/${forceSide}/${pId}left.webp`;
-  }
-  return null;
-};
 
   const CombinedTacticalPitch = ({ matchDetails, homeTeam, awayTeam }: any) => {
     if (!matchDetails?.lineups?.home?.fielded || !matchDetails?.lineups?.away?.fielded) return null;
@@ -757,7 +688,7 @@ export const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide:
 
 
   const normalizeStatsInput = (rawStats: any) => {
-    // console.log('rawStats before normalization:', rawStats);
+
     const result = { home: [] as any[], away: [] as any[] };
     
     if (!rawStats || typeof rawStats !== 'object') {
@@ -813,7 +744,7 @@ export const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide:
     if (!Array.isArray(result.home)) result.home = [];
     if (!Array.isArray(result.away)) result.away = [];
 
-    // console.log('normalizedStats final:', result);
+
     return result;
   };
 
@@ -1362,337 +1293,15 @@ export const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide:
                   )}
 
                   {/* ====== TAB: STATISTICHE GIOCATORI ====== */}
-                  {modalTab === 'player-stats' && (() => {
-                     const PlayerStatsTable = ({ players, teamName, side, teamObj }: { players: any[], teamName: string, side: 'home' | 'away', teamObj: any }) => {
-                       if (!players || players.length === 0) return null;
-
-                       const extractId = (raw: any) => typeof raw === 'string' && raw.includes('::') ? raw.split('::').pop() : raw;
-                       
-                       const PlayerImage = ({ p, className = '' }: { p: any, className?: string }) => {
-                         const [err, setErr] = useState(false);
-                         const tId = extractId(teamObj?.teamId || teamObj?.id || teamObj?.providerId);
-                         const sId = extractId(modalFixture?.seasonId || matchDetails?.header?.seasonId);
-
-                         const url = getPlayerImageUrl(p, sId, tId, 'home');
-
-                         if (err || !url) {
-                            const name = p.displayName || p.shortName || p.shirtName || '?';
-                            const initial = name.substring(0, 2).toUpperCase();
-                            return (
-                               <div className={`bg-zinc-800 rounded-full flex flex-col items-center justify-center border border-white/10 shrink-0 shadow-inner overflow-hidden ${className}`}>
-                                  <span className="text-[10px] font-black tracking-widest text-zinc-400 leading-none">{initial}</span>
-                               </div>
-                            );
-                         }
-
-                         return (
-                            <img
-                               src={url}
-                               className={`object-cover rounded-full bg-zinc-800 shrink-0 border border-white/10 ${className}`}
-                               onError={() => setErr(true)}
-                               alt={p.displayName || p.shortName || ''}
-                            />
-                         );
-                       };
-
-                       const getStatVal = (p: any, keys: string[]) => {
-                         let pStats = p.stats;
-                         if (!pStats && matchDetails?.playerStats?.players) {
-                           const found = matchDetails.playerStats.players.find((s: any) => s.playerId === p.playerId || s.playerId === p.id);
-                           if (found && found.stats) {
-                              pStats = {};
-                              found.stats.forEach((s: any) => {
-                                 pStats[s.statsId.toLowerCase()] = s.statsValue;
-                              });
-                           }
-                         }
-
-                         if (Array.isArray(pStats)) {
-                             const temp: any = {};
-                             pStats.forEach((s: any) => {
-                                temp[(s.statsId || s.id || '').toLowerCase()] = s.statsValue || s.value;
-                             });
-                             pStats = temp;
-                         } else if (pStats && typeof pStats === 'object' && !pStats._normalized) {
-                             const temp: any = { _normalized: true };
-                             for (const [k, v] of Object.entries(pStats)) {
-                                 temp[k.toLowerCase()] = v;
-                             }
-                             pStats = temp;
-                         }
-
-                         if (!pStats) return null;
-                         for (const k of keys) {
-                           const val = pStats[k.toLowerCase()];
-                           if (val !== undefined && val !== null && val !== '') {
-                             return val;
-                           }
-                         }
-                         return null;
-                       };
-
-                       const activePlayers = players.filter(p => {
-                         const played = getStatVal(p, ['mins_played', 'minutesPlayed', 'minutes_played']);
-                         const subIn = p.events?.some((e: any) => e.type === 'substitution-in');
-                         const wasFielded = p.tacticalXPosition != null;
-                         return (played && parseInt(String(played)) > 0) || subIn || wasFielded;
-                       });
-
-                       if (activePlayers.length === 0) return null;
-
-                       const metrics = [
-                         { label: 'Ruolo', keys: [], isCustom: true, type: 'role', color: 'text-zinc-500' },
-                         { label: 'Min', keys: ['minutes', 'mins_played', 'minutesPlayed', 'minutes_played', 'minsPlayed'], color: 'text-zinc-500' },
-                         { label: 'Voto', keys: ['match_rating', 'rating'], color: 'text-cyan-400' },
-                         { label: 'Gol', keys: ['goals', 'goal'], isEventCount: true, type: 'goal', color: 'text-cyan-400' },
-                         { label: 'Assist', keys: ['assists', 'goal_assist', 'assist', 'goalAssist'], color: 'text-emerald-400' },
-                         { label: 'Tiri', keys: ['totalScoringAtt', 'totalscoringatt', 'total_scoring_att', 'shots'], color: 'text-white' },
-                         { label: 'Tiri in porta', keys: ['ontargetScoringAtt', 'ontargetscoringatt', 'shots_on_target', 'shots-on-goal'], color: 'text-white' },
-                         { label: 'Parate', keys: ['saves', 'saves_total', 'savesTotal', 'total_saves'], color: 'text-white' },
-                         { label: 'Passaggi', keys: ['totalPass', 'totalpass', 'total-passes', 'pass-attempts'], color: 'text-white' },
-                         { label: 'Acc%', keys: ['passing-accuracy-perc', 'accurate-pass-perc', 'passingaccuracyperc'], color: 'text-white', isPercent: true },
-                         { label: 'Passaggi chiave', keys: ['keypass', 'key-passes', 'chances-created'], color: 'text-white' },
-                         { label: 'Duelli vinti', keys: ['duels-won', 'duelWon', 'woncontest'], color: 'text-white' },
-                         { label: 'Contrasti', keys: ['totaltackle', 'tackles-total', 'tackles'], color: 'text-white' },
-                         { label: 'Intercetti', keys: ['interception', 'interceptions', 'held-interceptions'], color: 'text-white' },
-                         { label: 'Dribbling', keys: ['succdribblingperc', 'dribbling-successful'], color: 'text-white' },
-                         { label: 'Falli', keys: ['fouls', 'foulsconceded', 'fouls_committed'], color: 'text-white' },
-                         { label: 'Amm.', keys: ['yellow-cards', 'yellowCard', 'totalYellowCard'], isEventCount: true, type: 'yellow-card', icon: '🟨' },
-                         { label: 'Esp.', keys: ['red-cards', 'redCard', 'totalRedCard'], isEventCount: true, type: 'red-card', icon: '🟥' }
-                       ];
-
-                       const visibleMetrics = metrics.filter(m => {
-                         return activePlayers.some(p => {
-                           if (m.type === 'role') return !!(p.position || p.role);
-                           if (m.isEventCount) {
-                             const evCount = p.events?.filter((e: any) => e.type && e.type.includes(m.type!)).length || 0;
-                             const val = getStatVal(p, m.keys);
-                             if (evCount > 0 || (val !== null && val !== undefined && val !== 0 && val !== '0' && val !== '0%')) return true;
-                             return false;
-                           }
-                           const val = getStatVal(p, m.keys);
-                           return val !== null && val !== undefined && val !== 0 && val !== '0' && val !== '0%';
-                         });
-                       });
-
-                       return (
-                         <div className="bg-zinc-900/20 rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl backdrop-blur-sm mb-8 overflow-hidden">
-                           <h4 className="text-[12px] font-black uppercase text-cyan-400 tracking-widest mb-6 flex items-center gap-3">
-                             <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-lg" />
-                             {teamName}
-                           </h4>
-                           <div className="overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                             <table className="w-full text-left border-collapse min-w-[max-content]">
-                               <thead>
-                                 <tr className="border-b border-white/10 text-[8.5px] uppercase tracking-[0.2em] text-zinc-500 font-black">
-                                   <th className="py-3 px-3 sticky left-0 bg-[#0c1210] z-10 w-48 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">Giocatore</th>
-                                   {visibleMetrics.map((m, i) => (
-                                     <th key={i} className={`py-3 px-3 text-center ${m.color || ''}`}>{m.label}</th>
-                                   ))}
-                                 </tr>
-                               </thead>
-                               <tbody className="text-[11px] font-medium text-zinc-300">
-                                 {activePlayers.map(p => {
-                                   const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
-                                   const red = p.events?.some((e: any) => e.type === 'red-card');
-                                   
-                                   return (
-                                     <tr key={p.playerId || p.id} onClick={() => {
-                                        console.log('--- PLAYER CLICK DEBUG ---');
-                                        console.log('Player ID:', p.playerId || p.id);
-                                        console.log('Raw player object:', p);
-                                        if (!p) {
-                                           console.warn('Player object is null/undefined. Aborting detail view.');
-                                           return;
-                                        }
-                                        setSelectedPlayer({ p, teamName, getStatVal, PlayerImage });
-                                     }} className="cursor-pointer border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
-                                       <td className="py-3 px-3 sticky left-0 bg-[#0a0f0d] group-hover:bg-[#111815] transition-colors z-10 font-black uppercase tracking-wider text-white flex items-center gap-3 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
-                                         <div className="flex items-center gap-2">
-                                            <div className="w-5 h-5 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] shrink-0 text-zinc-400">
-                                              {p.jerseyNumber || '-'}
-                                            </div>
-                                            <PlayerImage p={p} className="w-8 h-8" />
-                                         </div>
-                                         <div className="flex flex-col min-w-0">
-                                           <span className="truncate" title={getDisplayPlayerName(p)}>
-                                             {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p)}
-                                           </span>
-                                           <div className="flex gap-1 mt-0.5 items-center">
-                                             {yellow && <div className="w-1.5 h-2 bg-yellow-400 rounded-sm" />}
-                                             {red && <div className="w-1.5 h-2 bg-red-500 rounded-sm" />}
-                                           </div>
-                                         </div>
-                                       </td>
-                                       {visibleMetrics.map((m, i) => {
-                                         let val: any = '-';
-                                         if (m.type === 'role') {
-                                            val = p.position || p.role || '-';
-                                         }
-                                         else if (m.isEventCount) {
-                                            const evCount = p.events?.filter((e: any) => e.type && e.type.includes(m.type!)).length || 0;
-                                            const stVal = getStatVal(p, m.keys);
-                                            if (evCount > 0) val = evCount;
-                                            else if (stVal !== null && stVal !== undefined && stVal !== '0%') val = stVal;
-                                            else if (m.showZero) val = '0';
-                                         } else {
-                                           const rawVal = getStatVal(p, m.keys);
-                                           if (rawVal !== null && rawVal !== undefined) {
-                                              val = rawVal;
-                                              if (m.isPercent && val && val !== '0') val = val + '%';
-                                           }
-                                         }
-                                         
-                                         const hasVal = val !== '-' && val !== '';
-                                         return (
-                                           <td key={i} className={`py-4 px-3 text-center border-l border-white/5 align-middle ${hasVal && val !== '0' && val !== '0%' && val !== 0 ? m.color || '' : 'text-zinc-600'}`}>
-                                             {hasVal ? (
-                                                <span className={`${m.isEventCount && m.icon ? 'inline-flex w-5 h-5 items-center justify-center bg-white/10 rounded-full font-black text-[10px] shadow-sm' : 'text-[11px] font-black'}`}>
-                                                  {m.icon && val > 0 ? (val > 1 ? `${m.icon}x${val}` : m.icon) : val}
-                                                </span>
-                                             ) : (
-                                                <span className="text-zinc-700 font-bold">-</span>
-                                             )}
-                                           </td>
-                                         );
-                                       })}
-                                     </tr>
-                                   );
-                                 })}
-                               </tbody>
-                             </table>
-                           </div>
-                         </div>
-                       );
-                     };
-
-                     const homeRos = [...(matchDetails.lineups?.home?.fielded || []), ...(matchDetails.lineups?.home?.benched || [])];
-                     const awayRos = [...(matchDetails.lineups?.away?.fielded || []), ...(matchDetails.lineups?.away?.benched || [])];
-
-                     // check if any player has stats or subbed in
-                     const hasActive = (arr: any[]) => arr.some(p => {
-                       let pStats = p.stats;
-                       if (!pStats && matchDetails?.playerStats?.players) {
-                         const found = matchDetails.playerStats.players.find((s: any) => s.playerId === p.playerId || s.playerId === p.id);
-                         if (found) pStats = found.stats;
-                       }
-                       const pPlayed = pStats?.find ? pStats.find((s:any)=>s.statsId==='mins_played' || s.statsId==='minutesPlayed') : (pStats && pStats['mins_played']);
-                       const played = pPlayed?.statsValue ?? pPlayed;
-                       return (played && parseInt(String(played)) > 0) || p.events?.some((e: any) => e.type === 'substitution-in') || p.tacticalXPosition != null;
-                     });
-
-                     if (!hasActive(homeRos) && !hasActive(awayRos)) {
-                       return <div className="py-24 text-center"><span className="text-[10px] text-zinc-600 font-black tracking-widest uppercase">Statistiche giocatori non disponibili</span></div>;
-                     }
-
-                     const renderSubModal = () => {
-                       if (!selectedPlayer) return null;
-                       const { p, teamName, getStatVal, PlayerImage } = selectedPlayer;
-                       if (!p) return null;
-                       
-                       const grp = (title: string, metrics: Array<{label:string, keys:string[], applyPerc?:boolean}>) => {
-                          const validStats = metrics.map(m => {
-                            try {
-                               let val = getStatVal(p, m.keys);
-                               if (val === null && m.keys.includes('passAcc')) {
-                                  const accuratePass = getStatVal(p, ['accuratePass', 'accurate_pass']);
-                                  const totalPass = getStatVal(p, ['totalPass', 'total_pass']);
-                                  if (accuratePass != null && totalPass != null && totalPass > 0) {
-                                     val = Math.round((accuratePass / totalPass) * 100);
-                                  }
-                               }
-                               if (val != null) {
-                                  return { label: m.label, value: m.applyPerc && String(val).indexOf('%')===-1 ? `${val}%` : val };
-                               }
-                               return null;
-                            } catch (e) {
-                               console.error('Failed to parse stat', m.label, e);
-                               return null;
-                            }
-                          }).filter(Boolean);
-                          if (validStats.length === 0) return null;
-                          return (
-                            <div className="mb-6 last:mb-0">
-                               <h5 className="text-[10px] font-black uppercase text-zinc-500 tracking-widest border-b border-white/5 pb-2 mb-3">{title}</h5>
-                               <div className="space-y-2">
-                                 {validStats.map((s: any, idx: number) => (
-                                    <div key={idx} className="flex justify-between items-center bg-white/5 p-2 px-3 rounded text-[11px] font-bold">
-                                       <span className="text-zinc-400">{s.label}</span>
-                                       <span className="text-white">{s.value}</span>
-                                    </div>
-                                 ))}
-                               </div>
-                            </div>
-                          );
-                       };
-
-                       return (
-                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedPlayer(null)}>
-                           <div className="bg-[#0a0f0d] border border-white/10 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-                              <div className="flex justify-between items-center p-6 border-b border-white/5 bg-white/5">
-                                 <div className="flex items-center gap-4">
-                                   <PlayerImage p={p} className="w-16 h-16" />
-                                   <div className="flex flex-col">
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] font-black text-white">
-                                          {p.jerseyNumber || '-'}
-                                        </div>
-                                        <span className="text-sm font-black text-white uppercase tracking-wider truncate max-w-[140px]">{p.displayName || p.shortName}</span>
-                                      </div>
-                                      <span className="text-[9px] text-zinc-500 tracking-widest uppercase mt-1">{p.position || p.role || teamName}</span>
-                                   </div>
-                                 </div>
-                                 <button onClick={() => setSelectedPlayer(null)} className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors">
-                                   ✕
-                                 </button>
-                              </div>
-                              <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                                 {grp('Attacco', [
-                                   { label: 'Gol', keys: ['goals', 'goal'] },
-                                   { label: 'Tiri Totali', keys: ['total_scoring_att', 'shots', 'total_shots', 'shots_total', 'totalScoringAtt'] },
-                                   { label: 'Tiri in Porta', keys: ['ontarget_scoring_att', 'shots_on_target', 'shotsOnTarget', 'ontargetScoringAtt'] },
-                                   { label: 'Fuorigioco', keys: ['total_offside', 'offsides', 'offside'] }
-                                 ])}
-                                 {grp('Passaggi', [
-                                   { label: 'Assist', keys: ['goal_assist', 'assists', 'assist', 'goalAssist'] },
-                                   { label: 'Occasioni Create', keys: ['big_chance_created', 'chances_created', 'key_passes', 'keyPasses'] },
-                                   { label: 'Passaggi Totali', keys: ['total_pass', 'total_passes', 'passes', 'totalPass'] },
-                                   { label: 'Passaggi Riusciti', keys: ['accurate_pass', 'accuratePass', 'accuratePasses'] },
-                                   { label: 'Precisione Passaggi', keys: ['accurate_pass_percentage', 'passes_accuracy', 'pass_accuracy', 'passAcc', 'accurate_pass'], applyPerc: true }
-                                 ])}
-                                 {grp('Difesa', [
-                                   { label: 'Tackle', keys: ['total_tackle', 'tackles', 'tackle', 'totalTackle'] },
-                                   { label: 'Intercetti', keys: ['interceptions', 'interception', 'interceptionWon'] },
-                                   { label: 'Spazzate', keys: ['effective_clearance', 'clearances', 'clearance', 'totalClearance'] },
-                                   { label: 'Tiri Rimpallati', keys: ['blocked_scoring_att', 'blocked_shots', 'blockedShots'] },
-                                   { label: 'Parate', keys: ['saves', 'saves_total', 'savesTotal'] }
-                                 ])}
-                                 {grp('Disciplina', [
-                                   { label: 'Ammonizioni', keys: ['yellow_card', 'yellowCards'] },
-                                   { label: 'Espulsioni', keys: ['red_card', 'redCards'] },
-                                   { label: 'Falli Commessi', keys: ['fouls_committed', 'fouls', 'foulsCommitted'] },
-                                   { label: 'Falli Subiti', keys: ['was_fouled', 'fouls_drawn', 'foulsWon', 'foulsSuffered'] }
-                                 ])}
-                                 {grp('Fisico', [
-                                   { label: 'Minuti Giocati', keys: ['mins_played', 'minutesPlayed', 'minutes_played'] },
-                                   { label: 'Duelli Totali', keys: ['duel', 'duels_total', 'totalDuels', 'duelTotal'] },
-                                   { label: 'Duelli Vinti', keys: ['won_contest', 'duelsWon', 'duels_won', 'duelWon'] },
-                                   { label: 'Duelli Aerei', keys: ['aerial_won', 'aerialsWon', 'aerialWon'] }
-                                 ])}
-                              </div>
-                           </div>
-                         </div>
-                       );
-                     };
-
-                     return (
-                       <section className="relative px-0">
-                         {renderSubModal()}
-                         <PlayerStatsTable players={homeRos} teamName={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} side="home" teamObj={modalFixture.homeTeam || modalFixture.home} />
-                         <PlayerStatsTable players={awayRos} teamName={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} side="away" teamObj={modalFixture.awayTeam || modalFixture.away} />
-                       </section>
-                     );
-                  })()}
+                  {modalTab === 'player-stats' && (
+                    <PlayerStatsTable 
+                      matchDetails={matchDetails} 
+                      modalFixture={modalFixture} 
+                      selectedPlayer={selectedPlayer} 
+                      setSelectedPlayer={setSelectedPlayer} 
+                      resolveTeam={resolveTeam} 
+                    />
+                  )}
 
 
 
