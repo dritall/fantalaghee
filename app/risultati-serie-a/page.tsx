@@ -184,24 +184,47 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       : 50;
 
     return { left: `${xPos}%`, top: `${yPos}%` };
-    return { left: `${xPos}%`, top: `${yPos}%` };
   };
 
-const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide: string = 'home') => {
+export const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide: string = 'home') => {
   if (!p) return null;
-  const directFields = [
+
+  const keys = Object.keys(p);
+  const patterns = [
     'playerImagehomeleft', 'playerImagehomemiddle', 'playerImagehomeceleb',
     'playerImageawayleft', 'playerImageawaymiddle', 'playerImageawayceleb',
-    'image', 'photo', 'pictureUrl', 'imageUrl'
   ];
-  for (const field of directFields) {
-    if (typeof p[field] === 'string' && p[field].startsWith('http')) return p[field];
-  }
-  if (p.details) {
-    for (const field of directFields) {
-      if (typeof p.details[field] === 'string' && p.details[field].startsWith('http')) return p.details[field];
+
+  for (const pattern of patterns) {
+    const keyToUse = keys.find(k => k.toLowerCase().startsWith(pattern.toLowerCase()));
+    if (keyToUse) {
+       let val = p[keyToUse];
+       if (typeof val === 'string' && val.includes('.webp')) {
+          if (val.startsWith('http')) return val;
+          return val.startsWith('/') ? `https://media-sdp.legaseriea.it${val}` : `https://media-sdp.legaseriea.it/${val}`;
+       } else if (keyToUse.includes('.webp') && !val) {
+          const extracted = keyToUse.substring(pattern.length);
+          if (extracted.startsWith('http')) return extracted;
+          const urlPath = extracted.startsWith('playerImages') ? `/${extracted}` : extracted;
+          return urlPath.startsWith('/') ? `https://media-sdp.legaseriea.it${urlPath}` : `https://media-sdp.legaseriea.it/${urlPath}`;
+       }
     }
   }
+
+  const imgFields = ['image', 'photo', 'pictureUrl', 'imageUrl'];
+  const checkFields = (obj: any) => {
+    for (const f of imgFields) {
+      if (typeof obj[f] === 'string' && obj[f].includes('.webp')) {
+         if (obj[f].startsWith('http')) return obj[f];
+         return obj[f].startsWith('/') ? `https://media-sdp.legaseriea.it${obj[f]}` : `https://media-sdp.legaseriea.it/${obj[f]}`;
+      }
+    }
+    return null;
+  };
+
+  const found = checkFields(p) || (p.details && checkFields(p.details));
+  if (found) return found;
+
   const pId = (p.playerId || p.id || '')?.split('::').pop();
   if (sId && tId && pId) {
     return `https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/${sId}/${tId}/${forceSide}/${pId}left.webp`;
@@ -1379,15 +1402,30 @@ const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide: string
                            if (found && found.stats) {
                               pStats = {};
                               found.stats.forEach((s: any) => {
-                                 pStats[s.statsId] = s.statsValue;
+                                 pStats[s.statsId.toLowerCase()] = s.statsValue;
                               });
                            }
                          }
 
+                         if (Array.isArray(pStats)) {
+                             const temp: any = {};
+                             pStats.forEach((s: any) => {
+                                temp[(s.statsId || s.id || '').toLowerCase()] = s.statsValue || s.value;
+                             });
+                             pStats = temp;
+                         } else if (pStats && typeof pStats === 'object' && !pStats._normalized) {
+                             const temp: any = { _normalized: true };
+                             for (const [k, v] of Object.entries(pStats)) {
+                                 temp[k.toLowerCase()] = v;
+                             }
+                             pStats = temp;
+                         }
+
                          if (!pStats) return null;
                          for (const k of keys) {
-                           if (pStats[k] !== undefined && pStats[k] !== null && pStats[k] !== '') {
-                             return pStats[k];
+                           const val = pStats[k.toLowerCase()];
+                           if (val !== undefined && val !== null && val !== '') {
+                             return val;
                            }
                          }
                          return null;
@@ -1408,15 +1446,16 @@ const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide: string
                          { label: 'Voto', keys: ['match_rating', 'rating'], color: 'text-cyan-400' },
                          { label: 'Gol', keys: ['goals', 'goal'], isEventCount: true, type: 'goal', color: 'text-cyan-400' },
                          { label: 'Assist', keys: ['assists', 'goal_assist', 'assist', 'goalAssist'], color: 'text-emerald-400' },
-                         { label: 'Tiri', keys: ['shots', 'totalScoringAtt'], color: 'text-white' },
-                         { label: 'Tiri nello specchio', keys: ['shots-on-goal', 'ontargetScoringAtt'], color: 'text-white' },
-                         { label: 'Passaggi', keys: ['pass-attempts', 'totalPass'], color: 'text-white' },
-                         { label: 'Acc%', keys: ['passing-accuracy-perc', 'accurate-pass-perc'], color: 'text-white', isPercent: true },
+                         { label: 'Tiri', keys: ['totalScoringAtt', 'totalscoringatt', 'total_scoring_att', 'shots'], color: 'text-white' },
+                         { label: 'Tiri in porta', keys: ['ontargetScoringAtt', 'ontargetscoringatt', 'shots_on_target', 'shots-on-goal'], color: 'text-white' },
+                         { label: 'Parate', keys: ['saves', 'saves_total', 'savesTotal', 'total_saves'], color: 'text-white' },
+                         { label: 'Passaggi', keys: ['totalPass', 'totalpass', 'total-passes', 'pass-attempts'], color: 'text-white' },
+                         { label: 'Acc%', keys: ['passing-accuracy-perc', 'accurate-pass-perc', 'passingaccuracyperc'], color: 'text-white', isPercent: true },
                          { label: 'Passaggi chiave', keys: ['keypass', 'key-passes', 'chances-created'], color: 'text-white' },
                          { label: 'Duelli vinti', keys: ['duels-won', 'duelWon', 'woncontest'], color: 'text-white' },
-                         { label: 'Contrasti', keys: ['totaltackle', 'tackles-total'], color: 'text-white' },
-                         { label: 'Intercetti', keys: ['interception', 'interceptions'], color: 'text-white' },
-                         { label: 'Dribbling riusciti', keys: ['succdribblingperc', 'dribbling-successful'], color: 'text-white' },
+                         { label: 'Contrasti', keys: ['totaltackle', 'tackles-total', 'tackles'], color: 'text-white' },
+                         { label: 'Intercetti', keys: ['interception', 'interceptions', 'held-interceptions'], color: 'text-white' },
+                         { label: 'Dribbling', keys: ['succdribblingperc', 'dribbling-successful'], color: 'text-white' },
                          { label: 'Falli', keys: ['fouls', 'foulsconceded', 'fouls_committed'], color: 'text-white' },
                          { label: 'Amm.', keys: ['yellow-cards', 'yellowCard', 'totalYellowCard'], isEventCount: true, type: 'yellow-card', icon: '🟨' },
                          { label: 'Esp.', keys: ['red-cards', 'redCard', 'totalRedCard'], isEventCount: true, type: 'red-card', icon: '🟥' }
