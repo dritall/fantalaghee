@@ -80,8 +80,17 @@ const getTeamLogoUrl = (team: any) => {
   
   const teamName = team.name || team.shortName || team.officialName;
   const normalized = normalizeTeamName(teamName);
+
+  if (team.teamId || team.id || team.providerId) {
+    const rawId = team.teamId || team.id || team.providerId;
+    if (team.imagery?.teamLogoLight) return resolveImageUrl(team.imagery.teamLogoLight);
+    
+    const idToUse = typeof rawId === 'string' && rawId.includes('::') ? rawId.split('::').pop() : rawId;
+    // Preferiamo il `_light` anche calcolato
+    return `https://img.legaseriea.it/vimages/clubLogos/${idToUse}_light.webp`;
+  }
   
-  // Prefer Transfermarkt stable logo if available to prevent API 404 spam.
+  // Prefer Transfermarkt stable logo if available as a fallback
   if (normalized && TEAM_LOGOS[normalized]) {
     return TEAM_LOGOS[normalized];
   }
@@ -89,20 +98,10 @@ const getTeamLogoUrl = (team: any) => {
     return TEAM_LOGOS[teamName];
   }
 
-  if (team.teamId || team.id || team.providerId) {
-    const rawId = team.teamId || team.id || team.providerId;
-    // se l'id contiene prefix, lo usiamo così (è già validato come ID?) No, di solito è l'UUID.
-    // L'API ritorna imagery.teamLogo, usiamo quello se c'è
-    if (team.imagery?.teamLogo) {
-       return resolveImageUrl(team.imagery.teamLogo);
-    }
-    // Fallback costruttivista come richiesto
-    const idToUse = typeof rawId === 'string' && rawId.includes('::') ? rawId.split('::').pop() : rawId;
-    return `https://img.legaseriea.it/vimages/clubLogos/${idToUse}.webp`;
-  }
+  if (team.imagery?.teamLogo) return resolveImageUrl(team.imagery.teamLogo);
 
-  const raw1 = team.teamLogo;
-  const raw2 = team.teamLogoLight;
+  const raw1 = team.teamLogoLight;
+  const raw2 = team.teamLogo;
   const raw3 = team.teamImage || team.logo;
 
   const resolved = resolveImageUrl(raw1) || resolveImageUrl(raw2) || resolveImageUrl(raw3);
@@ -388,7 +387,13 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   const [matchDetailsError, setMatchDetailsError] = useState<string | null>(null);
   const [loadingModal, setLoadingModal]     = useState(false);
   const [modalTab, setModalTab]             = useState('eventi');
+  const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const modalScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    modalScrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [modalTab]);
 
   useEffect(() => {
     fetch('/api/football?endpoint=standings')
@@ -445,7 +450,29 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   }, []);
 
 
-  useEffect(() => { loadRound(30); }, [loadRound]);
+  useEffect(() => {
+    fetch('/api/football?endpoint=matchdays')
+      .then(r => r.json())
+      .then(res => {
+         const matchdays = res.data || [];
+         const live = matchdays.find((md: any) => md.matchdayStatus === "Playing");
+         const lastPlayed = matchdays
+           .filter((md: any) => md.matchdayStatus === "Played")
+           .sort((a: any, b: any) => new Date(b.endDateUtc).getTime() - new Date(a.endDateUtc).getTime())[0];
+         const nextScheduled = matchdays
+           .filter((md: any) => md.matchdayStatus === "Scheduled")
+           .sort((a: any, b: any) => new Date(a.startDateUtc).getTime() - new Date(b.startDateUtc).getTime())[0];
+         
+         const active = live || lastPlayed || nextScheduled;
+         if (active && active.round) {
+            setSelectedRound(active.round);
+            loadRound(active.round);
+         } else {
+            loadRound(30);
+         }
+      })
+      .catch(() => loadRound(30));
+  }, [loadRound]);
 
   const handleRoundChange = (r: number) => {
     setSelectedRound(r);
@@ -780,24 +807,46 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       const foundKey = findKey(aliases);
       if (foundKey) {
         const stat = map[foundKey];
-        const isPercent = foundKey.includes('percentage') || foundKey.includes('perc') || String(stat.label).includes('%') || foundKey.includes('possession') || (stat.home <= 100 && stat.away <= 100 && (Math.abs(stat.home + stat.away - 100) < 0.1));
+        const isPercent = foundKey.includes('percentage') || foundKey.includes('perc') || String(stat.label).includes('%') || foundKey.includes('possession');
         return { ...stat, label, isPercent };
       }
       return null;
     };
 
+    let possessionStat = find(['possessionpercentage', 'possession_percentage', 'possession-percentage', 'possession'], 'Possesso Palla');
+    if (!possessionStat) {
+        const possSeconds = findKey(['possessiontime', 'possession_time', 'time_possession']);
+        if (possSeconds && map[possSeconds]) {
+            const hInfo = map[possSeconds].home;
+            const aInfo = map[possSeconds].away;
+            const total = hInfo + aInfo;
+            if (total > 0) possessionStat = { label: 'Possesso Palla', home: Math.round(hInfo/total * 100), away: Math.round(aInfo/total * 100), isPercent: true };
+        }
+    }
+
+    let passAccStat = find(['accuratepassespercentage', 'accurate_passes_percentage', 'pass_accuracy', 'passes_accuracy'], 'Precisione Passaggi');
+    if (!passAccStat) {
+        const accPassInfo = find(['accuratepasses', 'accurate_passes'], 'accp');
+        const totPassInfo = find(['passes', 'total_passes', 'totalpasses'], 'totp');
+        if (accPassInfo && totPassInfo) {
+           const h = totPassInfo.home > 0 ? Math.round((accPassInfo.home / totPassInfo.home) * 100) : 0;
+           const a = totPassInfo.away > 0 ? Math.round((accPassInfo.away / totPassInfo.away) * 100) : 0;
+           passAccStat = { label: 'Precisione Passaggi', home: h, away: a, isPercent: true };
+        }
+    }
+
     const attack = [
-      find(['shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri Totali'),
-      find(['shots-on-target', 'shots_on_target', 'ontarget_scoring_att', 'on_target', 'shots_on_goal'], 'Tiri in Porta'),
-      find(['expected-goals', 'expected_goals', 'xg'], 'Expected Goals (xG)'),
-      find(['big-chances', 'big_chances', 'clear_chances'], 'Grandi Occasioni'),
+      find(['totalshots', 'shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri Totali'),
+      find(['shotsontarget', 'ontargetscoringatt', 'shots-on-target', 'on_target_scoring_att'], 'Tiri in Porta'),
+      find(['expectedgoals', 'xg', 'expected_goals'], 'Expected Goals (xG)'),
+      find(['bigchances', 'big_chances', 'clear_chances'], 'Grandi Occasioni'),
     ].filter(Boolean);
 
     const possession = [
-      find(['possession', 'possession-percentage', 'ball_possession', 'possession_percentage'], 'Possesso Palla'),
-      find(['passes', 'total_passes'], 'Passaggi Totali'),
-      find(['accurate-pass-percentage', 'pass_accuracy', 'accurate_pass_percentage', 'passes_accuracy'], 'Precisione Passaggi'),
-      find(['key-passes', 'key_passes'], 'Key Passes'),
+      possessionStat,
+      find(['passes', 'total_passes', 'totalpasses'], 'Passaggi Totali'),
+      passAccStat,
+      find(['keypasses', 'key_passes'], 'Key Passes'),
       find(['crosses', 'total_cross'], 'Cross'),
     ].filter(Boolean);
 
@@ -1037,7 +1086,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#050505]">
+            <div ref={modalScrollRef} className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#050505]">
               {loadingModal ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <div className="relative">
@@ -1065,31 +1114,69 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                     if (!statsGroups) return <div className="py-24 text-center"><span className="text-[10px] text-zinc-600 font-black tracking-widest uppercase">Nessuna statistica disponibile</span></div>;
 
                     const StatRow = ({ stat }: { stat: any }) => {
-                      if (stat.home == null && stat.away == null) return null;
-                      const hasHome = typeof stat.home === 'number' && !isNaN(stat.home);
-                      const hasAway = typeof stat.away === 'number' && !isNaN(stat.away);
-                      if (!hasHome && !hasAway) return null;
+                      const hVal = stat.home;
+                      const aVal = stat.away;
+                      
+                      if ((hVal === null || hVal === undefined) && (aVal === null || aVal === undefined)) return null;
+                      if ((hVal === 0 || hVal === '0') && (aVal === 0 || aVal === '0')) return null;
 
+                      const hasHome = typeof hVal === 'number' && !isNaN(hVal);
+                      const hasAway = typeof aVal === 'number' && !isNaN(aVal);
+                      
+                      const homeColor = modalFixture.homeTeam?.color || modalFixture.home?.color || 'rgba(255, 255, 255, 0.85)';
+                      const awayColor = modalFixture.awayTeam?.color || modalFixture.away?.color || 'rgba(160, 160, 160, 0.65)';
+
+                      let homePct = 50;
+                      let awayPct = 50;
                       const isPerc = stat.isPercent;
+
+                      if (isPerc) {
+                         homePct = hVal || 0;
+                         awayPct = aVal || 0;
+                      } else {
+                         const total = (hVal || 0) + (aVal || 0);
+                         if (total > 0) {
+                            homePct = (hVal / total) * 100;
+                            awayPct = (aVal / total) * 100;
+                         }
+                      }
+
                       return (
-                        <div className="flex justify-between items-center py-4 border-b border-white/5 group hover:bg-white/5 px-4 transition-colors last:border-0 relative">
-                          <div className="absolute inset-y-0 left-0 w-1 bg-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          <span className={`text-sm md:text-base font-black w-24 text-center ${stat.home > stat.away && stat.home > 0 ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]' : 'text-zinc-300'}`}>
-                            {hasHome ? `${stat.home}${isPerc ? '%' : ''}` : '-'}
-                          </span>
-                          <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.25em] text-zinc-500 group-hover:text-white transition-colors text-center px-4 flex-1">
-                             {stat.label}
-                          </span>
-                          <span className={`text-sm md:text-base font-black w-24 text-center ${stat.away > stat.home && stat.away > 0 ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' : 'text-zinc-300'}`}>
-                            {hasAway ? `${stat.away}${isPerc ? '%' : ''}` : '-'}
-                          </span>
+                        <div className="flex flex-col py-4 border-b border-white/5 group hover:bg-white/5 px-4 transition-colors last:border-0 relative">
+                          <div className="flex justify-between items-center mb-2">
+                             <span className="text-sm md:text-base font-black w-24 text-left" style={{ color: hVal > aVal ? homeColor : '#cbd5e1' }}>
+                               {hasHome ? `${hVal}${isPerc ? '%' : ''}` : '-'}
+                             </span>
+                             <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.25em] text-zinc-500 group-hover:text-white transition-colors text-center px-4 flex-1">
+                                {stat.label}
+                             </span>
+                             <span className="text-sm md:text-base font-black w-24 text-right" style={{ color: aVal > hVal ? awayColor : '#cbd5e1' }}>
+                               {hasAway ? `${aVal}${isPerc ? '%' : ''}` : '-'}
+                             </span>
+                          </div>
+                          
+                          <div className="flex items-center w-full max-w-[280px] mx-auto opacity-80 group-hover:opacity-100 transition-opacity">
+                             <div className="flex-1 h-[6px] bg-white/10 rounded-l-full overflow-hidden flex justify-end">
+                                <div className="h-full rounded-l-full" style={{ width: `${homePct}%`, backgroundColor: homeColor }} />
+                             </div>
+                             <div className="w-1 h-full bg-transparent" />
+                             <div className="flex-1 h-[6px] bg-white/10 rounded-r-full overflow-hidden flex justify-start">
+                                <div className="h-full rounded-r-full" style={{ width: `${awayPct}%`, backgroundColor: awayColor }} />
+                             </div>
+                          </div>
                         </div>
                       );
                     };
 
                     const StatGroup = ({ title, stats, iconColor }: { title: string, stats: any[], iconColor: string }) => {
                       if (!stats || stats.length === 0) return null;
-                      const validStats = stats.filter(s => (typeof s.home === 'number' && !isNaN(s.home)) || (typeof s.away === 'number' && !isNaN(s.away)));
+                      const validStats = stats.filter(s => {
+                         const h = s.home;
+                         const a = s.away;
+                         if ((h === null || h === undefined) && (a === null || a === undefined)) return false;
+                         if ((h === 0 || h === '0') && (a === 0 || a === '0')) return false;
+                         return (typeof h === 'number' && !isNaN(h)) || (typeof a === 'number' && !isNaN(a));
+                      });
                       if (validStats.length === 0) return null;
 
                       return (
@@ -1255,18 +1342,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
                        const metrics = [
                          { label: 'Minuti', keys: ['mins_played', 'minutesPlayed', 'minutes_played', 'minsPlayed'], color: 'text-zinc-500' },
-                         { label: 'Gol', keys: ['goals', 'goal'], isEventCount: true, type: 'goal', color: 'text-cyan-400' },
-                         { label: 'Assist', keys: ['goal_assist', 'assists', 'assist', 'goalAssist'], color: 'text-emerald-400' },
-                         { label: 'Tiri', keys: ['total_scoring_att', 'shots', 'total_shots', 'shots_total', 'totalScoringAtt'], color: 'text-white' },
-                         { label: 'Tiri P.', keys: ['ontarget_scoring_att', 'shots_on_target', 'shots-on-target', 'shotsOnTarget', 'ontargetScoringAtt'], color: 'text-zinc-300' },
-                         { label: 'Occasioni', keys: ['big_chance_created', 'chances_created', 'key_passes', 'keyPasses'], color: 'text-yellow-400' },
-                         { label: 'Passaggi', keys: ['total_pass', 'total_passes', 'passes', 'totalPass'], color: 'text-white' },
-                         { label: 'Pass. %', keys: ['accurate_pass_percentage', 'passes_accuracy', 'pass_accuracy', 'passAcc', 'accurate_pass'], applyPerc: true, color: 'text-zinc-400' },
-                         { label: 'Tocchi', keys: ['touches', 'ball_recovery', 'ballRecovery'], color: 'text-zinc-400' },
-                         { label: 'Duelli V.', keys: ['won_contest', 'duelsWon', 'duels_won', 'duels-won', 'duelWon'], color: 'text-white' },
-                         { label: 'Tackle', keys: ['total_tackle', 'tackles', 'tackle', 'totalTackle'], color: 'text-white' },
-                         { label: 'Falli', keys: ['fouls_committed', 'fouls_total', 'fouls', 'foulsCommitted'], color: 'text-red-400' },
-                         { label: 'Parate', keys: ['saves', 'total_saves', 'saves_total', 'savesTotal'], color: 'text-orange-400', roleLimit: 1 },
+                         { label: 'Gol', keys: ['goals', 'goal'], isEventCount: true, type: 'goal', color: 'text-cyan-400', showZero: true },
+                         { label: 'Assist', keys: ['goal_assist', 'assists', 'assist', 'goalAssist'], color: 'text-emerald-400', showZero: true },
+                         { label: 'Ammonito', keys: [], isEventCount: true, type: 'yellow-card', icon: '🟨' },
+                         { label: 'Espulso', keys: [], isEventCount: true, type: 'red-card', icon: '🟥' },
+                         { label: 'Voto', keys: ['rating', 'match_rating', 'playerRating'], color: 'text-white' }
                        ];
 
                        const visibleMetrics = metrics.filter(m => {
@@ -1291,7 +1371,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                  <tr className="border-b border-white/10 text-[8.5px] uppercase tracking-[0.2em] text-zinc-500 font-black">
                                    <th className="py-3 px-3 sticky left-0 bg-[#0c1210] z-10 w-48 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">Giocatore</th>
                                    {visibleMetrics.map((m, i) => (
-                                     <th key={i} className={`py-3 px-3 text-center ${m.color}`}>{m.label}</th>
+                                     <th key={i} className={`py-3 px-3 text-center ${m.color || ''}`}>{m.label}</th>
                                    ))}
                                  </tr>
                                </thead>
@@ -1301,7 +1381,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                    const red = p.events?.some((e: any) => e.type === 'red-card');
                                    
                                    return (
-                                     <tr key={p.playerId || p.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
+                                     <tr key={p.playerId || p.id} onClick={() => setSelectedPlayer({ p, teamName, getStatVal })} className="cursor-pointer border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
                                        <td className="py-3 px-3 sticky left-0 bg-[#0a0f0d] group-hover:bg-[#111815] transition-colors z-10 font-black uppercase tracking-wider text-white flex items-center gap-3 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                                          <div className="w-6 h-6 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] shrink-0 text-zinc-400">
                                            {p.jerseyNumber || '-'}
@@ -1318,29 +1398,20 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                        </td>
                                        {visibleMetrics.map((m, i) => {
                                          let val: any = '-';
+                                         let isZeroOutput = false;
                                          if (m.isEventCount) {
                                            const count = p.events?.filter((e: any) => e.type.match(new RegExp(m.type!)) && e.type !== 'own-goal').length || 0;
-                                           val = count > 0 ? count : '-';
+                                           val = count > 0 ? (m.icon ? m.icon : count) : '-';
+                                           if (count === 0 && m.showZero) { val = '-'; isZeroOutput = true; }
                                          } else {
-                                            if (!m.roleLimit || p.role === m.roleLimit) {
-                                              let rawVal = getStatVal(p, m.keys);
-                                              
-                                              // Check if we need to compute passing accuracy explicitly as an exception
-                                              if (rawVal === null && m.keys.includes('passAcc')) {
-                                                 const accuratePass = getStatVal(p, ['accuratePass', 'accurate_pass']);
-                                                 const totalPass = getStatVal(p, ['totalPass', 'total_pass']);
-                                                 if (accuratePass != null && totalPass != null && totalPass > 0) {
-                                                    rawVal = Math.round((accuratePass / totalPass) * 100);
-                                                 }
-                                              }
-
-                                              if (rawVal !== null && rawVal !== undefined) {
-                                                val = m.applyPerc && String(rawVal).indexOf('%')===-1 ? `${rawVal}%` : rawVal;
-                                              }
-                                            }
+                                           let rawVal = getStatVal(p, m.keys);
+                                           if (rawVal !== null && rawVal !== undefined) {
+                                              if (rawVal == 0 && !m.showZero) val = '';
+                                              else { val = rawVal; isZeroOutput = rawVal == 0; }
+                                           }
                                          }
                                          return (
-                                           <td key={i} className={`py-3 px-3 text-center font-bold ${val!=='-' ? m.color : 'text-zinc-600'}`}>{val}</td>
+                                           <td key={i} className={`py-3 px-3 text-center font-bold ${val!=='-' && !isZeroOutput ? m.color : 'text-zinc-600'}`}>{val}</td>
                                          );
                                        })}
                                      </tr>
@@ -1372,8 +1443,100 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                        return <div className="py-24 text-center"><span className="text-[10px] text-zinc-600 font-black tracking-widest uppercase">Statistiche giocatori non disponibili</span></div>;
                      }
 
+                     const renderSubModal = () => {
+                       if (!selectedPlayer) return null;
+                       const { p, teamName, getStatVal } = selectedPlayer;
+                       
+                       const grp = (title: string, metrics: Array<{label:string, keys:string[], applyPerc?:boolean}>) => {
+                          const validStats = metrics.map(m => {
+                            let val = getStatVal(p, m.keys);
+                            if (val === null && m.keys.includes('passAcc')) {
+                               const accuratePass = getStatVal(p, ['accuratePass', 'accurate_pass']);
+                               const totalPass = getStatVal(p, ['totalPass', 'total_pass']);
+                               if (accuratePass != null && totalPass != null && totalPass > 0) {
+                                  val = Math.round((accuratePass / totalPass) * 100);
+                               }
+                            }
+                            if (val != null) {
+                               return { label: m.label, value: m.applyPerc && String(val).indexOf('%')===-1 ? `${val}%` : val };
+                            }
+                            return null;
+                          }).filter(Boolean);
+                          if (validStats.length === 0) return null;
+                          return (
+                            <div className="mb-6 last:mb-0">
+                               <h5 className="text-[10px] font-black uppercase text-zinc-500 tracking-widest border-b border-white/5 pb-2 mb-3">{title}</h5>
+                               <div className="space-y-2">
+                                 {validStats.map((s: any, idx: number) => (
+                                    <div key={idx} className="flex justify-between items-center bg-white/5 p-2 px-3 rounded text-[11px] font-bold">
+                                       <span className="text-zinc-400">{s.label}</span>
+                                       <span className="text-white">{s.value}</span>
+                                    </div>
+                                 ))}
+                               </div>
+                            </div>
+                          );
+                       };
+
+                       return (
+                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedPlayer(null)}>
+                           <div className="bg-[#0a0f0d] border border-white/10 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                              <div className="flex justify-between items-center p-6 border-b border-white/5 bg-white/5">
+                                 <div className="flex items-center gap-4">
+                                   <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center text-sm font-black text-white">
+                                     {p.jerseyNumber || '-'}
+                                   </div>
+                                   <div className="flex flex-col">
+                                      <span className="text-sm font-black text-white uppercase tracking-wider">{p.displayName || p.shortName}</span>
+                                      <span className="text-[9px] text-zinc-500 tracking-widest uppercase">{p.position || p.role || teamName}</span>
+                                   </div>
+                                 </div>
+                                 <button onClick={() => setSelectedPlayer(null)} className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors">
+                                   ✕
+                                 </button>
+                              </div>
+                              <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                                 {grp('Attacco', [
+                                   { label: 'Gol', keys: ['goals', 'goal'] },
+                                   { label: 'Tiri Totali', keys: ['total_scoring_att', 'shots', 'total_shots', 'shots_total', 'totalScoringAtt'] },
+                                   { label: 'Tiri in Porta', keys: ['ontarget_scoring_att', 'shots_on_target', 'shotsOnTarget', 'ontargetScoringAtt'] },
+                                   { label: 'Fuorigioco', keys: ['total_offside', 'offsides', 'offside'] }
+                                 ])}
+                                 {grp('Passaggi', [
+                                   { label: 'Assist', keys: ['goal_assist', 'assists', 'assist', 'goalAssist'] },
+                                   { label: 'Occasioni Create', keys: ['big_chance_created', 'chances_created', 'key_passes', 'keyPasses'] },
+                                   { label: 'Passaggi Totali', keys: ['total_pass', 'total_passes', 'passes', 'totalPass'] },
+                                   { label: 'Passaggi Riusciti', keys: ['accurate_pass', 'accuratePass', 'accuratePasses'] },
+                                   { label: 'Precisione Passaggi', keys: ['accurate_pass_percentage', 'passes_accuracy', 'pass_accuracy', 'passAcc', 'accurate_pass'], applyPerc: true }
+                                 ])}
+                                 {grp('Difesa', [
+                                   { label: 'Tackle', keys: ['total_tackle', 'tackles', 'tackle', 'totalTackle'] },
+                                   { label: 'Intercetti', keys: ['interceptions', 'interception', 'interceptionWon'] },
+                                   { label: 'Spazzate', keys: ['effective_clearance', 'clearances', 'clearance', 'totalClearance'] },
+                                   { label: 'Tiri Rimpallati', keys: ['blocked_scoring_att', 'blocked_shots', 'blockedShots'] },
+                                   { label: 'Parate', keys: ['saves', 'saves_total', 'savesTotal'] }
+                                 ])}
+                                 {grp('Disciplina', [
+                                   { label: 'Ammonizioni', keys: ['yellow_card', 'yellowCards'] },
+                                   { label: 'Espulsioni', keys: ['red_card', 'redCards'] },
+                                   { label: 'Falli Commessi', keys: ['fouls_committed', 'fouls', 'foulsCommitted'] },
+                                   { label: 'Falli Subiti', keys: ['was_fouled', 'fouls_drawn', 'foulsWon', 'foulsSuffered'] }
+                                 ])}
+                                 {grp('Fisico', [
+                                   { label: 'Minuti Giocati', keys: ['mins_played', 'minutesPlayed', 'minutes_played'] },
+                                   { label: 'Duelli Totali', keys: ['duel', 'duels_total', 'totalDuels', 'duelTotal'] },
+                                   { label: 'Duelli Vinti', keys: ['won_contest', 'duelsWon', 'duels_won', 'duelWon'] },
+                                   { label: 'Duelli Aerei', keys: ['aerial_won', 'aerialsWon', 'aerialWon'] }
+                                 ])}
+                              </div>
+                           </div>
+                         </div>
+                       );
+                     };
+
                      return (
                        <section className="relative px-0">
+                         {renderSubModal()}
                          <PlayerStatsTable players={homeRos} teamName={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} />
                          <PlayerStatsTable players={awayRos} teamName={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} />
                        </section>

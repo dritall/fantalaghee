@@ -134,6 +134,41 @@ export async function GET(request: Request) {
       );
     }
 
+    if (endpoint === 'matchdays') {
+      const data = await legaFetch(`${BASE}/matches?locale=it-IT`);
+      const matches = data?.matches || [];
+      const matchsetsMap: Record<number, any> = {};
+
+      matches.forEach((m: any) => {
+        const ms = m.matchSet;
+        if (ms) {
+          const round = extractRoundNumber(ms.name) || extractRoundNumber(ms.providerId);
+          if (round) {
+            if (!matchsetsMap[round]) {
+               matchsetsMap[round] = {
+                 round,
+                 matchdayStatus: ms.matchdayStatus,
+                 startDateUtc: ms.startDateUtc,
+                 endDateUtc: ms.endDateUtc,
+                 matchesHasLive: false,
+               };
+            }
+            if (m.status === 'LIVE' || m.matchStatus === 'LIVE') {
+              matchsetsMap[round].matchesHasLive = true;
+            }
+          }
+        }
+      });
+      
+      const out = Object.values(matchsetsMap).map((ms: any) => {
+        if (ms.matchesHasLive) ms.matchdayStatus = 'Playing';
+        delete ms.matchesHasLive;
+        return ms;
+      });
+
+      return NextResponse.json({ ok: true, data: out }, { headers: { 'Cache-Control': 'public, s-maxage=3600' } });
+    }
+
     if (endpoint === 'matches') {
       const round = parseInt(searchParams.get('round') || '30', 10);
       if (round < 1 || round > 38) {
@@ -191,7 +226,7 @@ export async function GET(request: Request) {
         legaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`),
         legaFetch(`${BASE}/matches/${enc}/lineups?locale=it-IT`),
         legaFetch(`${BASE}/match/${enc}/action?locale=it-IT`).catch(() => legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`)),
-        legaFetch(`${BASE}/match/${enc}/summary?locale=it-IT`).catch(() => legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`)),
+        legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`),
       ]);
 
       return NextResponse.json(

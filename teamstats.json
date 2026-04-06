@@ -1,0 +1,2210 @@
+{
+  "stats": [
+    {
+      "statsId": "last15-possession-perc",
+      "statsLabel": "Last 15 Possession %",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "possession-perc",
+      "statsLabel": "Possession %",
+      "statsValueHome": 58,
+      "statsValueAway": 42
+    },
+    {
+      "statsId": "shots",
+      "statsLabel": "Shots",
+      "statsValueHome": 5,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "big-chances",
+      "statsLabel": "Big Chances",
+      "statsValueHome": 2,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "blocked-shots",
+      "statsLabel": "Blocked Shots",
+      "statsValueHome": 1,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "chances-created",
+      "statsLabel": "Chances Created",
+      "statsValueHome": 4,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "total-passes",
+      "statsLabel": "Total Passes",
+      "statsValueHome": 468,
+      "statsValueAway": 330
+    },
+    {
+      "statsId": "passing-accuracy-perc",
+      "statsLabel": "Passing Accuracy %",
+      "statsValueHome": 79,
+      "statsValueAway": 70
+    },
+    {
+      "statsId": "corners",
+      "statsLabel": "Corners",
+      "statsValueHome": 3,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "crosses",
+      "statsLabel": "Crosses",
+      "statsValueHome": 12,
+      "statsValueAway": 23
+    },
+    {
+      "statsId": "offsides",
+      "statsLabel": "Offsides",
+      "statsValueHome": 0,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "duels-won",
+      "statsLabel": "Duels Won",
+      "statsValueHome": 27,
+      "statsValueAway": 33
+    },
+    {
+      "statsId": "saves",
+      "statsLabel": "Saves",
+      "statsValueHome": 0,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "clearences",
+      "statsLabel": "Clearances",
+      "statsValueHome": 20,
+      "statsValueAway": 9
+    },
+    {
+      "statsId": "fouls",
+      "statsLabel": "Fouls",
+      "statsValueHome": 16,
+      "statsValueAway": 13
+    },
+    {
+      "statsId": "yellow-cards",
+      "statsLabel": "Yellow Cards",
+      "statsValueHome": 2,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "red-cards",
+      "statsLabel": "Red Cards",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "penalty-goals",
+      "statsLabel": "Penalty Goals",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "own-goals",
+      "statsLabel": "Own Goals",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "throw-ins",
+      "statsLabel": "Throw Ins",
+      "statsValueHome": 19,
+      "statsValueAway": 28
+    },
+    {
+      "statsId": "pass-attempts",
+      "statsLabel": "Pass Attempts",
+      "statsValueHome": 468,
+      "statsValueAway": 330
+    },
+    {
+      "statsId": "goals-scored",
+      "statsLabel": "Goals Scored",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsUnit": "kilometeres",
+      "statsUnitAbbreviation": "km",
+      "statsId": "distance-covered",
+      "statsLabel": "Distance Covered",
+      "statsValueHome": 111.66921,
+      "statsValueAway": 110.54096
+    },
+    {
+      "statsId": "expected-goals",
+      "statsLabel": "Expected Goals",
+      "statsValueHome": 0.589,
+      "statsValueAway": 0.474
+    },
+    {
+      "statsId": "expected-goals-efficiency",
+      "statsLabel": "Expected Goals Efficiency",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "assists",
+      "statsLabel": "Assists",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "shots-faced",
+      "statsLabel": "Shots Faced",
+      "statsValueHome": 5,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "free-kicks",
+      "statsLabel": "FreeKicks",
+      "statsValueHome": 15,
+      "statsValueAway": 14
+    },
+    {
+      "statsId": "crosses-successful",
+      "statsLabel": "Crosses Successful",
+      "statsValueHome": 0,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "shots-at-goal-inside-box",
+      "statsLabel": "Shots At Goal Inside Box",
+      "statsValueHome": 2,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "shots-at-goal-outside-box",
+      "statsLabel": "Shots At Goal Outside Box",
+      "statsValueHome": 3,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "missed-passes",
+      "statsLabel": "Missed Passes",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "held-interceptions",
+      "statsLabel": "Held Interceptions",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "fisted-interceptions",
+      "statsLabel": "Fisted Interceptions",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "crosses-intercepted",
+      "statsLabel": "Crosses Intercepted",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "total-goalkeeper-interceptions",
+      "statsLabel": "Total Goalkeeper Interceptions",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsUnit": "kilometres per hour",
+      "statsUnitAbbreviation": "km/h",
+      "statsId": "maximum-speed",
+      "statsLabel": "Maximum Speed",
+      "statsValueHome": 33.9768262088974,
+      "statsValueAway": 34.3624277216054
+    },
+    {
+      "statsId": "shots-on-goal",
+      "statsLabel": "Shots on Goal",
+      "statsValueHome": 2,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "counter-attacks",
+      "statsLabel": "Counter Attacks",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "tackles-total",
+      "statsLabel": "Tackles Total",
+      "statsValueHome": 24,
+      "statsValueAway": 15
+    },
+    {
+      "statsId": "passes-completed",
+      "statsLabel": "Passes Completed",
+      "statsValueHome": 372,
+      "statsValueAway": 234
+    },
+    {
+      "statsId": "key-passes",
+      "statsLabel": "Key Passes",
+      "statsValueHome": 4,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "tackles-successful",
+      "statsLabel": "Tackles Successful",
+      "statsValueHome": 10,
+      "statsValueAway": 4
+    },
+    {
+      "statsId": "sprints",
+      "statsLabel": "Sprints",
+      "statsValueHome": 118,
+      "statsValueAway": 120
+    },
+    {
+      "statsUnit": "kilometeres",
+      "statsUnitAbbreviation": "km",
+      "statsId": "distance-covered-jogging",
+      "statsLabel": "Distance Covered Jogging",
+      "statsValueHome": 45.11979,
+      "statsValueAway": 44.21621
+    },
+    {
+      "statsUnit": "kilometeres",
+      "statsUnitAbbreviation": "km",
+      "statsId": "distance-covered-low-intensity-running",
+      "statsLabel": "Distance Covered Low Intensity Running",
+      "statsValueHome": 16.74574,
+      "statsValueAway": 15.09429
+    },
+    {
+      "statsUnit": "kilometeres",
+      "statsUnitAbbreviation": "km",
+      "statsId": "distance-covered-high-intensity-running",
+      "statsLabel": "Distance Covered High Intensity Running",
+      "statsValueHome": 5.90127,
+      "statsValueAway": 5.33019
+    },
+    {
+      "statsUnit": "kilometeres",
+      "statsUnitAbbreviation": "km",
+      "statsId": "distance-covered-sprinting",
+      "statsLabel": "Distance Covered Sprinting",
+      "statsValueHome": 1.71665,
+      "statsValueAway": 1.87449
+    },
+    {
+      "statsUnit": "kilometeres",
+      "statsUnitAbbreviation": "km",
+      "statsId": "distance-covered-walking",
+      "statsLabel": "Distance Covered Walking",
+      "statsValueHome": 41.30282,
+      "statsValueAway": 43.18149
+    },
+    {
+      "statsUnit": "kilometeres",
+      "statsUnitAbbreviation": "km",
+      "statsId": "distance-covered-standing",
+      "statsLabel": "Distance Covered Standing",
+      "statsValueHome": 0.88294,
+      "statsValueAway": 0.84428
+    },
+    {
+      "statsUnit": "kilometres per hour",
+      "statsUnitAbbreviation": "km/h",
+      "statsId": "average-speed-jogging",
+      "statsLabel": "AverageSpeed Jogging",
+      "statsValueHome": 10.6325430191625,
+      "statsValueAway": 10.5310536637184
+    },
+    {
+      "statsUnit": "kilometres per hour",
+      "statsUnitAbbreviation": "km/h",
+      "statsId": "average-speed-low-intensity-running",
+      "statsLabel": "AverageSpeed Low Intensity Running",
+      "statsValueHome": 16.9707146955172,
+      "statsValueAway": 16.9620496567163
+    },
+    {
+      "statsUnit": "kilometres per hour",
+      "statsUnitAbbreviation": "km/h",
+      "statsId": "average-speed-high-intensity-running",
+      "statsLabel": "AverageSpeed High Intensity Running",
+      "statsValueHome": 21.7611977968346,
+      "statsValueAway": 21.7612915499226
+    },
+    {
+      "statsUnit": "kilometres per hour",
+      "statsUnitAbbreviation": "km/h",
+      "statsId": "average-speed-sprinting",
+      "statsLabel": "AverageSpeed Sprinting",
+      "statsValueHome": 26.8125337722519,
+      "statsValueAway": 27.0463765210171
+    },
+    {
+      "statsUnit": "kilometres per hour",
+      "statsUnitAbbreviation": "km/h",
+      "statsId": "average-speed-walking",
+      "statsLabel": "AverageSpeed Walking",
+      "statsValueHome": 3.96717345627822,
+      "statsValueAway": 3.97767625097352
+    },
+    {
+      "statsUnit": "kilometres per hour",
+      "statsUnitAbbreviation": "km/h",
+      "statsId": "average-speed-standing",
+      "statsLabel": "AverageSpeed Standing",
+      "statsValueHome": 0.516884614099376,
+      "statsValueAway": 0.567974889493793
+    },
+    {
+      "statsId": "tackles-won-perc",
+      "statsLabel": "Tackles won Percentage %",
+      "statsValueHome": 41.67,
+      "statsValueAway": 26.67
+    },
+    {
+      "statsId": "aerial-duels-won-perc",
+      "statsLabel": "Aerial Duels won Percentage %",
+      "statsValueHome": 50,
+      "statsValueAway": 50
+    },
+    {
+      "statsId": "duels-won-perc",
+      "statsLabel": "Duels won Percentage %",
+      "statsValueHome": 45,
+      "statsValueAway": 55
+    },
+    {
+      "statsId": "crosses-complete-perc",
+      "statsLabel": "Crosses complete Percentage %",
+      "statsValueHome": 0,
+      "statsValueAway": 8.7
+    },
+    {
+      "statsId": "headed-goals",
+      "statsLabel": "Headed Goals",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "points-lost-winning-position",
+      "statsLabel": "Points Lost Winning Position",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "ponits-won-losing-position",
+      "statsLabel": "Points Won Losing Position",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "touches-opponent-box",
+      "statsLabel": "Touches Opponent Box",
+      "statsValueHome": 5,
+      "statsValueAway": 9
+    },
+    {
+      "statsId": "goals-inside-box",
+      "statsLabel": "Goals Inside Box",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "goals-outside-box",
+      "statsLabel": "Goals Outside Box",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "aerial-duels-won",
+      "statsLabel": "Aerial Duels Won",
+      "statsValueHome": 18,
+      "statsValueAway": 18
+    },
+    {
+      "statsId": "fouls-suffered",
+      "statsLabel": "Fouls Suffered",
+      "statsValueHome": 13,
+      "statsValueAway": 16
+    },
+    {
+      "statsId": "accurate-pass",
+      "statsLabel": "Accurate Pass",
+      "statsValueHome": 372,
+      "statsValueAway": 234
+    },
+    {
+      "statsId": "accurate-forward-pass",
+      "statsLabel": "Accurate Forward Pass",
+      "statsValueHome": 125,
+      "statsValueAway": 100
+    },
+    {
+      "statsId": "totalPass",
+      "statsLabel": "totalPass",
+      "statsValueHome": 468,
+      "statsValueAway": 330
+    },
+    {
+      "statsId": "accuratePass",
+      "statsLabel": "accuratePass",
+      "statsValueHome": 372,
+      "statsValueAway": 234
+    },
+    {
+      "statsId": "fwdPass",
+      "statsLabel": "fwdPass",
+      "statsValueHome": 200,
+      "statsValueAway": 181
+    },
+    {
+      "statsId": "backwardPass",
+      "statsLabel": "backwardPass",
+      "statsValueHome": 92,
+      "statsValueAway": 54
+    },
+    {
+      "statsId": "totalFwdZonePass",
+      "statsLabel": "totalFwdZonePass",
+      "statsValueHome": 128,
+      "statsValueAway": 166
+    },
+    {
+      "statsId": "accurateFwdZonePass",
+      "statsLabel": "accurateFwdZonePass",
+      "statsValueHome": 98,
+      "statsValueAway": 126
+    },
+    {
+      "statsId": "totalBackZonePass",
+      "statsLabel": "totalBackZonePass",
+      "statsValueHome": 340,
+      "statsValueAway": 164
+    },
+    {
+      "statsId": "accurateBackZonePass",
+      "statsLabel": "accurateBackZonePass",
+      "statsValueHome": 274,
+      "statsValueAway": 108
+    },
+    {
+      "statsId": "totalFinalThirdPasses",
+      "statsLabel": "totalFinalThirdPasses",
+      "statsValueHome": 59,
+      "statsValueAway": 94
+    },
+    {
+      "statsId": "successfulFinalThirdPasses",
+      "statsLabel": "successfulFinalThirdPasses",
+      "statsValueHome": 50,
+      "statsValueAway": 74
+    },
+    {
+      "statsId": "totalCross",
+      "statsLabel": "totalCross",
+      "statsValueHome": 12,
+      "statsValueAway": 23
+    },
+    {
+      "statsId": "accurateCross",
+      "statsLabel": "accurateCross",
+      "statsValueHome": 0,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "Crossing Accuracy",
+      "statsLabel": "Crossing Accuracy",
+      "statsValueHome": 0,
+      "statsValueAway": 8.7
+    },
+    {
+      "statsId": "goals",
+      "statsLabel": "goals",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "goalsOpenplay",
+      "statsLabel": "goalsOpenplay",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "attFreekickGoal",
+      "statsLabel": "attFreekickGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "ownGoals",
+      "statsLabel": "ownGoals",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "attLfGoal",
+      "statsLabel": "attLfGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "attRfGoal",
+      "statsLabel": "attRfGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "attHdGoal",
+      "statsLabel": "attHdGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "attIboxGoal",
+      "statsLabel": "attIboxGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "attOboxGoal",
+      "statsLabel": "attOboxGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalScoringAtt",
+      "statsLabel": "totalScoringAtt",
+      "statsValueHome": 5,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "attOpenplay",
+      "statsLabel": "attOpenplay",
+      "statsValueHome": 4,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "attCorner",
+      "statsLabel": "attCorner",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "attSetpiece",
+      "statsLabel": "attSetpiece",
+      "statsValueHome": 1,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "attLfTotal",
+      "statsLabel": "attLfTotal",
+      "statsValueHome": 4,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "attRfTotal",
+      "statsLabel": "attRfTotal",
+      "statsValueHome": 1,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "attHdTotal",
+      "statsLabel": "attHdTotal",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "attemptsIbox",
+      "statsLabel": "attemptsIbox",
+      "statsValueHome": 2,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "attemptsObox",
+      "statsLabel": "attemptsObox",
+      "statsValueHome": 3,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "ontargetScoringAtt",
+      "statsLabel": "ontargetScoringAtt",
+      "statsValueHome": 2,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "shotOffTarget",
+      "statsLabel": "shotOffTarget",
+      "statsValueHome": 2,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "postScoringAtt",
+      "statsLabel": "postScoringAtt",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "attPostHigh",
+      "statsLabel": "attPostHigh",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "blockedScoringAtt",
+      "statsLabel": "blockedScoringAtt",
+      "statsValueHome": 1,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "expectedGoals",
+      "statsLabel": "expectedGoals",
+      "statsValueHome": 0.589,
+      "statsValueAway": 0.474
+    },
+    {
+      "statsId": "goalAssist",
+      "statsLabel": "goalAssist",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "attPenGoal",
+      "statsLabel": "attPenGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "duelWon",
+      "statsLabel": "duelWon",
+      "statsValueHome": 27,
+      "statsValueAway": 33
+    },
+    {
+      "statsId": "aerialWon",
+      "statsLabel": "aerialWon",
+      "statsValueHome": 18,
+      "statsValueAway": 18
+    },
+    {
+      "statsId": "aerialLost",
+      "statsLabel": "aerialLost",
+      "statsValueHome": 18,
+      "statsValueAway": 18
+    },
+    {
+      "statsId": "totalContest",
+      "statsLabel": "totalContest",
+      "statsValueHome": 31,
+      "statsValueAway": 15
+    },
+    {
+      "statsId": "wonContest",
+      "statsLabel": "wonContest",
+      "statsValueHome": 20,
+      "statsValueAway": 8
+    },
+    {
+      "statsId": "overrun",
+      "statsLabel": "overrun",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "fkFoulLost",
+      "statsLabel": "fkFoulLost",
+      "statsValueHome": 16,
+      "statsValueAway": 13
+    },
+    {
+      "statsId": "fkFoulWon",
+      "statsLabel": "fkFoulWon",
+      "statsValueHome": 13,
+      "statsValueAway": 16
+    },
+    {
+      "statsId": "totalOffside",
+      "statsLabel": "totalOffside",
+      "statsValueHome": 0,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "handBall",
+      "statsLabel": "handBall",
+      "statsValueHome": 1,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "attemptedTackleFoul",
+      "statsLabel": "attemptedTackleFoul",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalYellowCard",
+      "statsLabel": "totalYellowCard",
+      "statsValueHome": 2,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "secondYellow",
+      "statsLabel": "secondYellow",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalRedCard",
+      "statsLabel": "totalRedCard",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "cornerTaken",
+      "statsLabel": "cornerTaken",
+      "statsValueHome": 3,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "freekickCross",
+      "statsLabel": "freekickCross",
+      "statsValueHome": 1,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "accurateFreekickCross",
+      "statsLabel": "accurateFreekickCross",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "possLostAll",
+      "statsLabel": "possLostAll",
+      "statsValueHome": 69,
+      "statsValueAway": 72
+    },
+    {
+      "statsId": "ballRecovery",
+      "statsLabel": "ballRecovery",
+      "statsValueHome": 69,
+      "statsValueAway": 69
+    },
+    {
+      "statsId": "totalClearance",
+      "statsLabel": "totalClearance",
+      "statsValueHome": 20,
+      "statsValueAway": 9
+    },
+    {
+      "statsId": "headClearance",
+      "statsLabel": "headClearance",
+      "statsValueHome": 10,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "touchesInOppBox",
+      "statsLabel": "touchesInOppBox",
+      "statsValueHome": 5,
+      "statsValueAway": 9
+    },
+    {
+      "statsId": "saves",
+      "statsLabel": "saves",
+      "statsValueHome": 0,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "totalLongBalls",
+      "statsLabel": "totalLongBalls",
+      "statsValueHome": 76,
+      "statsValueAway": 64
+    },
+    {
+      "statsId": "accurateLongBalls",
+      "statsLabel": "accurateLongBalls",
+      "statsValueHome": 44,
+      "statsValueAway": 36
+    },
+    {
+      "statsId": "penAreaEntries",
+      "statsLabel": "penAreaEntries",
+      "statsValueHome": 7,
+      "statsValueAway": 16
+    },
+    {
+      "statsId": "bigChanceScored",
+      "statsLabel": "bigChanceScored",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "bigChanceMissed",
+      "statsLabel": "bigChanceMissed",
+      "statsValueHome": 2,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "totalThroughBall",
+      "statsLabel": "totalThroughBall",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "accurateThroughBall",
+      "statsLabel": "accurateThroughBall",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalHighClaim",
+      "statsLabel": "totalHighClaim",
+      "statsValueHome": 1,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "totalAttAssist",
+      "statsLabel": "totalAttAssist",
+      "statsValueHome": 4,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "duelLost",
+      "statsLabel": "duelLost",
+      "statsValueHome": 33,
+      "statsValueAway": 27
+    },
+    {
+      "statsId": "cleanSheet",
+      "statsLabel": "cleanSheet",
+      "statsValueHome": 1,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "totalTackle",
+      "statsLabel": "totalTackle",
+      "statsValueHome": 24,
+      "statsValueAway": 15
+    },
+    {
+      "statsId": "wonTackle",
+      "statsLabel": "wonTackle",
+      "statsValueHome": 10,
+      "statsValueAway": 4
+    },
+    {
+      "statsId": "totalThrows",
+      "statsLabel": "totalThrows",
+      "statsValueHome": 19,
+      "statsValueAway": 28
+    },
+    {
+      "statsId": "possessionPercentage",
+      "statsLabel": "possessionPercentage",
+      "statsValueHome": 58,
+      "statsValueAway": 42
+    },
+    {
+      "statsId": "accurateThrows",
+      "statsLabel": "accurateThrows",
+      "statsValueHome": 19,
+      "statsValueAway": 21
+    },
+    {
+      "statsId": "interception",
+      "statsLabel": "interception",
+      "statsValueHome": 71,
+      "statsValueAway": 56
+    },
+    {
+      "statsId": "attIboxTarget",
+      "statsLabel": "attIboxTarget",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "attOboxTarget",
+      "statsLabel": "attOboxTarget",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "subsGoals",
+      "statsLabel": "subsGoals",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "Points Won Losing Position",
+      "statsLabel": "Points Won Losing Position",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "Points Lost Winning Position",
+      "statsLabel": "Points Lost Winning Position",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "hitWoodwork",
+      "statsLabel": "hitWoodwork",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "goalsConceded",
+      "statsLabel": "goalsConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "ownGoalAccrued",
+      "statsLabel": "ownGoalAccrued",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "goalsConcededIbox",
+      "statsLabel": "goalsConcededIbox",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "goalsConcededObox",
+      "statsLabel": "goalsConcededObox",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "penaltyConceded",
+      "statsLabel": "penaltyConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "lostCorners",
+      "statsLabel": "lostCorners",
+      "statsValueHome": 7,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "accurateBackwardPass",
+      "statsLabel": "accurateBackwardPass",
+      "statsValueHome": 88,
+      "statsValueAway": 50
+    },
+    {
+      "statsId": "horizPass",
+      "statsLabel": "horizPass",
+      "statsValueHome": 176,
+      "statsValueAway": 95
+    },
+    {
+      "statsId": "accurateHorizPass",
+      "statsLabel": "accurateHorizPass",
+      "statsValueHome": 159,
+      "statsValueAway": 84
+    },
+    {
+      "statsId": "offHalfForwardPass",
+      "statsLabel": "offHalfForwardPass",
+      "statsValueHome": 54,
+      "statsValueAway": 83
+    },
+    {
+      "statsId": "accurateOffHalfForwardPass",
+      "statsLabel": "accurateOffHalfForwardPass",
+      "statsValueHome": 34,
+      "statsValueAway": 51
+    },
+    {
+      "statsId": "offHalfBackwardPass",
+      "statsLabel": "offHalfBackwardPass",
+      "statsValueHome": 30,
+      "statsValueAway": 36
+    },
+    {
+      "statsId": "accurateOffHalfBackwardPass",
+      "statsLabel": "accurateOffHalfBackwardPass",
+      "statsValueHome": 30,
+      "statsValueAway": 35
+    },
+    {
+      "statsId": "offHalfHorizPass",
+      "statsLabel": "offHalfHorizPass",
+      "statsValueHome": 44,
+      "statsValueAway": 47
+    },
+    {
+      "statsId": "accurateOffHalfHorizPass",
+      "statsLabel": "accurateOffHalfHorizPass",
+      "statsValueHome": 34,
+      "statsValueAway": 40
+    },
+    {
+      "statsId": "defHalfForwardPass",
+      "statsLabel": "defHalfForwardPass",
+      "statsValueHome": 146,
+      "statsValueAway": 98
+    },
+    {
+      "statsId": "accurateDefHalfForwardPass",
+      "statsLabel": "accurateDefHalfForwardPass",
+      "statsValueHome": 91,
+      "statsValueAway": 49
+    },
+    {
+      "statsId": "defHalfBackwardPass",
+      "statsLabel": "defHalfBackwardPass",
+      "statsValueHome": 62,
+      "statsValueAway": 18
+    },
+    {
+      "statsId": "accurateDefHalfBackwardPass",
+      "statsLabel": "accurateDefHalfBackwardPass",
+      "statsValueHome": 58,
+      "statsValueAway": 15
+    },
+    {
+      "statsId": "defHalfHorizPass",
+      "statsLabel": "defHalfHorizPass",
+      "statsValueHome": 132,
+      "statsValueAway": 48
+    },
+    {
+      "statsId": "accurateDefHalfHorizPass",
+      "statsLabel": "accurateDefHalfHorizPass",
+      "statsValueHome": 125,
+      "statsValueAway": 44
+    },
+    {
+      "statsId": "offThirdForwardPass",
+      "statsLabel": "offThirdForwardPass",
+      "statsValueHome": 20,
+      "statsValueAway": 44
+    },
+    {
+      "statsId": "accurateOffThirdForwardPass",
+      "statsLabel": "accurateOffThirdForwardPass",
+      "statsValueHome": 15,
+      "statsValueAway": 30
+    },
+    {
+      "statsId": "offThirdBackwardPass",
+      "statsLabel": "offThirdBackwardPass",
+      "statsValueHome": 14,
+      "statsValueAway": 24
+    },
+    {
+      "statsId": "accurateOffThirdBackwardPass",
+      "statsLabel": "accurateOffThirdBackwardPass",
+      "statsValueHome": 14,
+      "statsValueAway": 23
+    },
+    {
+      "statsId": "offThirdHorizPass",
+      "statsLabel": "offThirdHorizPass",
+      "statsValueHome": 25,
+      "statsValueAway": 26
+    },
+    {
+      "statsId": "accurateOffThirdHorizPass",
+      "statsLabel": "accurateOffThirdHorizPass",
+      "statsValueHome": 21,
+      "statsValueAway": 21
+    },
+    {
+      "statsId": "accurateForwardPassPerc",
+      "statsLabel": "accurateForwardPassPerc",
+      "statsValueHome": 62.5,
+      "statsValueAway": 55.25
+    },
+    {
+      "statsId": "accurateOffHalfPassPerc",
+      "statsLabel": "accurateOffHalfPassPerc",
+      "statsValueHome": 76.56,
+      "statsValueAway": 75.9
+    },
+    {
+      "statsId": "accurateOffThirdPassPerc",
+      "statsLabel": "accurateOffThirdPassPerc",
+      "statsValueHome": 84.75,
+      "statsValueAway": 78.72
+    },
+    {
+      "statsId": "openPlayCross",
+      "statsLabel": "openPlayCross",
+      "statsValueHome": 8,
+      "statsValueAway": 17
+    },
+    {
+      "statsId": "accurateOpenPlayCross",
+      "statsLabel": "accurateOpenPlayCross",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "accurateOpenPlayCrossPerc",
+      "statsLabel": "accurateOpenPlayCrossPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 5.88
+    },
+    {
+      "statsId": "openPlayCrossFromLeft",
+      "statsLabel": "openPlayCrossFromLeft",
+      "statsValueHome": 6,
+      "statsValueAway": 9
+    },
+    {
+      "statsId": "accurateOpenPlayCrossFromLeft",
+      "statsLabel": "accurateOpenPlayCrossFromLeft",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "openPlayCrossFromRight",
+      "statsLabel": "openPlayCrossFromRight",
+      "statsValueHome": 2,
+      "statsValueAway": 8
+    },
+    {
+      "statsId": "accurateOpenPlayCrossFromRight",
+      "statsLabel": "accurateOpenPlayCrossFromRight",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "accurateOpenPlayCrossFromLeftPerc",
+      "statsLabel": "accurateOpenPlayCrossFromLeftPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 11.11
+    },
+    {
+      "statsId": "accurateOpenPlayCrossFromRightPerc",
+      "statsLabel": "accurateOpenPlayCrossFromRightPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "cornerGoal",
+      "statsLabel": "cornerGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "setPieceGoal",
+      "statsLabel": "setPieceGoal",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "freeKickShots",
+      "statsLabel": "freeKickShots",
+      "statsValueHome": 1,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "shotsSaved",
+      "statsLabel": "shotsSaved",
+      "statsValueHome": 2,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "shotsPosts",
+      "statsLabel": "shotsPosts",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalShotsMissed",
+      "statsLabel": "totalShotsMissed",
+      "statsValueHome": 5,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "shotsOnGoalPerc",
+      "statsLabel": "shotsOnGoalPerc",
+      "statsValueHome": 40,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "goalsPerc",
+      "statsLabel": "goalsPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "groundDuels",
+      "statsLabel": "groundDuels",
+      "statsValueHome": 24,
+      "statsValueAway": 24
+    },
+    {
+      "statsId": "groundDuelsWon",
+      "statsLabel": "groundDuelsWon",
+      "statsValueHome": 9,
+      "statsValueAway": 15
+    },
+    {
+      "statsId": "groundDuelsLost",
+      "statsLabel": "groundDuelsLost",
+      "statsValueHome": 15,
+      "statsValueAway": 9
+    },
+    {
+      "statsId": "offHalfDuels",
+      "statsLabel": "offHalfDuels",
+      "statsValueHome": 25,
+      "statsValueAway": 25
+    },
+    {
+      "statsId": "offHalfAerialDuels",
+      "statsLabel": "offHalfAerialDuels",
+      "statsValueHome": 18,
+      "statsValueAway": 18
+    },
+    {
+      "statsId": "offHalfGroundDuels",
+      "statsLabel": "offHalfGroundDuels",
+      "statsValueHome": 7,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "offHalfDuelsWon",
+      "statsLabel": "offHalfDuelsWon",
+      "statsValueHome": 15,
+      "statsValueAway": 10
+    },
+    {
+      "statsId": "offHalfAerialDuelsWon",
+      "statsLabel": "offHalfAerialDuelsWon",
+      "statsValueHome": 11,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "offHalfGroundDuelsWon",
+      "statsLabel": "offHalfGroundDuelsWon",
+      "statsValueHome": 4,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "offHalfAerialDuelsLost",
+      "statsLabel": "offHalfAerialDuelsLost",
+      "statsValueHome": 11,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "offHalfGroundDuelsLost",
+      "statsLabel": "offHalfGroundDuelsLost",
+      "statsValueHome": 12,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "defHalfDuels",
+      "statsLabel": "defHalfDuels",
+      "statsValueHome": 35,
+      "statsValueAway": 35
+    },
+    {
+      "statsId": "defHalfAerialDuels",
+      "statsLabel": "defHalfAerialDuels",
+      "statsValueHome": 18,
+      "statsValueAway": 18
+    },
+    {
+      "statsId": "defHalfGroundDuels",
+      "statsLabel": "defHalfGroundDuels",
+      "statsValueHome": 17,
+      "statsValueAway": 17
+    },
+    {
+      "statsId": "defHalfDuelsWon",
+      "statsLabel": "defHalfDuelsWon",
+      "statsValueHome": 12,
+      "statsValueAway": 23
+    },
+    {
+      "statsId": "defHalfAerialDuelsWon",
+      "statsLabel": "defHalfAerialDuelsWon",
+      "statsValueHome": 7,
+      "statsValueAway": 11
+    },
+    {
+      "statsId": "defHalfGroundDuelsWon",
+      "statsLabel": "defHalfGroundDuelsWon",
+      "statsValueHome": 5,
+      "statsValueAway": 12
+    },
+    {
+      "statsId": "defHalfAerialDuelsLost",
+      "statsLabel": "defHalfAerialDuelsLost",
+      "statsValueHome": 7,
+      "statsValueAway": 11
+    },
+    {
+      "statsId": "defHalfGroundDuelsLost",
+      "statsLabel": "defHalfGroundDuelsLost",
+      "statsValueHome": 3,
+      "statsValueAway": 4
+    },
+    {
+      "statsId": "groundDuelsWonPerc",
+      "statsLabel": "groundDuelsWonPerc",
+      "statsValueHome": 37.5,
+      "statsValueAway": 62.5
+    },
+    {
+      "statsId": "offHalfDuelsWonPerc",
+      "statsLabel": "offHalfDuelsWonPerc",
+      "statsValueHome": 60,
+      "statsValueAway": 40
+    },
+    {
+      "statsId": "offHalfAerialDuelsWonPerc",
+      "statsLabel": "offHalfAerialDuelsWonPerc",
+      "statsValueHome": 61.11,
+      "statsValueAway": 38.89
+    },
+    {
+      "statsId": "offHalfGroundDuelsWonPerc",
+      "statsLabel": "offHalfGroundDuelsWonPerc",
+      "statsValueHome": 57.14,
+      "statsValueAway": 42.86
+    },
+    {
+      "statsId": "defHalfTotalDuelsWonPerc",
+      "statsLabel": "defHalfTotalDuelsWonPerc",
+      "statsValueHome": 34.29,
+      "statsValueAway": 65.71
+    },
+    {
+      "statsId": "defHalfAerialDuelsWonPerc",
+      "statsLabel": "defHalfAerialDuelsWonPerc",
+      "statsValueHome": 38.89,
+      "statsValueAway": 61.11
+    },
+    {
+      "statsId": "defHalfGroundDuelsWonPerc",
+      "statsLabel": "defHalfGroundDuelsWonPerc",
+      "statsValueHome": 29.41,
+      "statsValueAway": 70.59
+    },
+    {
+      "statsId": "failDribbling",
+      "statsLabel": "failDribbling",
+      "statsValueHome": 11,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "succDribblingPerc",
+      "statsLabel": "succDribblingPerc",
+      "statsValueHome": 64.52,
+      "statsValueAway": 53.33
+    },
+    {
+      "statsId": "succDribblingClose",
+      "statsLabel": "succDribblingClose",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "failDribblingRun",
+      "statsLabel": "failDribblingRun",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "failDribblingClose",
+      "statsLabel": "failDribblingClose",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalDribblingRun",
+      "statsLabel": "totalDribblingRun",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalDribblingClose",
+      "statsLabel": "totalDribblingClose",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalDribblingOneOnOne",
+      "statsLabel": "totalDribblingOneOnOne",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "succDribblingOneOnOne",
+      "statsLabel": "succDribblingOneOnOne",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "failDribblingOneOnOne",
+      "statsLabel": "failDribblingOneOnOne",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "foulHolding",
+      "statsLabel": "foulHolding",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "foulPushing",
+      "statsLabel": "foulPushing",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "straightRedCard",
+      "statsLabel": "straightRedCard",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "penaltyKick",
+      "statsLabel": "penaltyKick",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalSetPiece",
+      "statsLabel": "totalSetPiece",
+      "statsValueHome": 46,
+      "statsValueAway": 56
+    },
+    {
+      "statsId": "setPiecePass",
+      "statsLabel": "setPiecePass",
+      "statsValueHome": 41,
+      "statsValueAway": 50
+    },
+    {
+      "statsId": "setPieceCross",
+      "statsLabel": "setPieceCross",
+      "statsValueHome": 4,
+      "statsValueAway": 6
+    },
+    {
+      "statsId": "cornerPass",
+      "statsLabel": "cornerPass",
+      "statsValueHome": 0,
+      "statsValueAway": 2
+    },
+    {
+      "statsId": "cornerCross",
+      "statsLabel": "cornerCross",
+      "statsValueHome": 3,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "freeKickPass",
+      "statsLabel": "freeKickPass",
+      "statsValueHome": 13,
+      "statsValueAway": 13
+    },
+    {
+      "statsId": "accurateSetPieceCross",
+      "statsLabel": "accurateSetPieceCross",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "accurateCornerCross",
+      "statsLabel": "accurateCornerCross",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "accurateSetPieceCrossPerc",
+      "statsLabel": "accurateSetPieceCrossPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 16.67
+    },
+    {
+      "statsId": "accurateCornerCrossPerc",
+      "statsLabel": "accurateCornerCrossPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 20
+    },
+    {
+      "statsId": "accurateFreeKickCrossPerc",
+      "statsLabel": "accurateFreeKickCrossPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "throwInCross",
+      "statsLabel": "throwInCross",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "defTurnover",
+      "statsLabel": "defTurnover",
+      "statsValueHome": 30,
+      "statsValueAway": 32
+    },
+    {
+      "statsId": "offTurnover",
+      "statsLabel": "offTurnover",
+      "statsValueHome": 39,
+      "statsValueAway": 40
+    },
+    {
+      "statsId": "turnoverPass",
+      "statsLabel": "turnoverPass",
+      "statsValueHome": 1,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "offRecovery",
+      "statsLabel": "offRecovery",
+      "statsValueHome": 15,
+      "statsValueAway": 31
+    },
+    {
+      "statsId": "defRecovery",
+      "statsLabel": "defRecovery",
+      "statsValueHome": 54,
+      "statsValueAway": 38
+    },
+    {
+      "statsId": "footClearance",
+      "statsLabel": "footClearance",
+      "statsValueHome": 10,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "totalBallsPlayed",
+      "statsLabel": "totalBallsPlayed",
+      "statsValueHome": 516,
+      "statsValueAway": 373
+    },
+    {
+      "statsId": "offHalfBallsPlayed",
+      "statsLabel": "offHalfBallsPlayed",
+      "statsValueHome": 158,
+      "statsValueAway": 204
+    },
+    {
+      "statsId": "defHalfBallsPlayed",
+      "statsLabel": "defHalfBallsPlayed",
+      "statsValueHome": 358,
+      "statsValueAway": 169
+    },
+    {
+      "statsId": "offThirdBallsPlayed",
+      "statsLabel": "offThirdBallsPlayed",
+      "statsValueHome": 85,
+      "statsValueAway": 127
+    },
+    {
+      "statsId": "oppBoxBallsPlayedPerc",
+      "statsLabel": "oppBoxBallsPlayedPerc",
+      "statsValueHome": 0.97,
+      "statsValueAway": 2.41
+    },
+    {
+      "statsId": "turnoverPerc",
+      "statsLabel": "turnoverPerc",
+      "statsValueHome": 13.37,
+      "statsValueAway": 19.3
+    },
+    {
+      "statsId": "totalSavePerc",
+      "statsLabel": "totalSavePerc",
+      "statsValueHome": 100,
+      "statsValueAway": 100
+    },
+    {
+      "statsId": "penaltyFoul",
+      "statsLabel": "penaltyFoul",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "shortPass",
+      "statsLabel": "shortPass",
+      "statsValueHome": 76,
+      "statsValueAway": 64
+    },
+    {
+      "statsId": "accurateShortPass",
+      "statsLabel": "accurateShortPass",
+      "statsValueHome": 44,
+      "statsValueAway": 36
+    },
+    {
+      "statsId": "accurateBoxEntryPass",
+      "statsLabel": "accurateBoxEntryPass",
+      "statsValueHome": 5,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "accurateBoxEntryPassPerc",
+      "statsLabel": "accurateBoxEntryPassPerc",
+      "statsValueHome": 71.43,
+      "statsValueAway": 43.75
+    },
+    {
+      "statsId": "totalSwitchPass",
+      "statsLabel": "totalSwitchPass",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "accurateSwitchPass",
+      "statsLabel": "accurateSwitchPass",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "cutBackPass",
+      "statsLabel": "cutBackPass",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "accurateCutBackPass",
+      "statsLabel": "accurateCutBackPass",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "earlyCross",
+      "statsLabel": "earlyCross",
+      "statsValueHome": 5,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "accurateEarlyCross",
+      "statsLabel": "accurateEarlyCross",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "lateCross",
+      "statsLabel": "lateCross",
+      "statsValueHome": 3,
+      "statsValueAway": 12
+    },
+    {
+      "statsId": "accurateLateCross",
+      "statsLabel": "accurateLateCross",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "earlyCrossFromLeft",
+      "statsLabel": "earlyCrossFromLeft",
+      "statsValueHome": 4,
+      "statsValueAway": 4
+    },
+    {
+      "statsId": "accurateEarlyCrossFromLeft",
+      "statsLabel": "accurateEarlyCrossFromLeft",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "earlyCrossFromRight",
+      "statsLabel": "earlyCrossFromRight",
+      "statsValueHome": 1,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "accurateEarlyCrossFromRight",
+      "statsLabel": "accurateEarlyCrossFromRight",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "lateCrossFromLeft",
+      "statsLabel": "lateCrossFromLeft",
+      "statsValueHome": 2,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "accurateLateCrossFromLeft",
+      "statsLabel": "accurateLateCrossFromLeft",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "lateCrossFromRight",
+      "statsLabel": "lateCrossFromRight",
+      "statsValueHome": 1,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "accurateLateCrossFromRight",
+      "statsLabel": "accurateLateCrossFromRight",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "accurateEarlyCrossFromLeftPerc",
+      "statsLabel": "accurateEarlyCrossFromLeftPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 25
+    },
+    {
+      "statsId": "accurateEarlyCrossFromRightPerc",
+      "statsLabel": "accurateEarlyCrossFromRightPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "accurateLateCrossFromLeftPerc",
+      "statsLabel": "accurateLateCrossFromLeftPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "accurateLateCrossFromRightPerc",
+      "statsLabel": "accurateLateCrossFromRightPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "accurateEarlyCrossPerc",
+      "statsLabel": "accurateEarlyCrossPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 20
+    },
+    {
+      "statsId": "accurateLateCrossPerc",
+      "statsLabel": "accurateLateCrossPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalClaim",
+      "statsLabel": "totalClaim",
+      "statsValueHome": 3,
+      "statsValueAway": 4
+    },
+    {
+      "statsId": "lowClaim",
+      "statsLabel": "lowClaim",
+      "statsValueHome": 2,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "recoveryPerc",
+      "statsLabel": "recoveryPerc",
+      "statsValueHome": 18.5,
+      "statsValueAway": 13.37
+    },
+    {
+      "statsId": "fieldTilt",
+      "statsLabel": "fieldTilt",
+      "statsValueHome": 38.56,
+      "statsValueAway": 61.44
+    },
+    {
+      "statsId": "offHalfDuelsLost",
+      "statsLabel": "offHalfDuelsLost",
+      "statsValueHome": 23,
+      "statsValueAway": 12
+    },
+    {
+      "statsId": "defHalfDuelsLost",
+      "statsLabel": "defHalfDuelsLost",
+      "statsValueHome": 10,
+      "statsValueAway": 15
+    },
+    {
+      "statsId": "smartPass",
+      "statsLabel": "smartPass",
+      "statsValueHome": 2,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "failTackle",
+      "statsLabel": "failTackle",
+      "statsValueHome": 14,
+      "statsValueAway": 11
+    },
+    {
+      "statsId": "failThrowIn",
+      "statsLabel": "failThrowIn",
+      "statsValueHome": 0,
+      "statsValueAway": 7
+    },
+    {
+      "statsId": "penaltyMissed",
+      "statsLabel": "penaltyMissed",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "failCross",
+      "statsLabel": "failCross",
+      "statsValueHome": 12,
+      "statsValueAway": 21
+    },
+    {
+      "statsId": "offHalfCenterBallsPlayed",
+      "statsLabel": "offHalfCenterBallsPlayed",
+      "statsValueHome": 37,
+      "statsValueAway": 28
+    },
+    {
+      "statsId": "offHalfLeftBallsPlayed",
+      "statsLabel": "offHalfLeftBallsPlayed",
+      "statsValueHome": 66,
+      "statsValueAway": 92
+    },
+    {
+      "statsId": "offHalfRightBallsPlayed",
+      "statsLabel": "offHalfRightBallsPlayed",
+      "statsValueHome": 55,
+      "statsValueAway": 84
+    },
+    {
+      "statsId": "offHalfCenterBallsPlayedPerc",
+      "statsLabel": "offHalfCenterBallsPlayedPerc",
+      "statsValueHome": 23.42,
+      "statsValueAway": 13.73
+    },
+    {
+      "statsId": "offHalfLeftBallsPlayedPerc",
+      "statsLabel": "offHalfLeftBallsPlayedPerc",
+      "statsValueHome": 41.77,
+      "statsValueAway": 45.1
+    },
+    {
+      "statsId": "offHalfRightBallsPlayedPerc",
+      "statsLabel": "offHalfRightBallsPlayedPerc",
+      "statsValueHome": 34.81,
+      "statsValueAway": 41.18
+    },
+    {
+      "statsId": "offHalfBallPossessionPerc",
+      "statsLabel": "offHalfBallPossessionPerc",
+      "statsValueHome": 30.62,
+      "statsValueAway": 54.69
+    },
+    {
+      "statsId": "defHalfBallPossessionPerc",
+      "statsLabel": "defHalfBallPossessionPerc",
+      "statsValueHome": 69.38,
+      "statsValueAway": 45.31
+    },
+    {
+      "statsId": "totalPost",
+      "statsLabel": "totalPost",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalCrossbar",
+      "statsLabel": "totalCrossbar",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "timeAhead",
+      "statsLabel": "timeAhead",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "timeBehind",
+      "statsLabel": "timeBehind",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "timeLeveled",
+      "statsLabel": "timeLeveled",
+      "statsValueHome": 5747,
+      "statsValueAway": 5747
+    },
+    {
+      "statsId": "timeAheadPerc",
+      "statsLabel": "timeAheadPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "timeBehindPerc",
+      "statsLabel": "timeBehindPerc",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "timeLeveledPerc",
+      "statsLabel": "timeLeveledPerc",
+      "statsValueHome": 100,
+      "statsValueAway": 100
+    },
+    {
+      "statsId": "matchesPlayed",
+      "statsLabel": "matchesPlayed",
+      "statsValueHome": 1,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "totalPassConceded",
+      "statsLabel": "totalPassConceded",
+      "statsValueHome": 330,
+      "statsValueAway": 468
+    },
+    {
+      "statsId": "offHalfPassConceded",
+      "statsLabel": "offHalfPassConceded",
+      "statsValueHome": 166,
+      "statsValueAway": 128
+    },
+    {
+      "statsId": "defHalfPassConceded",
+      "statsLabel": "defHalfPassConceded",
+      "statsValueHome": 164,
+      "statsValueAway": 340
+    },
+    {
+      "statsId": "offThirdPassConceded",
+      "statsLabel": "offThirdPassConceded",
+      "statsValueHome": 94,
+      "statsValueAway": 59
+    },
+    {
+      "statsId": "totalCrossConceded",
+      "statsLabel": "totalCrossConceded",
+      "statsValueHome": 23,
+      "statsValueAway": 12
+    },
+    {
+      "statsId": "accurateCrossConceded",
+      "statsLabel": "accurateCrossConceded",
+      "statsValueHome": 2,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "openPlayCrossConceded",
+      "statsLabel": "openPlayCrossConceded",
+      "statsValueHome": 17,
+      "statsValueAway": 8
+    },
+    {
+      "statsId": "accurateOpenPlayCrossConceded",
+      "statsLabel": "accurateOpenPlayCrossConceded",
+      "statsValueHome": 1,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "openPlayGoalConceded",
+      "statsLabel": "openPlayGoalConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "cornerGoalConceded",
+      "statsLabel": "cornerGoalConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "freeKickGoalConceded",
+      "statsLabel": "freeKickGoalConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "setPieceGoalConceded",
+      "statsLabel": "setPieceGoalConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "openPlayShotsConceded",
+      "statsLabel": "openPlayShotsConceded",
+      "statsValueHome": 5,
+      "statsValueAway": 4
+    },
+    {
+      "statsId": "cornerShotsConceded",
+      "statsLabel": "cornerShotsConceded",
+      "statsValueHome": 1,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "freeKickShotsConceded",
+      "statsLabel": "freeKickShotsConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "setPieceShotsConceded",
+      "statsLabel": "setPieceShotsConceded",
+      "statsValueHome": 1,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "shotsPostConceded",
+      "statsLabel": "shotsPostConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "shotsCrossbarConceded",
+      "statsLabel": "shotsCrossbarConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "expectedGoalAgainst",
+      "statsLabel": "expectedGoalAgainst",
+      "statsValueHome": 0.474,
+      "statsValueAway": 0.589
+    },
+    {
+      "statsId": "freeKickConceded",
+      "statsLabel": "freeKickConceded",
+      "statsValueHome": 14,
+      "statsValueAway": 15
+    },
+    {
+      "statsId": "freeKickShotConceded",
+      "statsLabel": "freeKickShotConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 1
+    },
+    {
+      "statsId": "totalBallsPlayedConceded",
+      "statsLabel": "totalBallsPlayedConceded",
+      "statsValueHome": 373,
+      "statsValueAway": 516
+    },
+    {
+      "statsId": "offHalfBallsPlayedConceded",
+      "statsLabel": "offHalfBallsPlayedConceded",
+      "statsValueHome": 204,
+      "statsValueAway": 158
+    },
+    {
+      "statsId": "defHalfBallsPlayedConceded",
+      "statsLabel": "defHalfBallsPlayedConceded",
+      "statsValueHome": 169,
+      "statsValueAway": 358
+    },
+    {
+      "statsId": "offThirdBallsPlayedConceded",
+      "statsLabel": "offThirdBallsPlayedConceded",
+      "statsValueHome": 127,
+      "statsValueAway": 85
+    },
+    {
+      "statsId": "oppBoxBallsPlayedConceded",
+      "statsLabel": "oppBoxBallsPlayedConceded",
+      "statsValueHome": 9,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "oppBoxBallsPlayedConcededPerc",
+      "statsLabel": "oppBoxBallsPlayedConcededPerc",
+      "statsValueHome": 2.41,
+      "statsValueAway": 0.97
+    },
+    {
+      "statsId": "earlyCrossConceded",
+      "statsLabel": "earlyCrossConceded",
+      "statsValueHome": 5,
+      "statsValueAway": 5
+    },
+    {
+      "statsId": "lateCrossConceded",
+      "statsLabel": "lateCrossConceded",
+      "statsValueHome": 12,
+      "statsValueAway": 3
+    },
+    {
+      "statsId": "accurateThroughPassConceded",
+      "statsLabel": "accurateThroughPassConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalOnFrameConceded",
+      "statsLabel": "totalOnFrameConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalPostConceded",
+      "statsLabel": "totalPostConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "totalCrossbarConceded",
+      "statsLabel": "totalCrossbarConceded",
+      "statsValueHome": 0,
+      "statsValueAway": 0
+    },
+    {
+      "statsId": "minutesPlayed",
+      "statsLabel": "minutesPlayed",
+      "statsValueHome": 96,
+      "statsValueAway": 96
+    },
+    {
+      "statsId": "effectiveTime",
+      "statsLabel": "effectiveTime",
+      "statsValueHome": 47,
+      "statsValueAway": 47
+    }
+  ],
+  "matchId": "serie-a::Football_Match::56290f4838d04f378d67df40b24a11db",
+  "providerId": "opta:Match:cj1crau6yj93nnyk80lzjpes4",
+  "status": "FINISHED",
+  "providerStatus": "Finished",
+  "phase": "FULL_TIME",
+  "home": {
+    "teamId": "serie-a::Football_Team::8c7aa94d22f44738951748e2ccdf319a",
+    "providerId": "opta:Team:4kumqzwifv478caxed8zywlh3",
+    "shortName": "Genoa",
+    "officialName": "Genoa",
+    "acronymName": "GEN",
+    "mediaName": "Genoa",
+    "mediaShortName": "Genoa",
+    "images": {
+      "stadiumImage": "stadiums/272383aec72f407198da27054db34b12.webp",
+      "teamImage": "teamImages/8c7aa94d22f44738951748e2ccdf319a.webp",
+      "teamLogo": "clubLogos/8c7aa94d22f44738951748e2ccdf319a.webp",
+      "teamLogoLight": "clubLogos/8c7aa94d22f44738951748e2ccdf319a_light.webp"
+    }
+  },
+  "away": {
+    "teamId": "serie-a::Football_Team::ced7bf0df3a140dfa48138311122133b",
+    "providerId": "opta:Team:bi1fxjrncd0ram0oi7ja1jyuo",
+    "shortName": "Lecce",
+    "officialName": "Lecce",
+    "acronymName": "LEC",
+    "mediaName": "Lecce",
+    "mediaShortName": "Lecce",
+    "images": {
+      "stadiumImage": "stadiums/86c3dcdadbc9445ea46f883d53f24a92.webp",
+      "teamImage": "teamImages/ced7bf0df3a140dfa48138311122133b.webp",
+      "teamLogo": "clubLogos/ced7bf0df3a140dfa48138311122133b.webp",
+      "teamLogoLight": "clubLogos/ced7bf0df3a140dfa48138311122133b_light.webp"
+    }
+  },
+  "apiCallRequestTime": "2026-04-05T22:12:14.2668987+00:00"
+}
