@@ -184,7 +184,30 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       : 50;
 
     return { left: `${xPos}%`, top: `${yPos}%` };
+    return { left: `${xPos}%`, top: `${yPos}%` };
   };
+
+const getPlayerImageUrl = (p: any, sId?: string, tId?: string, forceSide: string = 'home') => {
+  if (!p) return null;
+  const directFields = [
+    'playerImagehomeleft', 'playerImagehomemiddle', 'playerImagehomeceleb',
+    'playerImageawayleft', 'playerImageawaymiddle', 'playerImageawayceleb',
+    'image', 'photo', 'pictureUrl', 'imageUrl'
+  ];
+  for (const field of directFields) {
+    if (typeof p[field] === 'string' && p[field].startsWith('http')) return p[field];
+  }
+  if (p.details) {
+    for (const field of directFields) {
+      if (typeof p.details[field] === 'string' && p.details[field].startsWith('http')) return p.details[field];
+    }
+  }
+  const pId = (p.playerId || p.id || '')?.split('::').pop();
+  if (sId && tId && pId) {
+    return `https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/${sId}/${tId}/${forceSide}/${pId}left.webp`;
+  }
+  return null;
+};
 
   const CombinedTacticalPitch = ({ matchDetails, homeTeam, awayTeam }: any) => {
     if (!matchDetails?.lineups?.home?.fielded || !matchDetails?.lineups?.away?.fielded) return null;
@@ -234,23 +257,23 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
          const [err, setErr] = useState(false);
          const sId = matchDetails?.header?.seasonId?.split('::').pop();
          const tId = (side === 'home' ? homeTeam?.teamId || homeTeam?.id : awayTeam?.teamId || awayTeam?.id)?.split('::').pop();
-         const pId = p.playerId?.split('::').pop() || p.id?.split('::').pop();
 
-         if (err || !sId || !tId || !pId) {
+         const url = getPlayerImageUrl(p, sId, tId, 'home');
+
+         if (err || !url) {
             return (
                <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full shadow-lg border-2 transition-colors shrink-0
                  ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`} />
             );
          }
 
-         const url = `https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/${sId}/${tId}/home/${pId}left.webp`;
          return (
             <img 
                src={url}
                onError={() => setErr(true)}
                className={`w-6 h-6 md:w-8 md:h-8 rounded-full shadow-lg border-2 object-cover shrink-0 bg-zinc-800
                  ${side === 'home' ? 'border-cyan-500/80 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'border-white/80 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`}
-               alt={p.displayName || p.shortName}
+               alt={p.displayName || p.shortName || 'Player'}
             />
          );
       };
@@ -385,10 +408,10 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   const [matches, setMatches]               = useState<any[]>([]);
   const [standings, setStandings]           = useState<any[]>([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
-  const [loadingStandings, setLoadingStandings] = useState(true);
   const [matchError, setMatchError]         = useState<string | null>(null);
   const [modalFixture, setModalFixture]     = useState<any>(null);
   const [matchDetails, setMatchDetails]     = useState<any>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [matchDetailsError, setMatchDetailsError] = useState<string | null>(null);
   const [loadingModal, setLoadingModal]     = useState(false);
   const [modalTab, setModalTab]             = useState('eventi');
@@ -1326,10 +1349,10 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                          const [err, setErr] = useState(false);
                          const tId = extractId(teamObj?.teamId || teamObj?.id || teamObj?.providerId);
                          const sId = extractId(modalFixture?.seasonId || matchDetails?.header?.seasonId);
-                         const mId = extractId(modalFixture?.matchId || modalFixture?.id || matchDetails?.header?.matchId);
-                         const pId = extractId(p?.playerId || p?.id);
 
-                         if (err || !tId || !sId || !mId || !pId) {
+                         const url = getPlayerImageUrl(p, sId, tId, 'home');
+
+                         if (err || !url) {
                             const name = p.displayName || p.shortName || p.shirtName || '?';
                             const initial = name.substring(0, 2).toUpperCase();
                             return (
@@ -1339,7 +1362,6 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                             );
                          }
 
-                         const url = `https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/${sId}/${tId}/home/${pId}left.webp`;
                          return (
                             <img
                                src={url}
@@ -1436,7 +1458,16 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                    const red = p.events?.some((e: any) => e.type === 'red-card');
                                    
                                    return (
-                                     <tr key={p.playerId || p.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
+                                     <tr key={p.playerId || p.id} onClick={() => {
+                                        console.log('--- PLAYER CLICK DEBUG ---');
+                                        console.log('Player ID:', p.playerId || p.id);
+                                        console.log('Raw player object:', p);
+                                        if (!p) {
+                                           console.warn('Player object is null/undefined. Aborting detail view.');
+                                           return;
+                                        }
+                                        setSelectedPlayer({ p, teamName, getStatVal, PlayerImage });
+                                     }} className="cursor-pointer border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
                                        <td className="py-3 px-3 sticky left-0 bg-[#0a0f0d] group-hover:bg-[#111815] transition-colors z-10 font-black uppercase tracking-wider text-white flex items-center gap-3 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                                          <div className="flex items-center gap-2">
                                             <div className="w-5 h-5 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] shrink-0 text-zinc-400">
@@ -1517,22 +1548,28 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
                      const renderSubModal = () => {
                        if (!selectedPlayer) return null;
-                       const { p, teamName, getStatVal } = selectedPlayer;
+                       const { p, teamName, getStatVal, PlayerImage } = selectedPlayer;
+                       if (!p) return null;
                        
                        const grp = (title: string, metrics: Array<{label:string, keys:string[], applyPerc?:boolean}>) => {
                           const validStats = metrics.map(m => {
-                            let val = getStatVal(p, m.keys);
-                            if (val === null && m.keys.includes('passAcc')) {
-                               const accuratePass = getStatVal(p, ['accuratePass', 'accurate_pass']);
-                               const totalPass = getStatVal(p, ['totalPass', 'total_pass']);
-                               if (accuratePass != null && totalPass != null && totalPass > 0) {
-                                  val = Math.round((accuratePass / totalPass) * 100);
+                            try {
+                               let val = getStatVal(p, m.keys);
+                               if (val === null && m.keys.includes('passAcc')) {
+                                  const accuratePass = getStatVal(p, ['accuratePass', 'accurate_pass']);
+                                  const totalPass = getStatVal(p, ['totalPass', 'total_pass']);
+                                  if (accuratePass != null && totalPass != null && totalPass > 0) {
+                                     val = Math.round((accuratePass / totalPass) * 100);
+                                  }
                                }
+                               if (val != null) {
+                                  return { label: m.label, value: m.applyPerc && String(val).indexOf('%')===-1 ? `${val}%` : val };
+                               }
+                               return null;
+                            } catch (e) {
+                               console.error('Failed to parse stat', m.label, e);
+                               return null;
                             }
-                            if (val != null) {
-                               return { label: m.label, value: m.applyPerc && String(val).indexOf('%')===-1 ? `${val}%` : val };
-                            }
-                            return null;
                           }).filter(Boolean);
                           if (validStats.length === 0) return null;
                           return (
