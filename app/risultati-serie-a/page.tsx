@@ -77,31 +77,23 @@ const resolveImageUrl = (path: string | null | undefined): string | null => {
 
 const getTeamLogoUrls = (team: any): string[] => {
   if (!team || typeof team !== 'object') return [];
-  const urls: string[] = [];
 
   const rawId = team.teamId || team.id || team.providerId;
   const idToUse = typeof rawId === 'string' && rawId.includes('::') ? rawId.split('::').pop() : rawId;
 
-  if (team.imagery?.teamLogoLight) {
-     const url = resolveImageUrl(team.imagery.teamLogoLight.replace('_light', 'light'));
-     if (url) urls.push(url);
-  } else if (idToUse) {
-     urls.push(`https://img.legaseriea.it/vimages/clubLogos/${idToUse}light.webp`);
-  }
-
-  if (team.imagery?.teamLogo) {
-     const url = resolveImageUrl(team.imagery.teamLogo);
-     if (url) urls.push(url);
-  } else if (idToUse) {
-     urls.push(`https://img.legaseriea.it/vimages/clubLogos/${idToUse}.webp`);
-  }
-
   const teamName = team.name || team.shortName || team.officialName;
   const normalized = normalizeTeamName(teamName);
-  if (normalized && TEAM_LOGOS[normalized]) urls.push(TEAM_LOGOS[normalized]);
-  if (teamName && TEAM_LOGOS[teamName]) urls.push(TEAM_LOGOS[teamName]);
 
-  return Array.from(new Set(urls));
+  const urls = [
+    team.imagery?.teamLogoLight ? resolveImageUrl(team.imagery.teamLogoLight.replace('_light', 'light')) : null,
+    idToUse ? `https://img.legaseriea.it/vimages/clubLogos/${idToUse}light.webp` : null,
+    team.imagery?.teamLogo ? resolveImageUrl(team.imagery.teamLogo) : null,
+    idToUse ? `https://img.legaseriea.it/vimages/clubLogos/${idToUse}.webp` : null,
+    normalized ? TEAM_LOGOS[normalized] : null,
+    teamName ? TEAM_LOGOS[teamName] : null
+  ];
+
+  return Array.from(new Set(urls.filter((u): u is string => typeof u === 'string')));
 };
 
 const getTeamLogoUrl = (team: any) => getTeamLogoUrls(team)[0] || null;
@@ -435,7 +427,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
         }).sort((a: any, b: any) => b.points - a.points || b.gd - a.gd);
         setStandings(parsed);
       })
-      .catch(e => console.error('Standings error:', e))
+      .catch(() => null)
       .finally(() => setLoadingStandings(false));
   }, []);
 
@@ -515,7 +507,6 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       if (!json.ok) throw new Error(json.error || 'API Match: risposta non OK');
       setMatchDetails(json.data);
     } catch (err: any) {
-      console.error('Match Details fetch err:', err);
       setMatchDetailsError(err.message || 'Errore fetch dettagli partita');
       setMatchDetails(null);
     } finally {
