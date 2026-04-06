@@ -389,6 +389,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   const [matchError, setMatchError]         = useState<string | null>(null);
   const [modalFixture, setModalFixture]     = useState<any>(null);
   const [matchDetails, setMatchDetails]     = useState<any>(null);
+  const [matchDetailsError, setMatchDetailsError] = useState<string | null>(null);
+  const [loadingModal, setLoadingModal]     = useState(false);
   const [modalTab, setModalTab]             = useState('eventi');
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalScrollRef = useRef<HTMLDivElement>(null);
