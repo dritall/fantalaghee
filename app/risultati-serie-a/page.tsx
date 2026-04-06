@@ -75,39 +75,36 @@ const resolveImageUrl = (path: string | null | undefined): string | null => {
   return null;
 };
 
-const getTeamLogoUrl = (team: any) => {
-  if (!team || typeof team !== 'object') return null;
-  
+const getTeamLogoUrls = (team: any): string[] => {
+  if (!team || typeof team !== 'object') return [];
+  const urls: string[] = [];
+
+  const rawId = team.teamId || team.id || team.providerId;
+  const idToUse = typeof rawId === 'string' && rawId.includes('::') ? rawId.split('::').pop() : rawId;
+
+  if (team.imagery?.teamLogoLight) {
+     const url = resolveImageUrl(team.imagery.teamLogoLight.replace('_light', 'light'));
+     if (url) urls.push(url);
+  } else if (idToUse) {
+     urls.push(`https://img.legaseriea.it/vimages/clubLogos/${idToUse}light.webp`);
+  }
+
+  if (team.imagery?.teamLogo) {
+     const url = resolveImageUrl(team.imagery.teamLogo);
+     if (url) urls.push(url);
+  } else if (idToUse) {
+     urls.push(`https://img.legaseriea.it/vimages/clubLogos/${idToUse}.webp`);
+  }
+
   const teamName = team.name || team.shortName || team.officialName;
   const normalized = normalizeTeamName(teamName);
+  if (normalized && TEAM_LOGOS[normalized]) urls.push(TEAM_LOGOS[normalized]);
+  if (teamName && TEAM_LOGOS[teamName]) urls.push(TEAM_LOGOS[teamName]);
 
-  if (team.teamId || team.id || team.providerId) {
-    const rawId = team.teamId || team.id || team.providerId;
-    if (team.imagery?.teamLogoLight) return resolveImageUrl(team.imagery.teamLogoLight);
-    
-    const idToUse = typeof rawId === 'string' && rawId.includes('::') ? rawId.split('::').pop() : rawId;
-    // Preferiamo il `_light` anche calcolato
-    return `https://img.legaseriea.it/vimages/clubLogos/${idToUse}_light.webp`;
-  }
-  
-  // Prefer Transfermarkt stable logo if available as a fallback
-  if (normalized && TEAM_LOGOS[normalized]) {
-    return TEAM_LOGOS[normalized];
-  }
-  if (teamName && TEAM_LOGOS[teamName]) {
-    return TEAM_LOGOS[teamName];
-  }
-
-  if (team.imagery?.teamLogo) return resolveImageUrl(team.imagery.teamLogo);
-
-  const raw1 = team.teamLogoLight;
-  const raw2 = team.teamLogo;
-  const raw3 = team.teamImage || team.logo;
-
-  const resolved = resolveImageUrl(raw1) || resolveImageUrl(raw2) || resolveImageUrl(raw3);
-
-  return resolved;
+  return Array.from(new Set(urls));
 };
+
+const getTeamLogoUrl = (team: any) => getTeamLogoUrls(team)[0] || null;
 
 const getDisplayPlayerName = (p: any) => {
   if (!p) return 'Player';
@@ -147,8 +144,10 @@ const TeamLogo = ({
   team: any;
   className: string;
 }) => {
-  const [imgError, setImgError] = useState(false);
-  const src = !imgError ? getTeamLogoUrl(team) : null;
+  const [imgIndex, setImgIndex] = useState(0);
+  const urls = getTeamLogoUrls(team);
+  const src = imgIndex < urls.length ? urls[imgIndex] : null;
+
   const teamName = team?.name || team?.shortName || team?.officialName || '?';
 
   if (!src) {
@@ -166,7 +165,7 @@ const TeamLogo = ({
       alt={teamName}
       className={`${className} object-contain shrink-0 drop-shadow-md`}
       onError={() => {
-        setImgError(true);
+        setImgIndex(prev => prev + 1);
       }}
     />
   );
@@ -836,9 +835,9 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     }
 
     const attack = [
-      find(['totalshots', 'shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri Totali'),
-      find(['shotsontarget', 'ontargetscoringatt', 'shots-on-target', 'on_target_scoring_att'], 'Tiri in Porta'),
       find(['expectedgoals', 'xg', 'expected_goals'], 'Expected Goals (xG)'),
+      find(['totalshots', 'shots', 'total-shots', 'total_shots', 'shots_total', 'total_scoring_att'], 'Tiri totali'),
+      find(['shotsontarget', 'ontargetscoringatt', 'shots-on-target', 'on_target_scoring_att', 'ontarget_scoring_att'], 'Tiri in porta'),
       find(['bigchances', 'big_chances', 'clear_chances'], 'Grandi Occasioni'),
     ].filter(Boolean);
 
@@ -862,13 +861,13 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     ].filter(Boolean);
 
     const discipline = [
-      find(['fouls', 'fouls_committed', 'fouls_total'], 'Falli Commessi'),
-      find(['yellow-cards', 'yellow_cards', 'total_yellow_card'], 'Ammonizioni'),
-      find(['red-cards', 'red_cards', 'total_red_card'], 'Espulsioni'),
+      find(['foulsconceded', 'fouls_conceded', 'fouls', 'fouls_committed', 'fouls_total'], 'Falli'),
+      find(['yellowcards', 'yellow-cards', 'yellow_cards', 'total_yellow_card'], 'Ammonizioni'),
+      find(['redcards', 'red-cards', 'red_cards', 'total_red_card'], 'Espulsioni'),
     ].filter(Boolean);
 
     const physical = [
-      find(['corners', 'corner_taken', 'corners_total'], 'Calci d\'Angolo'),
+      find(['corners', 'corner_taken', 'corners_total'], "Calci d'angolo"),
     ].filter(Boolean);
 
     const goalkeeping = [
@@ -1132,12 +1131,14 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
                       if (isPerc) {
                          homePct = hVal || 0;
-                         awayPct = aVal || 0;
+                         awayPct = 100 - homePct; // garantiamo proporzione
                       } else {
                          const total = (hVal || 0) + (aVal || 0);
                          if (total > 0) {
                             homePct = (hVal / total) * 100;
                             awayPct = (aVal / total) * 100;
+                         } else {
+                            if ((hVal === 0) && (aVal === 0)) return null; 
                          }
                       }
 
@@ -1156,12 +1157,9 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                           </div>
                           
                           <div className="flex items-center w-full max-w-[280px] mx-auto opacity-80 group-hover:opacity-100 transition-opacity">
-                             <div className="flex-1 h-[6px] bg-white/10 rounded-l-full overflow-hidden flex justify-end">
-                                <div className="h-full rounded-l-full" style={{ width: `${homePct}%`, backgroundColor: homeColor }} />
-                             </div>
-                             <div className="w-1 h-full bg-transparent" />
-                             <div className="flex-1 h-[6px] bg-white/10 rounded-r-full overflow-hidden flex justify-start">
-                                <div className="h-full rounded-r-full" style={{ width: `${awayPct}%`, backgroundColor: awayColor }} />
+                             <div className="flex-1 h-[4px] bg-white/10 rounded-full overflow-hidden flex" style={{ display: 'flex', width: '100%' }}>
+                                <div className="h-full" style={{ width: `${homePct}%`, backgroundColor: homeColor }} />
+                                <div className="h-full" style={{ width: `${awayPct}%`, backgroundColor: awayColor }} />
                              </div>
                           </div>
                         </div>
@@ -1307,8 +1305,38 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
                   {/* ====== TAB: STATISTICHE GIOCATORI ====== */}
                   {modalTab === 'player-stats' && (() => {
-                     const PlayerStatsTable = ({ players, teamName }: { players: any[], teamName: string }) => {
+                     const PlayerStatsTable = ({ players, teamName, side, teamObj }: { players: any[], teamName: string, side: 'home' | 'away', teamObj: any }) => {
                        if (!players || players.length === 0) return null;
+
+                       const extractId = (raw: any) => typeof raw === 'string' && raw.includes('::') ? raw.split('::').pop() : raw;
+                       
+                       const PlayerImage = ({ p, className = '' }: { p: any, className?: string }) => {
+                         const [err, setErr] = useState(false);
+                         const tId = extractId(teamObj?.teamId || teamObj?.id || teamObj?.providerId);
+                         const sId = extractId(modalFixture?.seasonId || matchDetails?.header?.seasonId);
+                         const mId = extractId(modalFixture?.matchId || modalFixture?.id || matchDetails?.header?.matchId);
+                         const pId = extractId(p?.playerId || p?.id);
+
+                         if (err || !tId || !sId || !mId || !pId) {
+                            const name = p.displayName || p.shortName || p.shirtName || '?';
+                            const initial = name.substring(0, 2).toUpperCase();
+                            return (
+                               <div className={`bg-zinc-800 rounded-full flex flex-col items-center justify-center border border-white/10 shrink-0 shadow-inner overflow-hidden ${className}`}>
+                                  <span className="text-[10px] font-black tracking-widest text-zinc-400 leading-none">{initial}</span>
+                               </div>
+                            );
+                         }
+
+                         const url = `https://media-sdp.legaseriea.it/playerImages/${tId}/${sId}/${mId}/${side}/${pId}_left.webp`;
+                         return (
+                            <img
+                               src={url}
+                               className={`object-cover rounded-full bg-zinc-800 shrink-0 border border-white/10 ${className}`}
+                               onError={() => setErr(true)}
+                               alt={p.displayName || p.shortName || ''}
+                            />
+                         );
+                       };
 
                        const getStatVal = (p: any, keys: string[]) => {
                          let pStats = p.stats;
@@ -1383,8 +1411,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                    return (
                                      <tr key={p.playerId || p.id} onClick={() => setSelectedPlayer({ p, teamName, getStatVal })} className="cursor-pointer border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
                                        <td className="py-3 px-3 sticky left-0 bg-[#0a0f0d] group-hover:bg-[#111815] transition-colors z-10 font-black uppercase tracking-wider text-white flex items-center gap-3 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
-                                         <div className="w-6 h-6 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] shrink-0 text-zinc-400">
-                                           {p.jerseyNumber || '-'}
+                                         <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] shrink-0 text-zinc-400">
+                                              {p.jerseyNumber || '-'}
+                                            </div>
+                                            <PlayerImage p={p} className="w-8 h-8" />
                                          </div>
                                          <div className="flex flex-col min-w-0">
                                            <span className="truncate" title={getDisplayPlayerName(p)}>
@@ -1483,12 +1514,15 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                            <div className="bg-[#0a0f0d] border border-white/10 rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
                               <div className="flex justify-between items-center p-6 border-b border-white/5 bg-white/5">
                                  <div className="flex items-center gap-4">
-                                   <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center text-sm font-black text-white">
-                                     {p.jerseyNumber || '-'}
-                                   </div>
+                                   <PlayerImage p={p} className="w-16 h-16" />
                                    <div className="flex flex-col">
-                                      <span className="text-sm font-black text-white uppercase tracking-wider">{p.displayName || p.shortName}</span>
-                                      <span className="text-[9px] text-zinc-500 tracking-widest uppercase">{p.position || p.role || teamName}</span>
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] font-black text-white">
+                                          {p.jerseyNumber || '-'}
+                                        </div>
+                                        <span className="text-sm font-black text-white uppercase tracking-wider truncate max-w-[140px]">{p.displayName || p.shortName}</span>
+                                      </div>
+                                      <span className="text-[9px] text-zinc-500 tracking-widest uppercase mt-1">{p.position || p.role || teamName}</span>
                                    </div>
                                  </div>
                                  <button onClick={() => setSelectedPlayer(null)} className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors">
@@ -1537,8 +1571,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                      return (
                        <section className="relative px-0">
                          {renderSubModal()}
-                         <PlayerStatsTable players={homeRos} teamName={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} />
-                         <PlayerStatsTable players={awayRos} teamName={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} />
+                         <PlayerStatsTable players={homeRos} teamName={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name} side="home" teamObj={modalFixture.homeTeam || modalFixture.home} />
+                         <PlayerStatsTable players={awayRos} teamName={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name} side="away" teamObj={modalFixture.awayTeam || modalFixture.away} />
                        </section>
                      );
                   })()}
