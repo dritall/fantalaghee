@@ -1043,7 +1043,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
             })()}
 
             {/* TAB SELECTOR */}
-            <div className="flex overflow-x-auto no-scrollbar border-b border-white/5 bg-[#080808] shrink-0 custom-scrollbar">
+            <div className="flex justify-center items-center w-full overflow-x-auto no-scrollbar border-b border-white/5 bg-[#080808] shrink-0 custom-scrollbar">
               {[
                 { id: 'eventi', label: 'Eventi' },
                 { id: 'formazioni', label: 'Formazioni' },
@@ -1199,93 +1199,57 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                   })()}
 
                   {/* ====== TAB: FORMAZIONI ====== */}
-                  {(modalTab === 'formazioni') && matchDetails.lineups && (
-                    <section className="relative px-4 md:px-0">
-                      <div className="space-y-16">
-                        <div className="flex flex-col lg:flex-row gap-8">
-                          {/* Mobile Layout (separate pitches) */}
-                          <div className="flex flex-col gap-8 lg:hidden w-full">
-                            <div className="flex-1 flex flex-col gap-4">
-                              <div className="flex items-center gap-4 justify-center bg-white/5 py-4 rounded-3xl border border-white/5 shadow-inner">
-                                <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-8 h-8" />
-                                <span className="text-[12px] font-black uppercase text-cyan-400 tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</span>
-                              </div>
-                              <TacticalPitch lineup={matchDetails.lineups.home} side="home" />
-                            </div>
-                            <div className="flex-1 flex flex-col gap-4">
-                              <div className="flex items-center gap-4 justify-center bg-white/5 py-4 rounded-3xl border border-white/5 shadow-inner">
-                                <span className="text-[12px] font-black uppercase text-white tracking-widest">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</span>
-                                <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-8 h-8" />
-                              </div>
-                              <TacticalPitch lineup={matchDetails.lineups.away} side="away" />
-                            </div>
-                          </div>
+                  {(modalTab === 'formazioni') && (() => {
+                     const homePlayers = [...(matchDetails?.lineups?.home?.fielded || []), ...(matchDetails?.lineups?.home?.benched || [])];
+                     const awayPlayers = [...(matchDetails?.lineups?.away?.fielded || []), ...(matchDetails?.lineups?.away?.benched || [])];
 
-                          {/* Desktop Layout (combined pitch) */}
-                          <div className="hidden lg:flex w-full items-center justify-center">
-                            <CombinedTacticalPitch 
-                               matchDetails={matchDetails} 
-                               homeTeam={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} 
-                               awayTeam={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')}
-                             />
-                          </div>
-                        </div>
+                     const getActive = (list: any[]) => list.filter(p => {
+                         const mins = p.statistics?.minutesPlayed || p.stats?.minutesPlayed;
+                         const isStarter = p.tacticalXPosition != null || p.substitute === false || p.starting;
+                         const subbedIn = p.events?.some((e: any) => e.type === "substitution-in" || e.type === "subIn");
+                         return (mins && parseInt(String(mins)) > 0) || isStarter || subbedIn;
+                     });
 
-                        {/* ====== Panchina ====== */}
-                        <div className="bg-zinc-900/40 rounded-[3rem] p-10 md:p-16 border border-white/10 shadow-3xl relative overflow-hidden mt-8">
-                          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
-                          <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-orange-400 mb-16 text-center">Panchina</h4>
-                          
+                     const homeActive = getActive(homePlayers);
+                     const awayActive = getActive(awayPlayers);
+
+                     return (
+                      <section className="relative px-4 md:px-0 max-w-4xl mx-auto">
+                        <div className="bg-zinc-900/40 rounded-[3rem] p-8 md:p-12 border border-white/10 shadow-3xl">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 divide-y md:divide-y-0 md:divide-x divide-white/5">
-                            {/* Casa Bench */}
+                            {/* Casa Component */}
                             <div className="space-y-6 pr-0 md:pr-10 pb-12 md:pb-0">
-                               <div className="flex items-center gap-3 mb-6 bg-white/5 py-2 px-4 rounded-full w-fit">
-                                 <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-5 h-5" />
-                                 <p className="text-[9px] font-black text-cyan-400 uppercase tracking-[0.2em]">Casa</p>
+                               <div className="flex items-center gap-4 mb-8">
+                                 <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-10 h-10 shadow-2xl" />
+                                 <p className="text-[13px] font-black text-white uppercase tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</p>
                                </div>
-                                 <div className="flex flex-col gap-2">
-                                   {(matchDetails.lineups?.home?.benched || [])
-                                     .sort((a: any, b: any) => {
-                                        const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
-                                        const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
-                                        return aIn === bIn ? 0 : aIn ? -1 : 1;
-                                     })
-                                     .map((p: any) => {
-                                       return (
-                                         <div key={p.playerId || p.id} className="flex items-center gap-2">
-                                           <span className="text-[11px] font-black truncate uppercase tracking-widest text-zinc-400">{p.player?.name || p.displayName || p.name || getDisplayPlayerName(p)}</span>
-                                         </div>
-                                       );
-                                     })}
-                                 </div>
-                              </div>
-                              {/* Trasferta Bench */}
-                              <div className="space-y-6 pl-0 md:pl-10 pt-12 md:pt-0">
-                                 <div className="flex items-center gap-3 mb-6 bg-white/5 py-2 px-4 rounded-full w-fit ml-auto">
-                                   <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">Ospite</p>
-                                   <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-5 h-5" />
-                                 </div>
-                                 <div className="flex flex-col gap-2 items-end text-right">
-                                   {(matchDetails.lineups?.away?.benched || [])
-                                     .sort((a: any, b: any) => {
-                                        const aIn = a.events?.some((e: any) => e.type === 'substitution-in');
-                                        const bIn = b.events?.some((e: any) => e.type === 'substitution-in');
-                                        return aIn === bIn ? 0 : aIn ? -1 : 1;
-                                     })
-                                     .map((p: any) => {
-                                       return (
-                                         <div key={p.playerId || p.id} className="flex items-center gap-2 justify-end">
-                                           <span className="text-[11px] font-black truncate uppercase tracking-widest text-zinc-400">{p.player?.name || p.displayName || p.name || getDisplayPlayerName(p)}</span>
-                                         </div>
-                                       );
-                                     })}
-                                 </div>
+                               <div className="flex flex-col gap-2">
+                                 {homeActive.map((p: any) => (
+                                    <div key={p.playerId || p.id} className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition-colors px-4 py-3 rounded-xl border border-transparent hover:border-white/10">
+                                      <span className="text-[13px] font-bold text-zinc-300">{p.player?.name || p.displayName || p.name || getDisplayPlayerName(p)}</span>
+                                    </div>
+                                 ))}
+                               </div>
+                            </div>
+                            {/* Trasferta Component */}
+                            <div className="space-y-6 pl-0 md:pl-10 pt-12 md:pt-0">
+                               <div className="flex items-center gap-4 mb-8 justify-end w-full">
+                                 <p className="text-[13px] font-black text-white uppercase tracking-widest text-right">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</p>
+                                 <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-10 h-10 shadow-2xl" />
+                               </div>
+                               <div className="flex flex-col gap-2 items-end text-right">
+                                 {awayActive.map((p: any) => (
+                                    <div key={p.playerId || p.id} className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition-colors px-4 py-3 rounded-xl border border-transparent hover:border-white/10 justify-end w-full">
+                                      <span className="text-[13px] font-bold text-zinc-300">{p.player?.name || p.displayName || p.name || getDisplayPlayerName(p)}</span>
+                                    </div>
+                                 ))}
+                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </section>
-                  )}
+                      </section>
+                     );
+                  })()}
 
 
 

@@ -16,7 +16,7 @@ export default function ClassificaPage() {
                 const res = await fetch('/api/classifica');
                 if (!res.ok) throw new Error('Failed to fetch data');
                 const data = await res.json();
-                setLeaderboard(data.classifica);
+                setLeaderboard(data.classifica || []);
             } catch (err: any) {
                 setError(err.message);
             } finally {
@@ -77,7 +77,7 @@ export default function ClassificaPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {leaderboard.map((team, index) => (
+                                {leaderboard?.map((team, index) => (
                                     <tr
                                         key={index}
                                         className="hover:bg-white/5 transition-colors duration-150"
