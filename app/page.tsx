@@ -39,7 +39,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen text-white pt-24 p-4 font-sans selection:bg-cyan-500/30 relative z-10">
-      <div className="fixed inset-0 bg-[url('/image/bg-homepage-final.webp')] bg-cover bg-center bg-fixed opacity-20 pointer-events-none z-[-1]" />
+      <div className="fixed inset-0 bg-[url('/image/bg-homepage-final.png')] bg-cover bg-center bg-fixed opacity-20 pointer-events-none z-[-1]" />
       <div className="max-w-4xl mx-auto space-y-12 pb-20">
         
         <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="flex justify-center">

@@ -1047,8 +1047,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
               {[
                 { id: 'eventi', label: 'Eventi' },
                 { id: 'formazioni', label: 'Formazioni' },
-                { id: 'club-stats', label: 'Statistiche Club' },
-                { id: 'player-stats', label: 'Statistiche Giocatori' },
+                { id: 'club-stats', label: 'Statistiche' },
               ].map(tab => (
                 <button key={tab.id} onClick={() => setModalTab(tab.id)}
                   className={`px-5 py-4 whitespace-nowrap text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all relative
@@ -1252,14 +1251,12 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                         return aIn === bIn ? 0 : aIn ? -1 : 1;
                                      })
                                      .map((p: any) => {
-                                     const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
-                                     return (
-                                       <div key={p.playerId || p.id} className="flex items-center gap-2">
-                                         <span className={`text-[11px] font-black truncate uppercase tracking-widest ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p).split(' ').pop()}</span>
-                                         {subInEvent && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
-                                       </div>
-                                     );
-                                   })}
+                                       return (
+                                         <div key={p.playerId || p.id} className="flex items-center gap-2">
+                                           <span className="text-[11px] font-black truncate uppercase tracking-widest text-zinc-400">{p.player?.name || p.displayName || p.name || getDisplayPlayerName(p)}</span>
+                                         </div>
+                                       );
+                                     })}
                                  </div>
                               </div>
                               {/* Trasferta Bench */}
@@ -1276,14 +1273,12 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                                         return aIn === bIn ? 0 : aIn ? -1 : 1;
                                      })
                                      .map((p: any) => {
-                                     const subInEvent = p.events?.find((e: any) => e.type === 'substitution-in');
-                                     return (
-                                       <div key={p.playerId || p.id} className="flex items-center gap-2 justify-end">
-                                         {subInEvent && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
-                                         <span className={`text-[11px] font-black truncate uppercase tracking-widest ${subInEvent ? 'text-white' : 'text-zinc-500'}`}>{getDisplayPlayerName(p).split(' ').pop()}</span>
-                                       </div>
-                                     );
-                                   })}
+                                       return (
+                                         <div key={p.playerId || p.id} className="flex items-center gap-2 justify-end">
+                                           <span className="text-[11px] font-black truncate uppercase tracking-widest text-zinc-400">{p.player?.name || p.displayName || p.name || getDisplayPlayerName(p)}</span>
+                                         </div>
+                                       );
+                                     })}
                                  </div>
                             </div>
                           </div>
@@ -1292,16 +1287,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                     </section>
                   )}
 
-                  {/* ====== TAB: STATISTICHE GIOCATORI ====== */}
-                  {modalTab === 'player-stats' && (
-                    <PlayerStatsTable 
-                      matchDetails={matchDetails} 
-                      modalFixture={modalFixture} 
-                      selectedPlayer={selectedPlayer} 
-                      setSelectedPlayer={setSelectedPlayer} 
-                      resolveTeam={resolveTeam} 
-                    />
-                  )}
+
 
 
 
