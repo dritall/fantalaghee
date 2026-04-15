@@ -50,7 +50,7 @@ export default function ClassificaPage() {
             {/* Background Layer */}
             <div className="absolute inset-0 z-[-1]">
                 <div className="absolute inset-0 bg-[#050505]/80 z-10" />
-                <img src="/image/bg-field-neon.png" alt="Background" className="w-full h-full object-cover opacity-60" />
+                <img src="/image/bg-field-neon.webp" alt="Background" className="w-full h-full object-cover opacity-60" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-20" />
             </div>
 

@@ -92,8 +92,10 @@ function StatsTable({
   setSelectedPlayer
 }: any) {
   const activePlayers = useMemo(() => players.filter((p: any) => {
-    const played = getStatVal(p, ["mins_played", "minutesPlayed", "minutes_played"], matchDetails);
-    return (played && parseInt(String(played)) > 0) || p.events?.some((e: any) => e.type === "substitution-in") || p.tacticalXPosition != null;
+    const played = getStatVal(p, ["mins_played", "minutesPlayed", "minutes_played"], matchDetails) || p.statistics?.minutesPlayed || p.stats?.minutesPlayed;
+    const isStarter = p.starting || p.tacticalXPosition != null || p.substitute === false;
+    const subbedIn = p.events?.some((e: any) => e.type === "substitution-in");
+    return (played && parseInt(String(played)) > 0) || isStarter || subbedIn;
   }), [players, matchDetails]);
 
   if (activePlayers.length === 0) return null;
@@ -139,10 +141,11 @@ function StatsTable({
         <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-lg" />
         {teamName}
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-2">
         {activePlayers.map((p: any) => {
           const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
           const red = p.events?.some((e: any) => e.type === 'red-card');
+          const fullPlayerName = p.player?.name || p.displayName || p.shortName || p.name || getDisplayPlayerName(p);
           
           return (
             <div 
@@ -156,20 +159,15 @@ function StatsTable({
                   PlayerImage: (props:any) => <PlayerImage {...props} teamObj={teamObj} modalFixture={modalFixture} matchDetails={matchDetails} />
                 });
               }} 
-              className="cursor-pointer bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl p-4 flex items-center gap-4 transition-colors group shadow-sm"
+              className="cursor-pointer bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 rounded-lg p-3 flex items-center gap-3 transition-colors group"
             >
-              <div className="w-6 h-6 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[10px] font-bold shrink-0 text-zinc-400">
-                {p.jerseyNumber || '-'}
-              </div>
-              <PlayerImage p={p} className="w-10 h-10 shadow-lg" teamObj={teamObj} modalFixture={modalFixture} matchDetails={matchDetails} />
-              
-              <div className="flex flex-col min-w-0 pr-2">
-                <span className="font-black uppercase tracking-wider text-white truncate text-xs group-hover:text-cyan-400 transition-colors" title={getDisplayPlayerName(p)}>
-                  {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p)}
+              <div className="flex-1 flex items-center gap-3">
+                <span className="font-bold text-sm text-zinc-300 group-hover:text-white transition-colors">
+                  {fullPlayerName}
                 </span>
-                <div className="flex gap-1.5 mt-1.5 items-center">
-                  {yellow && <div className="w-2 h-2.5 bg-yellow-400 rounded-sm shadow-md" />}
-                  {red && <div className="w-2 h-2.5 bg-red-500 rounded-sm shadow-md" />}
+                <div className="flex gap-1.5 items-center">
+                  {yellow && <div className="w-2 h-3 bg-yellow-400 rounded-sm shadow-md" />}
+                  {red && <div className="w-2 h-3 bg-red-500 rounded-sm shadow-md" />}
                 </div>
               </div>
             </div>
