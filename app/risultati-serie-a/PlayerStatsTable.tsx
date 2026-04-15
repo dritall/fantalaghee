@@ -139,84 +139,42 @@ function StatsTable({
         <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-lg" />
         {teamName}
       </h4>
-      <div className="overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        <table className="w-full text-left border-collapse min-w-[max-content]">
-          <thead>
-            <tr className="border-b border-white/10 text-[8.5px] uppercase tracking-[0.2em] text-zinc-500 font-black">
-              <th className="py-3 px-3 sticky left-0 bg-[#0c1210] z-10 w-48 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">Giocatore</th>
-              {visibleMetrics.map((m, i) => (
-                <th key={i} className={`py-3 px-3 text-center ${m.color || ''}`}>{m.label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="text-[11px] font-medium text-zinc-300">
-            {activePlayers.map((p: any) => {
-              const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
-              const red = p.events?.some((e: any) => e.type === 'red-card');
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {activePlayers.map((p: any) => {
+          const yellow = p.events?.some((e: any) => e.type === 'yellow-card');
+          const red = p.events?.some((e: any) => e.type === 'red-card');
+          
+          return (
+            <div 
+              key={p.playerId || p.id} 
+              onClick={() => {
+                if (!p) return;
+                setSelectedPlayer({ 
+                  p, 
+                  teamName, 
+                  getStatVal: (pObj:any, k:string[]) => getStatVal(pObj, k, matchDetails), 
+                  PlayerImage: (props:any) => <PlayerImage {...props} teamObj={teamObj} modalFixture={modalFixture} matchDetails={matchDetails} />
+                });
+              }} 
+              className="cursor-pointer bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl p-4 flex items-center gap-4 transition-colors group shadow-sm"
+            >
+              <div className="w-6 h-6 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[10px] font-bold shrink-0 text-zinc-400">
+                {p.jerseyNumber || '-'}
+              </div>
+              <PlayerImage p={p} className="w-10 h-10 shadow-lg" teamObj={teamObj} modalFixture={modalFixture} matchDetails={matchDetails} />
               
-              return (
-                <tr key={p.playerId || p.id} onClick={() => {
-                   if (!p) return;
-                   setSelectedPlayer({ 
-                      p, 
-                      teamName, 
-                      getStatVal: (pObj:any, k:string[]) => getStatVal(pObj, k, matchDetails), 
-                      PlayerImage: (props:any) => <PlayerImage {...props} teamObj={teamObj} modalFixture={modalFixture} matchDetails={matchDetails} />
-                   });
-                }} className="cursor-pointer border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
-                  <td className="py-3 px-3 sticky left-0 bg-[#0a0f0d] group-hover:bg-[#111815] transition-colors z-10 font-black uppercase tracking-wider text-white flex items-center gap-3 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
-                    <div className="flex items-center gap-2">
-                       <div className="w-5 h-5 rounded bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] shrink-0 text-zinc-400">
-                         {p.jerseyNumber || '-'}
-                       </div>
-                       <PlayerImage p={p} className="w-8 h-8" teamObj={teamObj} modalFixture={modalFixture} matchDetails={matchDetails} />
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="truncate" title={getDisplayPlayerName(p)}>
-                        {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p)}
-                      </span>
-                      <div className="flex gap-1 mt-0.5 items-center">
-                        {yellow && <div className="w-1.5 h-2 bg-yellow-400 rounded-sm" />}
-                        {red && <div className="w-1.5 h-2 bg-red-500 rounded-sm" />}
-                      </div>
-                    </div>
-                  </td>
-                  {visibleMetrics.map((m, i) => {
-                    let val: any = '-';
-                    if (m.type === 'role') {
-                       val = p.position || p.role || '-';
-                    }
-                    else if (m.isEventCount) {
-                       const evCount = p.events?.filter((e: any) => e.type && e.type.includes(m.type!)).length || 0;
-                       const stVal = getStatVal(p, m.keys, matchDetails);
-                       if (evCount > 0) val = evCount;
-                       else if (stVal !== null && stVal !== undefined && stVal !== '0%') val = stVal;
-                    } else {
-                      const rawVal = getStatVal(p, m.keys, matchDetails);
-                      if (rawVal !== null && rawVal !== undefined) {
-                         val = rawVal;
-                         if (m.isPercent && val && val !== '0') val = val + '%';
-                      }
-                    }
-                    
-                    const hasVal = val !== '-' && val !== '';
-                    return (
-                      <td key={i} className={`py-4 px-3 text-center border-l border-white/5 align-middle ${hasVal && val !== '0' && val !== '0%' && val !== 0 ? m.color || '' : 'text-zinc-600'}`}>
-                        {hasVal ? (
-                           <span className={`${m.isEventCount && m.icon ? 'inline-flex w-5 h-5 items-center justify-center bg-white/10 rounded-full font-black text-[10px] shadow-sm' : 'text-[11px] font-black'}`}>
-                             {m.icon && val > 0 ? (val > 1 ? `${m.icon}x${val}` : m.icon) : val}
-                           </span>
-                        ) : (
-                           <span className="text-zinc-700 font-bold">-</span>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              <div className="flex flex-col min-w-0 pr-2">
+                <span className="font-black uppercase tracking-wider text-white truncate text-xs group-hover:text-cyan-400 transition-colors" title={getDisplayPlayerName(p)}>
+                  {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p)}
+                </span>
+                <div className="flex gap-1.5 mt-1.5 items-center">
+                  {yellow && <div className="w-2 h-2.5 bg-yellow-400 rounded-sm shadow-md" />}
+                  {red && <div className="w-2 h-2.5 bg-red-500 rounded-sm shadow-md" />}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

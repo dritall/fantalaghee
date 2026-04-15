@@ -1026,14 +1026,14 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                 <div className="p-6 md:p-10 bg-gradient-to-b from-white/10 to-transparent border-b border-white/5 flex flex-col items-center gap-2">
                   <span className="text-[9px] uppercase tracking-[0.3em] font-black text-cyan-400/80 bg-cyan-400/10 px-3 py-1 rounded-full mb-2">{statusText}</span>
                   <div className="flex justify-between items-center w-full max-w-lg mx-auto">
-                    <div className="flex flex-col items-center gap-4 w-[35%]">
+                    <div className="flex flex-col items-center justify-center text-center gap-4 w-[35%]">
                       <TeamLogo team={home} className="w-16 h-16 md:w-20 md:h-20 shadow-2xl drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform" />
                       <span className="text-[10px] md:text-sm uppercase text-white/90 font-black tracking-widest text-center leading-tight break-words h-10 flex items-start justify-center">{home.name}</span>
                     </div>
                     <div className="text-5xl md:text-7xl font-black italic tracking-tighter text-white drop-shadow-[0_4px_24px_rgba(255,255,255,0.2)] shrink-0 tabular-nums">
                       {hs} – {as_}
                     </div>
-                    <div className="flex flex-col items-center gap-4 w-[35%]">
+                    <div className="flex flex-col items-center justify-center text-center gap-4 w-[35%]">
                       <TeamLogo team={away} className="w-16 h-16 md:w-20 md:h-20 shadow-2xl drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-105 transition-transform" />
                       <span className="text-[10px] md:text-sm uppercase text-white/90 font-black tracking-widest text-center leading-tight break-words h-10 flex items-start justify-center">{away.name}</span>
                     </div>
