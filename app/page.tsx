@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Activity, Trophy, ShieldCheck, Clock, Trophy as TrophyIcon, Swords } from "lucide-react";
 import { motion } from "framer-motion";
 import { MagicCard } from "@/components/ui/MagicCard"; // Assicurati che il path sia corretto in base alla tua struttura
+import confetti from "canvas-confetti";
 
 export default function Home() {
   const [results, setResults] = useState<any[]>([]);
@@ -65,27 +66,49 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <MagicCard glowColor="#f97316" className="h-full">
-              <div className="p-8 text-center flex flex-col items-center justify-center h-full bg-gradient-to-br from-orange-500/5 to-transparent relative overflow-hidden">
-                <TrophyIcon className="absolute -right-4 -top-4 w-32 h-32 text-orange-500/10 rotate-12 pointer-events-none" />
-                <div className="text-orange-500 font-black text-[10px] tracking-[0.3em] uppercase mb-6 px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full">Finale Coppa UEFA</div>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full text-xl font-oswald font-black uppercase">
-                  <span className="text-3d-metallic">Cippalippa418</span>
-                  <Swords className="w-5 h-5 text-orange-500 mx-2 animate-pulse" />
-                  <span className="text-3d-metallic">FATTORE C</span>
+              <div 
+                className="p-8 group text-center flex flex-col items-center justify-center h-full bg-gradient-to-br from-orange-500/5 to-transparent relative overflow-hidden"
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = (rect.left + rect.width / 2) / window.innerWidth;
+                  const y = (rect.top + rect.height / 2) / window.innerHeight;
+                  confetti({ particleCount: 50, spread: 60, origin: { x, y } });
+                }}
+              >
+                <TrophyIcon className="absolute -right-4 -top-4 w-32 h-32 text-orange-500/10 rotate-12 pointer-events-none group-hover:scale-110 transition-transform duration-500" />
+                <div className="text-orange-500 font-black text-[10px] tracking-[0.3em] uppercase mb-4 px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full flex items-center justify-center gap-2">
+                  <TrophyIcon className="w-3 h-3 group-hover:animate-bounce" /> VINCITORE COPPA UEFA
                 </div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full text-2xl font-oswald font-black uppercase">
+                  <TrophyIcon className="w-8 h-8 text-orange-500 hidden sm:block group-hover:-translate-y-2 transition-all duration-300" />
+                  <span className="text-3d-metallic">FATTORE C</span>
+                  <TrophyIcon className="w-8 h-8 text-orange-500 hidden sm:block group-hover:-translate-y-2 transition-all duration-300" />
+                </div>
+                <div className="mt-2 text-sm text-orange-400/80 font-bold tracking-widest">( 6 - 4 )</div>
               </div>
             </MagicCard>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <MagicCard glowColor="#a855f7" className="h-full">
-              <div className="p-8 text-center flex flex-col items-center justify-center h-full bg-gradient-to-br from-purple-500/5 to-transparent relative overflow-hidden">
-                <TrophyIcon className="absolute -right-4 -top-4 w-32 h-32 text-purple-500/10 rotate-12 pointer-events-none" />
-                <div className="text-purple-400 font-black text-[10px] tracking-[0.3em] uppercase mb-6 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full">Finale Super Lega</div>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full text-xl font-oswald font-black uppercase">
-                  <span className="text-3d-metallic">Cuccioloni</span>
-                  <Swords className="w-5 h-5 text-purple-400 mx-2 animate-pulse" />
-                  <span className="text-3d-metallic">Bollicine25</span>
+              <div 
+                className="p-8 group text-center flex flex-col items-center justify-center h-full bg-gradient-to-br from-purple-500/5 to-transparent relative overflow-hidden"
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = (rect.left + rect.width / 2) / window.innerWidth;
+                  const y = (rect.top + rect.height / 2) / window.innerHeight;
+                  confetti({ particleCount: 50, spread: 60, origin: { x, y } });
+                }}
+              >
+                <TrophyIcon className="absolute -right-4 -top-4 w-32 h-32 text-purple-500/10 rotate-12 pointer-events-none group-hover:scale-110 transition-transform duration-500" />
+                <div className="text-purple-400 font-black text-[10px] tracking-[0.3em] uppercase mb-4 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full flex items-center justify-center gap-2">
+                  <TrophyIcon className="w-3 h-3 group-hover:animate-bounce" /> VINCITORE SUPER LEGA
                 </div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full text-2xl font-oswald font-black uppercase">
+                  <TrophyIcon className="w-8 h-8 text-purple-400 hidden sm:block group-hover:-translate-y-2 transition-all duration-300" />
+                  <span className="text-3d-metallic">Bollicine25</span>
+                  <TrophyIcon className="w-8 h-8 text-purple-400 hidden sm:block group-hover:-translate-y-2 transition-all duration-300" />
+                </div>
+                <div className="mt-2 text-sm text-purple-400/80 font-bold tracking-widest">( 6 - 4 )</div>
               </div>
             </MagicCard>
           </motion.div>
