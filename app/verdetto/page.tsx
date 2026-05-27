@@ -320,6 +320,52 @@ export default function VerdettoPage() {
                             </MagicCard>
                         </div>
 
+                        {/* Premi Super Lega */}
+                        <div className="h-full">
+                            <MagicCard glowColor="#a855f7" className="h-full">
+                                <div className="p-5 flex flex-col h-full">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <Trophy className="w-5 h-5 text-purple-400" />
+                                        <h4 className="font-bold text-purple-300 uppercase tracking-wide text-lg">Premi Super Lega</h4>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {data.premi.superLega?.map((p: any, i: number) => (
+                                            <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-lg">{['🥇','🥈','🥉','4️⃣'][i] || `${i+1}.`}</span>
+                                                    <span className="text-gray-300">{p.squadra}</span>
+                                                </div>
+                                                <span className="font-bold text-amber-400">{p.premio} 🍆</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </MagicCard>
+                        </div>
+
+                        {/* Premi Coppa UEFA */}
+                        <div className="h-full">
+                            <MagicCard glowColor="#38bdf8" className="h-full">
+                                <div className="p-5 flex flex-col h-full">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <Trophy className="w-5 h-5 text-sky-400" />
+                                        <h4 className="font-bold text-sky-300 uppercase tracking-wide text-lg">Premi Coppa UEFA</h4>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {data.premi.coppaUefa?.map((p: any, i: number) => (
+                                            <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-lg">{['🥇','🥈'][i] || `${i+1}.`}</span>
+                                                    <span className="text-gray-300">{p.squadra}</span>
+                                                </div>
+                                                <span className="font-bold text-amber-400">{p.premio} 🍆</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </MagicCard>
+                        </div>
+
                     </div>
                 </div>
 

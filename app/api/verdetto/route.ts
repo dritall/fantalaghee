@@ -132,6 +132,24 @@ const parseSheetData = (data: string[][]) => {
         migliorPunteggio = { info: row[0], premio: row[2] };
     }
 
+    // Premi Super Lega (A82:C87 -> indices 81-86, data rows at 83-86)
+    const premiSuperLega: any[] = [];
+    for (let i = 83; i <= 86; i++) {
+        const row = data[i];
+        if (row && row[0]) {
+            premiSuperLega.push({ squadra: row[0], posizione: row[1], premio: row[2] });
+        }
+    }
+
+    // Premi Coppa UEFA (A88:C90 -> indices 87-89, data rows at 88-89)
+    const premiCoppaUefa: any[] = [];
+    for (let i = 88; i <= 89; i++) {
+        const row = data[i];
+        if (row && row[0]) {
+            premiCoppaUefa.push({ squadra: row[0], posizione: row[1], premio: row[2] });
+        }
+    }
+
     return {
         numeroGiornata,
         leaderAttuale,
@@ -143,7 +161,9 @@ const parseSheetData = (data: string[][]) => {
         premi: {
             classifica: premiClassifica,
             giornata: premiDiGiornata,
-            migliorPunteggio: migliorPunteggio
+            migliorPunteggio: migliorPunteggio,
+            superLega: premiSuperLega,
+            coppaUefa: premiCoppaUefa
         }
     };
 };
