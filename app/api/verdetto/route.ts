@@ -163,6 +163,15 @@ const parseSheetData = (data: string[][]) => {
     if (migliorPunteggio.info !== 'N/D') addPrize(migliorPunteggio.info, migliorPunteggio.premio);
     premiSuperLega.forEach(p => addPrize(p.squadra, p.premio));
     premiCoppaUefa.forEach(p => addPrize(p.squadra, p.premio));
+
+    // Merge varianti nome Cippalippa1418 (es. spazi/maiuscole diverse tra sheet e migliorPunteggio)
+    const cippaKeys = Object.keys(totals).filter(k => k.toLowerCase().replace(/\s/g, '') === 'cippalippa1418');
+    if (cippaKeys.length > 1) {
+        const merged = cippaKeys.reduce((sum, k) => sum + totals[k], 0);
+        cippaKeys.forEach(k => delete totals[k]);
+        totals['Cippalippa1418'] = merged;
+    }
+
     const premiRiepilogo = Object.entries(totals)
         .map(([squadra, totale]) => ({ squadra, totale }))
         .sort((a, b) => b.totale - a.totale);
