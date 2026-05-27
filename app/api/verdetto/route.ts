@@ -150,6 +150,23 @@ const parseSheetData = (data: string[][]) => {
         }
     }
 
+    // Riepilogo aggregato per squadra (somma di tutte le categorie premi)
+    const totals: Record<string, number> = {};
+    const addPrize = (squadra: string, premio: any) => {
+        const val = parseFloat(String(premio).replace(',', '.'));
+        if (squadra && squadra.trim() && !isNaN(val) && val > 0) {
+            totals[squadra.trim()] = (totals[squadra.trim()] || 0) + val;
+        }
+    };
+    premiClassifica.forEach(p => addPrize(p.squadra, p.premio));
+    premiDiGiornata.forEach(p => addPrize(p.squadra, p.premio));
+    if (migliorPunteggio.info !== 'N/D') addPrize(migliorPunteggio.info, migliorPunteggio.premio);
+    premiSuperLega.forEach(p => addPrize(p.squadra, p.premio));
+    premiCoppaUefa.forEach(p => addPrize(p.squadra, p.premio));
+    const premiRiepilogo = Object.entries(totals)
+        .map(([squadra, totale]) => ({ squadra, totale }))
+        .sort((a, b) => b.totale - a.totale);
+
     return {
         numeroGiornata,
         leaderAttuale,
@@ -163,7 +180,8 @@ const parseSheetData = (data: string[][]) => {
             giornata: premiDiGiornata,
             migliorPunteggio: migliorPunteggio,
             superLega: premiSuperLega,
-            coppaUefa: premiCoppaUefa
+            coppaUefa: premiCoppaUefa,
+            riepilogo: premiRiepilogo
         }
     };
 };

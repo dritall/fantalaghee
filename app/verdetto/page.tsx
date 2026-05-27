@@ -367,6 +367,39 @@ export default function VerdettoPage() {
                         </div>
 
                     </div>
+
+                    {/* Riepilogo aggregato premi */}
+                    {data.premi.riepilogo?.length > 0 && (
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }}
+                        >
+                            <MagicCard glowColor="#f59e0b" className="w-full">
+                                <div className="p-6">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <Medal className="w-6 h-6 text-amber-400" />
+                                        <h4 className={`${oswald.className} text-2xl font-bold text-amber-400 uppercase tracking-wide`}>Riepilogo Premi Totali</h4>
+                                        <span className="text-xs text-muted-foreground ml-2">(Classifica + Giornata + Miglior Punteggio + Coppe)</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                        {data.premi.riepilogo.map((p: any, i: number) => (
+                                            <div key={i} className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all hover:-translate-y-1 ${
+                                                i === 0 ? 'border-yellow-500/50 bg-yellow-500/10' :
+                                                i === 1 ? 'border-slate-400/50 bg-slate-400/10' :
+                                                i === 2 ? 'border-orange-600/50 bg-orange-600/10' :
+                                                'border-white/10 bg-white/5'
+                                            }`}>
+                                                <span className="text-2xl mb-1">{['🥇','🥈','🥉'][i] || '🍆'}</span>
+                                                <p className="text-white font-bold text-sm text-center leading-tight">{p.squadra}</p>
+                                                <p className="text-amber-400 font-bold text-xl mt-1">{p.totale}</p>
+                                                <p className="text-xs text-muted-foreground">melanzane</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </MagicCard>
+                        </motion.div>
+                    )}
+
                 </div>
 
 
