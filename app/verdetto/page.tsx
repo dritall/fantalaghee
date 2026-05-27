@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
 import { MagicCard } from '@/components/ui/MagicCard';
@@ -30,6 +31,13 @@ const oswald = Oswald({ subsets: ['latin'] });
 
 export default function VerdettoPage() {
     const [data, setData] = useState<any>(null);
+
+    const fireConfetti = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const x = (rect.left + rect.width / 2) / window.innerWidth;
+        const y = (rect.top + rect.height / 2) / window.innerHeight;
+        confetti({ particleCount: 60, spread: 70, origin: { x, y }, colors: ['#FFD700', '#a855f7', '#38bdf8', '#4ade80', '#f97316'] });
+    }, []);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -279,7 +287,7 @@ export default function VerdettoPage() {
                                     <h4 className="text-center font-bold text-indigo-300 mb-6 uppercase tracking-wide text-lg">Classifica Generale</h4>
                                     <div className="space-y-2">
                                         {data.premi.classifica.map((p: any, i: number) => (
-                                            <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors cursor-pointer">
                                                 <span className="text-gray-300">{p.squadra}</span>
                                                 <span className="font-bold text-amber-400">{p.premio} 🍆</span>
                                             </div>
@@ -296,7 +304,7 @@ export default function VerdettoPage() {
                                     <h4 className="text-center font-bold text-indigo-300 mb-6 uppercase tracking-wide text-lg">Premi di Giornata</h4>
                                     <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar flex-1">
                                         {data.premi.giornata.map((p: any, i: number) => (
-                                            <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors cursor-pointer">
                                                 <span className="text-gray-300">{p.squadra}</span>
                                                 <span className="font-bold text-amber-400">{p.premio} 🍆</span>
                                             </div>
@@ -312,7 +320,7 @@ export default function VerdettoPage() {
                                 <div className="p-5 flex flex-col items-center justify-center text-center space-y-3 relative overflow-hidden h-full">
                                     <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
                                     <h4 className="font-bold text-indigo-300 uppercase tracking-wide text-lg relative z-10">Miglior Punteggio</h4>
-                                    <div className="py-4">
+                                    <div onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="py-4 cursor-pointer">
                                         <p className="text-white font-semibold text-lg">{data.premi.migliorPunteggio.info}</p>
                                         <p className="text-4xl font-bold text-amber-400 mt-2">{data.premi.migliorPunteggio.premio} 🍆</p>
                                     </div>
@@ -330,7 +338,7 @@ export default function VerdettoPage() {
                                     </div>
                                     <div className="space-y-2">
                                         {data.premi.superLega?.map((p: any, i: number) => (
-                                            <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors cursor-pointer">
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-lg">{['🥇','🥈','🥉','4️⃣'][i] || `${i+1}.`}</span>
                                                     <span className="text-gray-300">{p.squadra}</span>
@@ -353,7 +361,7 @@ export default function VerdettoPage() {
                                     </div>
                                     <div className="space-y-2">
                                         {data.premi.coppaUefa?.map((p: any, i: number) => (
-                                            <div key={i} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors cursor-pointer">
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-lg">{['🥇','🥈'][i] || `${i+1}.`}</span>
                                                     <span className="text-gray-300">{p.squadra}</span>
@@ -382,16 +390,31 @@ export default function VerdettoPage() {
                                     </div>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                                         {data.premi.riepilogo.map((p: any, i: number) => (
-                                            <div key={i} className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all hover:-translate-y-1 ${
-                                                i === 0 ? 'border-yellow-500/50 bg-yellow-500/10' :
-                                                i === 1 ? 'border-slate-400/50 bg-slate-400/10' :
-                                                i === 2 ? 'border-orange-600/50 bg-orange-600/10' :
-                                                'border-white/10 bg-white/5'
-                                            }`}>
-                                                <span className="text-2xl mb-1">{['🥇','🥈','🥉'][i] || '🍆'}</span>
-                                                <p className="text-white font-bold text-sm text-center leading-tight">{p.squadra}</p>
-                                                <p className="text-amber-400 font-bold text-xl mt-1">{p.totale}</p>
-                                                <p className="text-xs text-muted-foreground">melanzane</p>
+                                            <div
+                                                key={i}
+                                                onMouseEnter={fireConfetti}
+                                                onTouchStart={fireConfetti}
+                                                className={`flex flex-col items-center justify-center p-4 rounded-xl border cursor-pointer transition-all hover:-translate-y-1 ${
+                                                    i === 0 ? 'border-yellow-500/50 bg-yellow-500/10' :
+                                                    i === 1 ? 'border-slate-400/50 bg-slate-400/10' :
+                                                    i === 2 ? 'border-orange-600/50 bg-orange-600/10' :
+                                                    'border-white/10 bg-white/5'
+                                                }`}
+                                            >
+                                                {i < 3 ? (
+                                                    <>
+                                                        <span className="text-2xl mb-1">{['🥇','🥈','🥉'][i]}</span>
+                                                        <p className="text-white font-bold text-sm text-center leading-tight">{p.squadra}</p>
+                                                        <p className="text-amber-400 font-bold text-xl mt-1">{p.totale}</p>
+                                                        <span className="text-xl mt-0.5">🍆</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p className="text-white font-bold text-sm text-center leading-tight">{p.squadra}</p>
+                                                        <p className="text-amber-400 font-bold text-xl mt-1">{p.totale}</p>
+                                                        <span className="text-xl mt-0.5">🍆</span>
+                                                    </>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
