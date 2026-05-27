@@ -160,7 +160,7 @@ const parseSheetData = (data: string[][]) => {
     };
     premiClassifica.forEach(p => addPrize(p.squadra, p.premio));
     premiDiGiornata.forEach(p => addPrize(p.squadra, p.premio));
-    if (migliorPunteggio.info !== 'N/D') addPrize(migliorPunteggio.info, migliorPunteggio.premio);
+    if (migliorPunteggio.info !== 'N/D') addPrize(migliorPunteggio.info.split(' - ')[0].trim(), migliorPunteggio.premio);
     premiSuperLega.forEach(p => addPrize(p.squadra, p.premio));
     premiCoppaUefa.forEach(p => addPrize(p.squadra, p.premio));
 
