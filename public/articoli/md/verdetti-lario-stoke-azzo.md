@@ -3,7 +3,7 @@ title: "I Verdetti del Lario: La Dittatura di Stoke Azzo"
 date: "2026-05-27"
 description: "Il trionfo implacabile di Stoke Azzo, il dramma sportivo di Raga di Oporto e i record di una stagione lariana vissuta al cardiopalma."
 author: "Oracolo del Laghèe"
-image: "/image/gazzetta/impero-stoke-azzo.png"
+image: "/image/gazzetta/impero-stoke-azzo.jpg"
 ---
 
 # L'IMPERO SUL LARIO: LA DITTATURA DI STOKE AZZO E I MESI DELLE LAME AFFILATE
