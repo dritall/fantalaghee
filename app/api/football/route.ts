@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getSeason } from '@/lib/seasons';
 
 const HEADERS: HeadersInit = {
   'User-Agent': 'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
@@ -114,10 +115,18 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const endpoint = searchParams.get('endpoint');
   const seasonIdParam = searchParams.get('seasonId');
-  const SEASON_ID = seasonIdParam || 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
+  const stagioneParam = searchParams.get('stagione');
+  const seasonFromConfig = stagioneParam ? getSeason(stagioneParam).serieASeasonId : undefined;
+  const SEASON_ID = seasonIdParam || seasonFromConfig || 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
   const BASE = `https://api-sdp.legaseriea.it/v1/serie-a/football/seasons/${SEASON_ID}`;
 
   try {
+    if (endpoint === 'seasons') {
+      // Diagnostico: lista le stagioni disponibili per trovare il Football_Season id della 2026/27
+      const data = await legaFetch('https://api-sdp.legaseriea.it/v1/serie-a/football/seasons?locale=it-IT');
+      return NextResponse.json({ ok: true, data });
+    }
+
     if (endpoint === 'standings') {
       const data = await legaFetch(`${BASE}/standings/overall?locale=it-IT`);
       const teams = data?.standings?.[0]?.teams || [];
@@ -249,7 +258,7 @@ export async function GET(request: Request) {
       {
         ok: false,
         error: 'Endpoint non valido',
-        disponibili: ['standings', 'matches?round=1-38', 'match?id=...'],
+        disponibili: ['seasons', 'standings', 'matches?round=1-38', 'match?id=...'],
       },
       { status: 400 }
     );

@@ -5,6 +5,8 @@ import { Activity, Trophy, ShieldCheck, Clock, Trophy as TrophyIcon, Swords } fr
 import { motion } from "framer-motion";
 import { MagicCard } from "@/components/ui/MagicCard"; // Assicurati che il path sia corretto in base alla tua struttura
 import confetti from "canvas-confetti";
+import { ISCRIZIONE_FORM_URL } from "@/lib/seasons";
+import { UserPlus } from "lucide-react";
 
 export default function Home() {
   const [results, setResults] = useState<any[]>([]);
@@ -46,6 +48,23 @@ export default function Home() {
           <Image src="/image/logo-fantalaghee.png" alt="Logo Fantalaghee" width={350} height={150} priority className="hover:scale-105 transition-transform duration-500 drop-shadow-2xl" />
         </motion.div>
         
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <a href={ISCRIZIONE_FORM_URL} target="_blank" rel="noopener noreferrer" className="block">
+            <MagicCard glowColor="#4ade80">
+              <div className="p-6 md:p-8 flex flex-col items-center text-center gap-2 group">
+                <span className="text-primary font-black text-xs tracking-[0.3em] uppercase px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+                  Stagione 2026/27
+                </span>
+                <h2 className="text-2xl md:text-4xl font-black font-oswald uppercase tracking-tight text-3d-metallic flex items-center gap-3">
+                  <UserPlus className="w-7 h-7 md:w-9 md:h-9 text-primary group-hover:scale-110 transition-transform" />
+                  Iscriviti alla Nuova Stagione
+                </h2>
+                <p className="text-sm text-zinc-400 mt-1">Compila il form per partecipare al prossimo campionato →</p>
+              </div>
+            </MagicCard>
+          </a>
+        </motion.div>
+
         {latestArticle && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <MagicCard href={`/gazzetta/${latestArticle.id}`} glowColor="#f43f5e">

@@ -1,11 +1,14 @@
 
 "use client";
 
-import { useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
 import { MagicCard } from '@/components/ui/MagicCard';
+import { SeasonSwitcher } from '@/components/ui/SeasonSwitcher';
+import { CURRENT_SEASON } from '@/lib/seasons';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -29,7 +32,10 @@ ChartJS.register(
 
 const oswald = Oswald({ subsets: ['latin'] });
 
-export default function VerdettoPage() {
+function VerdettoContent() {
+    const searchParams = useSearchParams();
+    const stagione = searchParams.get('stagione') || CURRENT_SEASON;
+
     const [data, setData] = useState<any>(null);
 
     const fireConfetti = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -43,8 +49,9 @@ export default function VerdettoPage() {
 
     useEffect(() => {
         async function fetchDashboard() {
+            setLoading(true);
             try {
-                const res = await fetch('/api/verdetto');
+                const res = await fetch(`/api/verdetto?stagione=${stagione}`);
                 if (!res.ok) throw new Error("Errore nel caricamento dati");
                 const jsonData = await res.json();
                 if (jsonData.error) throw new Error(jsonData.details);
@@ -56,7 +63,7 @@ export default function VerdettoPage() {
             }
         }
         fetchDashboard();
-    }, []);
+    }, [stagione]);
 
     if (loading) return (
         <div className="min-h-screen pt-24 flex justify-center items-center">
@@ -150,13 +157,11 @@ export default function VerdettoPage() {
                     <h1 className={`${oswald.className} text-4xl md:text-6xl font-bold text-white uppercase tracking-wide`}>
                         IL VERDETTO
                     </h1>
+                    <div className="flex justify-center">
+                        <SeasonSwitcher />
+                    </div>
                     <div className="inline-block px-4 py-2 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 font-medium">
                         Aggiornato alla Giornata {data.numeroGiornata}
-                    </div>
-                    <div className="pt-2">
-                        <a href="https://docs.google.com/spreadsheets/d/1lHQEZoQT3TmgA-mPwExzorjxv6ub-xvFW-9WTm5805Y/edit?usp=sharing" target="_blank" className="text-xs text-muted-foreground hover:text-white transition-colors underline decoration-dotted">
-                            Vedi Foglio Google Originale
-                        </a>
                     </div>
                 </div>
 
@@ -428,5 +433,17 @@ export default function VerdettoPage() {
 
             </div>
         </main>
+    );
+}
+
+export default function VerdettoPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen pt-24 flex justify-center items-center">
+                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+            </div>
+        }>
+            <VerdettoContent />
+        </Suspense>
     );
 }

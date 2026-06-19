@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { formatDateToItalian } from "@/lib/date-utils";
+import { ARCHIVED_SEASON, SEASONS } from "@/lib/seasons";
 
 interface Article {
     id: string;
     date: string;
     title: string;
     imageUrl: string;
+    stagione?: string;
     placeholder?: boolean;
 }
 
@@ -62,7 +64,22 @@ export default function GazzettaPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {articles.map((article, index) => (
+                        {articles.map((article, index) => {
+                            const isFirstArchived =
+                                article.stagione === ARCHIVED_SEASON &&
+                                articles[index - 1]?.stagione !== ARCHIVED_SEASON;
+
+                            return (
+                            <Fragment key={article.id || index}>
+                            {isFirstArchived && (
+                                <div key={`divider-${article.id}`} className="col-span-full flex items-center gap-4 my-2">
+                                    <div className="flex-1 h-px bg-white/10" />
+                                    <span className="text-muted-foreground text-xs sm:text-sm uppercase tracking-[0.2em] font-bold whitespace-nowrap">
+                                        Archivio Stagione {SEASONS[ARCHIVED_SEASON].label}
+                                    </span>
+                                    <div className="flex-1 h-px bg-white/10" />
+                                </div>
+                            )}
                             <motion.div
                                 key={article.id || index}
                                 initial={{ opacity: 0, scale: 0.9 }}
@@ -105,7 +122,9 @@ export default function GazzettaPage() {
                                     </Link>
                                 )}
                             </motion.div>
-                        ))}
+                            </Fragment>
+                            );
+                        })}
                     </div>
                 )}
             </div>

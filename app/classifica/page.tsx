@@ -1,19 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MagicCard } from "@/components/ui/MagicCard";
+import { SeasonSwitcher } from "@/components/ui/SeasonSwitcher";
+import { CURRENT_SEASON } from "@/lib/seasons";
 
-export default function ClassificaPage() {
+function ClassificaContent() {
+    const searchParams = useSearchParams();
+    const stagione = searchParams.get("stagione") || CURRENT_SEASON;
+
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchData() {
+            setLoading(true);
             try {
-                const res = await fetch('/api/classifica');
+                const res = await fetch(`/api/classifica?stagione=${stagione}`);
                 if (!res.ok) throw new Error('Failed to fetch data');
                 const data = await res.json();
                 setLeaderboard(data.classifica || []);
@@ -24,7 +31,7 @@ export default function ClassificaPage() {
             }
         }
         fetchData();
-    }, []);
+    }, [stagione]);
 
     // Generate Matchday Columns (G1 to G38)
     const matchdays = Array.from({ length: 38 }, (_, i) => `G${i + 1}`);
@@ -55,9 +62,12 @@ export default function ClassificaPage() {
             </div>
 
             <div className="relative z-30 flex flex-col flex-1">
-                <div className="mb-6">
-                    <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Classifica Generale</h1>
-                    <p className="text-gray-400 text-sm">Scorri orizzontalmente per vedere tutte le giornate.</p>
+                <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Classifica Generale</h1>
+                        <p className="text-gray-400 text-sm">Scorri orizzontalmente per vedere tutte le giornate.</p>
+                    </div>
+                    <SeasonSwitcher />
                 </div>
 
                 {/* Main Table Container - Explicit overflow handling */}
@@ -121,6 +131,18 @@ export default function ClassificaPage() {
                 </MagicCard>
             </div>
 
-        </main >
+        </main>
+    );
+}
+
+export default function ClassificaPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex justify-center items-center bg-[#050505]">
+                <Loader2 className="w-10 h-10 text-white animate-spin" />
+            </div>
+        }>
+            <ClassificaContent />
+        </Suspense>
     );
 }
