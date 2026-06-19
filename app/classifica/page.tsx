@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MagicCard } from "@/components/ui/MagicCard";
-import { SeasonSwitcher } from "@/components/ui/SeasonSwitcher";
 import { CURRENT_SEASON } from "@/lib/seasons";
 
 function ClassificaContent() {
@@ -62,12 +61,9 @@ function ClassificaContent() {
             </div>
 
             <div className="relative z-30 flex flex-col flex-1">
-                <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Classifica Generale</h1>
-                        <p className="text-gray-400 text-sm">Scorri orizzontalmente per vedere tutte le giornate.</p>
-                    </div>
-                    <SeasonSwitcher />
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Classifica Generale</h1>
+                    <p className="text-gray-400 text-sm">Scorri orizzontalmente per vedere tutte le giornate.</p>
                 </div>
 
                 {/* Main Table Container - Explicit overflow handling */}

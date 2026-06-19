@@ -2,10 +2,12 @@
 /* eslint-disable */
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { getDisplayPlayerName, getPlayerImageUrl } from './utils';
 import * as Dialog from '@radix-ui/react-dialog';
+import { SEASONS, CURRENT_SEASON } from '@/lib/seasons';
 
 const PlayerStatsTable = dynamic(() => import('./PlayerStatsTable'), { ssr: false });
 import { X, Loader2, AlertTriangle } from 'lucide-react';
@@ -356,13 +358,19 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     );
   };
 
-  export default function ScoutHub() {
+  function ScoutHubContent() {
+  const searchParams = useSearchParams();
+  const stagione = searchParams.get('stagione') || CURRENT_SEASON;
+  const seasonLabel = SEASONS[stagione]?.label || SEASONS[CURRENT_SEASON].label;
+
   const [activeTab, setActiveTab]           = useState('calendario');
   const [selectedRound, setSelectedRound]   = useState<number>(30);
   const [matches, setMatches]               = useState<any[]>([]);
   const [standings, setStandings]           = useState<any[]>([]);
+  const [loadingStandings, setLoadingStandings] = useState(true);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [matchError, setMatchError]         = useState<string | null>(null);
+  const [seasonUnavailable, setSeasonUnavailable] = useState(false);
   const [modalFixture, setModalFixture]     = useState<any>(null);
   const [matchDetails, setMatchDetails]     = useState<any>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
@@ -377,9 +385,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   }, [modalTab]);
 
   useEffect(() => {
-    fetch('/api/football?endpoint=standings')
+    setSeasonUnavailable(false);
+    fetch(`/api/football?endpoint=standings&stagione=${stagione}`)
       .then(r => r.json())
       .then(res => {
+        if (res?.seasonUnavailable) { setSeasonUnavailable(true); setStandings([]); return; }
         const teams = res?.data?.teams || [];
         const parsed = teams.map((t: any) => {
           const getStat = (id: string) => {
@@ -405,17 +415,18 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       })
       .catch(() => null)
       .finally(() => setLoadingStandings(false));
-  }, []);
+  }, [stagione]);
 
   const loadRound = useCallback(async (round: number) => {
     setLoadingMatches(true);
     setMatchError(null);
     setMatches([]);
     try {
-      const res = await fetch(`/api/football?endpoint=matches&round=${round}`);
+      const res = await fetch(`/api/football?endpoint=matches&round=${round}&stagione=${stagione}`);
       const json = await res.json();
+      if (json.seasonUnavailable) { setSeasonUnavailable(true); return; }
       if (!json.ok) throw new Error(json.error || 'Errore sconosciuto');
-      
+
       const rawMatches = json.data?.matches || [];
       const sortedMatches = [...rawMatches].sort((a: any, b: any) => {
         const da = new Date(a.matchDateUtc || a.matchDateLocal || 0).getTime();
@@ -428,13 +439,15 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     } finally {
       setLoadingMatches(false);
     }
-  }, []);
+  }, [stagione]);
 
 
   useEffect(() => {
-    fetch('/api/football?endpoint=matchdays')
+    setSeasonUnavailable(false);
+    fetch(`/api/football?endpoint=matchdays&stagione=${stagione}`)
       .then(r => r.json())
       .then(res => {
+         if (res?.seasonUnavailable) { setSeasonUnavailable(true); return; }
          const matchdays = res.data || [];
          const live = matchdays.find((md: any) => md.matchdayStatus === "Playing");
          const lastPlayed = matchdays
@@ -874,11 +887,18 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
         <div className="text-center mb-10">
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400/60 bg-cyan-400/5 px-4 py-1.5 rounded-full border border-cyan-400/10">
-            Stagione 2025/2026
+            Stagione {seasonLabel}
           </span>
         </div>
 
-
+        {seasonUnavailable ? (
+          <div className="bg-zinc-900/40 rounded-[2.5rem] p-12 border border-white/5 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-zinc-600" />
+            <p className="text-zinc-400 text-sm font-bold uppercase tracking-widest">Calendario non ancora disponibile</p>
+            <p className="text-zinc-600 text-xs max-w-md">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
+          </div>
+        ) : (
+        <>
         {/* ===== CALENDARIO ===== */}
         {activeTab === 'calendario' && (
           <div className="space-y-6">
@@ -1002,6 +1022,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
               })}
             </div>
           </div>
+        )}
+        </>
         )}
       </div>
 
@@ -1280,5 +1302,17 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
         </Dialog.Portal>
       </Dialog.Root>
     </div>
+  );
+}
+
+export default function ScoutHub() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex justify-center items-center pt-24">
+        <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
+      </div>
+    }>
+      <ScoutHubContent />
+    </Suspense>
   );
 }

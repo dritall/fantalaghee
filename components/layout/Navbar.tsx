@@ -7,6 +7,8 @@ import { Menu, X, Home, Trophy, Calendar, Newspaper, User, BookOpen, Gavel, Acti
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
+import { SeasonSwitcher } from "@/components/ui/SeasonSwitcher";
 
 const navItems = [
     { name: "Classifica Lega", href: "/classifica", icon: Trophy },
@@ -16,10 +18,13 @@ const navItems = [
     { name: "Regolamento", href: "/regolamento", icon: BookOpen },
 ];
 
+const SEASON_AWARE_ROUTES = ["/classifica", "/verdetto", "/risultati-serie-a"];
+
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const pathname = usePathname();
+    const showSeasonSwitcher = SEASON_AWARE_ROUTES.includes(pathname);
 
     // Handle scroll effect for navbar background
     useEffect(() => {
@@ -95,6 +100,14 @@ export function Navbar() {
                         </button>
                     </div>
                 </div>
+
+                {showSeasonSwitcher && (
+                    <div className="flex justify-center pb-3">
+                        <Suspense fallback={null}>
+                            <SeasonSwitcher />
+                        </Suspense>
+                    </div>
+                )}
             </div>
 
             {/* Mobile Menu Dropdown */}

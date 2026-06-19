@@ -116,7 +116,9 @@ export async function GET(request: Request) {
   const endpoint = searchParams.get('endpoint');
   const seasonIdParam = searchParams.get('seasonId');
   const stagioneParam = searchParams.get('stagione');
-  const seasonFromConfig = stagioneParam ? getSeason(stagioneParam).serieASeasonId : undefined;
+  const seasonConfig = stagioneParam ? getSeason(stagioneParam) : null;
+  const seasonFromConfig = seasonConfig?.serieASeasonId;
+  const seasonUnavailable = !!stagioneParam && !!seasonConfig && !seasonFromConfig && !seasonIdParam;
   const SEASON_ID = seasonIdParam || seasonFromConfig || 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
   const BASE = `https://api-sdp.legaseriea.it/v1/serie-a/football/seasons/${SEASON_ID}`;
 
@@ -125,6 +127,10 @@ export async function GET(request: Request) {
       // Diagnostico: lista le stagioni disponibili per trovare il Football_Season id della 2026/27
       const data = await legaFetch('https://api-sdp.legaseriea.it/v1/serie-a/football/seasons?locale=it-IT');
       return NextResponse.json({ ok: true, data });
+    }
+
+    if (seasonUnavailable) {
+      return NextResponse.json({ ok: false, error: 'Calendario non ancora pubblicato da Lega Serie A per questa stagione', seasonUnavailable: true });
     }
 
     if (endpoint === 'standings') {

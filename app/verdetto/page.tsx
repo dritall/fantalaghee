@@ -7,7 +7,6 @@ import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
 import { MagicCard } from '@/components/ui/MagicCard';
-import { SeasonSwitcher } from '@/components/ui/SeasonSwitcher';
 import { CURRENT_SEASON } from '@/lib/seasons';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -157,9 +156,6 @@ function VerdettoContent() {
                     <h1 className={`${oswald.className} text-4xl md:text-6xl font-bold text-white uppercase tracking-wide`}>
                         IL VERDETTO
                     </h1>
-                    <div className="flex justify-center">
-                        <SeasonSwitcher />
-                    </div>
                     <div className="inline-block px-4 py-2 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 font-medium">
                         Aggiornato alla Giornata {data.numeroGiornata}
                     </div>
@@ -334,6 +330,7 @@ function VerdettoContent() {
                         </div>
 
                         {/* Premi Super Lega */}
+                        {data.premi.superLega?.length > 0 && (
                         <div className="h-full">
                             <MagicCard glowColor="#a855f7" className="h-full">
                                 <div className="p-5 flex flex-col h-full">
@@ -355,8 +352,10 @@ function VerdettoContent() {
                                 </div>
                             </MagicCard>
                         </div>
+                        )}
 
                         {/* Premi Coppa UEFA */}
+                        {data.premi.coppaUefa?.length > 0 && (
                         <div className="h-full">
                             <MagicCard glowColor="#38bdf8" className="h-full">
                                 <div className="p-5 flex flex-col h-full">
@@ -378,6 +377,7 @@ function VerdettoContent() {
                                 </div>
                             </MagicCard>
                         </div>
+                        )}
 
                     </div>
 
