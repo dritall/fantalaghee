@@ -8,10 +8,16 @@ const HEADERS: HeadersInit = {
   'Origin': 'https://www.legaseriea.it',
 };
 
-async function legaFetch(url: string) {
+// Cache la risposta di Lega Serie A per qualche minuto: evita di rifare la stessa
+// chiamata pesante (tutte le partite della stagione) ad ogni round selezionato
+// dall'utente, velocizzando la pagina e riducendo il rischio di errori/timeout
+// lato Lega Serie A.
+const SEASON_FETCH_REVALIDATE = 300; // 5 minuti
+
+async function legaFetch(url: string, revalidate: number = SEASON_FETCH_REVALIDATE) {
   const res = await fetch(url, {
     headers: HEADERS,
-    cache: 'no-store',
+    next: { revalidate },
   });
 
   if (!res.ok) {
@@ -38,77 +44,27 @@ function extractRoundNumber(value?: string | null): number | null {
   return null;
 }
 
-async function getMatchdayMap() {
-  const SEASON_ID = 'serie-a%3A%3AFootball_Season%3A%3A5f0e080fc3a44073984b75b3a8e06a8a';
-  const BASE = `https://api-sdp.legaseriea.it/v1/serie-a/football/seasons/${SEASON_ID}`;
+function getRoundFromMatch(m: any): number | null {
+  const ms = m?.matchSet;
+  return (
+    extractRoundNumber(ms?.name) ??
+    extractRoundNumber(ms?.shortName) ??
+    extractRoundNumber(ms?.providerId) ??
+    extractRoundNumber(m?.description) ??
+    null
+  );
+}
 
-  const candidates = [
-    `${BASE}/matches?locale=it-IT`,
-    `${BASE}/calendar?locale=it-IT`,
-    `${BASE}?locale=it-IT`,
-  ];
-
-  for (const url of candidates) {
-    try {
-      const data = await legaFetch(url);
-
-      const buckets = [
-        data?.matchSets,
-        data?.calendar?.matchSets,
-        data?.competition?.matchSets,
-        data?.matches,
-      ].filter(Boolean);
-
-      const roundMap: Record<number, string> = {};
-
-      for (const bucket of buckets) {
-        for (const item of bucket || []) {
-          // Prova a estrarre dal set o dal singolo match
-          const itemRound =
-            extractRoundNumber(item?.name) ??
-            extractRoundNumber(item?.shortName) ??
-            extractRoundNumber(item?.description) ??
-            extractRoundNumber(item?.providerId);
-
-          const itemId =
-            item?.matchSetId ||
-            item?.id ||
-            item?.matchdayId ||
-            item?.matchSet?.matchSetId ||
-            item?.matchSet?.id;
-
-          if (itemRound && itemId && !roundMap[itemRound]) {
-            roundMap[itemRound] = encodeURIComponent(String(itemId)).replace(/%253A/g, '%3A');
-          }
-
-          // Prova a estrarre dal matchSet annidato (tipico di endpoint matches)
-          const nestedMatchSet = item?.matchSet;
-          if (nestedMatchSet) {
-            const nestedRound =
-              extractRoundNumber(nestedMatchSet?.name) ??
-              extractRoundNumber(nestedMatchSet?.shortName) ??
-              extractRoundNumber(nestedMatchSet?.providerId);
-
-            const nestedId =
-              nestedMatchSet?.matchSetId ||
-              nestedMatchSet?.id;
-
-            if (nestedRound && nestedId && !roundMap[nestedRound]) {
-              roundMap[nestedRound] = encodeURIComponent(String(nestedId)).replace(/%253A/g, '%3A');
-            }
-          }
-        }
-      }
-
-      if (Object.keys(roundMap).length >= 20) {
-        return roundMap;
-      }
-    } catch (e) {
-      // Prova il candidato successivo
-    }
-  }
-
-  throw new Error('Impossibile costruire la mappa giornate della stagione 2025/2026');
+/**
+ * Unica fonte di verità: una sola chiamata (cachata) che restituisce TUTTE le
+ * partite della stagione. Da qui deriviamo sia l'elenco delle giornate
+ * (endpoint "matchdays") sia le partite di un singolo round (endpoint
+ * "matches"), evitando le chiamate ripetute e la fragile risoluzione del
+ * matchDayId tramite più endpoint "candidati" usata in precedenza.
+ */
+async function getSeasonMatches(BASE: string): Promise<any[]> {
+  const data = await legaFetch(`${BASE}/matches?locale=it-IT`);
+  return data?.matches || [];
 }
 
 export async function GET(request: Request) {
@@ -134,7 +90,7 @@ export async function GET(request: Request) {
     }
 
     if (endpoint === 'standings') {
-      const data = await legaFetch(`${BASE}/standings/overall?locale=it-IT`);
+      const data = await legaFetch(`${BASE}/standings/overall?locale=it-IT`, 60);
       const teams = data?.standings?.[0]?.teams || [];
       return NextResponse.json(
         {
@@ -150,78 +106,73 @@ export async function GET(request: Request) {
     }
 
     if (endpoint === 'matchdays') {
-      const data = await legaFetch(`${BASE}/matches?locale=it-IT`);
-      const matches = data?.matches || [];
+      const matches = await getSeasonMatches(BASE);
       const matchsetsMap: Record<number, any> = {};
 
       matches.forEach((m: any) => {
         const ms = m.matchSet;
-        if (ms) {
-          const round = extractRoundNumber(ms.name) || extractRoundNumber(ms.providerId);
-          if (round) {
-            if (!matchsetsMap[round]) {
-               matchsetsMap[round] = {
-                 round,
-                 matchdayStatus: ms.matchdayStatus,
-                 startDateUtc: ms.startDateUtc,
-                 endDateUtc: ms.endDateUtc,
-                 matchesHasLive: false,
-               };
-            }
-            if (m.status === 'LIVE' || m.matchStatus === 'LIVE') {
-              matchsetsMap[round].matchesHasLive = true;
-            }
+        const round = getRoundFromMatch(m);
+        if (ms && round) {
+          if (!matchsetsMap[round]) {
+            matchsetsMap[round] = {
+              round,
+              matchdayStatus: ms.matchdayStatus,
+              startDateUtc: ms.startDateUtc,
+              endDateUtc: ms.endDateUtc,
+              matchesHasLive: false,
+            };
+          }
+          if (m.status === 'LIVE' || m.matchStatus === 'LIVE') {
+            matchsetsMap[round].matchesHasLive = true;
           }
         }
       });
-      
+
       const out = Object.values(matchsetsMap).map((ms: any) => {
         if (ms.matchesHasLive) ms.matchdayStatus = 'Playing';
         delete ms.matchesHasLive;
         return ms;
       });
 
-      return NextResponse.json({ ok: true, data: out }, { headers: { 'Cache-Control': 'public, s-maxage=3600' } });
+      if (out.length === 0) {
+        return NextResponse.json(
+          { ok: false, error: 'Nessuna giornata disponibile da Lega Serie A per questa stagione' },
+          { status: 502 }
+        );
+      }
+
+      return NextResponse.json({ ok: true, data: out }, { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=60' } });
     }
 
     if (endpoint === 'matches') {
-      const round = parseInt(searchParams.get('round') || '30', 10);
+      const round = parseInt(searchParams.get('round') || '1', 10);
       if (round < 1 || round > 38) {
         return NextResponse.json({ ok: false, error: 'round 1-38' }, { status: 400 });
       }
 
-      // Recupera la mappa dinamica delle giornate
-      const roundMap = await getMatchdayMap();
-      const matchDayId = roundMap[round];
+      const allMatches = await getSeasonMatches(BASE);
+      const matches = allMatches
+        .filter((m: any) => getRoundFromMatch(m) === round)
+        .sort((a: any, b: any) => {
+          const da = new Date(a?.matchDateUtc || a?.matchDateLocal || 0).getTime();
+          const db = new Date(b?.matchDateUtc || b?.matchDateLocal || 0).getTime();
+          return da - db;
+        });
 
-      if (!matchDayId) {
+      if (matches.length === 0) {
         return NextResponse.json(
-          { ok: false, error: `giornata ${round} non trovata per la stagione 2025/2026` },
+          { ok: false, error: `giornata ${round} non trovata per la stagione richiesta` },
           { status: 404 }
         );
       }
-
-      const data = await legaFetch(`${BASE}/matches?matchDayId=${matchDayId}&locale=it-IT`);
-      
-      // Ordinamento cronologico
-      const matches = [...(data?.matches || [])].sort((a: any, b: any) => {
-        const da = new Date(a?.matchDateUtc || a?.matchDateLocal || 0).getTime();
-        const db = new Date(b?.matchDateUtc || b?.matchDateLocal || 0).getTime();
-        return da - db;
-      });
 
       return NextResponse.json(
         {
           ok: true,
           data: {
             seasonId: SEASON_ID,
-            seasonName: data?.competition?.seasonName || '2025/2026',
             round,
             matches,
-            debug: {
-              requestedRound: round,
-              resolvedMatchDayId: matchDayId,
-            }
           },
         },
         { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=60' } }
@@ -237,11 +188,11 @@ export async function GET(request: Request) {
       const enc = encodeURIComponent(matchId);
 
       const [header, stats, lineups, events1, playerStats] = await Promise.allSettled([
-        legaFetch(`${BASE}/matches/${enc}/header?locale=it-IT`),
-        legaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`),
-        legaFetch(`${BASE}/matches/${enc}/lineups?locale=it-IT`),
-        legaFetch(`${BASE}/match/${enc}/action?locale=it-IT`).catch(() => legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`)),
-        legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`),
+        legaFetch(`${BASE}/matches/${enc}/header?locale=it-IT`, 60),
+        legaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`, 60),
+        legaFetch(`${BASE}/matches/${enc}/lineups?locale=it-IT`, 60),
+        legaFetch(`${BASE}/match/${enc}/action?locale=it-IT`, 60).catch(() => legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`, 60)),
+        legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`, 60),
       ]);
 
       return NextResponse.json(

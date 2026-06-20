@@ -364,7 +364,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   const seasonLabel = SEASONS[stagione]?.label || SEASONS[CURRENT_SEASON].label;
 
   const [activeTab, setActiveTab]           = useState('calendario');
-  const [selectedRound, setSelectedRound]   = useState<number>(30);
+  const [selectedRound, setSelectedRound]   = useState<number | null>(null);
+  const [initializingRound, setInitializingRound] = useState(true);
   const [matches, setMatches]               = useState<any[]>([]);
   const [standings, setStandings]           = useState<any[]>([]);
   const [loadingStandings, setLoadingStandings] = useState(true);
@@ -444,10 +445,12 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
   useEffect(() => {
     setSeasonUnavailable(false);
+    setInitializingRound(true);
     fetch(`/api/football?endpoint=matchdays&stagione=${stagione}`)
       .then(r => r.json())
       .then(res => {
          if (res?.seasonUnavailable) { setSeasonUnavailable(true); return; }
+         if (!res?.ok) { setMatchError(res?.error || 'Giornate non disponibili al momento'); return; }
          const matchdays = res.data || [];
          const live = matchdays.find((md: any) => md.matchdayStatus === "Playing");
          const lastPlayed = matchdays
@@ -456,16 +459,17 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
          const nextScheduled = matchdays
            .filter((md: any) => md.matchdayStatus === "Scheduled")
            .sort((a: any, b: any) => new Date(a.startDateUtc).getTime() - new Date(b.startDateUtc).getTime())[0];
-         
+
          const active = live || lastPlayed || nextScheduled;
          if (active && active.round) {
             setSelectedRound(active.round);
             loadRound(active.round);
          } else {
-            loadRound(30);
+            setMatchError('Impossibile determinare la giornata corrente');
          }
       })
-      .catch(() => loadRound(30));
+      .catch(() => setMatchError('Impossibile contattare Lega Serie A. Riprova più tardi.'))
+      .finally(() => setInitializingRound(false));
   }, [loadRound]);
 
   const handleRoundChange = (r: number) => {
@@ -896,6 +900,17 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
             <AlertTriangle className="w-10 h-10 text-zinc-600" />
             <p className="text-zinc-400 text-sm font-bold uppercase tracking-widest">Calendario non ancora disponibile</p>
             <p className="text-zinc-600 text-xs max-w-md">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
+          </div>
+        ) : initializingRound ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-24">
+            <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Cerco la giornata in corso...</p>
+          </div>
+        ) : selectedRound === null ? (
+          <div className="bg-zinc-900/40 rounded-[2.5rem] p-12 border border-white/5 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-zinc-600" />
+            <p className="text-zinc-400 text-sm font-bold uppercase tracking-widest">Dati non disponibili</p>
+            <p className="text-zinc-600 text-xs max-w-md">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
           </div>
         ) : (
         <>
