@@ -5,14 +5,13 @@ import { getSeason } from '@/lib/seasons';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
-export const revalidate = 60; // Revalidate every 60 seconds
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const season = getSeason(searchParams.get('stagione'));
 
     try {
-        const response = await fetch(season.verdettoUrl, { next: { revalidate: 60 } });
+        const response = await fetch(`${season.verdettoUrl}&t=${Date.now()}`, { cache: 'no-store' });
         if (!response.ok) {
             throw new Error(`Errore nel caricare lo spreadsheet: ${response.statusText}`);
         }

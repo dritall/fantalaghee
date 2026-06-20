@@ -65,9 +65,9 @@ export default function CalendarioPage() {
 
             {/* Background Layer */}
             <div className="absolute inset-0 z-[-1]">
-                <div className="absolute inset-0 bg-[#050505]/80 z-10" />
+                <div className="absolute inset-0 bg-[#0d0d0f]/80 z-10" />
                 <img src="/image/bg-field-neon.png" alt="Background" className="w-full h-full object-cover opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0f] via-transparent to-[#0d0d0f] z-20" />
             </div>
 
             <div className="relative z-30 flex flex-col flex-1 items-center">
@@ -145,7 +145,7 @@ export default function CalendarioPage() {
                                                             </div>
 
                                                             {/* Score */}
-                                                            <div className="px-4 py-2 bg-[#050505] rounded-xl border border-white/10 font-mono text-2xl md:text-3xl font-black italic tracking-tighter text-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] z-10 mx-4 shrink-0">
+                                                            <div className="px-4 py-2 bg-[#0d0d0f] rounded-xl border border-white/10 font-mono text-2xl md:text-3xl font-black italic tracking-tighter text-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] z-10 mx-4 shrink-0">
                                                                 {fixture.intHomeScore !== null ? fixture.intHomeScore : '-'} - {fixture.intAwayScore !== null ? fixture.intAwayScore : '-'}
                                                             </div>
 

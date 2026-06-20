@@ -43,9 +43,9 @@ export default function GazzettaPage() {
 
             {/* Background Layer */}
             <div className="absolute inset-0 z-[-1]">
-                <div className="absolute inset-0 bg-[#050505]/80 z-10" />
+                <div className="absolute inset-0 bg-[#0d0d0f]/80 z-10" />
                 <img src="/image/bg-gazzetta.png" alt="Background" className="w-full h-full object-cover opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0f] via-transparent to-[#0d0d0f] z-20" />
             </div>
 
             <div className="relative z-30 max-w-7xl mx-auto space-y-12">

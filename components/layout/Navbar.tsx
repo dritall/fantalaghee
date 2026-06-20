@@ -18,13 +18,10 @@ const navItems = [
     { name: "Regolamento", href: "/regolamento", icon: BookOpen },
 ];
 
-const SEASON_AWARE_ROUTES = ["/classifica", "/verdetto", "/risultati-serie-a"];
-
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const pathname = usePathname();
-    const showSeasonSwitcher = SEASON_AWARE_ROUTES.includes(pathname);
 
     // Handle scroll effect for navbar background
     useEffect(() => {
@@ -39,7 +36,7 @@ export function Navbar() {
         <nav
             className={cn(
                 "fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent",
-                scrolled ? "bg-[#050505]/90 backdrop-blur-md border-white/10 py-2" : "bg-[#050505]/80 backdrop-blur-md py-4"
+                scrolled ? "bg-[#0d0d0f]/90 backdrop-blur-md border-white/10 py-2" : "bg-[#0d0d0f]/80 backdrop-blur-md py-4"
             )}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -90,24 +87,21 @@ export function Navbar() {
                         })}
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <div className="md:hidden">
-                        <button
-                            onClick={() => setIsOpen(!isOpen)}
-                            className="p-2 rounded-md text-muted-foreground hover:text-white focus:outline-none"
-                        >
-                            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                        </button>
-                    </div>
-                </div>
-
-                {showSeasonSwitcher && (
-                    <div className="flex justify-center pb-3">
+                    {/* Season Switcher + Mobile Menu Button */}
+                    <div className="flex items-center gap-2">
                         <Suspense fallback={null}>
                             <SeasonSwitcher />
                         </Suspense>
+                        <div className="md:hidden">
+                            <button
+                                onClick={() => setIsOpen(!isOpen)}
+                                className="p-2 rounded-md text-muted-foreground hover:text-white focus:outline-none"
+                            >
+                                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                            </button>
+                        </div>
                     </div>
-                )}
+                </div>
             </div>
 
             {/* Mobile Menu Dropdown */}

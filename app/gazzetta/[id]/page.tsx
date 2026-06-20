@@ -59,13 +59,13 @@ export default function ArticlePage() {
     }, [id]);
 
     if (loading) return (
-        <div className="min-h-screen pt-24 flex justify-center items-center bg-[#050505]">
+        <div className="min-h-screen pt-24 flex justify-center items-center bg-[#0d0d0f]">
             <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
         </div>
     );
 
     if (error || !metadata) return (
-        <div className="min-h-screen pt-24 px-4 flex flex-col justify-center items-center bg-[#050505] text-center">
+        <div className="min-h-screen pt-24 px-4 flex flex-col justify-center items-center bg-[#0d0d0f] text-center">
             <h1 className="text-2xl font-bold text-white mb-4">Articolo non disponibile</h1>
             <p className="text-gray-400 mb-8">{error}</p>
             <Link href="/gazzetta" className="text-rose-400 hover:text-rose-300 flex items-center gap-2">
@@ -75,7 +75,7 @@ export default function ArticlePage() {
     );
 
     return (
-        <article className="min-h-screen bg-[#050505] text-white">
+        <article className="min-h-screen bg-[#0d0d0f] text-white">
             
             {/* 1. Hero Header con Background */}
             <div className="relative w-full min-h-[50vh] overflow-hidden flex flex-col justify-end pt-40 pb-12">
@@ -88,7 +88,7 @@ export default function ArticlePage() {
                     className="absolute inset-0 object-cover object-center"
                 />
                 {/* Overlay Scuro */}
-                <div className="absolute inset-0 bg-black/60 bg-gradient-to-t from-[#050505] via-black/70 to-black/30" />
+                <div className="absolute inset-0 bg-black/60 bg-gradient-to-t from-[#0d0d0f] via-black/70 to-black/30" />
 
                 {/* Contenuto in Sovrimpressione (Titolo, Metadati) */}
                 <div className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col justify-end h-full">
@@ -118,7 +118,7 @@ export default function ArticlePage() {
 
                 {/* Tasto Back (Sticky) */}
                 <div className="sticky top-24 z-40 mb-8">
-                    <Link href="/gazzetta" aria-label="Torna agli articoli" className="inline-flex items-center text-white/50 hover:text-white transition-colors text-sm font-medium bg-[#050505]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                    <Link href="/gazzetta" aria-label="Torna agli articoli" className="inline-flex items-center text-white/50 hover:text-white transition-colors text-sm font-medium bg-[#0d0d0f]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
                         <ArrowLeft className="w-4 h-4 mr-2" /> Torna agli articoli
                     </Link>
                 </div>

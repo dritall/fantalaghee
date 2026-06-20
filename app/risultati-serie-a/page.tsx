@@ -253,7 +253,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     };
 
     return (
-      <div className="w-full max-w-4xl mx-auto flex-1 border border-white/5 rounded-[2.5rem] p-6 md:p-10 bg-[#060606] shadow-2xl relative overflow-hidden aspect-[3/4] md:aspect-[4/3] lg:aspect-auto lg:h-[700px]">
+      <div className="w-full max-w-4xl mx-auto flex-1 border border-white/5 rounded-[2.5rem] p-6 md:p-10 bg-[#121214] shadow-2xl relative overflow-hidden aspect-[3/4] md:aspect-[4/3] lg:aspect-auto lg:h-[700px]">
         {homeLineup.coach && (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
             <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
@@ -310,7 +310,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     });
 
     return (
-      <div className="w-full flex-1 border border-white/5 rounded-[2.5rem] p-4 md:p-8 bg-[#060606] shadow-2xl relative overflow-hidden">
+      <div className="w-full flex-1 border border-white/5 rounded-[2.5rem] p-4 md:p-8 bg-[#121214] shadow-2xl relative overflow-hidden">
         {lineup.coach && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10 w-full justify-center">
             <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
@@ -871,7 +871,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 pt-24 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[#0d0d0f] text-white p-4 pt-24 font-sans selection:bg-cyan-500/30">
       <div className="max-w-5xl mx-auto">
 
         {/* TAB switcher */}
@@ -1080,7 +1080,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
               ))}
             </div>
 
-            <div ref={modalScrollRef} className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#050505]">
+            <div ref={modalScrollRef} className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#0d0d0f]">
               {loadingModal ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <div className="relative">
@@ -1174,7 +1174,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
                       return (
                         <div className="mb-10 last:mb-0 relative py-6">
-                          <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 ${iconColor} mb-6 bg-[#050505] w-full py-4 px-6 rounded-[2rem] border border-white/5 shadow-inner`}>
+                          <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 ${iconColor} mb-6 bg-[#0d0d0f] w-full py-4 px-6 rounded-[2rem] border border-white/5 shadow-inner`}>
                              <span className={`w-2 h-2 rounded-full shadow-lg bg-current drop-shadow-md`} />
                              {title}
                           </h4>
@@ -1308,7 +1308,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 export default function ScoutHub() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-black flex justify-center items-center pt-24">
+      <div className="min-h-screen bg-[#0d0d0f] flex justify-center items-center pt-24">
         <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
       </div>
     }>

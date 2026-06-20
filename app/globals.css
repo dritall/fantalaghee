@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    --background: 240 10% 4%;
-    /* Deep Charcoal/Black */
+    --background: 240 8% 8%;
+    /* Charcoal - slightly lighter than pure black */
     --foreground: 0 0% 98%;
 
-    --card: 240 10% 8%;
+    --card: 240 8% 12%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 8%;
+    --popover: 240 8% 12%;
     --popover-foreground: 0 0% 98%;
 
     /* Logo V7 Neon Palette */
@@ -26,8 +26,8 @@
     --accent-pink: 320 100% 50%;
     /* Hot Pink for gradients */
 
-    --muted: 240 5% 15%;
-    --muted-foreground: 240 5% 70%;
+    --muted: 240 5% 20%;
+    --muted-foreground: 240 5% 75%;
 
     --accent: 35 100% 50%;
     /* Golden Orange (#ffaa00) - Matching "Laghèe" */
@@ -36,8 +36,8 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 240 4% 20%;
+    --input: 240 4% 20%;
     --ring: 160 84% 39%;
     /* Match primary */
 
@@ -52,9 +52,9 @@
   }
 
   body {
-    @apply bg-[#050505] text-white antialiased;
+    @apply bg-[#0d0d0f] text-white antialiased;
     /* Clean, professional background - No noise, no images */
-    background-color: #050505;
+    background-color: #0d0d0f;
   }
 }
 
@@ -62,16 +62,16 @@
 @layer utilities {
   .glass {
     /* Minimalist card: Solid dark with subtle border */
-    @apply bg-[#111] border border-white/10 shadow-sm transition-all duration-300;
+    @apply bg-[#1a1a1c] border border-white/10 shadow-sm transition-all duration-300;
   }
 
   .glass-card {
     /* Interactive card */
-    @apply bg-[#151515] border border-white/5 shadow-md hover:bg-[#1a1a1a] hover:border-white/20 transition-all duration-300 rounded-2xl;
+    @apply bg-[#1e1e20] border border-white/5 shadow-md hover:bg-[#252527] hover:border-white/20 transition-all duration-300 rounded-2xl;
   }
 
   .glass-panel {
-    @apply bg-[#0a0a0a] border-b border-white/10;
+    @apply bg-[#161618] border-b border-white/10;
   }
 
   /* Sharp, high-contrast text gradients (used sparingly) */
@@ -88,9 +88,9 @@
 
 /* Custom Scrollbar - Dark & Premium */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #444; }
+::-webkit-scrollbar-track { background: #0d0d0f; }
+::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
 
 @keyframes chrome-sweep {
   0% { transform: rotate(0deg); opacity: 1; }

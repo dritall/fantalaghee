@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const AccordionItem = ({ title, icon: Icon, children, defaultOpen = false }: any) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="border border-white/5 rounded-xl bg-[#111] overflow-hidden mb-4 transition-all duration-300 hover:border-white/10">
+        <div className="border border-white/5 rounded-xl bg-[#1a1a1c] overflow-hidden mb-4 transition-all duration-300 hover:border-white/10">
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-6 text-left hover:bg-white/5 transition-colors"
@@ -34,9 +34,9 @@ export default function RegolamentoPage() {
 
             {/* Background Layer */}
             <div className="absolute inset-0 z-[-1]">
-                <div className="absolute inset-0 bg-[#050505]/85 z-10" />
+                <div className="absolute inset-0 bg-[#0d0d0f]/85 z-10" />
                 <img src="/image/bg-regolamento.png" alt="Background" className="w-full h-full object-cover opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0f] via-transparent to-[#0d0d0f] z-20" />
             </div>
 
             <div className="relative z-30 max-w-4xl mx-auto space-y-12">

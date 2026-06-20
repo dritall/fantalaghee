@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} font-sans antialiased text-white bg-[#050505] relative overflow-x-hidden`}>
+      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} font-sans antialiased text-white bg-[#0d0d0f] relative overflow-x-hidden`}>
         <Stardust />
         <Navbar />
         {children}
