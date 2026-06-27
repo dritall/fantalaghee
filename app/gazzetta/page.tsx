@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight, Newspaper, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { formatDateToItalian } from "@/lib/date-utils";
@@ -85,8 +85,18 @@ export default function GazzettaPage() {
                                 )}
                             >
                                 {article.placeholder ? (
-                                    <div className="w-full h-full flex items-center justify-center flex-col text-gray-400">
-                                        <span className="font-oswald text-2xl opacity-50">Coming Soon...</span>
+                                    <div className="w-full h-full flex items-center justify-center flex-col gap-3 text-center px-6 relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-pink-500/5" />
+                                        <div className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center bg-white/70 border border-black/5 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                            <Newspaper className="w-7 h-7 text-secondary" />
+                                            <Sparkles className="w-4 h-4 text-amber-400 absolute -top-1.5 -right-1.5 animate-pulse" />
+                                        </div>
+                                        <span className="relative z-10 font-oswald text-xl text-[#10241a] tracking-wide uppercase">
+                                            Coming Soon
+                                        </span>
+                                        <span className="relative z-10 text-sm text-gray-400 font-serif italic max-w-[220px]">
+                                            La Redazione sta scaldando i motori per la prima uscita di stagione 🏆
+                                        </span>
                                     </div>
                                 ) : (
                                     <Link href={`/gazzetta/${article.id}`} className="block w-full h-full">

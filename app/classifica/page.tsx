@@ -59,8 +59,34 @@ function ClassificaContent() {
                     <p className="text-gray-500 text-sm">Scorri orizzontalmente per vedere tutte le giornate.</p>
                 </div>
 
-                {/* Main Table Container - Explicit overflow handling */}
-                <MagicCard glowColor="#FACC15" className="flex-1 w-full relative overflow-hidden flex flex-col">
+                {/* Mobile: lista di card, totale sempre leggibile */}
+                <div className="flex flex-col gap-2 sm:hidden">
+                    {leaderboard?.map((team, index) => (
+                        <MagicCard key={index} glowColor="#FACC15">
+                            <div className="flex items-center gap-3 p-4">
+                                <div className={cn(
+                                    "w-8 h-8 flex items-center justify-center rounded-full font-bold text-xs shrink-0",
+                                    index === 0 ? "bg-amber-400 text-white" :
+                                        index === 1 ? "bg-gray-300 text-[#10241a]" :
+                                            index === 2 ? "bg-amber-600 text-white" :
+                                                "bg-black/5 text-gray-400"
+                                )}>
+                                    {team.rank}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-base text-[#10241a] truncate">{team.Team}</div>
+                                </div>
+                                <div className="text-right shrink-0">
+                                    <div className="font-black text-secondary text-2xl leading-none">{team.Generale}</div>
+                                    <div className="text-[10px] uppercase tracking-wider text-gray-400">Totale</div>
+                                </div>
+                            </div>
+                        </MagicCard>
+                    ))}
+                </div>
+
+                {/* Desktop / Tablet: tabella completa con giornate */}
+                <MagicCard glowColor="#FACC15" className="hidden sm:flex flex-1 w-full relative overflow-hidden flex-col">
 
                     {/* Scrollable Wrapper */}
                     <div className="overflow-auto w-full h-full max-h-[80vh] custom-scrollbar">
@@ -71,7 +97,7 @@ function ClassificaContent() {
                                     <th className="sticky left-[4rem] z-50 bg-white p-4 font-semibold text-[#10241a] min-w-[200px] border-r border-black/5 shadow-md">Squadra</th>
                                     <th className="sticky left-[calc(4rem+200px)] z-50 bg-black/[0.02] p-4 font-bold text-[#10241a] text-right border-r border-black/10 shadow-md">TOTALE</th>
                                     {matchdays.map(g => (
-                                        <th key={g} className="hidden sm:table-cell p-3 font-medium text-gray-400 text-center min-w-[60px] border-r border-black/5">{g}</th>
+                                        <th key={g} className="p-3 font-medium text-gray-400 text-center min-w-[60px] border-r border-black/5">{g}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -95,20 +121,19 @@ function ClassificaContent() {
                                         </td>
 
                                         <td className="py-3 px-2 sticky left-[4rem] z-30 bg-white border-r border-black/5 shadow-md">
-                                          {/* Forziamo un taglio del testo su mobile per non far sfasare la tabella */}
-                                          <div className="w-[110px] sm:w-auto truncate font-bold text-sm sm:text-base text-[#10241a]">
+                                          <div className="font-bold text-base text-[#10241a]">
                                             {team.Team}
                                           </div>
                                         </td>
 
                                         {/* Total Score */}
-                                        <td className="py-3 px-2 w-16 text-right sm:text-center font-black text-secondary text-lg sm:text-xl sticky left-[calc(4rem+200px)] z-30 bg-black/[0.02] border-r border-black/10 shadow-md">
+                                        <td className="py-3 px-2 w-16 text-center font-black text-secondary text-xl sticky left-[calc(4rem+200px)] z-30 bg-black/[0.02] border-r border-black/10 shadow-md">
                                             {team.Generale}
                                         </td>
 
                                         {/* Matchdays */}
                                         {matchdays.map(g => (
-                                            <td key={g} className="hidden sm:table-cell p-3 text-center border-r border-black/5 text-gray-500">
+                                            <td key={g} className="p-3 text-center border-r border-black/5 text-gray-500">
                                                 {team[g] || "-"}
                                             </td>
                                         ))}

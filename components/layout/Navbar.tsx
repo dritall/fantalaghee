@@ -36,9 +36,12 @@ export function Navbar() {
         <nav
             className={cn(
                 "fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent",
-                scrolled ? "bg-white/85 backdrop-blur-xl border-black/5 shadow-sm py-2" : "bg-white/60 backdrop-blur-xl py-4"
+                scrolled
+                    ? "bg-gradient-to-r from-primary/10 via-secondary/10 to-pink-500/10 backdrop-blur-xl border-black/5 shadow-sm py-2"
+                    : "bg-white/40 backdrop-blur-md py-4"
             )}
         >
+            <div className="h-[3px] w-full gradient-bar" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}

@@ -79,15 +79,62 @@
     @apply text-[#2563EB];
   }
 
-  /* Sfondo stadio fisso, sempre sfumato/filtrato per leggibilità */
+  /* Sfondo stadio fisso, sfumato per leggibilità ma visibile */
   .stadium-bg {
     background-image:
-      linear-gradient(180deg, rgba(247,249,252,0.94) 0%, rgba(247,249,252,0.88) 35%, rgba(247,249,252,0.96) 100%),
+      linear-gradient(180deg, rgba(247,249,252,0.55) 0%, rgba(247,249,252,0.4) 30%, rgba(247,249,252,0.75) 70%, rgba(247,249,252,0.92) 100%),
       url('/image/bg-stadium.svg');
     background-size: cover;
     background-position: center top;
     background-attachment: fixed;
   }
+
+  /* Macchie di colore ambientali, leggerissime (puro CSS, no immagini) */
+  .ambient-blobs {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .ambient-blobs::before,
+  .ambient-blobs::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.35;
+    will-change: transform;
+    animation: blob-float 22s ease-in-out infinite;
+  }
+
+  .ambient-blobs::before {
+    top: -10%;
+    left: -10%;
+    width: 38vw;
+    height: 38vw;
+    background: radial-gradient(circle, #2563EB 0%, transparent 70%);
+  }
+
+  .ambient-blobs::after {
+    bottom: -10%;
+    right: -10%;
+    width: 42vw;
+    height: 42vw;
+    background: radial-gradient(circle, #EC4899 0%, transparent 70%);
+    animation-delay: -11s;
+  }
+}
+
+@keyframes blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, 6%) scale(1.1); }
+}
+
+@keyframes border-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
 }
 
 /* Scrollbar chiara */
@@ -112,4 +159,19 @@
   background: linear-gradient(90deg, #16A34A 0%, #2563EB 45%, #7C3AED 75%, #EC4899 100%);
   -webkit-background-clip: text;
   color: transparent;
+}
+
+/* Barra gradiente animata, usata su navbar e card in evidenza */
+.gradient-bar {
+  background: linear-gradient(90deg, #16A34A, #2563EB, #7C3AED, #EC4899, #FACC15, #16A34A);
+  background-size: 200% 100%;
+  animation: border-flow 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blobs::before,
+  .ambient-blobs::after,
+  .gradient-bar {
+    animation: none;
+  }
 }
