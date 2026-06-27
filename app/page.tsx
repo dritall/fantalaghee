@@ -47,19 +47,27 @@ export default function Home() {
         </motion.div>
         
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <a href={ISCRIZIONE_FORM_URL} target="_blank" rel="noopener noreferrer" className="block">
-            <MagicCard glowColor="#4ade80">
-              <div className="p-6 md:p-8 flex flex-col items-center text-center gap-2 group">
-                <span className="text-primary font-black text-xs tracking-[0.3em] uppercase px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
-                  Stagione 2026/27
-                </span>
-                <h2 className="text-2xl md:text-4xl font-black font-oswald uppercase tracking-tight text-3d-metallic flex items-center gap-3">
-                  <UserPlus className="w-7 h-7 md:w-9 md:h-9 text-primary group-hover:scale-110 transition-transform" />
-                  Iscriviti alla Nuova Stagione
-                </h2>
-                <p className="text-sm text-gray-500 mt-1">Compila il form per partecipare al prossimo campionato →</p>
+          <a href={ISCRIZIONE_FORM_URL} target="_blank" rel="noopener noreferrer" className="block relative">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full text-[10px] font-black tracking-[0.2em] uppercase text-white bg-pink-500 shadow-md animate-pulse">
+              Iscrizioni Aperte
+            </span>
+            <div className="relative rounded-[2.5rem] p-[2px] gradient-bar shadow-[0_8px_30px_rgba(15,35,25,0.12)]">
+              <div className="rounded-[calc(2.5rem-2px)] bg-gradient-to-br from-primary/15 via-secondary/10 to-pink-500/15 backdrop-blur-xl">
+                <div className="p-6 md:p-8 flex flex-col items-center text-center gap-2 group">
+                  <span className="text-primary font-black text-xs tracking-[0.3em] uppercase px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+                    Stagione 2026/27
+                  </span>
+                  <h2 className="text-2xl md:text-4xl font-black font-oswald uppercase tracking-tight text-3d-metallic flex items-center gap-3">
+                    <UserPlus className="w-7 h-7 md:w-9 md:h-9 text-primary group-hover:scale-110 transition-transform" />
+                    Iscriviti alla Nuova Stagione
+                  </h2>
+                  <p className="text-sm text-gray-600 font-semibold mt-1 flex items-center gap-1">
+                    Clicca qui per compilare il form di partecipazione
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </p>
+                </div>
               </div>
-            </MagicCard>
+            </div>
           </a>
         </motion.div>
 

@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Trophy, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MagicCard } from "@/components/ui/MagicCard";
 import { CURRENT_SEASON } from "@/lib/seasons";
@@ -14,6 +14,7 @@ function ClassificaContent() {
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [mobileView, setMobileView] = useState<"totale" | "giornata">("totale");
 
     useEffect(() => {
         async function fetchData() {
@@ -34,6 +35,17 @@ function ClassificaContent() {
 
     // Generate Matchday Columns (G1 to G38)
     const matchdays = Array.from({ length: 38 }, (_, i) => `G${i + 1}`);
+
+    // Trova l'ultima giornata giocata (l'ultima colonna con almeno un punteggio)
+    const lastPlayedMatchday = matchdays.reduce((acc, g) => {
+        const hasData = leaderboard.some((team) => team[g] !== undefined && team[g] !== null && team[g] !== "");
+        return hasData ? g : acc;
+    }, matchdays[0]);
+
+    // Classifica della sola ultima giornata, ordinata per punteggio della giornata
+    const giornataBoard = [...leaderboard]
+        .map((team) => ({ ...team, _giornataScore: parseFloat(team[lastPlayedMatchday]) || 0 }))
+        .sort((a, b) => b._giornataScore - a._giornataScore);
 
     if (loading) return (
         <div className="min-h-screen flex justify-center items-center">
@@ -59,30 +71,57 @@ function ClassificaContent() {
                     <p className="text-gray-500 text-sm">Scorri orizzontalmente per vedere tutte le giornate.</p>
                 </div>
 
-                {/* Mobile: lista di card, totale sempre leggibile */}
-                <div className="flex flex-col gap-2 sm:hidden">
-                    {leaderboard?.map((team, index) => (
-                        <MagicCard key={index} glowColor="#FACC15">
-                            <div className="flex items-center gap-3 p-4">
-                                <div className={cn(
-                                    "w-8 h-8 flex items-center justify-center rounded-full font-bold text-xs shrink-0",
-                                    index === 0 ? "bg-amber-400 text-white" :
-                                        index === 1 ? "bg-gray-300 text-[#10241a]" :
-                                            index === 2 ? "bg-amber-600 text-white" :
-                                                "bg-black/5 text-gray-400"
-                                )}>
-                                    {team.rank}
+                {/* Mobile: lista di card con switch Totale / Ultima Giornata */}
+                <div className="sm:hidden">
+                    <div className="flex gap-1.5 mb-4 bg-black/5 p-1 rounded-full w-fit">
+                        <button
+                            onClick={() => setMobileView("totale")}
+                            className={cn(
+                                "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all",
+                                mobileView === "totale" ? "bg-white text-secondary shadow-sm" : "text-gray-400"
+                            )}
+                        >
+                            <Trophy className="w-3.5 h-3.5" /> Totale
+                        </button>
+                        <button
+                            onClick={() => setMobileView("giornata")}
+                            className={cn(
+                                "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all",
+                                mobileView === "giornata" ? "bg-white text-secondary shadow-sm" : "text-gray-400"
+                            )}
+                        >
+                            <CalendarDays className="w-3.5 h-3.5" /> {lastPlayedMatchday}
+                        </button>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        {(mobileView === "totale" ? leaderboard : giornataBoard)?.map((team, index) => (
+                            <MagicCard key={team.Team || index} glowColor="#FACC15">
+                                <div className="flex items-center gap-3 p-4">
+                                    <div className={cn(
+                                        "w-8 h-8 flex items-center justify-center rounded-full font-bold text-xs shrink-0",
+                                        index === 0 ? "bg-amber-400 text-white" :
+                                            index === 1 ? "bg-gray-300 text-[#10241a]" :
+                                                index === 2 ? "bg-amber-600 text-white" :
+                                                    "bg-black/5 text-gray-400"
+                                    )}>
+                                        {mobileView === "totale" ? team.rank : index + 1}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-bold text-base text-[#10241a] truncate">{team.Team}</div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <div className="font-black text-secondary text-2xl leading-none">
+                                            {mobileView === "totale" ? team.Generale : team[lastPlayedMatchday] || "-"}
+                                        </div>
+                                        <div className="text-[10px] uppercase tracking-wider text-gray-400">
+                                            {mobileView === "totale" ? "Totale" : lastPlayedMatchday}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-bold text-base text-[#10241a] truncate">{team.Team}</div>
-                                </div>
-                                <div className="text-right shrink-0">
-                                    <div className="font-black text-secondary text-2xl leading-none">{team.Generale}</div>
-                                    <div className="text-[10px] uppercase tracking-wider text-gray-400">Totale</div>
-                                </div>
-                            </div>
-                        </MagicCard>
-                    ))}
+                            </MagicCard>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Desktop / Tablet: tabella completa con giornate */}

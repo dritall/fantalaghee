@@ -37,16 +37,16 @@ export function Navbar() {
             className={cn(
                 "fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent",
                 scrolled
-                    ? "bg-gradient-to-r from-primary/10 via-secondary/10 to-pink-500/10 backdrop-blur-xl border-black/5 shadow-sm py-2"
-                    : "bg-white/40 backdrop-blur-md py-4"
+                    ? "bg-gradient-to-r from-primary/10 via-secondary/10 to-pink-500/10 backdrop-blur-xl border-black/5 shadow-sm py-1 md:py-2"
+                    : "bg-white/40 backdrop-blur-md py-1.5 md:py-4"
             )}
         >
             <div className="h-[3px] w-full gradient-bar" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
+                <div className="flex items-center justify-between h-12 md:h-16">
                     {/* Logo */}
                     <Link href="/" className="flex-shrink-0 flex items-center gap-3 group">
-                        <div className="relative w-auto h-10 md:h-12 flex items-center justify-center">
+                        <div className="relative w-auto h-8 md:h-12 flex items-center justify-center">
                             <Image
                                 src="/image/logo-fantalaghee.png"
                                 alt="Fantalaghee Logo"
