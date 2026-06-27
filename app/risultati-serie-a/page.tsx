@@ -875,42 +875,42 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
 
   return (
-    <div className="min-h-screen bg-[#0d0d0f] text-white p-4 pt-24 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen text-[#10241a] p-4 pt-24 font-sans selection:bg-secondary/20">
       <div className="max-w-5xl mx-auto">
 
         {/* TAB switcher */}
-        <div className="flex bg-zinc-900 p-1.5 rounded-2xl mb-8 max-w-xs mx-auto border border-white/5 shadow-2xl">
+        <div className="flex glass p-1.5 rounded-2xl mb-8 max-w-xs mx-auto">
           {['calendario', 'classifica'].map(t => (
             <button key={t} onClick={() => setActiveTab(t)}
               className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300
-                ${activeTab === t ? 'bg-cyan-500 text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}>
+                ${activeTab === t ? 'bg-secondary text-white shadow-lg' : 'text-gray-400 hover:text-[#10241a]'}`}>
               {t}
             </button>
           ))}
         </div>
 
         <div className="text-center mb-10">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400/60 bg-cyan-400/5 px-4 py-1.5 rounded-full border border-cyan-400/10">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary bg-secondary/5 px-4 py-1.5 rounded-full border border-secondary/10">
             Stagione {seasonLabel}
           </span>
         </div>
 
         {seasonUnavailable ? (
-          <div className="bg-zinc-900/40 rounded-[2.5rem] p-12 border border-white/5 flex flex-col items-center justify-center gap-4 text-center">
-            <AlertTriangle className="w-10 h-10 text-zinc-600" />
-            <p className="text-zinc-400 text-sm font-bold uppercase tracking-widest">Calendario non ancora disponibile</p>
-            <p className="text-zinc-600 text-xs max-w-md">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
+          <div className="glass-card rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-gray-400" />
+            <p className="text-gray-600 text-sm font-bold uppercase tracking-widest">Calendario non ancora disponibile</p>
+            <p className="text-gray-400 text-xs max-w-md">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
           </div>
         ) : initializingRound ? (
           <div className="flex flex-col items-center justify-center gap-3 py-24">
-            <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Cerco la giornata in corso...</p>
+            <Loader2 className="w-8 h-8 text-secondary animate-spin" />
+            <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Cerco la giornata in corso...</p>
           </div>
         ) : selectedRound === null ? (
-          <div className="bg-zinc-900/40 rounded-[2.5rem] p-12 border border-white/5 flex flex-col items-center justify-center gap-4 text-center">
-            <AlertTriangle className="w-10 h-10 text-zinc-600" />
-            <p className="text-zinc-400 text-sm font-bold uppercase tracking-widest">Dati non disponibili</p>
-            <p className="text-zinc-600 text-xs max-w-md">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
+          <div className="glass-card rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-gray-400" />
+            <p className="text-gray-600 text-sm font-bold uppercase tracking-widest">Dati non disponibili</p>
+            <p className="text-gray-400 text-xs max-w-md">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
           </div>
         ) : (
         <>
@@ -922,8 +922,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                 <button key={r} onClick={() => handleRoundChange(r)}
                   className={`px-5 py-2 rounded-xl shrink-0 font-bold text-xs border transition-all duration-300
                     ${selectedRound === r
-                      ? 'active-round-btn border-cyan-400 bg-cyan-400/10 text-white shadow-[0_0_15px_rgba(34,211,238,0.1)]'
-                      : 'border-white/5 text-zinc-600 hover:border-white/20 hover:text-zinc-300'}`}>
+                      ? 'active-round-btn border-secondary bg-secondary/10 text-[#10241a] shadow-sm'
+                      : 'border-black/5 text-gray-400 hover:border-black/20 hover:text-gray-600'}`}>
                   G.{r}
                 </button>
               ))}
@@ -931,14 +931,14 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
             {loadingMatches ? (
               <div className="flex justify-center py-20">
-                <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+                <Loader2 className="w-8 h-8 text-secondary animate-spin" />
               </div>
             ) : matchError ? (
-              <div className="bg-red-900/20 border border-red-500/30 rounded-3xl p-6">
-                <div className="flex items-center gap-2 text-red-400 font-bold mb-2 text-xs uppercase tracking-widest">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-6">
+                <div className="flex items-center gap-2 text-red-500 font-bold mb-2 text-xs uppercase tracking-widest">
                   <AlertTriangle className="w-4 h-4" /> Errore caricamento
                 </div>
-                <p className="text-zinc-400 text-xs font-mono">{matchError}</p>
+                <p className="text-gray-500 text-xs font-mono">{matchError}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -950,11 +950,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                   const played = hs !== null && hs !== undefined;
                   return (
                     <div key={m.matchId || m.id || idx} onClick={() => openMatch(m)}
-                      className="bg-zinc-900/40 border border-white/5 p-5 rounded-[2rem] flex justify-between items-center cursor-pointer hover:bg-zinc-800/60 hover:border-cyan-500/20 transition-all group shadow-lg">
+                      className="glass-card p-5 rounded-[2rem] flex justify-between items-center cursor-pointer group">
                       <div className="flex justify-end pr-4 w-[42%]">
                         <TeamLogo team={home} className="w-10 h-10 group-hover:scale-110 transition-transform" />
                       </div>
-                      <div className={`text-center font-black italic text-base tracking-tighter min-w-[70px] ${played ? 'text-white' : 'text-cyan-400'}`}>
+                      <div className={`text-center font-black italic text-base tracking-tighter min-w-[70px] ${played ? 'text-[#10241a]' : 'text-secondary'}`}>
                         {played ? `${hs} - ${as_}` : 'VS'}
                       </div>
                       <div className="flex justify-start pl-4 w-[42%]">
@@ -970,14 +970,14 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
         {/* ===== CLASSIFICA ===== */}
         {activeTab === 'classifica' && (
-          <div className="bg-zinc-900/40 rounded-[2.5rem] p-4 md:p-8 border border-white/5 backdrop-blur-sm shadow-2xl overflow-x-auto">
+          <div className="glass-card rounded-[2.5rem] p-4 md:p-8 overflow-x-auto">
             <div className="min-w-[640px]">
-              <div className="grid grid-cols-12 items-center py-2 px-4 text-[9px] font-black uppercase text-zinc-500 border-b border-white/10 mb-1 tracking-widest">
+              <div className="grid grid-cols-12 items-center py-2 px-4 text-[9px] font-black uppercase text-gray-400 border-b border-black/10 mb-1 tracking-widest">
                 <span className="col-span-1 text-center">#</span>
                 <span className="col-span-4">Squadra</span>
-                <span className="col-span-1 text-center text-cyan-400">PTS</span>
+                <span className="col-span-1 text-center text-secondary">PTS</span>
                 <span className="col-span-1 text-center">G</span>
-                <span className="col-span-1 text-center text-emerald-500">V</span>
+                <span className="col-span-1 text-center text-emerald-600">V</span>
                 <span className="col-span-1 text-center">N</span>
                 <span className="col-span-1 text-center text-red-500">P</span>
                 <span className="col-span-1 text-center">DR</span>
@@ -986,42 +986,42 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
 
               {loadingStandings ? (
-                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-cyan-400 animate-spin" /></div>
+                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-secondary animate-spin" /></div>
               ) : standings.map((t: any, i: number) => {
-                const isZone = i < 4 ? 'border-l-2 border-cyan-500' : i < 6 ? 'border-l-2 border-orange-400' : i >= 17 ? 'border-l-2 border-red-500' : '';
+                const isZone = i < 4 ? 'border-l-2 border-secondary' : i < 6 ? 'border-l-2 border-orange-400' : i >= 17 ? 'border-l-2 border-red-500' : '';
                 return (
                   <div
                     key={t.id}
-                    className={`grid grid-cols-12 items-center py-3 border-b border-white/5 last:border-0 hover:bg-white/5 px-4 rounded-xl transition-all group ${isZone}`}
+                    className={`grid grid-cols-12 items-center py-3 border-b border-black/5 last:border-0 hover:bg-black/[0.02] px-4 rounded-xl transition-all group ${isZone}`}
                   >
-                    <span className="col-span-1 text-center text-[11px] font-black text-zinc-600 group-hover:text-cyan-500">
+                    <span className="col-span-1 text-center text-[11px] font-black text-gray-400 group-hover:text-secondary">
                       {i + 1}
                     </span>
 
                     <div className="col-span-4 flex items-center gap-4 min-w-0">
                       <TeamLogo team={t} className="w-8 h-8 shrink-0" />
-                      <span className="text-xs font-black uppercase tracking-tight truncate group-hover:text-cyan-400">
+                      <span className="text-xs font-black uppercase tracking-tight truncate text-[#10241a] group-hover:text-secondary">
                         {t.name}
                       </span>
                     </div>
 
-                    <span className="col-span-1 text-center font-black text-cyan-400 text-sm">
+                    <span className="col-span-1 text-center font-black text-secondary text-sm">
                       {t.points}
                     </span>
 
-                    <span className="col-span-1 text-center text-xs font-mono text-white/70">
+                    <span className="col-span-1 text-center text-xs font-mono text-gray-600">
                       {t.played}
                     </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-emerald-400">
+                    <span className="col-span-1 text-center text-xs font-mono text-emerald-600">
                       {t.win}
                     </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-zinc-400">
+                    <span className="col-span-1 text-center text-xs font-mono text-gray-400">
                       {t.draw}
                     </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-red-400">
+                    <span className="col-span-1 text-center text-xs font-mono text-red-500">
                       {t.lose}
                     </span>
-                    <span className="col-span-1 text-center text-xs font-mono font-bold text-white/60">
+                    <span className="col-span-1 text-center text-xs font-mono font-bold text-gray-500">
                       {t.gd > 0 ? `+${t.gd}` : t.gd}
                     </span>
 
@@ -1323,8 +1323,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 export default function ScoutHub() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0d0d0f] flex justify-center items-center pt-24">
-        <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
+      <div className="min-h-screen flex justify-center items-center pt-24">
+        <Loader2 className="w-10 h-10 text-secondary animate-spin" />
       </div>
     }>
       <ScoutHubContent />

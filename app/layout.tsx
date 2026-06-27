@@ -3,7 +3,6 @@ import { Outfit, Inter, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Stardust } from "@/components/ui/Stardust";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 const inter = Inter({
@@ -28,8 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} font-sans antialiased text-white bg-[#0d0d0f] relative overflow-x-hidden`}>
-        <Stardust />
+      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} font-sans antialiased text-[#10241a] bg-[#f7f9fc] stadium-bg relative overflow-x-hidden`}>
         <Navbar />
         {children}
         <Footer />

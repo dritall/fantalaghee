@@ -39,28 +39,21 @@ export default function GazzettaPage() {
     }, []);
 
     return (
-        <main className="min-h-screen pt-24 pb-12 px-4 md:px-8 relative overflow-hidden">
-
-            {/* Background Layer */}
-            <div className="absolute inset-0 z-[-1]">
-                <div className="absolute inset-0 bg-[#0d0d0f]/80 z-10" />
-                <img src="/image/bg-gazzetta.png" alt="Background" className="w-full h-full object-cover opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0f] via-transparent to-[#0d0d0f] z-20" />
-            </div>
+        <main className="min-h-screen pt-24 pb-12 px-4 md:px-8 relative">
 
             <div className="relative z-30 max-w-7xl mx-auto space-y-12">
                 <div className="text-center space-y-4">
-                    <h1 className="text-4xl md:text-6xl font-bold font-oswald text-rose-500 uppercase tracking-tight">
+                    <h1 className="text-4xl md:text-6xl font-bold font-oswald text-pink-600 uppercase tracking-tight">
                         La Gazzetta del Laghèe
                     </h1>
-                    <p className="text-lg text-muted-foreground font-serif italic">
+                    <p className="text-lg text-gray-500 font-serif italic">
                         "L'unica testata che non ha paura di prendere 65.5"
                     </p>
                 </div>
 
                 {loading ? (
                     <div className="flex justify-center py-20">
-                        <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+                        <Loader2 className="w-10 h-10 text-pink-500 animate-spin" />
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -73,11 +66,11 @@ export default function GazzettaPage() {
                             <Fragment key={article.id || index}>
                             {isFirstArchived && (
                                 <div key={`divider-${article.id}`} className="col-span-full flex items-center gap-4 my-2">
-                                    <div className="flex-1 h-px bg-white/10" />
-                                    <span className="text-muted-foreground text-xs sm:text-sm uppercase tracking-[0.2em] font-bold whitespace-nowrap">
+                                    <div className="flex-1 h-px bg-black/10" />
+                                    <span className="text-gray-400 text-xs sm:text-sm uppercase tracking-[0.2em] font-bold whitespace-nowrap">
                                         Archivio Stagione {SEASONS[ARCHIVED_SEASON].label}
                                     </span>
-                                    <div className="flex-1 h-px bg-white/10" />
+                                    <div className="flex-1 h-px bg-black/10" />
                                 </div>
                             )}
                             <motion.div
@@ -87,35 +80,35 @@ export default function GazzettaPage() {
                                 transition={{ delay: index * 0.1 }}
                                 whileHover={{ y: -10 }}
                                 className={cn(
-                                    "group relative h-[400px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl",
-                                    article.placeholder ? "bg-white/5 border-dashed" : "bg-black"
+                                    "group relative h-[400px] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(15,35,25,0.10)]",
+                                    article.placeholder ? "bg-black/[0.02] border border-dashed border-black/10" : "bg-white"
                                 )}
                             >
                                 {article.placeholder ? (
-                                    <div className="w-full h-full flex items-center justify-center flex-col text-muted-foreground">
+                                    <div className="w-full h-full flex items-center justify-center flex-col text-gray-400">
                                         <span className="font-oswald text-2xl opacity-50">Coming Soon...</span>
                                     </div>
                                 ) : (
                                     <Link href={`/gazzetta/${article.id}`} className="block w-full h-full">
                                         {/* Background Image */}
                                         <div
-                                            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40"
+                                            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70 group-hover:opacity-50"
                                             style={{ backgroundImage: `url(${article.imageUrl})` }}
                                         />
 
                                         {/* Gradient Overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent" />
 
                                         {/* Content */}
                                         <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col gap-3">
-                                            <span className="text-amber-400 font-bold font-serif text-sm tracking-wider uppercase">
+                                            <span className="text-amber-500 font-bold font-serif text-sm tracking-wider uppercase">
                                                 {formatDateToItalian(article.date)}
                                             </span>
-                                            <h3 className="text-2xl font-bold text-white font-oswald leading-tight group-hover:text-rose-400 transition-colors">
+                                            <h3 className="text-2xl font-bold text-[#10241a] font-oswald leading-tight group-hover:text-pink-600 transition-colors">
                                                 {article.title}
                                             </h3>
 
-                                            <div className="flex items-center text-rose-400 font-bold text-sm mt-4 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                                            <div className="flex items-center text-pink-600 font-bold text-sm mt-4 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
                                                 LEGGI ARTICOLO <ArrowRight className="w-4 h-4 ml-2" />
                                             </div>
                                         </div>

@@ -1,0 +1,47 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#93c5fd"/>
+    </linearGradient>
+    <linearGradient id="pitch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#16A34A"/>
+      <stop offset="100%" stop-color="#0f7a37"/>
+    </linearGradient>
+    <linearGradient id="stand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
+    </linearGradient>
+    <radialGradient id="lights" cx="50%" cy="0%" r="80%">
+      <stop offset="0%" stop-color="#FACC15" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FACC15" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+
+  <!-- distant curved stand (grandangolo) -->
+  <path filter="url(#soft)" d="M -100 420 Q 800 250 1700 420 L 1700 560 Q 800 400 -100 560 Z" fill="url(#stand)" opacity="0.55"/>
+
+  <!-- pink running track ring -->
+  <path filter="url(#soft)" d="M -100 520 Q 800 360 1700 520 L 1700 600 Q 800 450 -100 600 Z" fill="#EC4899" opacity="0.45"/>
+
+  <!-- stadium floodlight glow -->
+  <ellipse cx="800" cy="60" rx="900" ry="300" fill="url(#lights)"/>
+
+  <!-- pitch, wide angle perspective -->
+  <path d="M -200 1000 L 1800 1000 L 1300 560 Q 800 460 300 560 Z" fill="url(#pitch)"/>
+
+  <!-- pitch lines -->
+  <g stroke="#ffffff" stroke-opacity="0.5" stroke-width="4" fill="none" filter="url(#soft)">
+    <path d="M 300 560 Q 800 460 1300 560 L 1700 1000 L -100 1000 Z"/>
+    <ellipse cx="800" cy="780" rx="220" ry="90"/>
+    <line x1="800" y1="690" x2="800" y2="1000"/>
+  </g>
+
+  <!-- soft vignette of warm light bottom for depth -->
+  <ellipse cx="800" cy="1000" rx="900" ry="260" fill="#FACC15" opacity="0.10" filter="url(#soft)"/>
+</svg>

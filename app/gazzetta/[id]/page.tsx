@@ -59,24 +59,24 @@ export default function ArticlePage() {
     }, [id]);
 
     if (loading) return (
-        <div className="min-h-screen pt-24 flex justify-center items-center bg-[#0d0d0f]">
-            <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+        <div className="min-h-screen pt-24 flex justify-center items-center">
+            <Loader2 className="w-10 h-10 text-pink-500 animate-spin" />
         </div>
     );
 
     if (error || !metadata) return (
-        <div className="min-h-screen pt-24 px-4 flex flex-col justify-center items-center bg-[#0d0d0f] text-center">
-            <h1 className="text-2xl font-bold text-white mb-4">Articolo non disponibile</h1>
-            <p className="text-gray-400 mb-8">{error}</p>
-            <Link href="/gazzetta" className="text-rose-400 hover:text-rose-300 flex items-center gap-2">
+        <div className="min-h-screen pt-24 px-4 flex flex-col justify-center items-center text-center">
+            <h1 className="text-2xl font-bold text-[#10241a] mb-4">Articolo non disponibile</h1>
+            <p className="text-gray-500 mb-8">{error}</p>
+            <Link href="/gazzetta" className="text-pink-600 hover:text-pink-500 flex items-center gap-2">
                 <ArrowLeft className="w-4 h-4" /> Torna alla Gazzetta
             </Link>
         </div>
     );
 
     return (
-        <article className="min-h-screen bg-[#0d0d0f] text-white">
-            
+        <article className="min-h-screen text-[#10241a]">
+
             {/* 1. Hero Header con Background */}
             <div className="relative w-full min-h-[50vh] overflow-hidden flex flex-col justify-end pt-40 pb-12">
                 {/* Background Image */}
@@ -87,27 +87,27 @@ export default function ArticlePage() {
                     priority={true}
                     className="absolute inset-0 object-cover object-center"
                 />
-                {/* Overlay Scuro */}
-                <div className="absolute inset-0 bg-black/60 bg-gradient-to-t from-[#0d0d0f] via-black/70 to-black/30" />
+                {/* Overlay Chiaro */}
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-white/30" />
 
                 {/* Contenuto in Sovrimpressione (Titolo, Metadati) */}
                 <div className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col justify-end h-full">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-oswald uppercase leading-tight mb-4 tracking-wide text-white drop-shadow-2xl">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-oswald uppercase leading-tight mb-4 tracking-wide text-[#10241a]">
                         {metadata.title}
                     </h1>
-                    
+
                     {metadata.description && (
-                         <p className="text-xl md:text-2xl text-gray-200 font-serif italic max-w-3xl border-l-4 border-rose-500 pl-4 py-1 mb-8 drop-shadow-lg">
+                         <p className="text-xl md:text-2xl text-gray-600 font-serif italic max-w-3xl border-l-4 border-pink-500 pl-4 py-1 mb-8">
                              {metadata.description}
                          </p>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-4 text-rose-400 font-medium">
-                        <div className="flex items-center gap-2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                    <div className="flex flex-wrap items-center gap-4 text-pink-600 font-medium">
+                        <div className="flex items-center gap-2 bg-white/70 backdrop-blur-md px-4 py-2 rounded-full border border-black/5 shadow-sm">
                             <Calendar className="w-4 h-4" />
                             <span>{formatDateToItalian(metadata.date)}</span>
                         </div>
-                        <span className="text-white/80 text-sm bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                        <span className="text-gray-500 text-sm bg-white/70 backdrop-blur-md px-4 py-2 rounded-full border border-black/5 shadow-sm">
                             di {metadata.author}
                         </span>
                     </div>
@@ -118,16 +118,16 @@ export default function ArticlePage() {
 
                 {/* Tasto Back (Sticky) */}
                 <div className="sticky top-24 z-40 mb-8">
-                    <Link href="/gazzetta" aria-label="Torna agli articoli" className="inline-flex items-center text-white/50 hover:text-white transition-colors text-sm font-medium bg-[#0d0d0f]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                    <Link href="/gazzetta" aria-label="Torna agli articoli" className="inline-flex items-center text-gray-500 hover:text-[#10241a] transition-colors text-sm font-medium bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-black/5 shadow-sm">
                         <ArrowLeft className="w-4 h-4 mr-2" /> Torna agli articoli
                     </Link>
                 </div>
-                
+
                 {/* 2. Immagine Completa e Non Tagliata (Senza Box) */}
                 <div className="w-full relative mb-12">
-                    <Image 
-                        src={metadata.image} 
-                        alt={`Copertina per ${metadata.title}`} 
+                    <Image
+                        src={metadata.image}
+                        alt={`Copertina per ${metadata.title}`}
                         width={1200}
                         height={675}
                         priority={true}
@@ -136,17 +136,17 @@ export default function ArticlePage() {
                 </div>
 
                 {/* 3. Corpo del Testo (Markdown) */}
-                <div className="prose prose-invert prose-lg prose-rose max-w-none 
-                    prose-headings:font-oswald prose-headings:font-bold prose-headings:uppercase prose-headings:tracking-wide
-                    prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-serif
-                    prose-strong:text-white prose-strong:font-bold
-                    prose-a:text-rose-400 prose-a:no-underline hover:prose-a:underline
-                    prose-blockquote:border-l-rose-500 prose-blockquote:bg-white/5 prose-blockquote:p-6 prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:rounded-r-lg
+                <div className="prose prose-lg max-w-none
+                    prose-headings:font-oswald prose-headings:font-bold prose-headings:uppercase prose-headings:tracking-wide prose-headings:text-[#10241a]
+                    prose-p:text-gray-600 prose-p:leading-relaxed prose-p:font-serif
+                    prose-strong:text-[#10241a] prose-strong:font-bold
+                    prose-a:text-pink-600 prose-a:no-underline hover:prose-a:underline
+                    prose-blockquote:border-l-pink-500 prose-blockquote:bg-black/[0.02] prose-blockquote:p-6 prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:rounded-r-lg
                     prose-img:rounded-xl prose-img:shadow-xl prose-img:w-full prose-img:object-cover prose-img:my-8
                 ">
                     <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
                 </div>
-                
+
             </div>
         </article>
     );

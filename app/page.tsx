@@ -32,15 +32,14 @@ export default function Home() {
   const getLogo = (id: number) => "/api/sofascore?endpoint=teams/get-logo&teamId=" + id;
 
   const navItems = [
-    { href: "/risultati-serie-a", icon: Activity, title: "RISULTATI", desc: "La Serie A", color: "text-cyan-400", hex: "#22d3ee" },
-    { href: "/classifica", icon: Trophy, title: "CLASSIFICA", desc: "Chi domina la lega?", color: "text-amber-400", hex: "#fbbf24" },
-    { href: "/verdetto", icon: ShieldCheck, title: "VERDETTO", desc: "Statistiche e Premi", color: "text-emerald-400", hex: "#34d399" },
-    { href: "/regolamento", icon: Clock, title: "REGOLE", desc: "Tutto quello che ti serve", color: "text-indigo-400", hex: "#818cf8" }
+    { href: "/risultati-serie-a", icon: Activity, title: "RISULTATI", desc: "La Serie A", color: "text-blue-600", hex: "#2563EB" },
+    { href: "/classifica", icon: Trophy, title: "CLASSIFICA", desc: "Chi domina la lega?", color: "text-amber-500", hex: "#FACC15" },
+    { href: "/verdetto", icon: ShieldCheck, title: "VERDETTO", desc: "Statistiche e Premi", color: "text-emerald-600", hex: "#16A34A" },
+    { href: "/regolamento", icon: Clock, title: "REGOLE", desc: "Tutto quello che ti serve", color: "text-violet-600", hex: "#7C3AED" }
   ];
 
   return (
-    <main className="min-h-screen text-white pt-24 p-4 font-sans selection:bg-cyan-500/30 relative z-10">
-      <div className="fixed inset-0 bg-[url('/image/bg-homepage-final.png')] bg-cover bg-center bg-fixed opacity-20 pointer-events-none z-[-1]" />
+    <main className="min-h-screen text-[#10241a] pt-24 p-4 font-sans selection:bg-primary/20 relative z-10">
       <div className="max-w-4xl mx-auto space-y-12 pb-20">
         
         <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="flex justify-center">
@@ -58,7 +57,7 @@ export default function Home() {
                   <UserPlus className="w-7 h-7 md:w-9 md:h-9 text-primary group-hover:scale-110 transition-transform" />
                   Iscriviti alla Nuova Stagione
                 </h2>
-                <p className="text-sm text-zinc-400 mt-1">Compila il form per partecipare al prossimo campionato →</p>
+                <p className="text-sm text-gray-500 mt-1">Compila il form per partecipare al prossimo campionato →</p>
               </div>
             </MagicCard>
           </a>
@@ -67,14 +66,14 @@ export default function Home() {
         {latestArticle && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <MagicCard href={`/gazzetta/${latestArticle.id}`} glowColor="#f43f5e">
-              <div className="absolute inset-0 bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${latestArticle.imageUrl})` }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent" />
+              <div className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-45 transition-opacity duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${latestArticle.imageUrl})` }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-white via-white/85 to-white/40" />
               <div className="relative z-10 p-8 md:p-10 flex flex-col justify-end min-h-[300px]">
                 <div className="flex items-center space-x-3 mb-4">
-                  <span className="text-rose-500 font-bold text-xs tracking-[0.3em] uppercase px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full">La Gazzetta</span>
+                  <span className="text-pink-600 font-bold text-xs tracking-[0.3em] uppercase px-3 py-1 bg-pink-500/10 border border-pink-500/20 rounded-full">La Gazzetta</span>
                 </div>
                 <h2 className="text-3xl md:text-5xl font-black font-oswald text-3d-metallic uppercase leading-tight tracking-tight">{latestArticle.title}</h2>
-                <p className="mt-3 text-sm text-zinc-400 line-clamp-2 md:max-w-2xl font-serif italic">{latestArticle.description}</p>
+                <p className="mt-3 text-sm text-gray-600 line-clamp-2 md:max-w-2xl font-serif italic">{latestArticle.description}</p>
               </div>
             </MagicCard>
           </motion.div>
@@ -87,10 +86,10 @@ export default function Home() {
               <MagicCard href={item.href} glowColor={item.hex} className="h-full">
                 <div className="p-6 h-full flex flex-col group/inner">
                   <div className="flex justify-between items-start mb-4">
-                    <span className="text-sm font-black tracking-[0.2em] text-white uppercase">{item.title}</span>
-                    <item.icon className={`w-6 h-6 ${item.color} group-hover/inner:scale-110 group-hover/inner:rotate-3 transition-transform duration-300 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`}/>
+                    <span className="text-sm font-black tracking-[0.2em] text-[#10241a] uppercase">{item.title}</span>
+                    <item.icon className={`w-6 h-6 ${item.color} group-hover/inner:scale-110 group-hover/inner:rotate-3 transition-transform duration-300`}/>
                   </div>
-                  <p className="text-xs text-zinc-400 font-medium mt-auto">{item.desc}</p>
+                  <p className="text-xs text-gray-500 font-medium mt-auto">{item.desc}</p>
                 </div>
               </MagicCard>
             </motion.div>
