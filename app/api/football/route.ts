@@ -179,6 +179,24 @@ export async function GET(request: Request) {
       );
     }
 
+    if (endpoint === 'clubstats') {
+      const category = searchParams.get('category') || 'General';
+      const data = await legaFetch(`${BASE}/stats/teams?category=${encodeURIComponent(category)}&locale=it-IT`, 300);
+      return NextResponse.json(
+        { ok: true, data: { seasonId: SEASON_ID, category, teams: data?.teams || [] } },
+        { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=120' } }
+      );
+    }
+
+    if (endpoint === 'playerstats') {
+      const category = searchParams.get('category') || 'General';
+      const data = await legaFetch(`${BASE}/stats/players?category=${encodeURIComponent(category)}&locale=it-IT`, 300);
+      return NextResponse.json(
+        { ok: true, data: { seasonId: SEASON_ID, category, players: data?.players || [] } },
+        { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=120' } }
+      );
+    }
+
     if (endpoint === 'match') {
       const matchId = searchParams.get('id');
       if (!matchId) {
@@ -215,7 +233,7 @@ export async function GET(request: Request) {
       {
         ok: false,
         error: 'Endpoint non valido',
-        disponibili: ['seasons', 'standings', 'matches?round=1-38', 'match?id=...'],
+        disponibili: ['seasons', 'standings', 'matches?round=1-38', 'match?id=...', 'clubstats?category=General', 'playerstats?category=General'],
       },
       { status: 400 }
     );
