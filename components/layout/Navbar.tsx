@@ -14,7 +14,7 @@ const navItems = [
     { name: "Classifica Lega", href: "/classifica", icon: Trophy },
     { name: "Il Verdetto", href: "/verdetto", icon: Gavel },
     { name: "Risultati Serie A", href: "/risultati-serie-a", icon: Activity },
-    { name: "Statistiche Serie A", href: "/statistiche-serie-a", icon: BarChart3 },
+    { name: "Marcatori Serie A", href: "/statistiche-serie-a", icon: BarChart3 },
     { name: "La Gazzetta", href: "/gazzetta", icon: Newspaper },
     { name: "Regolamento", href: "/regolamento", icon: BookOpen },
 ];

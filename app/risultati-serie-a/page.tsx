@@ -460,7 +460,12 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
            .filter((md: any) => md.matchdayStatus === "Scheduled")
            .sort((a: any, b: any) => new Date(a.startDateUtc).getTime() - new Date(b.startDateUtc).getTime())[0];
 
-         const active = live || lastPlayed || nextScheduled;
+         // Fallback per stagione non ancora iniziata: prima giornata disponibile
+         const firstAvailable = [...matchdays]
+           .filter((md: any) => md.round)
+           .sort((a: any, b: any) => a.round - b.round)[0];
+
+         const active = live || lastPlayed || nextScheduled || firstAvailable;
          if (active && active.round) {
             setSelectedRound(active.round);
             loadRound(active.round);

@@ -23,8 +23,8 @@ export const SEASONS: Record<string, SeasonConfig> = {
         archived: false,
         classificaUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRt2OX76DFf3kFwhgnbv7q7QGsVUxMw8ZuN-pqexwndNILTEypAGJIT-Aclj7fFWXgujdNkJi04ApgP/pub?output=csv&gid=1557944383',
         verdettoUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRt2OX76DFf3kFwhgnbv7q7QGsVUxMw8ZuN-pqexwndNILTEypAGJIT-Aclj7fFWXgujdNkJi04ApgP/pub?output=csv&gid=1105159540',
-        // TODO: verificare l'id stagione 2026/27 di Lega Serie A una volta pubblicato (vedi /api/football?endpoint=seasons)
-        serieASeasonId: undefined,
+        // Id stagione 2026/27 di Lega Serie A (calendario pubblicato)
+        serieASeasonId: 'serie-a%3A%3AFootball_Season%3A%3Aed7fdc2a3e7b408b942ec177b7b956b5',
     },
 };
 
