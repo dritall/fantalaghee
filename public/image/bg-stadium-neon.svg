@@ -1,0 +1,231 @@
+<svg width="2000" height="1250" viewBox="0 0 2000 1250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Cielo notturno: blu navy in alto, viola/rosa al tramonto sull'orizzonte -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#0a0a2e"/>
+      <stop offset="28%" stop-color="#1a1248"/>
+      <stop offset="48%" stop-color="#3b1e63"/>
+      <stop offset="62%" stop-color="#7c3a7a"/>
+      <stop offset="70%" stop-color="#c2548a"/>
+      <stop offset="74%" stop-color="#e06a96"/>
+      <stop offset="78%" stop-color="#5b2a6b"/>
+      <stop offset="100%" stop-color="#0d0a2a"/>
+    </linearGradient>
+
+    <!-- Acqua del lago -->
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#2a1c52"/>
+      <stop offset="30%" stop-color="#1a1340"/>
+      <stop offset="100%" stop-color="#080620"/>
+    </linearGradient>
+
+    <radialGradient id="horizonGlow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%"  stop-color="#ff6fae" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ff6fae" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="pitchGlow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%"  stop-color="#16A34A" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0a5226" stop-opacity="0.7"/>
+    </radialGradient>
+
+    <radialGradient id="bowlGlow" cx="50%" cy="40%" r="70%">
+      <stop offset="0%"  stop-color="#7C3AED" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#3a1a6b" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#1a0f3a" stop-opacity="0.1"/>
+    </radialGradient>
+
+    <filter id="neonBlur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="softBlur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="bigBlur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+  </defs>
+
+  <!-- ===== CIELO ===== -->
+  <rect width="2000" height="780" fill="url(#sky)"/>
+
+  <!-- Bagliore del tramonto sull'orizzonte -->
+  <ellipse cx="1000" cy="500" rx="900" ry="180" fill="url(#horizonGlow)"/>
+
+  <!-- Luna crescente -->
+  <g transform="translate(770,250)">
+    <circle cx="0" cy="0" r="26" fill="#fdf0d5" opacity="0.95"/>
+    <circle cx="10" cy="-4" r="24" fill="#1a1248"/>
+    <circle cx="0" cy="0" r="40" fill="#fdf0d5" opacity="0.12" filter="url(#softBlur)"/>
+  </g>
+
+  <!-- Stelle -->
+  <g fill="#ffffff">
+    <circle cx="200" cy="120" r="1.6" opacity="0.8"/>
+    <circle cx="420" cy="80" r="1.2" opacity="0.6"/>
+    <circle cx="600" cy="160" r="1.4" opacity="0.7"/>
+    <circle cx="1100" cy="100" r="1.3" opacity="0.7"/>
+    <circle cx="1350" cy="150" r="1.6" opacity="0.8"/>
+    <circle cx="1600" cy="90" r="1.2" opacity="0.6"/>
+    <circle cx="1800" cy="170" r="1.5" opacity="0.7"/>
+    <circle cx="300" cy="220" r="1.1" opacity="0.5"/>
+    <circle cx="1500" cy="240" r="1.2" opacity="0.6"/>
+  </g>
+
+  <!-- ===== MONTAGNE NEON ===== -->
+  <!-- Sagome scure -->
+  <path d="M 0 520 L 120 400 L 260 470 L 400 360 L 540 460 L 660 430 L 760 500 L 0 540 Z" fill="#0d0a2a"/>
+  <path d="M 2000 520 L 1880 400 L 1740 470 L 1600 360 L 1460 460 L 1340 430 L 1240 500 L 2000 540 Z" fill="#0d0a2a"/>
+  <path d="M 700 510 L 820 450 L 1000 490 L 1180 450 L 1300 510 Z" fill="#100b30"/>
+
+  <!-- Creste neon sinistra (viola/rosa) -->
+  <g fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M 0 520 L 120 400 L 260 470 L 400 360 L 540 460 L 660 430 L 760 500" stroke="#c026d3" stroke-width="3.5" opacity="0.9" filter="url(#neonBlur)"/>
+    <path d="M 0 520 L 120 400 L 260 470 L 400 360 L 540 460 L 660 430 L 760 500" stroke="#f0abfc" stroke-width="1.6" opacity="0.95"/>
+  </g>
+  <!-- Creste neon destra (blu/ciano) -->
+  <g fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M 2000 520 L 1880 400 L 1740 470 L 1600 360 L 1460 460 L 1340 430 L 1240 500" stroke="#2563EB" stroke-width="3.5" opacity="0.9" filter="url(#neonBlur)"/>
+    <path d="M 2000 520 L 1880 400 L 1740 470 L 1600 360 L 1460 460 L 1340 430 L 1240 500" stroke="#7dd3fc" stroke-width="1.6" opacity="0.95"/>
+  </g>
+
+  <!-- Luci dei paesini sulla riva -->
+  <g fill="#ffd27f">
+    <circle cx="120" cy="495" r="2" opacity="0.8"/><circle cx="180" cy="500" r="1.6" opacity="0.7"/>
+    <circle cx="250" cy="498" r="1.8" opacity="0.75"/><circle cx="1850" cy="495" r="2" opacity="0.8"/>
+    <circle cx="1780" cy="500" r="1.6" opacity="0.7"/><circle cx="1700" cy="498" r="1.8" opacity="0.75"/>
+  </g>
+
+  <!-- ===== ACQUA ===== -->
+  <rect y="510" width="2000" height="740" fill="url(#water)"/>
+  <!-- riflessi orizzonte -->
+  <ellipse cx="1000" cy="540" rx="700" ry="40" fill="#e06a96" opacity="0.18" filter="url(#softBlur)"/>
+  <!-- onde / riflessi neon -->
+  <g stroke-linecap="round" opacity="0.5">
+    <line x1="300" y1="640" x2="420" y2="640" stroke="#2563EB" stroke-width="2"/>
+    <line x1="1550" y1="660" x2="1700" y2="660" stroke="#ec4899" stroke-width="2"/>
+    <line x1="250" y1="760" x2="380" y2="760" stroke="#7c3aed" stroke-width="2"/>
+    <line x1="1620" y1="800" x2="1760" y2="800" stroke="#22d3ee" stroke-width="2"/>
+  </g>
+
+  <!-- ===== BAGLIORE STADIO ===== -->
+  <ellipse cx="1000" cy="760" rx="720" ry="320" fill="url(#bowlGlow)" filter="url(#bigBlur)"/>
+
+  <!-- ===== STADIO ===== -->
+  <g transform="translate(1000,770)">
+    <!-- Piattaforma galleggiante -->
+    <ellipse cx="0" cy="200" rx="700" ry="150" fill="#1a1142" opacity="0.95"/>
+    <ellipse cx="0" cy="200" rx="700" ry="150" fill="none" stroke="#ec4899" stroke-width="2.5" opacity="0.7" filter="url(#neonBlur)"/>
+
+    <!-- Corpo esterno della tribuna (anello neon) -->
+    <ellipse cx="0" cy="60" rx="620" ry="270" fill="#241a52" opacity="0.9"/>
+    <ellipse cx="0" cy="40" rx="430" ry="180" fill="#15102e"/>
+
+    <!-- Costoloni verticali neon sulla facciata -->
+    <g fill="none" stroke-width="2.4" opacity="0.85" filter="url(#neonBlur)">
+      <path d="M -600 90 Q -590 200 -560 250" stroke="#ec4899"/>
+      <path d="M -500 130 Q -495 230 -470 280" stroke="#22d3ee"/>
+      <path d="M -390 160 Q -388 250 -370 295" stroke="#a855f7"/>
+      <path d="M -270 180 Q -269 260 -255 300" stroke="#ec4899"/>
+      <path d="M -140 195 Q -140 265 -130 302" stroke="#22d3ee"/>
+      <path d="M 0 200 L 0 305" stroke="#a855f7"/>
+      <path d="M 140 195 Q 140 265 130 302" stroke="#ec4899"/>
+      <path d="M 270 180 Q 269 260 255 300" stroke="#22d3ee"/>
+      <path d="M 390 160 Q 388 250 370 295" stroke="#a855f7"/>
+      <path d="M 500 130 Q 495 230 470 280" stroke="#ec4899"/>
+      <path d="M 600 90 Q 590 200 560 250" stroke="#22d3ee"/>
+    </g>
+
+    <!-- Anelli orizzontali neon -->
+    <g fill="none" stroke-width="2" opacity="0.8" filter="url(#neonBlur)">
+      <ellipse cx="0" cy="120" rx="600" ry="220" stroke="#22d3ee"/>
+      <ellipse cx="0" cy="150" rx="610" ry="225" stroke="#ec4899"/>
+    </g>
+
+    <!-- Bordo superiore della coppa (corona neon brillante) -->
+    <ellipse cx="0" cy="-110" rx="430" ry="175" fill="none" stroke="#f0abfc" stroke-width="4" filter="url(#neonBlur)"/>
+    <ellipse cx="0" cy="-110" rx="430" ry="175" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.9"/>
+    <ellipse cx="0" cy="-118" rx="430" ry="172" fill="none" stroke="#22d3ee" stroke-width="2.5" opacity="0.8" filter="url(#neonBlur)"/>
+
+    <!-- Interno: gradinate -->
+    <ellipse cx="0" cy="-95" rx="400" ry="155" fill="#3a1a5e" opacity="0.85"/>
+    <ellipse cx="0" cy="-100" rx="300" ry="110" fill="#2a1448" opacity="0.9"/>
+
+    <!-- Campo da gioco (verde, in prospettiva) -->
+    <ellipse cx="0" cy="-105" rx="200" ry="74" fill="url(#pitchGlow)"/>
+    <g stroke="#dcfce7" stroke-opacity="0.6" stroke-width="1.6" fill="none">
+      <ellipse cx="0" cy="-105" rx="195" ry="70"/>
+      <line x1="0" y1="-175" x2="0" y2="-35"/>
+      <ellipse cx="0" cy="-105" rx="42" ry="16"/>
+      <rect x="-55" y="-145" width="110" height="34" rx="2"/>
+      <rect x="-55" y="-99" width="110" height="34" rx="2"/>
+    </g>
+
+    <!-- Archi d'ingresso neon (laterali) -->
+    <g fill="none" stroke-width="4" filter="url(#neonBlur)">
+      <path d="M -560 230 Q -560 120 -480 120 Q -400 120 -400 230" stroke="#fb3a5d" opacity="0.9"/>
+      <path d="M -545 232 Q -545 135 -480 135 Q -415 135 -415 232" stroke="#22d3ee" opacity="0.85"/>
+      <path d="M 560 230 Q 560 120 480 120 Q 400 120 400 230" stroke="#fb3a5d" opacity="0.9"/>
+      <path d="M 545 232 Q 545 135 480 135 Q 415 135 415 232" stroke="#22d3ee" opacity="0.85"/>
+    </g>
+  </g>
+
+  <!-- ===== TORRI FARO ===== -->
+  <g>
+    <!-- sinistra -->
+    <g transform="translate(440,470)">
+      <line x1="0" y1="0" x2="0" y2="180" stroke="#5b21b6" stroke-width="5"/>
+      <rect x="-26" y="-24" width="52" height="34" rx="4" fill="#1a1142" stroke="#22d3ee" stroke-width="2"/>
+      <rect x="-22" y="-20" width="44" height="26" fill="#dbeafe" opacity="0.9"/>
+      <ellipse cx="0" cy="-6" rx="120" ry="80" fill="#bfdbfe" opacity="0.12" filter="url(#bigBlur)"/>
+    </g>
+    <!-- centro -->
+    <g transform="translate(1020,420)">
+      <line x1="0" y1="0" x2="0" y2="150" stroke="#5b21b6" stroke-width="5"/>
+      <rect x="-30" y="-26" width="60" height="38" rx="4" fill="#1a1142" stroke="#22d3ee" stroke-width="2"/>
+      <rect x="-25" y="-21" width="50" height="28" fill="#eef6ff" opacity="0.95"/>
+      <ellipse cx="0" cy="-6" rx="150" ry="100" fill="#dbeafe" opacity="0.14" filter="url(#bigBlur)"/>
+    </g>
+    <!-- destra -->
+    <g transform="translate(1620,470)">
+      <line x1="0" y1="0" x2="0" y2="180" stroke="#5b21b6" stroke-width="5"/>
+      <rect x="-26" y="-24" width="52" height="34" rx="4" fill="#1a1142" stroke="#22d3ee" stroke-width="2"/>
+      <rect x="-22" y="-20" width="44" height="26" fill="#dbeafe" opacity="0.9"/>
+      <ellipse cx="0" cy="-6" rx="120" ry="80" fill="#bfdbfe" opacity="0.12" filter="url(#bigBlur)"/>
+    </g>
+  </g>
+
+  <!-- ===== BARCHE NEON ===== -->
+  <g stroke-linecap="round">
+    <g transform="translate(220,920)">
+      <path d="M -34 0 Q 0 16 34 0 L 26 -10 L -26 -10 Z" fill="#1a1142" stroke="#ec4899" stroke-width="2"/>
+      <line x1="40" y1="2" x2="150" y2="6" stroke="#ec4899" stroke-width="2.5" opacity="0.6" filter="url(#neonBlur)"/>
+    </g>
+    <g transform="translate(1780,880)">
+      <path d="M -34 0 Q 0 16 34 0 L 26 -10 L -26 -10 Z" fill="#1a1142" stroke="#22d3ee" stroke-width="2"/>
+      <line x1="-40" y1="2" x2="-150" y2="6" stroke="#22d3ee" stroke-width="2.5" opacity="0.6" filter="url(#neonBlur)"/>
+    </g>
+    <g transform="translate(1640,1050)">
+      <path d="M -40 0 Q 0 18 40 0 L 30 -12 L -30 -12 Z" fill="#1a1142" stroke="#a855f7" stroke-width="2"/>
+      <line x1="-46" y1="2" x2="-170" y2="8" stroke="#a855f7" stroke-width="3" opacity="0.6" filter="url(#neonBlur)"/>
+    </g>
+    <g transform="translate(380,1080)">
+      <path d="M -30 0 Q 0 14 30 0 L 24 -9 L -24 -9 Z" fill="#1a1142" stroke="#ec4899" stroke-width="2"/>
+    </g>
+    <g transform="translate(1500,620)">
+      <circle cx="0" cy="0" r="4" fill="#2563EB"/>
+    </g>
+    <g transform="translate(560,610)">
+      <circle cx="0" cy="0" r="4" fill="#ec4899"/>
+    </g>
+  </g>
+
+  <!-- Riflessi dello stadio nell'acqua -->
+  <g opacity="0.25">
+    <ellipse cx="1000" cy="1090" rx="500" ry="60" fill="#ec4899" filter="url(#bigBlur)"/>
+    <ellipse cx="1000" cy="1130" rx="400" ry="40" fill="#22d3ee" filter="url(#bigBlur)"/>
+  </g>
+
+  <!-- Vignettatura -->
+  <rect width="2000" height="1250" fill="url(#horizonGlow)" opacity="0"/>
+</svg>

@@ -68,7 +68,7 @@ function ClassificaContent() {
             <div className="relative z-30 flex flex-col flex-1 max-w-6xl mx-auto w-full">
                 <div className="mb-6">
                     <h1 className="text-3xl font-black tracking-tight text-3d-metallic mb-2">Classifica Generale</h1>
-                    <p className="text-gray-500 text-sm">Scorri orizzontalmente per vedere tutte le giornate.</p>
+                    <p className="text-white/55 text-sm">Scorri orizzontalmente per vedere tutte le giornate.</p>
                 </div>
 
                 {/* Mobile: lista di card con switch Totale / Ultima Giornata */}

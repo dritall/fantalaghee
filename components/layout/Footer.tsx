@@ -2,19 +2,22 @@ import Image from "next/image";
 
 export function Footer() {
     return (
-        <footer className="border-t border-black/5 bg-white/70 backdrop-blur-xl mt-auto">
-            <div className="max-w-7xl mx-auto py-8 px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+        <footer className="relative z-10 mt-auto border-t border-white/10 bg-[#0d0a2a]/70 backdrop-blur-xl">
+            <div className="h-[2px] w-full gradient-bar opacity-60" />
+            <div className="max-w-7xl mx-auto py-4 px-4 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2.5">
                     <Image
                         src="/image/logo-fantalaghee.png"
                         alt="Fantalaghee Logo"
-                        width={180}
-                        height={70}
-                        className="object-contain"
+                        width={90}
+                        height={36}
+                        className="object-contain h-7 w-auto opacity-90"
                     />
-                    <span className="text-gray-500 text-sm md:border-l border-gray-300 md:pl-4 font-serif">Since 2025</span>
+                    <span className="text-white/40 text-xs font-serif hidden sm:inline border-l border-white/15 pl-2.5">
+                        Since 2025
+                    </span>
                 </div>
-                <div className="text-xs text-gray-500 font-mono">
+                <div className="text-[11px] text-white/35 font-mono">
                     © {new Date().getFullYear()} drbb
                 </div>
             </div>

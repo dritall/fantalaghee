@@ -52,8 +52,8 @@
   }
 
   body {
-    @apply bg-[#f7f9fc] text-[#10241a] antialiased;
-    background-color: #f7f9fc;
+    @apply text-[#10241a] antialiased;
+    background-color: #0d0a2a;
   }
 }
 
@@ -79,14 +79,16 @@
     @apply text-[#2563EB];
   }
 
-  /* Sfondo stadio neon — overlay scuro ridotto per mantenere atmosfera */
+  /* Sfondo stadio neon — overlay leggero per dare profondità senza spegnere i neon */
   .stadium-bg {
     background-image:
-      linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.35) 70%, rgba(0,0,0,0.5) 100%),
-      url('/image/bg-stadium-neon.png');
+      linear-gradient(180deg, rgba(8,6,32,0.35) 0%, rgba(8,6,32,0.15) 35%, rgba(8,6,32,0.30) 70%, rgba(8,6,32,0.55) 100%),
+      url('/image/bg-stadium-neon.svg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: #0d0a2a;
   }
 
   /* Macchie di colore ambientali, leggerissime (puro CSS, no immagini) */

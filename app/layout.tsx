@@ -27,10 +27,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} font-sans antialiased text-[#10241a] bg-[#f7f9fc] stadium-bg relative overflow-x-hidden`}>
+      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} font-sans antialiased text-[#10241a] bg-[#0d0a2a] stadium-bg relative overflow-x-hidden min-h-screen flex flex-col`}>
         <div className="ambient-blobs" aria-hidden="true" />
         <Navbar />
-        {children}
+        <div className="flex-1 flex flex-col">
+          {children}
+        </div>
         <Footer />
       </body>
     </html>
