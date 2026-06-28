@@ -3,7 +3,7 @@ title: "NOTTI MAGICHE E INCUBI DI CAMPIONATO: I VERDETTI DEL LARIO"
 date: "2026-04-14"
 description: "Bollicine25 e Fattore C sul tetto d'Europa, mentre Stoke Azzo prova a scappare dal Triello."
 author: "La Redazione"
-image: "/image/gazzetta/gazzetta-finali-coppe.png"
+image: "/image/gazzetta/gazzetta-finali-coppe.webp"
 ---
 
 # NOTTI MAGICHE E INCUBI DI CAMPIONATO: I VERDETTI DEL LARIO

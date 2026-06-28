@@ -3,7 +3,7 @@ title: 'EDIZIONE STRAORDINARIA: IL LARIO TREMA, IL FANTA LAGHÈE RIPARTE!'
 date: '2026-06-28'
 description: 'Aperti ufficialmente i cancelli per la stagione 2026/27. Sito nuovo fiammante, la rivoluzione del "Secondo Classificato" e il grande ritorno delle pagelle spietate.'
 author: La Redazione
-image: /image/gazzetta/edizione-straordinaria-2627.jpg
+image: /image/gazzetta/edizione-straordinaria-2627.webp
 ---
 
 📰 EDIZIONE STRAORDINARIA: IL LARIO TREMA, IL FANTA LAGHÈE RIPARTE! 📰

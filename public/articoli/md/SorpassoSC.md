@@ -3,7 +3,7 @@ title: "IL TRIELLO DEL LARIO: STOKE AZZO È IL NUOVO RE!"
 date: "2026-03-24"
 description: "Cuccioloni detronizzato (-10.5 PT), I Raga di Oporto a soli 5 punti. Rush finale infuocato."
 author: "La Redazione"
-image: "/image/gazzetta/gazzetta-g30-sorpasso.png"
+image: "/image/gazzetta/gazzetta-g30-sorpasso.webp"
 ---
 
 # IL TRIELLO DEL LARIO: STOKE AZZO È IL NUOVO RE!

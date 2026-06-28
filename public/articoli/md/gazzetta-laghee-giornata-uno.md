@@ -3,7 +3,7 @@ title: 'Cuccioloni, Partenza Record!'
 date: '2025-08-26'
 description: 'Cuccioloni, Partenza Record!'
 author: La Redazione
-image: /image/gazzetta/giornata1.jpg
+image: /image/gazzetta/giornata1.webp
 ---
 ### La stagione inizia col botto: Cuccioloni volano oltre quota 100, mentre Zugna United assaggia il primo legno.
 
