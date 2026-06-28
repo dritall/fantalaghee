@@ -179,15 +179,6 @@ export async function GET(request: Request) {
       );
     }
 
-    if (endpoint === 'playerstats') {
-      const category = searchParams.get('category') || 'General';
-      const data = await legaFetch(`${BASE}/stats/players?category=${encodeURIComponent(category)}&locale=it-IT`, 300);
-      return NextResponse.json(
-        { ok: true, data: { seasonId: SEASON_ID, category, players: data?.players || [] } },
-        { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=120' } }
-      );
-    }
-
     if (endpoint === 'match') {
       const matchId = searchParams.get('id');
       if (!matchId) {
@@ -224,7 +215,7 @@ export async function GET(request: Request) {
       {
         ok: false,
         error: 'Endpoint non valido',
-        disponibili: ['seasons', 'standings', 'matches?round=1-38', 'match?id=...', 'playerstats?category=General'],
+        disponibili: ['seasons', 'standings', 'matches?round=1-38', 'match?id=...'],
       },
       { status: 400 }
     );

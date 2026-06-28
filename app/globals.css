@@ -72,7 +72,7 @@
   }
 
   .text-gradient {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-[#16A34A] via-[#2563EB] to-[#7C3AED];
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] via-[#2563EB] to-[#4f46e5];
   }
 
   .text-highlight {
@@ -117,6 +117,7 @@
     width: 38vw;
     height: 38vw;
     background: radial-gradient(circle, #2563EB 0%, transparent 70%);
+    opacity: 0.25;
   }
 
   .ambient-blobs::after {
@@ -124,8 +125,9 @@
     right: -10%;
     width: 42vw;
     height: 42vw;
-    background: radial-gradient(circle, #EC4899 0%, transparent 70%);
+    background: radial-gradient(circle, #1e40af 0%, transparent 70%);
     animation-delay: -11s;
+    opacity: 0.25;
   }
 }
 
@@ -156,16 +158,16 @@
   animation: chrome-sweep 2.5s infinite linear;
 }
 
-/* Testo titolo con gradiente palette (sostituisce il vecchio metallico su dark) */
+/* Testo titolo: gradiente freddo blu/cyan, più sobrio e leggibile su scuro */
 .text-3d-metallic {
-  background: linear-gradient(90deg, #16A34A 0%, #2563EB 45%, #7C3AED 75%, #EC4899 100%);
+  background: linear-gradient(95deg, #7dd3fc 0%, #38bdf8 35%, #2563EB 70%, #4f46e5 100%);
   -webkit-background-clip: text;
   color: transparent;
 }
 
-/* Barra gradiente animata, usata su navbar e card in evidenza */
+/* Barra gradiente animata: spettro blu/cyan, niente arcobaleno */
 .gradient-bar {
-  background: linear-gradient(90deg, #16A34A, #2563EB, #7C3AED, #EC4899, #FACC15, #16A34A);
+  background: linear-gradient(90deg, #1e3a8a, #2563EB, #22d3ee, #2563EB, #1e3a8a);
   background-size: 200% 100%;
   animation: border-flow 6s linear infinite;
 }

@@ -32,36 +32,36 @@ export default function Home() {
   const getLogo = (id: number) => "/api/sofascore?endpoint=teams/get-logo&teamId=" + id;
 
   const navItems = [
-    { href: "/risultati-serie-a", icon: Activity, title: "RISULTATI", desc: "La Serie A", color: "text-blue-600", hex: "#2563EB" },
-    { href: "/classifica", icon: Trophy, title: "CLASSIFICA", desc: "Chi domina la lega?", color: "text-amber-500", hex: "#FACC15" },
-    { href: "/verdetto", icon: ShieldCheck, title: "VERDETTO", desc: "Statistiche e Premi", color: "text-emerald-600", hex: "#16A34A" },
-    { href: "/regolamento", icon: Clock, title: "REGOLE", desc: "Tutto quello che ti serve", color: "text-violet-600", hex: "#7C3AED" }
+    { href: "/risultati-serie-a", icon: Activity, title: "RISULTATI", desc: "La Serie A", color: "text-blue-500", hex: "#2563EB" },
+    { href: "/classifica", icon: Trophy, title: "CLASSIFICA", desc: "Chi domina la lega?", color: "text-cyan-500", hex: "#06b6d4" },
+    { href: "/verdetto", icon: ShieldCheck, title: "VERDETTO", desc: "Statistiche e Premi", color: "text-emerald-500", hex: "#10b981" },
+    { href: "/regolamento", icon: Clock, title: "REGOLE", desc: "Tutto quello che ti serve", color: "text-indigo-500", hex: "#6366f1" }
   ];
 
   return (
     <main className="min-h-screen text-[#10241a] pt-24 p-4 font-sans selection:bg-primary/20 relative z-10">
-      <div className="max-w-4xl mx-auto space-y-12 pb-20">
-        
-        <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="flex justify-center">
-          <Image src="/image/logo-fantalaghee.png" alt="Logo Fantalaghee" width={350} height={150} priority className="hover:scale-105 transition-transform duration-500 drop-shadow-2xl" />
+      <div className="max-w-4xl mx-auto space-y-6 pb-20">
+
+        <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="flex justify-center -mb-2">
+          <Image src="/image/logo-fantalaghee.png" alt="Logo Fantalaghee" width={320} height={140} priority className="hover:scale-105 transition-transform duration-500 drop-shadow-2xl" />
         </motion.div>
-        
+
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <a href={ISCRIZIONE_FORM_URL} target="_blank" rel="noopener noreferrer" className="block relative">
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full text-[10px] font-black tracking-[0.2em] uppercase text-white bg-pink-500 shadow-md animate-pulse">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full text-[10px] font-black tracking-[0.2em] uppercase text-white bg-secondary shadow-md">
               Iscrizioni Aperte
             </span>
-            <div className="relative rounded-[2.5rem] p-[2px] gradient-bar shadow-[0_8px_30px_rgba(15,35,25,0.12)]">
-              <div className="rounded-[calc(2.5rem-2px)] bg-gradient-to-br from-primary/15 via-secondary/10 to-pink-500/15 backdrop-blur-xl">
+            <div className="relative rounded-[2.5rem] p-[1.5px] bg-gradient-to-r from-secondary/60 via-cyan-400/50 to-indigo-500/60 shadow-[0_8px_30px_rgba(8,15,40,0.35)]">
+              <div className="rounded-[calc(2.5rem-1.5px)] bg-[#0d1430]/80 backdrop-blur-xl">
                 <div className="p-6 md:p-8 flex flex-col items-center text-center gap-2 group">
-                  <span className="text-primary font-black text-xs tracking-[0.3em] uppercase px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+                  <span className="text-cyan-300 font-black text-xs tracking-[0.3em] uppercase px-3 py-1 bg-cyan-400/10 border border-cyan-400/20 rounded-full">
                     Stagione 2026/27
                   </span>
                   <h2 className="text-2xl md:text-4xl font-black font-oswald uppercase tracking-tight text-3d-metallic flex items-center gap-3">
-                    <UserPlus className="w-7 h-7 md:w-9 md:h-9 text-primary group-hover:scale-110 transition-transform" />
+                    <UserPlus className="w-7 h-7 md:w-9 md:h-9 text-cyan-300 group-hover:scale-110 transition-transform" />
                     Iscriviti alla Nuova Stagione
                   </h2>
-                  <p className="text-sm text-gray-600 font-semibold mt-1 flex items-center gap-1">
+                  <p className="text-sm text-white/70 font-semibold mt-1 flex items-center gap-1">
                     Clicca qui per compilare il form di partecipazione
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                   </p>

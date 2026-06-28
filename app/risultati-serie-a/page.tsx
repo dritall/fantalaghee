@@ -218,33 +218,33 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
          if (err || !url) {
             return (
-               <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full shadow-lg border-2 transition-colors shrink-0
-                 ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`} />
+               <div className={`w-3.5 h-3.5 md:w-8 md:h-8 rounded-full shadow-lg border md:border-2 transition-colors shrink-0
+                 ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]'}`} />
             );
          }
 
          return (
-            <img 
+            <img
                src={url}
                onError={() => setErr(true)}
-               className={`w-6 h-6 md:w-8 md:h-8 rounded-full shadow-lg border-2 object-cover shrink-0 bg-zinc-800
-                 ${side === 'home' ? 'border-cyan-500/80 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'border-white/80 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`}
+               className={`w-3.5 h-3.5 md:w-8 md:h-8 rounded-full shadow-lg border md:border-2 object-cover shrink-0 bg-zinc-800
+                 ${side === 'home' ? 'border-cyan-500/80 drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]' : 'border-white/80 drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]'}`}
                alt={p.displayName || p.shortName || 'Player'}
             />
          );
       };
 
       return (
-        <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 group transition-transform duration-500 hover:scale-125 hover:z-30" style={{ left, top }}>
-          <div className="relative flex justify-center mt-1">
+        <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 md:gap-1 z-20 group transition-transform duration-500 hover:scale-125 hover:z-30" style={{ left, top }}>
+          <div className="relative flex justify-center mt-0.5 md:mt-1">
             <PitchPlayerImage />
-            <div className="absolute -top-1 -right-3 flex flex-col gap-0.5">
-              {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[12px] drop-shadow-md z-30">⚽</span>)}
-              {red ? <div className="w-1.5 h-2 bg-red-500 rounded-sm border border-red-700 shadow-sm z-30" /> : yellow ? <div className="w-1.5 h-2 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm z-30" /> : null}
+            <div className="absolute -top-1 -right-2 md:-right-3 flex flex-col gap-0.5">
+              {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[8px] md:text-[12px] drop-shadow-md z-30">⚽</span>)}
+              {red ? <div className="w-1 h-1.5 md:w-1.5 md:h-2 bg-red-500 rounded-sm border border-red-700 shadow-sm z-30" /> : yellow ? <div className="w-1 h-1.5 md:w-1.5 md:h-2 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm z-30" /> : null}
             </div>
           </div>
-          <div className="mt-0.5 whitespace-nowrap flex flex-col items-center bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded outline outline-1 outline-white/5">
-            <span className="text-[8px] md:text-[9px] font-black uppercase text-white tracking-widest text-shadow-sm drop-shadow-md truncate max-w-[70px] md:max-w-[90px]">
+          <div className="mt-0.5 whitespace-nowrap flex flex-col items-center bg-black/40 backdrop-blur-sm px-1 md:px-1.5 py-0.5 rounded outline outline-1 outline-white/5">
+            <span className="text-[6.5px] md:text-[9px] font-black uppercase text-white tracking-wide md:tracking-widest text-shadow-sm drop-shadow-md truncate max-w-[48px] md:max-w-[90px]">
               {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p).split(' ').pop()}
             </span>
           </div>
