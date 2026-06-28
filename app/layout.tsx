@@ -3,6 +3,7 @@ import { Outfit, Inter, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { IscrivitiFab } from "@/components/ui/IscrivitiFab";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 const inter = Inter({
@@ -33,6 +34,7 @@ export default function RootLayout({
         <div className="flex-1 flex flex-col">
           {children}
         </div>
+        <IscrivitiFab />
         <Footer />
       </body>
     </html>

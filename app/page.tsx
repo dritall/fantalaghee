@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Activity, Trophy, ShieldCheck, Clock } from "lucide-react";
+import Link from "next/link";
+import { Activity, Trophy, ShieldCheck, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-import { MagicCard } from "@/components/ui/MagicCard"; // Assicurati che il path sia corretto in base alla tua struttura
 import { ISCRIZIONE_FORM_URL } from "@/lib/seasons";
 import { UserPlus } from "lucide-react";
 
@@ -32,10 +32,10 @@ export default function Home() {
   const getLogo = (id: number) => "/api/sofascore?endpoint=teams/get-logo&teamId=" + id;
 
   const navItems = [
-    { href: "/risultati-serie-a", icon: Activity, title: "RISULTATI", desc: "La Serie A", color: "text-blue-500", hex: "#2563EB" },
-    { href: "/classifica", icon: Trophy, title: "CLASSIFICA", desc: "Chi domina la lega?", color: "text-cyan-500", hex: "#06b6d4" },
-    { href: "/verdetto", icon: ShieldCheck, title: "VERDETTO", desc: "Statistiche e Premi", color: "text-emerald-500", hex: "#10b981" },
-    { href: "/regolamento", icon: Clock, title: "REGOLE", desc: "Tutto quello che ti serve", color: "text-indigo-500", hex: "#6366f1" }
+    { href: "/regolamento", icon: BookOpen, title: "REGOLAMENTO", desc: "Tutto quello che ti serve", color: "text-indigo-400", hex: "#6366f1" },
+    { href: "/risultati-serie-a", icon: Activity, title: "RISULTATI", desc: "La Serie A", color: "text-blue-400", hex: "#2563EB" },
+    { href: "/classifica", icon: Trophy, title: "CLASSIFICA", desc: "Chi domina la lega?", color: "text-cyan-400", hex: "#06b6d4" },
+    { href: "/verdetto", icon: ShieldCheck, title: "VERDETTO", desc: "Statistiche e Premi", color: "text-emerald-400", hex: "#10b981" }
   ];
 
   return (
@@ -73,39 +73,51 @@ export default function Home() {
 
         {latestArticle && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <MagicCard href={`/gazzetta/${latestArticle.id}`} glowColor="#f43f5e">
-              <div className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-45 transition-opacity duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${latestArticle.imageUrl})` }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-white via-white/85 to-white/40" />
-              <div className="relative z-10 p-8 md:p-10 flex flex-col justify-end min-h-[300px]">
+            <Link href={`/gazzetta/${latestArticle.id}`} className="group block relative rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_12px_40px_rgba(6,10,30,0.5)]">
+              <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${latestArticle.imageUrl})` }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/70 to-[#06060f]/20" />
+              <div className="relative z-10 p-8 md:p-10 flex flex-col justify-end min-h-[320px]">
                 <div className="flex items-center space-x-3 mb-4">
-                  <span className="text-pink-600 font-bold text-xs tracking-[0.3em] uppercase px-3 py-1 bg-pink-500/10 border border-pink-500/20 rounded-full">La Gazzetta</span>
+                  <span className="text-pink-300 font-bold text-xs tracking-[0.3em] uppercase px-3 py-1 bg-pink-500/15 border border-pink-400/30 rounded-full">La Gazzetta</span>
                 </div>
-                <h2 className="text-3xl md:text-5xl font-black font-oswald text-3d-metallic uppercase leading-tight tracking-tight">{latestArticle.title}</h2>
-                <p className="mt-3 text-sm text-gray-600 line-clamp-2 md:max-w-2xl font-serif italic">{latestArticle.description}</p>
+                <h2 className="text-3xl md:text-5xl font-black font-oswald text-white uppercase leading-tight tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">{latestArticle.title}</h2>
+                <p className="mt-3 text-sm text-white/65 line-clamp-2 md:max-w-2xl font-serif italic">{latestArticle.description}</p>
               </div>
-            </MagicCard>
+            </Link>
           </motion.div>
         )}
 
         {/* NAVIGAZIONE */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {navItems.map((item, index) => (
-            <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }} style={{ animation: `float ${4 + index}s ease-in-out infinite` }}>
-              <MagicCard href={item.href} glowColor={item.hex} className="h-full">
-                <div className="p-6 h-full flex flex-col group/inner">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-sm font-black tracking-[0.2em] text-[#10241a] uppercase">{item.title}</span>
-                    <item.icon className={`w-6 h-6 ${item.color} group-hover/inner:scale-110 group-hover/inner:rotate-3 transition-transform duration-300`}/>
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -6, transition: { type: "spring", stiffness: 400, damping: 22 } }}
+            >
+              <Link href={item.href} className="block h-full group">
+                <div className="relative h-full rounded-[1.75rem] p-[1px] bg-gradient-to-b from-white/15 to-white/[0.03] overflow-hidden transition-all duration-300 group-hover:from-white/30 shadow-[0_8px_30px_rgba(8,12,35,0.35)]">
+                  <div className="relative h-full rounded-[calc(1.75rem-1px)] bg-[#0d1330]/70 backdrop-blur-xl p-6 flex flex-col overflow-hidden transition-colors duration-300 group-hover:bg-[#0d1330]/85">
+                    <div
+                      className="absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{ background: `radial-gradient(420px circle at 50% 0%, ${item.hex}26, transparent 70%)` }}
+                    />
+                    <div className="relative flex justify-between items-start mb-4">
+                      <span className="text-sm font-black tracking-[0.2em] text-white uppercase">{item.title}</span>
+                      <item.icon className={`w-6 h-6 ${item.color} group-hover:scale-110 transition-transform duration-300`} />
+                    </div>
+                    <p className="relative text-xs text-white/50 font-medium mt-auto">{item.desc}</p>
                   </div>
-                  <p className="text-xs text-gray-500 font-medium mt-auto">{item.desc}</p>
                 </div>
-              </MagicCard>
+              </Link>
             </motion.div>
           ))}
         </div>
 
       </div>
-      <style dangerouslySetInnerHTML={{__html: `@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }`}} />
     </main>
   );
 }

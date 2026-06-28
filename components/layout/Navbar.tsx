@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity } from "lucide-react";
+import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, UserPlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 import { SeasonSwitcher } from "@/components/ui/SeasonSwitcher";
+import { ISCRIZIONE_FORM_URL } from "@/lib/seasons";
 
 const navItems = [
     { name: "Classifica Lega", href: "/classifica", icon: Trophy },
@@ -114,7 +115,18 @@ export function Navbar() {
                         exit={{ opacity: 0, height: 0 }}
                         className="lg:hidden bg-[#0d0a2a]/95 backdrop-blur-xl border-t border-white/10 overflow-hidden"
                     >
-                        <div className="px-4 pt-2 pb-6 space-y-1">
+                        <div className="px-4 pt-3 pb-6 space-y-1">
+                            <a
+                                href={ISCRIZIONE_FORM_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setIsOpen(false)}
+                                className="flex items-center justify-center gap-2 px-3 py-3.5 mb-2 rounded-xl text-base font-black uppercase tracking-wider
+                                           bg-gradient-to-r from-secondary to-cyan-500 text-white shadow-[0_8px_24px_rgba(37,99,235,0.4)] border border-white/20"
+                            >
+                                <UserPlus className="w-5 h-5" />
+                                Iscriviti alla Lega
+                            </a>
                             {navItems.map((item) => (
                                 <Link
                                     key={item.href}

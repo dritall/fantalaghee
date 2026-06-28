@@ -7,6 +7,7 @@ import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
 import { MagicCard } from '@/components/ui/MagicCard';
+import { WaitingFirstMatchday } from '@/components/ui/WaitingFirstMatchday';
 import { CURRENT_SEASON } from '@/lib/seasons';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -76,6 +77,25 @@ function VerdettoContent() {
                 Errore: {error}
             </div>
         </div>
+    );
+
+    // Stagione non ancora iniziata: nessuna giornata o tutti i punti a zero
+    const isPreSeason =
+        !data ||
+        !Number(data.numeroGiornata) ||
+        (Array.isArray(data.classifica) && data.classifica.length > 0 && data.classifica.every((d: any) => !Number(d.punti)));
+
+    if (isPreSeason) return (
+        <main className="min-h-screen pt-24 pb-12 px-4 md:px-8 relative">
+            <div className="relative z-30 max-w-4xl mx-auto space-y-8">
+                <div className="text-center space-y-4">
+                    <h1 className={`${oswald.className} text-4xl md:text-6xl font-bold text-3d-metallic uppercase tracking-wide`}>
+                        IL VERDETTO
+                    </h1>
+                </div>
+                <WaitingFirstMatchday subtitle="Premi, record e classifiche compariranno qui dopo la prima giornata di campionato." />
+            </div>
+        </main>
     );
 
     // Chart Config
@@ -251,7 +271,7 @@ function VerdettoContent() {
                                 <h3 className={`${oswald.className} text-2xl text-[#10241a] mb-6 pl-2 border-l-4 border-amber-400`}>PODIO DI GIORNATA</h3>
                                 <div className="space-y-4 flex-1">
                                     {data.podio.map((p: any, i: number) => (
-                                        <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-black/[0.02] border border-black/5">
+                                        <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-black/5 border border-black/5">
                                             <span className="text-3xl filter drop-shadow-lg">{['🥇', '🥈', '🥉'][i]}</span>
                                             <div>
                                                 <p className="font-bold text-[#10241a] text-lg">{p.squadra}</p>
@@ -283,7 +303,7 @@ function VerdettoContent() {
                                     <h4 className="text-center font-bold text-secondary mb-6 uppercase tracking-wide text-lg">Classifica Generale</h4>
                                     <div className="space-y-2">
                                         {data.premi.classifica.map((p: any, i: number) => (
-                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/[0.02] rounded transition-colors cursor-pointer">
+                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/5 rounded transition-colors cursor-pointer">
                                                 <span className="text-gray-600">{p.squadra}</span>
                                                 <span className="font-bold text-amber-500">{p.premio} 🍆</span>
                                             </div>
@@ -300,7 +320,7 @@ function VerdettoContent() {
                                     <h4 className="text-center font-bold text-secondary mb-6 uppercase tracking-wide text-lg">Premi di Giornata</h4>
                                     <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar flex-1">
                                         {data.premi.giornata.map((p: any, i: number) => (
-                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/[0.02] rounded transition-colors cursor-pointer">
+                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/5 rounded transition-colors cursor-pointer">
                                                 <span className="text-gray-600">{p.squadra}</span>
                                                 <span className="font-bold text-amber-500">{p.premio} 🍆</span>
                                             </div>
@@ -335,7 +355,7 @@ function VerdettoContent() {
                                     </div>
                                     <div className="space-y-2">
                                         {data.premi.superLega?.map((p: any, i: number) => (
-                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/[0.02] rounded transition-colors cursor-pointer">
+                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/5 rounded transition-colors cursor-pointer">
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-lg">{['🥇','🥈','🥉','4️⃣'][i] || `${i+1}.`}</span>
                                                     <span className="text-gray-600">{p.squadra}</span>
@@ -360,7 +380,7 @@ function VerdettoContent() {
                                     </div>
                                     <div className="space-y-2">
                                         {data.premi.coppaUefa?.map((p: any, i: number) => (
-                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/[0.02] rounded transition-colors cursor-pointer">
+                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/5 rounded transition-colors cursor-pointer">
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-lg">{['🥇','🥈'][i] || `${i+1}.`}</span>
                                                     <span className="text-gray-600">{p.squadra}</span>
@@ -398,7 +418,7 @@ function VerdettoContent() {
                                                     i === 0 ? 'border-amber-400/50 bg-amber-400/10' :
                                                     i === 1 ? 'border-slate-300/60 bg-slate-300/10' :
                                                     i === 2 ? 'border-orange-500/40 bg-orange-500/10' :
-                                                    'border-black/5 bg-black/[0.02]'
+                                                    'border-black/5 bg-black/5'
                                                 }`}
                                             >
                                                 {i < 3 ? (

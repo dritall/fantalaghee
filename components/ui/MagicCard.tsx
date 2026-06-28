@@ -12,7 +12,7 @@ export const MagicCard = ({ children, href, glowColor, className = "" }: { child
           backgroundImage: `conic-gradient(from 90deg at 50% 50%, transparent 0%, transparent 70%, #ffffff 85%, ${glowColor} 95%, transparent 100%)`
         }}
       />
-      <div className="relative h-full w-full flex flex-col rounded-[calc(2.5rem-1px)] bg-white/80 backdrop-blur-xl border border-white/60 z-10 overflow-hidden transition-colors duration-500 group-hover:bg-white">
+      <div className="relative h-full w-full flex flex-col rounded-[calc(2.5rem-1px)] bg-gradient-to-b from-white/85 to-white/70 backdrop-blur-2xl border border-white/70 ring-1 ring-inset ring-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] z-10 overflow-hidden transition-all duration-500 group-hover:from-white group-hover:to-white/85">
         {children}
       </div>
     </div>

@@ -38,6 +38,7 @@ const TEAM_LOGOS: Record<string, string> = {
   Empoli: 'https://tmssl.akamaized.net/images/wappen/head/749.png',
   Venezia: 'https://tmssl.akamaized.net/images/wappen/head/607.png',
   Cremonese: 'https://tmssl.akamaized.net/images/wappen/head/2239.png',
+  Frosinone: 'https://tmssl.akamaized.net/images/wappen/head/8970.png',
 };
 
 const normalizeTeamName = (name?: string) => {
@@ -1050,8 +1051,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       {/* ===== MODAL PARTITA ===== */}
       <Dialog.Root open={!!modalFixture} onOpenChange={() => { setModalFixture(null); setMatchDetails(null); }}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100]" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#080808] border border-white/10 rounded-[3rem] w-[95vw] max-w-xl z-[101] overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+          <Dialog.Overlay className="fixed inset-0 bg-[#06060f]/95 backdrop-blur-md z-[100]" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0a0a1e] border border-white/10 rounded-[3rem] w-[95vw] max-w-xl z-[101] overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
             <Dialog.Title className="sr-only">Dettagli Partita</Dialog.Title>
             <Dialog.Description className="sr-only">
               Dettagli e statistiche della partita selezionata
@@ -1085,7 +1086,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
             })()}
 
             {/* TAB SELECTOR */}
-            <div className="flex justify-center items-center w-full overflow-x-auto no-scrollbar border-b border-white/5 bg-[#080808] shrink-0 custom-scrollbar">
+            <div className="flex justify-center items-center w-full overflow-x-auto no-scrollbar border-b border-white/5 bg-[#0a0a1e] shrink-0 custom-scrollbar">
               {[
                 { id: 'eventi', label: 'Eventi' },
                 { id: 'formazioni', label: 'Formazioni' },
@@ -1100,7 +1101,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
               ))}
             </div>
 
-            <div ref={modalScrollRef} className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#0d0d0f]">
+            <div ref={modalScrollRef} className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#0d1330]">
               {loadingModal ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <div className="relative">
@@ -1194,11 +1195,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
                       return (
                         <div className="mb-10 last:mb-0 relative py-6">
-                          <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 ${iconColor} mb-6 bg-[#0d0d0f] w-full py-4 px-6 rounded-[2rem] border border-white/5 shadow-inner`}>
+                          <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 ${iconColor} mb-6 bg-[#0d1330] w-full py-4 px-6 rounded-[2rem] border border-white/5 shadow-inner`}>
                              <span className={`w-2 h-2 rounded-full shadow-lg bg-current drop-shadow-md`} />
                              {title}
                           </h4>
-                          <div className="flex flex-col bg-[#080808]/80 backdrop-blur-md rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
+                          <div className="flex flex-col bg-[#0a0a1e]/80 backdrop-blur-md rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
                             {validStats.map((stat: any, i: number) => <StatRow key={i} stat={stat} />)}
                           </div>
                         </div>

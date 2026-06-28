@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle, Trophy, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MagicCard } from "@/components/ui/MagicCard";
+import { WaitingFirstMatchday } from "@/components/ui/WaitingFirstMatchday";
 import { CURRENT_SEASON } from "@/lib/seasons";
 
 function ClassificaContent() {
@@ -60,6 +61,21 @@ function ClassificaContent() {
                 <span>Errore caricamento: {error}</span>
             </div>
         </div>
+    );
+
+    // Stagione non ancora iniziata: nessun dato o tutti i totali a zero
+    const isPreSeason = leaderboard.length === 0 || leaderboard.every((t) => !parseFloat(t.Generale));
+
+    if (isPreSeason) return (
+        <main className="min-h-screen pt-24 pb-8 px-4 md:px-8 flex flex-col relative">
+            <div className="relative z-30 flex flex-col flex-1 max-w-6xl mx-auto w-full">
+                <div className="mb-6">
+                    <h1 className="text-3xl font-black tracking-tight text-3d-metallic mb-2">Classifica Generale</h1>
+                    <p className="text-white/55 text-sm">La classifica della lega.</p>
+                </div>
+                <WaitingFirstMatchday subtitle="La classifica si popolerà dopo la prima giornata di campionato." />
+            </div>
+        </main>
     );
 
     return (
