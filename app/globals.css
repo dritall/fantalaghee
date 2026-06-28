@@ -83,12 +83,20 @@
   .stadium-bg {
     background-image:
       linear-gradient(180deg, rgba(10,8,30,0.72) 0%, rgba(13,10,42,0.55) 35%, rgba(13,10,42,0.62) 70%, rgba(8,6,28,0.82) 100%),
-      url('/image/stadium-bg.webp');
+      url('/image/FL%20Mobile%20BG.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-color: #0d0a2a;
+  }
+
+  @media (min-width: 768px) {
+    .stadium-bg {
+      background-image:
+        linear-gradient(180deg, rgba(10,8,30,0.72) 0%, rgba(13,10,42,0.55) 35%, rgba(13,10,42,0.62) 70%, rgba(8,6,28,0.82) 100%),
+        url('/image/FL%2026727%20Background.png');
+    }
   }
 
   /* Macchie di colore ambientali, leggerissime (puro CSS, no immagini) */
