@@ -7,7 +7,6 @@ import rehypeRaw from "rehype-raw";
 import { Loader2, ArrowLeft, Calendar } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import matter from "gray-matter";
 import { formatDateToItalian } from "@/lib/date-utils";
 
 interface ArticleMeta {
@@ -31,22 +30,12 @@ export default function ArticlePage() {
     useEffect(() => {
         async function loadArticle() {
             try {
-                // Fetch the Markdown file directly
-                const contentRes = await fetch(`/articoli/md/${id}.md`);
-                if (!contentRes.ok) throw new Error("Scritto non trovato");
-                const text = await contentRes.text();
+                // Frontmatter già parsato lato server (bundle più leggero, caricamento più veloce)
+                const res = await fetch(`/api/articles/${id}`);
+                if (!res.ok) throw new Error("Scritto non trovato");
+                const { metadata: meta, content: markdownBody } = await res.json();
 
-                // Parse Frontmatter
-                const { data, content: markdownBody } = matter(text);
-
-                setMetadata({
-                    title: data.title || id,
-                    date: data.date || "Senza Data",
-                    description: data.description || "",
-                    author: data.author || "La Redazione",
-                    image: data.image || "/image/gazzetta/default.jpg"
-                });
-
+                setMetadata(meta);
                 setContent(markdownBody);
             } catch (err: any) {
                 setError(err.message);
