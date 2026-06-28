@@ -107,16 +107,16 @@ export default function GazzettaPage() {
                                             style={{ backgroundImage: `url(${article.imageUrl})` }}
                                         />
 
-                                        {/* Gradient Overlay scuro solo in basso, per leggere il titolo */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/55 to-transparent" />
-                                        <div className="absolute inset-0 bg-[#06060f]/10 group-hover:bg-transparent transition-colors duration-500" />
+                                        {/* Scrim: leggero su tutta la card + banda scura piena in basso per il titolo */}
+                                        <div className="absolute inset-0 bg-[#06060f]/35 group-hover:bg-[#06060f]/20 transition-colors duration-500" />
+                                        <div className="absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-[#050510] via-[#050510]/92 via-30% to-transparent" />
 
                                         {/* Content */}
                                         <div className="absolute bottom-0 left-0 w-full p-7 flex flex-col gap-2.5">
-                                            <span className="text-cyan-300 font-bold font-serif text-sm tracking-wider uppercase">
+                                            <span className="text-cyan-300 font-bold font-serif text-sm tracking-wider uppercase drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                                                 {formatDateToItalian(article.date)}
                                             </span>
-                                            <h3 className="text-2xl font-bold text-white font-oswald leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] group-hover:text-cyan-300 transition-colors">
+                                            <h3 className="text-2xl font-black text-white font-oswald leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] group-hover:text-cyan-300 transition-colors">
                                                 {article.title}
                                             </h3>
 

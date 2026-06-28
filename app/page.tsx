@@ -51,9 +51,11 @@ export default function Home() {
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full text-[10px] font-black tracking-[0.2em] uppercase text-white bg-secondary shadow-md">
               Iscrizioni Aperte
             </span>
-            <div className="relative rounded-[2.5rem] p-[1.5px] bg-gradient-to-r from-secondary/60 via-cyan-400/50 to-indigo-500/60 shadow-[0_8px_30px_rgba(8,15,40,0.35)]">
-              <div className="rounded-[calc(2.5rem-1.5px)] bg-[#0d1430]/80 backdrop-blur-xl">
-                <div className="p-6 md:p-8 flex flex-col items-center text-center gap-2 group">
+            <div className="relative rounded-[2.5rem] p-[1.5px] bg-gradient-to-r from-secondary/70 via-cyan-400/60 to-indigo-500/70 shadow-[0_14px_44px_rgba(8,15,40,0.55)]">
+              <div className="relative rounded-[calc(2.5rem-1.5px)] bg-gradient-to-b from-[#0d1430] to-[#080b22] overflow-hidden">
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[60%] h-40 bg-secondary/20 blur-[80px] rounded-full pointer-events-none" />
+                <div className="relative p-6 md:p-8 flex flex-col items-center text-center gap-2 group">
                   <span className="text-cyan-300 font-black text-xs tracking-[0.3em] uppercase px-3 py-1 bg-cyan-400/10 border border-cyan-400/20 rounded-full">
                     Stagione 2026/27
                   </span>
@@ -73,9 +75,9 @@ export default function Home() {
 
         {latestArticle && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <Link href={`/gazzetta/${latestArticle.id}`} className="group block relative rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_12px_40px_rgba(6,10,30,0.5)]">
+            <Link href={`/gazzetta/${latestArticle.id}`} className="group block relative rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_16px_50px_rgba(6,10,30,0.6)] bg-[#0a0a1e]">
               <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${latestArticle.imageUrl})` }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/70 to-[#06060f]/20" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/80 to-[#06060f]/30" />
               <div className="relative z-10 p-8 md:p-10 flex flex-col justify-end min-h-[320px]">
                 <div className="flex items-center space-x-3 mb-4">
                   <span className="text-pink-300 font-bold text-xs tracking-[0.3em] uppercase px-3 py-1 bg-pink-500/15 border border-pink-400/30 rounded-full">La Gazzetta</span>
@@ -99,17 +101,36 @@ export default function Home() {
               whileHover={{ y: -6, transition: { type: "spring", stiffness: 400, damping: 22 } }}
             >
               <Link href={item.href} className="block h-full group">
-                <div className="relative h-full rounded-[1.75rem] p-[1px] bg-gradient-to-b from-white/15 to-white/[0.03] overflow-hidden transition-all duration-300 group-hover:from-white/30 shadow-[0_8px_30px_rgba(8,12,35,0.35)]">
-                  <div className="relative h-full rounded-[calc(1.75rem-1px)] bg-[#0d1330]/70 backdrop-blur-xl p-6 flex flex-col overflow-hidden transition-colors duration-300 group-hover:bg-[#0d1330]/85">
+                <div
+                  className="relative h-full rounded-[1.75rem] p-[1.5px] overflow-hidden transition-all duration-300 shadow-[0_10px_34px_rgba(6,10,30,0.5)]"
+                  style={{ background: `linear-gradient(160deg, ${item.hex}66, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.02))` }}
+                >
+                  <div className="relative h-full rounded-[calc(1.75rem-1.5px)] bg-gradient-to-b from-[#0c1228] to-[#080b1e] p-5 flex flex-col overflow-hidden">
+                    {/* glow di colore sempre presente in alto, più intenso in hover */}
                     <div
-                      className="absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{ background: `radial-gradient(420px circle at 50% 0%, ${item.hex}26, transparent 70%)` }}
+                      className="absolute -inset-px opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{ background: `radial-gradient(340px circle at 50% -10%, ${item.hex}33, transparent 65%)` }}
                     />
-                    <div className="relative flex justify-between items-start mb-4">
-                      <span className="text-sm font-black tracking-[0.2em] text-white uppercase">{item.title}</span>
-                      <item.icon className={`w-6 h-6 ${item.color} group-hover:scale-110 transition-transform duration-300`} />
+                    {/* sheen superiore */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+
+                    <div className="relative flex items-center justify-between mb-5">
+                      <span
+                        className="w-11 h-11 rounded-2xl flex items-center justify-center border transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-0.5"
+                        style={{ backgroundColor: `${item.hex}1f`, borderColor: `${item.hex}40` }}
+                      >
+                        <item.icon className={`w-5 h-5 ${item.color}`} />
+                      </span>
+                      <span
+                        className="text-[11px] font-black tracking-[0.15em] uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style={{ color: item.hex }}
+                      >
+                        →
+                      </span>
                     </div>
-                    <p className="relative text-xs text-white/50 font-medium mt-auto">{item.desc}</p>
+
+                    <span className="relative text-base font-black tracking-[0.12em] text-white uppercase leading-none">{item.title}</span>
+                    <p className="relative text-xs text-white/55 font-medium mt-1.5">{item.desc}</p>
                   </div>
                 </div>
               </Link>

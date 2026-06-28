@@ -82,11 +82,11 @@
   /* Sfondo stadio reale — overlay scuro/colorato per far risaltare le card glass */
   .stadium-bg {
     background-image:
-      linear-gradient(180deg, rgba(10,8,30,0.72) 0%, rgba(13,10,42,0.55) 35%, rgba(13,10,42,0.62) 70%, rgba(8,6,28,0.82) 100%),
-      url('/image/FL%20Mobile%20BG.png');
+      linear-gradient(180deg, rgba(10,8,30,0.78) 0%, rgba(13,10,42,0.62) 35%, rgba(13,10,42,0.68) 70%, rgba(8,6,28,0.88) 100%),
+      url('/image/bg-mobile-2627.webp');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
+    background-attachment: scroll;
     background-repeat: no-repeat;
     background-color: #0d0a2a;
   }
@@ -94,8 +94,9 @@
   @media (min-width: 768px) {
     .stadium-bg {
       background-image:
-        linear-gradient(180deg, rgba(10,8,30,0.72) 0%, rgba(13,10,42,0.55) 35%, rgba(13,10,42,0.62) 70%, rgba(8,6,28,0.82) 100%),
-        url('/image/FL%2026727%20Background.png');
+        linear-gradient(180deg, rgba(10,8,30,0.78) 0%, rgba(13,10,42,0.60) 35%, rgba(13,10,42,0.66) 70%, rgba(8,6,28,0.88) 100%),
+        url('/image/bg-desktop-2627.webp');
+      background-attachment: fixed;
     }
   }
 
