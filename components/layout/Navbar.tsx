@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, UserPlus } from "lucide-react";
+import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, UserPlus, Download } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -126,6 +126,16 @@ export function Navbar() {
                             >
                                 <UserPlus className="w-5 h-5" />
                                 Iscriviti alla Lega
+                            </a>
+                            <a
+                                href="/docs/regolamento-fantalaghee-2627.pdf"
+                                download
+                                onClick={() => setIsOpen(false)}
+                                className="flex items-center justify-center gap-2 px-3 py-3.5 mb-2 rounded-xl text-base font-bold uppercase tracking-wider
+                                           bg-white/5 text-white border border-white/15 hover:bg-white/10 transition-colors"
+                            >
+                                <Download className="w-5 h-5" />
+                                Scarica Regolamento
                             </a>
                             {navItems.map((item) => (
                                 <Link
