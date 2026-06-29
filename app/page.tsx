@@ -116,10 +116,23 @@ export default function Home() {
 
                     <div className="relative flex items-center justify-between mb-5">
                       <span
-                        className="w-11 h-11 rounded-2xl flex items-center justify-center border transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-0.5"
-                        style={{ backgroundColor: `${item.hex}1f`, borderColor: `${item.hex}40` }}
+                        className="relative w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-0.5"
+                        style={{
+                          backgroundColor: `${item.hex}1f`,
+                          borderColor: `${item.hex}55`,
+                          boxShadow: `inset 0 0 12px ${item.hex}33, 0 0 0 1px ${item.hex}22`,
+                        }}
                       >
-                        <item.icon className={`w-5 h-5 ${item.color}`} />
+                        {/* alone neon che pulsa in hover */}
+                        <span
+                          className="absolute inset-0 rounded-2xl opacity-50 group-hover:opacity-100 blur-md transition-opacity duration-500 pointer-events-none"
+                          style={{ background: `radial-gradient(circle at 50% 50%, ${item.hex}66, transparent 70%)` }}
+                        />
+                        <item.icon
+                          className={`relative w-[22px] h-[22px] ${item.color} transition-transform duration-300 group-hover:scale-110`}
+                          style={{ filter: `drop-shadow(0 0 6px ${item.hex}cc)` }}
+                          strokeWidth={2.25}
+                        />
                       </span>
                       <span
                         className="text-[11px] font-black tracking-[0.15em] uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300"

@@ -43,19 +43,22 @@ export function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-12 md:h-16">
                     {/* Logo */}
-                    <Link href="/" className="flex-shrink-0 flex items-center gap-2.5 group">
-                        <div className="relative w-auto h-8 md:h-11 flex items-center justify-center">
+                    <Link href="/" className="flex-shrink-0 flex items-center gap-3 group">
+                        <div className="relative w-auto h-8 md:h-11 flex items-center justify-center rounded-2xl px-1.5 transition-all duration-300 group-hover:bg-white/[0.06]">
+                            {/* alone neon dietro al logo */}
+                            <span className="absolute inset-0 rounded-2xl opacity-60 group-hover:opacity-100 blur-lg transition-opacity duration-500 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.35),transparent_70%)]" />
                             <Image
                                 src="/image/logo-fantalaghee.png"
                                 alt="Fantalaghee Logo"
                                 width={120}
                                 height={48}
-                                className="object-contain h-full w-auto drop-shadow-[0_0_12px_rgba(236,72,153,0.35)]"
+                                className="relative object-contain h-full w-auto drop-shadow-[0_0_14px_rgba(236,72,153,0.4)] transition-transform duration-300 group-hover:scale-105"
                                 priority
                             />
                         </div>
-                        <span className="font-bold text-lg tracking-tight text-white hidden sm:block">
-                            FANTA <span className="text-gradient">LAGHÈE</span>
+                        <span className="font-black text-lg tracking-tight text-white hidden sm:flex flex-col leading-none">
+                            <span>FANTA <span className="text-gradient">LAGHÈE</span></span>
+                            <span className="text-[9px] font-semibold tracking-[0.3em] uppercase text-white/35 mt-1">Il Fantacalcio d&apos;élite</span>
                         </span>
                     </Link>
 
