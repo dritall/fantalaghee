@@ -3,7 +3,7 @@ import { Outfit, Inter, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Stardust } from "@/components/ui/Stardust";
+import { IscrivitiFab } from "@/components/ui/IscrivitiFab";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 const inter = Inter({
@@ -28,10 +28,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} font-sans antialiased text-white bg-[#050505] relative overflow-x-hidden`}>
-        <Stardust />
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/image/bg-desktop-2627.webp"
+          media="(min-width: 768px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/image/bg-mobile-2627.webp"
+          media="(max-width: 767px)"
+        />
+      </head>
+      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} font-sans antialiased text-[#10241a] bg-[#0d0a2a] stadium-bg relative overflow-x-hidden min-h-screen flex flex-col`}>
+        <div className="ambient-blobs" aria-hidden="true" />
         <Navbar />
-        {children}
+        <div className="flex-1 flex flex-col">
+          {children}
+        </div>
+        <IscrivitiFab />
         <Footer />
       </body>
     </html>

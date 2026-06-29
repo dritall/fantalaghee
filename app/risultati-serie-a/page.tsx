@@ -2,10 +2,12 @@
 /* eslint-disable */
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { getDisplayPlayerName, getPlayerImageUrl } from './utils';
 import * as Dialog from '@radix-ui/react-dialog';
+import { SEASONS, CURRENT_SEASON } from '@/lib/seasons';
 
 const PlayerStatsTable = dynamic(() => import('./PlayerStatsTable'), { ssr: false });
 import { X, Loader2, AlertTriangle } from 'lucide-react';
@@ -36,6 +38,7 @@ const TEAM_LOGOS: Record<string, string> = {
   Empoli: 'https://tmssl.akamaized.net/images/wappen/head/749.png',
   Venezia: 'https://tmssl.akamaized.net/images/wappen/head/607.png',
   Cremonese: 'https://tmssl.akamaized.net/images/wappen/head/2239.png',
+  Frosinone: 'https://tmssl.akamaized.net/images/wappen/head/8970.png',
 };
 
 const normalizeTeamName = (name?: string) => {
@@ -216,33 +219,33 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
          if (err || !url) {
             return (
-               <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full shadow-lg border-2 transition-colors shrink-0
-                 ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`} />
+               <div className={`w-3.5 h-3.5 md:w-8 md:h-8 rounded-full shadow-lg border md:border-2 transition-colors shrink-0
+                 ${side === 'home' ? 'bg-cyan-500 border-white drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]' : 'bg-white border-zinc-200 drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]'}`} />
             );
          }
 
          return (
-            <img 
+            <img
                src={url}
                onError={() => setErr(true)}
-               className={`w-6 h-6 md:w-8 md:h-8 rounded-full shadow-lg border-2 object-cover shrink-0 bg-zinc-800
-                 ${side === 'home' ? 'border-cyan-500/80 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'border-white/80 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`}
+               className={`w-3.5 h-3.5 md:w-8 md:h-8 rounded-full shadow-lg border md:border-2 object-cover shrink-0 bg-zinc-800
+                 ${side === 'home' ? 'border-cyan-500/80 drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]' : 'border-white/80 drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]'}`}
                alt={p.displayName || p.shortName || 'Player'}
             />
          );
       };
 
       return (
-        <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 group transition-transform duration-500 hover:scale-125 hover:z-30" style={{ left, top }}>
-          <div className="relative flex justify-center mt-1">
+        <div key={p.playerId || p.id} className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 md:gap-1 z-20 group transition-transform duration-500 hover:scale-125 hover:z-30" style={{ left, top }}>
+          <div className="relative flex justify-center mt-0.5 md:mt-1">
             <PitchPlayerImage />
-            <div className="absolute -top-1 -right-3 flex flex-col gap-0.5">
-              {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[10px] md:text-[12px] drop-shadow-md z-30">⚽</span>)}
-              {red ? <div className="w-1.5 h-2 bg-red-500 rounded-sm border border-red-700 shadow-sm z-30" /> : yellow ? <div className="w-1.5 h-2 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm z-30" /> : null}
+            <div className="absolute -top-1 -right-2 md:-right-3 flex flex-col gap-0.5">
+              {goals > 0 && Array(goals).fill(0).map((_, i) => <span key={i} className="text-[8px] md:text-[12px] drop-shadow-md z-30">⚽</span>)}
+              {red ? <div className="w-1 h-1.5 md:w-1.5 md:h-2 bg-red-500 rounded-sm border border-red-700 shadow-sm z-30" /> : yellow ? <div className="w-1 h-1.5 md:w-1.5 md:h-2 bg-yellow-400 rounded-sm border border-yellow-600 shadow-sm z-30" /> : null}
             </div>
           </div>
-          <div className="mt-0.5 whitespace-nowrap flex flex-col items-center bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded outline outline-1 outline-white/5">
-            <span className="text-[8px] md:text-[9px] font-black uppercase text-white tracking-widest text-shadow-sm drop-shadow-md truncate max-w-[70px] md:max-w-[90px]">
+          <div className="mt-0.5 whitespace-nowrap flex flex-col items-center bg-black/40 backdrop-blur-sm px-1 md:px-1.5 py-0.5 rounded outline outline-1 outline-white/5">
+            <span className="text-[6.5px] md:text-[9px] font-black uppercase text-white tracking-wide md:tracking-widest text-shadow-sm drop-shadow-md truncate max-w-[48px] md:max-w-[90px]">
               {p.displayName || p.shortName || p.shirtName || getDisplayPlayerName(p).split(' ').pop()}
             </span>
           </div>
@@ -251,7 +254,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     };
 
     return (
-      <div className="w-full max-w-4xl mx-auto flex-1 border border-white/5 rounded-[2.5rem] p-6 md:p-10 bg-[#060606] shadow-2xl relative overflow-hidden aspect-[3/4] md:aspect-[4/3] lg:aspect-auto lg:h-[700px]">
+      <div className="w-full max-w-4xl mx-auto flex-1 border border-white/5 rounded-[2.5rem] p-6 md:p-10 bg-[#121214] shadow-2xl relative overflow-hidden aspect-[3/4] md:aspect-[4/3] lg:aspect-auto lg:h-[700px]">
         {homeLineup.coach && (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
             <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
@@ -308,7 +311,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     });
 
     return (
-      <div className="w-full flex-1 border border-white/5 rounded-[2.5rem] p-4 md:p-8 bg-[#060606] shadow-2xl relative overflow-hidden">
+      <div className="w-full flex-1 border border-white/5 rounded-[2.5rem] p-4 md:p-8 bg-[#121214] shadow-2xl relative overflow-hidden">
         {lineup.coach && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10 w-full justify-center">
             <span className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">All.</span>
@@ -356,13 +359,20 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     );
   };
 
-  export default function ScoutHub() {
+  function ScoutHubContent() {
+  const searchParams = useSearchParams();
+  const stagione = searchParams.get('stagione') || CURRENT_SEASON;
+  const seasonLabel = SEASONS[stagione]?.label || SEASONS[CURRENT_SEASON].label;
+
   const [activeTab, setActiveTab]           = useState('calendario');
-  const [selectedRound, setSelectedRound]   = useState<number>(30);
+  const [selectedRound, setSelectedRound]   = useState<number | null>(null);
+  const [initializingRound, setInitializingRound] = useState(true);
   const [matches, setMatches]               = useState<any[]>([]);
   const [standings, setStandings]           = useState<any[]>([]);
+  const [loadingStandings, setLoadingStandings] = useState(true);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [matchError, setMatchError]         = useState<string | null>(null);
+  const [seasonUnavailable, setSeasonUnavailable] = useState(false);
   const [modalFixture, setModalFixture]     = useState<any>(null);
   const [matchDetails, setMatchDetails]     = useState<any>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
@@ -377,9 +387,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   }, [modalTab]);
 
   useEffect(() => {
-    fetch('/api/football?endpoint=standings')
+    setSeasonUnavailable(false);
+    fetch(`/api/football?endpoint=standings&stagione=${stagione}`)
       .then(r => r.json())
       .then(res => {
+        if (res?.seasonUnavailable) { setSeasonUnavailable(true); setStandings([]); return; }
         const teams = res?.data?.teams || [];
         const parsed = teams.map((t: any) => {
           const getStat = (id: string) => {
@@ -405,17 +417,18 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       })
       .catch(() => null)
       .finally(() => setLoadingStandings(false));
-  }, []);
+  }, [stagione]);
 
   const loadRound = useCallback(async (round: number) => {
     setLoadingMatches(true);
     setMatchError(null);
     setMatches([]);
     try {
-      const res = await fetch(`/api/football?endpoint=matches&round=${round}`);
+      const res = await fetch(`/api/football?endpoint=matches&round=${round}&stagione=${stagione}`);
       const json = await res.json();
+      if (json.seasonUnavailable) { setSeasonUnavailable(true); return; }
       if (!json.ok) throw new Error(json.error || 'Errore sconosciuto');
-      
+
       const rawMatches = json.data?.matches || [];
       const sortedMatches = [...rawMatches].sort((a: any, b: any) => {
         const da = new Date(a.matchDateUtc || a.matchDateLocal || 0).getTime();
@@ -428,13 +441,17 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
     } finally {
       setLoadingMatches(false);
     }
-  }, []);
+  }, [stagione]);
 
 
   useEffect(() => {
-    fetch('/api/football?endpoint=matchdays')
+    setSeasonUnavailable(false);
+    setInitializingRound(true);
+    fetch(`/api/football?endpoint=matchdays&stagione=${stagione}`)
       .then(r => r.json())
       .then(res => {
+         if (res?.seasonUnavailable) { setSeasonUnavailable(true); return; }
+         if (!res?.ok) { setMatchError(res?.error || 'Giornate non disponibili al momento'); return; }
          const matchdays = res.data || [];
          const live = matchdays.find((md: any) => md.matchdayStatus === "Playing");
          const lastPlayed = matchdays
@@ -443,16 +460,22 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
          const nextScheduled = matchdays
            .filter((md: any) => md.matchdayStatus === "Scheduled")
            .sort((a: any, b: any) => new Date(a.startDateUtc).getTime() - new Date(b.startDateUtc).getTime())[0];
-         
-         const active = live || lastPlayed || nextScheduled;
+
+         // Fallback per stagione non ancora iniziata: prima giornata disponibile
+         const firstAvailable = [...matchdays]
+           .filter((md: any) => md.round)
+           .sort((a: any, b: any) => a.round - b.round)[0];
+
+         const active = live || lastPlayed || nextScheduled || firstAvailable;
          if (active && active.round) {
             setSelectedRound(active.round);
             loadRound(active.round);
          } else {
-            loadRound(30);
+            setMatchError('Impossibile determinare la giornata corrente');
          }
       })
-      .catch(() => loadRound(30));
+      .catch(() => setMatchError('Impossibile contattare Lega Serie A. Riprova più tardi.'))
+      .finally(() => setInitializingRound(false));
   }, [loadRound]);
 
   const handleRoundChange = (r: number) => {
@@ -858,27 +881,45 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 pt-24 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen text-[#10241a] p-4 pt-24 font-sans selection:bg-secondary/20">
       <div className="max-w-5xl mx-auto">
 
         {/* TAB switcher */}
-        <div className="flex bg-zinc-900 p-1.5 rounded-2xl mb-8 max-w-xs mx-auto border border-white/5 shadow-2xl">
+        <div className="flex glass p-1.5 rounded-2xl mb-8 max-w-xs mx-auto">
           {['calendario', 'classifica'].map(t => (
             <button key={t} onClick={() => setActiveTab(t)}
               className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300
-                ${activeTab === t ? 'bg-cyan-500 text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}>
+                ${activeTab === t ? 'bg-secondary text-white shadow-lg' : 'text-gray-400 hover:text-[#10241a]'}`}>
               {t}
             </button>
           ))}
         </div>
 
         <div className="text-center mb-10">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400/60 bg-cyan-400/5 px-4 py-1.5 rounded-full border border-cyan-400/10">
-            Stagione 2025/2026
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary bg-secondary/5 px-4 py-1.5 rounded-full border border-secondary/10">
+            Stagione {seasonLabel}
           </span>
         </div>
 
-
+        {seasonUnavailable ? (
+          <div className="glass-card rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-gray-400" />
+            <p className="text-gray-600 text-sm font-bold uppercase tracking-widest">Calendario non ancora disponibile</p>
+            <p className="text-gray-400 text-xs max-w-md">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
+          </div>
+        ) : initializingRound ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-24">
+            <Loader2 className="w-8 h-8 text-secondary animate-spin" />
+            <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Cerco la giornata in corso...</p>
+          </div>
+        ) : selectedRound === null ? (
+          <div className="glass-card rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-gray-400" />
+            <p className="text-gray-600 text-sm font-bold uppercase tracking-widest">Dati non disponibili</p>
+            <p className="text-gray-400 text-xs max-w-md">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
+          </div>
+        ) : (
+        <>
         {/* ===== CALENDARIO ===== */}
         {activeTab === 'calendario' && (
           <div className="space-y-6">
@@ -887,8 +928,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                 <button key={r} onClick={() => handleRoundChange(r)}
                   className={`px-5 py-2 rounded-xl shrink-0 font-bold text-xs border transition-all duration-300
                     ${selectedRound === r
-                      ? 'active-round-btn border-cyan-400 bg-cyan-400/10 text-white shadow-[0_0_15px_rgba(34,211,238,0.1)]'
-                      : 'border-white/5 text-zinc-600 hover:border-white/20 hover:text-zinc-300'}`}>
+                      ? 'active-round-btn border-secondary bg-secondary/10 text-[#10241a] shadow-sm'
+                      : 'border-black/5 text-gray-400 hover:border-black/20 hover:text-gray-600'}`}>
                   G.{r}
                 </button>
               ))}
@@ -896,14 +937,14 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
             {loadingMatches ? (
               <div className="flex justify-center py-20">
-                <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+                <Loader2 className="w-8 h-8 text-secondary animate-spin" />
               </div>
             ) : matchError ? (
-              <div className="bg-red-900/20 border border-red-500/30 rounded-3xl p-6">
-                <div className="flex items-center gap-2 text-red-400 font-bold mb-2 text-xs uppercase tracking-widest">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-6">
+                <div className="flex items-center gap-2 text-red-500 font-bold mb-2 text-xs uppercase tracking-widest">
                   <AlertTriangle className="w-4 h-4" /> Errore caricamento
                 </div>
-                <p className="text-zinc-400 text-xs font-mono">{matchError}</p>
+                <p className="text-gray-500 text-xs font-mono">{matchError}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -915,11 +956,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                   const played = hs !== null && hs !== undefined;
                   return (
                     <div key={m.matchId || m.id || idx} onClick={() => openMatch(m)}
-                      className="bg-zinc-900/40 border border-white/5 p-5 rounded-[2rem] flex justify-between items-center cursor-pointer hover:bg-zinc-800/60 hover:border-cyan-500/20 transition-all group shadow-lg">
+                      className="glass-card p-5 rounded-[2rem] flex justify-between items-center cursor-pointer group">
                       <div className="flex justify-end pr-4 w-[42%]">
                         <TeamLogo team={home} className="w-10 h-10 group-hover:scale-110 transition-transform" />
                       </div>
-                      <div className={`text-center font-black italic text-base tracking-tighter min-w-[70px] ${played ? 'text-white' : 'text-cyan-400'}`}>
+                      <div className={`text-center font-black italic text-base tracking-tighter min-w-[70px] ${played ? 'text-[#10241a]' : 'text-secondary'}`}>
                         {played ? `${hs} - ${as_}` : 'VS'}
                       </div>
                       <div className="flex justify-start pl-4 w-[42%]">
@@ -935,14 +976,14 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
         {/* ===== CLASSIFICA ===== */}
         {activeTab === 'classifica' && (
-          <div className="bg-zinc-900/40 rounded-[2.5rem] p-4 md:p-8 border border-white/5 backdrop-blur-sm shadow-2xl overflow-x-auto">
+          <div className="glass-card rounded-[2.5rem] p-4 md:p-8 overflow-x-auto">
             <div className="min-w-[640px]">
-              <div className="grid grid-cols-12 items-center py-2 px-4 text-[9px] font-black uppercase text-zinc-500 border-b border-white/10 mb-1 tracking-widest">
+              <div className="grid grid-cols-12 items-center py-2 px-4 text-[9px] font-black uppercase text-gray-400 border-b border-black/10 mb-1 tracking-widest">
                 <span className="col-span-1 text-center">#</span>
                 <span className="col-span-4">Squadra</span>
-                <span className="col-span-1 text-center text-cyan-400">PTS</span>
+                <span className="col-span-1 text-center text-secondary">PTS</span>
                 <span className="col-span-1 text-center">G</span>
-                <span className="col-span-1 text-center text-emerald-500">V</span>
+                <span className="col-span-1 text-center text-emerald-600">V</span>
                 <span className="col-span-1 text-center">N</span>
                 <span className="col-span-1 text-center text-red-500">P</span>
                 <span className="col-span-1 text-center">DR</span>
@@ -951,42 +992,42 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
 
               {loadingStandings ? (
-                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-cyan-400 animate-spin" /></div>
+                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-secondary animate-spin" /></div>
               ) : standings.map((t: any, i: number) => {
-                const isZone = i < 4 ? 'border-l-2 border-cyan-500' : i < 6 ? 'border-l-2 border-orange-400' : i >= 17 ? 'border-l-2 border-red-500' : '';
+                const isZone = i < 4 ? 'border-l-2 border-secondary' : i < 6 ? 'border-l-2 border-orange-400' : i >= 17 ? 'border-l-2 border-red-500' : '';
                 return (
                   <div
                     key={t.id}
-                    className={`grid grid-cols-12 items-center py-3 border-b border-white/5 last:border-0 hover:bg-white/5 px-4 rounded-xl transition-all group ${isZone}`}
+                    className={`grid grid-cols-12 items-center py-3 border-b border-black/5 last:border-0 hover:bg-black/[0.02] px-4 rounded-xl transition-all group ${isZone}`}
                   >
-                    <span className="col-span-1 text-center text-[11px] font-black text-zinc-600 group-hover:text-cyan-500">
+                    <span className="col-span-1 text-center text-[11px] font-black text-gray-400 group-hover:text-secondary">
                       {i + 1}
                     </span>
 
                     <div className="col-span-4 flex items-center gap-4 min-w-0">
                       <TeamLogo team={t} className="w-8 h-8 shrink-0" />
-                      <span className="text-xs font-black uppercase tracking-tight truncate group-hover:text-cyan-400">
+                      <span className="text-xs font-black uppercase tracking-tight truncate text-[#10241a] group-hover:text-secondary">
                         {t.name}
                       </span>
                     </div>
 
-                    <span className="col-span-1 text-center font-black text-cyan-400 text-sm">
+                    <span className="col-span-1 text-center font-black text-secondary text-sm">
                       {t.points}
                     </span>
 
-                    <span className="col-span-1 text-center text-xs font-mono text-white/70">
+                    <span className="col-span-1 text-center text-xs font-mono text-gray-600">
                       {t.played}
                     </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-emerald-400">
+                    <span className="col-span-1 text-center text-xs font-mono text-emerald-600">
                       {t.win}
                     </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-zinc-400">
+                    <span className="col-span-1 text-center text-xs font-mono text-gray-400">
                       {t.draw}
                     </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-red-400">
+                    <span className="col-span-1 text-center text-xs font-mono text-red-500">
                       {t.lose}
                     </span>
-                    <span className="col-span-1 text-center text-xs font-mono font-bold text-white/60">
+                    <span className="col-span-1 text-center text-xs font-mono font-bold text-gray-500">
                       {t.gd > 0 ? `+${t.gd}` : t.gd}
                     </span>
 
@@ -1003,13 +1044,15 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
             </div>
           </div>
         )}
+        </>
+        )}
       </div>
 
       {/* ===== MODAL PARTITA ===== */}
       <Dialog.Root open={!!modalFixture} onOpenChange={() => { setModalFixture(null); setMatchDetails(null); }}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100]" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#080808] border border-white/10 rounded-[3rem] w-[95vw] max-w-xl z-[101] overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+          <Dialog.Overlay className="fixed inset-0 bg-[#06060f]/95 backdrop-blur-md z-[100]" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0a0a1e] border border-white/10 rounded-[3rem] w-[95vw] max-w-xl z-[101] overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
             <Dialog.Title className="sr-only">Dettagli Partita</Dialog.Title>
             <Dialog.Description className="sr-only">
               Dettagli e statistiche della partita selezionata
@@ -1043,7 +1086,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
             })()}
 
             {/* TAB SELECTOR */}
-            <div className="flex justify-center items-center w-full overflow-x-auto no-scrollbar border-b border-white/5 bg-[#080808] shrink-0 custom-scrollbar">
+            <div className="flex justify-center items-center w-full overflow-x-auto no-scrollbar border-b border-white/5 bg-[#0a0a1e] shrink-0 custom-scrollbar">
               {[
                 { id: 'eventi', label: 'Eventi' },
                 { id: 'formazioni', label: 'Formazioni' },
@@ -1058,7 +1101,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
               ))}
             </div>
 
-            <div ref={modalScrollRef} className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#050505]">
+            <div ref={modalScrollRef} className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar bg-[#0d1330]">
               {loadingModal ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <div className="relative">
@@ -1152,11 +1195,11 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
                       return (
                         <div className="mb-10 last:mb-0 relative py-6">
-                          <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 ${iconColor} mb-6 bg-[#050505] w-full py-4 px-6 rounded-[2rem] border border-white/5 shadow-inner`}>
+                          <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 ${iconColor} mb-6 bg-[#0d1330] w-full py-4 px-6 rounded-[2rem] border border-white/5 shadow-inner`}>
                              <span className={`w-2 h-2 rounded-full shadow-lg bg-current drop-shadow-md`} />
                              {title}
                           </h4>
-                          <div className="flex flex-col bg-[#080808]/80 backdrop-blur-md rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
+                          <div className="flex flex-col bg-[#0a0a1e]/80 backdrop-blur-md rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
                             {validStats.map((stat: any, i: number) => <StatRow key={i} stat={stat} />)}
                           </div>
                         </div>
@@ -1199,57 +1242,15 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
                   })()}
 
                   {/* ====== TAB: FORMAZIONI ====== */}
-                  {(modalTab === 'formazioni') && (() => {
-                     const homePlayers = [...(matchDetails?.lineups?.home?.fielded || []), ...(matchDetails?.lineups?.home?.benched || [])];
-                     const awayPlayers = [...(matchDetails?.lineups?.away?.fielded || []), ...(matchDetails?.lineups?.away?.benched || [])];
-
-                     const getActive = (list: any[]) => list.filter(p => {
-                         const mins = p.statistics?.minutesPlayed || p.stats?.minutesPlayed;
-                         const isStarter = p.tacticalXPosition != null || p.substitute === false || p.starting;
-                         const subbedIn = p.events?.some((e: any) => e.type === "substitution-in" || e.type === "subIn");
-                         return (mins && parseInt(String(mins)) > 0) || isStarter || subbedIn;
-                     });
-
-                     const homeActive = getActive(homePlayers);
-                     const awayActive = getActive(awayPlayers);
-
-                     return (
-                      <section className="relative px-4 md:px-0 max-w-4xl mx-auto">
-                        <div className="bg-zinc-900/40 rounded-[3rem] p-8 md:p-12 border border-white/10 shadow-3xl">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 divide-y md:divide-y-0 md:divide-x divide-white/5">
-                            {/* Casa Component */}
-                            <div className="space-y-6 pr-0 md:pr-10 pb-12 md:pb-0">
-                               <div className="flex items-center gap-4 mb-8">
-                                 <TeamLogo team={resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa')} className="w-10 h-10 shadow-2xl" />
-                                 <p className="text-[13px] font-black text-white uppercase tracking-widest">{resolveTeam(modalFixture.homeTeam || modalFixture.home, 'Casa').name}</p>
-                               </div>
-                               <div className="flex flex-col gap-2">
-                                 {homeActive.map((p: any) => (
-                                    <div key={p.playerId || p.id} className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition-colors px-4 py-3 rounded-xl border border-transparent hover:border-white/10">
-                                      <span className="text-[13px] font-bold text-zinc-300">{p.player?.name || p.displayName || p.name || getDisplayPlayerName(p)}</span>
-                                    </div>
-                                 ))}
-                               </div>
-                            </div>
-                            {/* Trasferta Component */}
-                            <div className="space-y-6 pl-0 md:pl-10 pt-12 md:pt-0">
-                               <div className="flex items-center gap-4 mb-8 justify-end w-full">
-                                 <p className="text-[13px] font-black text-white uppercase tracking-widest text-right">{resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite').name}</p>
-                                 <TeamLogo team={resolveTeam(modalFixture.awayTeam || modalFixture.away, 'Ospite')} className="w-10 h-10 shadow-2xl" />
-                               </div>
-                               <div className="flex flex-col gap-2 items-end text-right">
-                                 {awayActive.map((p: any) => (
-                                    <div key={p.playerId || p.id} className="flex items-center gap-3 bg-white/5 hover:bg-white/10 transition-colors px-4 py-3 rounded-xl border border-transparent hover:border-white/10 justify-end w-full">
-                                      <span className="text-[13px] font-bold text-zinc-300">{p.player?.name || p.displayName || p.name || getDisplayPlayerName(p)}</span>
-                                    </div>
-                                 ))}
-                               </div>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
-                     );
-                  })()}
+                  {(modalTab === 'formazioni') && (
+                     <section className="relative px-4 md:px-0 max-w-5xl mx-auto flex justify-center">
+                        <CombinedTacticalPitch
+                          matchDetails={matchDetails}
+                          homeTeam={resolveTeam(modalFixture?.homeTeam || modalFixture?.home, 'Casa')}
+                          awayTeam={resolveTeam(modalFixture?.awayTeam || modalFixture?.away, 'Ospite')}
+                        />
+                     </section>
+                  )}
 
 
 
@@ -1280,5 +1281,17 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
         </Dialog.Portal>
       </Dialog.Root>
     </div>
+  );
+}
+
+export default function ScoutHub() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex justify-center items-center pt-24">
+        <Loader2 className="w-10 h-10 text-secondary animate-spin" />
+      </div>
+    }>
+      <ScoutHubContent />
+    </Suspense>
   );
 }

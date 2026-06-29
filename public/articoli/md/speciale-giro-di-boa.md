@@ -3,7 +3,7 @@ title: 'Speciale Giro di Boa: Il Ribaltone, le Coppe e la pioggia di Melanzane.'
 date: '2026-01-14'
 description: 'Speciale Giro di Boa: Il Ribaltone, le Coppe e la pioggia di Melanzane.'
 author: La Redazione
-image: /image/gazzetta/speciale-giro-di-boa.jpg
+image: /image/gazzetta/speciale-giro-di-boa.webp
 ---
 **SPECIALE GIRO DI BOA: IL RIBALTONE, LE COPPE E LA PIOGGIA DI MELANZANE.**
 

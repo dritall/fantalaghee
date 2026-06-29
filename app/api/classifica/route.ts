@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import Papa from 'papaparse';
+import { getSeason } from '@/lib/seasons';
 
 export const dynamic = 'force-dynamic';
 // Helper function to fetch and parse CSV data
@@ -39,12 +40,12 @@ const fetchAndParseCSV = async (url: string, options = { header: true }, timeout
     }
 };
 
-export async function GET() {
-    // REAL Google Sheet URL provided by user
-    const CLASSIFICA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9q-d7H5HzRRIzdoK4LLFU9GX5JUppoNy3-kWEVSDqcpL7dK1IcNIioj9ykzygz28H1xrmWyWoAyyc/pub?output=csv';
+export async function GET(request: NextRequest) {
+    const { searchParams } = new URL(request.url);
+    const season = getSeason(searchParams.get('stagione'));
 
     try {
-        const classificaData: any = await fetchAndParseCSV(CLASSIFICA_URL, { header: true });
+        const classificaData: any = await fetchAndParseCSV(season.classificaUrl, { header: true });
 
         // Data cleaning
         // 1. Filter invalid rows: Ensure Team Name exists and isn't empty
@@ -66,7 +67,8 @@ export async function GET() {
         }));
 
         return NextResponse.json({
-            classifica: result
+            classifica: result,
+            stagione: season.slug
         });
 
     } catch (error: any) {

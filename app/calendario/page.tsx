@@ -61,21 +61,14 @@ export default function CalendarioPage() {
     const roundKeys = Object.keys(rounds).sort((a, b) => parseInt(a) - parseInt(b));
 
     return (
-        <main className="min-h-screen pt-24 pb-8 px-4 md:px-8 flex flex-col relative overflow-hidden">
-
-            {/* Background Layer */}
-            <div className="absolute inset-0 z-[-1]">
-                <div className="absolute inset-0 bg-[#050505]/80 z-10" />
-                <img src="/image/bg-field-neon.png" alt="Background" className="w-full h-full object-cover opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-20" />
-            </div>
+        <main className="min-h-screen pt-24 pb-8 px-4 md:px-8 flex flex-col relative">
 
             <div className="relative z-30 flex flex-col flex-1 items-center">
                 <div className="mb-6 text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-500 font-oswald uppercase tracking-wide">
+                    <h1 className="text-4xl md:text-6xl font-bold text-3d-metallic font-oswald uppercase tracking-wide">
                         Calendario Stagione
                     </h1>
-                    <p className="text-muted-foreground">Tutte le sfide, giornata per giornata.</p>
+                    <p className="text-gray-500">Tutte le sfide, giornata per giornata.</p>
                 </div>
 
                 {loading && (
@@ -97,8 +90,8 @@ export default function CalendarioPage() {
                                         className={cn(
                                             "px-4 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap",
                                             selectedRound === round
-                                                ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(74,222,128,0.3)] scale-105"
-                                                : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-white"
+                                                ? "bg-primary text-white shadow-[0_8px_20px_rgba(22,163,74,0.3)] scale-105"
+                                                : "bg-black/5 text-gray-500 hover:bg-black/10 hover:text-[#10241a]"
                                         )}
                                     >
                                         GIORNATA {round}
@@ -119,12 +112,10 @@ export default function CalendarioPage() {
                                             className="grid grid-cols-1 lg:grid-cols-2 gap-4"
                                         >
                                             {rounds[selectedRound].map((fixture) => (
-                                                <div key={fixture.idEvent} className="glass p-6 rounded-2xl border border-white/5 hover:border-primary/30 transition-colors group relative overflow-hidden">
-                                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
+                                                <div key={fixture.idEvent} className="glass-card p-6 rounded-2xl group relative overflow-hidden">
                                                     <div className="relative z-10 flex flex-col gap-4">
                                                         {/* Date & Venue */}
-                                                        <div className="flex justify-between text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                                                        <div className="flex justify-between text-xs text-gray-400 font-medium uppercase tracking-wider">
                                                             <div className="flex items-center gap-1">
                                                                 <CalendarIcon className="w-3 h-3" />
                                                                 {new Date(fixture.dateEvent).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })}
@@ -140,19 +131,19 @@ export default function CalendarioPage() {
                                                             {/* Home */}
                                                             <div className="flex flex-col items-center gap-2 flex-1 items-end pr-4">
                                                                 <div className="w-16 h-16 relative">
-                                                                    <img src={`${fixture.strHomeTeamBadge}/preview`} alt={fixture.strHomeTeam} className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-300" />
+                                                                    <img src={`${fixture.strHomeTeamBadge}/preview`} alt={fixture.strHomeTeam} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
                                                                 </div>
                                                             </div>
 
                                                             {/* Score */}
-                                                            <div className="px-4 py-2 bg-[#050505] rounded-xl border border-white/10 font-mono text-2xl md:text-3xl font-black italic tracking-tighter text-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] z-10 mx-4 shrink-0">
+                                                            <div className="px-4 py-2 bg-black/[0.03] rounded-xl border border-black/5 font-mono text-2xl md:text-3xl font-black italic tracking-tighter text-[#10241a] z-10 mx-4 shrink-0">
                                                                 {fixture.intHomeScore !== null ? fixture.intHomeScore : '-'} - {fixture.intAwayScore !== null ? fixture.intAwayScore : '-'}
                                                             </div>
 
                                                             {/* Away */}
                                                             <div className="flex flex-col items-center gap-2 flex-1 items-start pl-4">
                                                                 <div className="w-16 h-16 relative">
-                                                                    <img src={`${fixture.strAwayTeamBadge}/preview`} alt={fixture.strAwayTeam} className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-300" />
+                                                                    <img src={`${fixture.strAwayTeamBadge}/preview`} alt={fixture.strAwayTeam} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
                                                                 </div>
                                                             </div>
                                                         </div>

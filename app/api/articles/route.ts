@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { NEW_SEASON_ARTICLES_FROM, CURRENT_SEASON, ARCHIVED_SEASON } from '@/lib/seasons';
 
 export async function GET() {
     try {
@@ -13,13 +14,19 @@ export async function GET() {
             const fileContent = fs.readFileSync(filePath, 'utf8');
             const { data } = matter(fileContent);
 
+            const date = data.date || "Senza Data";
+            const stagione = data.stagione || (
+                new Date(date) >= new Date(NEW_SEASON_ARTICLES_FROM) ? CURRENT_SEASON : ARCHIVED_SEASON
+            );
+
             return {
                 id: filename.replace('.md', ''),
                 title: data.title || filename.replace('.md', ''),
-                date: data.date || "Senza Data",
+                date,
                 description: data.description || "",
                 author: data.author || "La Redazione",
                 imageUrl: data.image || "/image/gazzetta/default.jpg",
+                stagione,
                 placeholder: false
             };
         });

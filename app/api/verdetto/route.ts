@@ -1,18 +1,17 @@
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import Papa from 'papaparse';
+import { getSeason } from '@/lib/seasons';
 
 export const dynamic = 'force-dynamic';
-// Fallback URL if env is not set (derived from user's public link)
-const SPREADSHEET_ID = '1lHQEZoQT3TmgA-mPwExzorjxv6ub-xvFW-9WTm5805Y';
-const SPREADSHEET_URL = process.env.SPREADSHEET_URL || `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=1105159540`;
-
 export const runtime = 'edge';
-export const revalidate = 60; // Revalidate every 60 seconds
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    const { searchParams } = new URL(request.url);
+    const season = getSeason(searchParams.get('stagione'));
+
     try {
-        const response = await fetch(SPREADSHEET_URL, { next: { revalidate: 60 } });
+        const response = await fetch(`${season.verdettoUrl}&t=${Date.now()}`, { cache: 'no-store' });
         if (!response.ok) {
             throw new Error(`Errore nel caricare lo spreadsheet: ${response.statusText}`);
         }
@@ -28,7 +27,7 @@ export async function GET() {
 
         const processedData = parseSheetData(allData);
 
-        return NextResponse.json(processedData);
+        return NextResponse.json({ ...processedData, stagione: season.slug });
 
     } catch (error: any) {
         console.error('Errore in /api/verdetto:', error);

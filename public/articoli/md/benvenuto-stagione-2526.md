@@ -3,7 +3,7 @@ title: 'ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!'
 date: '2025-08-19'
 description: 'ULULA IL LARIO, RUGGGE IL FANTALAGHÈE!'
 author: La Redazione
-image: /image/gazzetta/cover-benvenuto-2526.jpg
+image: /image/gazzetta/cover-benvenuto-2526.webp
 ---
 Sciuri e bagai, l'attesa è finita: si torna a bestemmiare in 11 (più la panchina).
 
