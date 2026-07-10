@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gazzetta:bot": "node scripts/gazzetta/bot.js",
+    "gazzetta:draft": "node scripts/gazzetta/genera_articolo.js",
+    "gazzetta:draft:mock": "node scripts/gazzetta/genera_articolo.js --mock --cover"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

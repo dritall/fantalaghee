@@ -32,6 +32,12 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# gazzetta bot: bozze in sospeso e immagini di anteprima/test
+scripts/gazzetta/.drafts/
+public/image/gazzetta/*_preview.png
+public/image/gazzetta/gazzetta_test.png
 
 # vercel
 .vercel
