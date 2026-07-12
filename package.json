@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gazzetta:bot": "node scripts/gazzetta/bot.js",
+    "gazzetta:draft": "node scripts/gazzetta/genera_articolo.js",
+    "gazzetta:draft:mock": "node scripts/gazzetta/genera_articolo.js --mock --cover"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -21,7 +24,7 @@
     "lucide-react": "^0.563.0",
     "next": "^14.2.35",
     "papaparse": "^5.5.3",
-    "puppeteer": "^24.36.0",
+    "puppeteer": "^24.43.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.3.1",

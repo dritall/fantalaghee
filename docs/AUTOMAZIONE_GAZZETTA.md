@@ -5,6 +5,24 @@
 > le sessioni di Claude Code non condividono memoria tra loro. Leggi prima questo file,
 > poi continua da qui.
 
+## ⚡ STATO AGGIORNATO (luglio 2026) — pipeline costruita
+
+La pipeline è stata implementata in `scripts/gazzetta/` (vedi il suo `README.md`).
+Flusso: `/gazzetta` su Telegram → lettura giornata da `/api/verdetto` → Hermes (Nous)
+scrive l'articolo → bozza testuale su Telegram → **OK** → copertina PNG + commit/push
+su `PUBLISH_BRANCH` → deploy Vercel → live. Le correzioni si mandano come testo e
+rigenerano la bozza.
+
+- Testato end-to-end in **modalità mock** (`npm run gazzetta:draft:mock`): genera bozza
+  + copertina correttamente.
+- **Manca solo la configurazione**: `HERMES_API_KEY` (provider tipo OpenRouter) e
+  `TELEGRAM_BOT_TOKEN`. Vedi `scripts/gazzetta/.env.example`.
+- **Da decidere ancora**: dove far girare il bot (serve un processo sempre attivo per il
+  long-polling; Vercel serverless non va bene). Alternativa: trasformare `/gazzetta` in un
+  trigger schedulato.
+
+---
+
 ## 0. Punto di partenza (cosa esiste già oggi)
 
 | Pezzo | Stato | Dove |

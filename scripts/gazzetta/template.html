@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template - La Gazzetta del Laghée</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --gazzetta-pink: #F9D5DB;
+            --text-dark: #111111;
+        }
+
+        body {
+            background-color: var(--gazzetta-pink);
+            color: var(--text-dark);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .page-container {
+            width: 900px;
+            background-color: var(--gazzetta-pink);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 3px solid var(--text-dark);
+            border-bottom: 2px solid var(--text-dark);
+            padding: 5px 0;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .header-logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gazzetta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 85px;
+            font-weight: 900;
+            color: var(--text-dark);
+            letter-spacing: -2.5px;
+            margin: 0;
+            line-height: 1;
+            transform: scaleY(1.15) scaleX(0.95);
+            transform-origin: center bottom;
+        }
+
+        .gazzetta-subtitle {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            margin-top: 18px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pink-globe {
+            color: #d13264;
+            font-size: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .main-titles {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 4px solid var(--text-dark);
+            padding-bottom: 15px;
+        }
+        .main-titles h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 52px;
+            line-height: 1.1;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+        }
+        .main-titles h3 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 22px;
+            font-weight: 400;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .main-image-wrapper {
+            width: 100%;
+            height: 550px;
+            border: 3px solid var(--text-dark);
+            background-color: #e8c6cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .placeholder-text {
+            color: rgba(0,0,0,0.5);
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
+            position: absolute;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .bottom-boxes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .box {
+            border: 2px solid var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            background-color: #f7ced5;
+        }
+
+        .box-image-wrapper {
+            height: 180px;
+            border-bottom: 2px solid var(--text-dark);
+            background-color: #e8c6cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .box-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .box-image-wrapper .placeholder-text {
+            font-size: 16px;
+        }
+
+        .box-content {
+            padding: 10px;
+        }
+
+        .box-content h4 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .box-content p {
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .tag-badge {
+            padding: 2px 5px;
+            display: inline-block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+        }
+        .bg-dark { background-color: #222; }
+        .bg-red { background-color: #d11124; }
+        .bg-blue { background-color: #295c9e; }
+        .bg-grey { background-color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+
+        <div class="top-bar">
+            <div id="top-date">EDIZIONE STRAORDINARIA — [INSERIRE DATA QUI]</div>
+            <div id="top-website">www.fantalaghee.live</div>
+        </div>
+
+        <div class="header-logo-container">
+            <h1 class="gazzetta-title">La Gazzetta del Laghèe</h1>
+            <div class="gazzetta-subtitle">
+                Tutto il Lario <span class="pink-globe">⚽</span> per la Vita
+            </div>
+        </div>
+
+        <div class="main-titles">
+            <h2 id="main-headline">[INSERIRE TITOLO PRINCIPALE]</h2>
+            <h3 id="sub-headline">[Inserire sottotitolo...]</h3>
+        </div>
+
+        <div class="main-image-wrapper" id="main-image-container">
+            <span class="placeholder-text" id="main-placeholder-text">IMMAGINE PRINCIPALE<br>(900x550px raccomandati)</span>
+            <img id="main-img-tag" src="" alt="" style="display: none;">
+        </div>
+
+        <div class="bottom-boxes">
+
+            <div class="box" id="box-1">
+                <div class="box-image-wrapper">
+                    <span class="placeholder-text" id="box1-placeholder">IMG BOX 1</span>
+                    <img id="box1-img-tag" src="" alt="" style="display: none;">
+                </div>
+                <div class="box-content">
+                    <span class="tag-badge bg-dark" id="box1-tag">[TAG BOX 1]</span>
+                    <h4 id="box1-title">[TITOLO BOX 1]</h4>
+                    <p id="box1-text">[Testo del primo box.]</p>
+                </div>
+            </div>
+
+            <div class="box" id="box-2">
+                <div class="box-image-wrapper">
+                    <span class="placeholder-text" id="box2-placeholder">IMG BOX 2</span>
+                    <img id="box2-img-tag" src="" alt="" style="display: none;">
+                </div>
+                <div class="box-content">
+                    <span class="tag-badge bg-red" id="box2-tag">[TAG BOX 2]</span>
+                    <h4 id="box2-title">[TITOLO BOX 2]</h4>
+                    <p id="box2-text">[Testo del secondo box.]</p>
+                </div>
+            </div>
+
+            <div class="box" id="box-3">
+                <div class="box-image-wrapper">
+                    <span class="placeholder-text" id="box3-placeholder">IMG BOX 3</span>
+                    <img id="box3-img-tag" src="" alt="" style="display: none;">
+                </div>
+                <div class="box-content">
+                    <span class="tag-badge bg-blue" id="box3-tag">[TAG BOX 3]</span>
+                    <h4 id="box3-title">[TITOLO BOX 3]</h4>
+                    <p id="box3-text">[Testo del terzo box.]</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
