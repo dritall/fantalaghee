@@ -43,8 +43,8 @@ Campi utili: `numeroGiornata`, `campioneDiGiornata`, `podio[]`, `classifica[]`,
 
 ### 4. Scrittura articolo
 Scrivi l'articolo nello stile della Gazzetta (vedi "Voce editoriale" sotto). Come
-riferimento di stile, leggi 1–2 articoli reali dal repo, es.:
-`public/articoli/md/SorpassoSC.md`, `public/articoli/md/gazzetta-laghee-giornata-due.md`.
+riferimento di stile, leggi SEMPRE 1–2 articoli reali "maturi" dal repo, es.:
+`public/articoli/md/SorpassoSC.md`, `public/articoli/md/gazzetta-finali-coppe.md`.
 
 Produci internamente un oggetto con: `title`, `description`, `body_md` e i dati `cover`
 (titolo_principale, sottotitolo, box1/2/3). Vedi il formato al passo 6.
@@ -107,13 +107,20 @@ L'articolo è live entro ~1 minuto dal commit (tempo di deploy Vercel + Action i
 
 ## Voce editoriale (sintesi)
 
-Cronaca calcistica epica e ironica, ambientata sul Lago di Como (Lario). Titoli teatrali
-maiuscoli. Metafore: lago, Breva, crotti, battaglie, imperi. Sfotti con affetto chi perde,
-incensi con sarcasmo chi vince. Sezioni tipiche: *La Lente d'Ingrandimento* (podio),
-*Il Processo del Lunedì* (cucchiaio di legno), *Numeri & Sussurri* (classifica/record),
-*L'Oracolo del Laghèe* (2–3 profezie in blockquote). Italiano. Mai numeri inventati.
+Un mix di tre firme, tutte presenti in ogni pezzo:
+- **Buffa** → epopea, respiro storico, imperi che nascono e cadono, "capitoli".
+- **Ziliani** → giudizi taglienti e polemici, veleno, epiteti finali in grassetto (**Il Padrino.**).
+- **Pardo** → liriche da telecronaca, metafore del lago (Breva, fango, apnea, onda anomala) e
+  toponimi lariani (Cernobbio, Varenna, Menaggio, Argegno).
 
-Il system prompt completo, se serve, è in `scripts/gazzetta/lib/prompt.js`.
+Struttura: `# TITOLO MAIUSCOLO` → **occhiello** in grassetto → 2–4 sezioni con `### 🌪️ TITOLO`
+(nomi liberi: vetta/campione, retrovie/crolli, record/classifica) → chiusura FISSA
+`### 🔮 L'ORACOLO DEL LAGHÈE` con 2–3 profezie come citazioni `> **Nome:** testo`.
+
+Highlight colorati con `<span style="color:...">` per i momenti salienti: oro `#d97706`
+(record/exploit), verde `#27ae60` (chi vola), rosso `#c0392b` (crolli). Con parsimonia.
+
+Italiano. Mai numeri inventati. Il system prompt completo è in `scripts/gazzetta/lib/prompt.js`.
 
 ---
 
