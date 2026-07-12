@@ -62,9 +62,10 @@ function bozzaMock(dati) {
         cover: {
             titolo_principale: 'MOJITO FC UBRIACA IL LARIO',
             sottotitolo: 'Giornata da 91.5 per Mojito FC, ma in vetta comanda ancora Stoke Azzo. Notte fonda per Bayer Nargen col cucchiaio di legno.',
-            box1: { tag: 'IL VERDETTO', titolo: 'ORO A MOJITO FC', testo: '91.5 e primo posto di giornata. Fantagiulia e Caniggia Vola sul podio.' },
-            box2: { tag: 'IL PROCESSO', titolo: 'NAUFRAGIO NARGEN', testo: 'Solo 48 punti: cucchiaio di legno e tanta amarezza per Bayer Nargen.' },
-            box3: { tag: 'CLASSIFICA', titolo: 'STOKE AZZO AL COMANDO', testo: 'Vetta blindata a 2401.5, ma i Raga di Oporto sono a un soffio.' },
+            image_prompt: 'Vintage satirical sports-newspaper editorial illustration: a giant cocktail glass overflowing over Lake Como, a triumphant football team celebrating drunk on the shore, a defeated team sinking with a wooden spoon, mountains and rowing boats in the background, warm ironic tone, no readable text.',
+            box1: { title: '🏆 TOP 5 DI GIORNATA', rows: ['1. Mojito FC|91.5', '2. Fantagiulia|88.0', '3. Caniggia Vola|85.5', '4. Sove1907|82.0', '5. Old Lions|80.5'] },
+            box2: { title: '📊 CLASSIFICA GENERALE', rows: ['1. Stoke Azzo|2401.5', '2. Raga di Oporto|2390.0', '3. Cuccioloni|2372.0', '4. Fantagiulia|2350.5', '5. Caniggia Vola|2331.0'] },
+            box3: { title: '📌 I VERDETTI', rows: ['Campione|Mojito FC', 'Record|112.5 Cippalippa1418', 'Cucchiaio|Bayer Nargen 48.0'] },
         },
     };
 }

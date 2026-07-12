@@ -4,10 +4,11 @@ Questo file è il manuale che **Hermes** (l'agente su Telegram) segue per pubbli
 articolo della Gazzetta, dall'inizio alla fine. Hermes deve rileggerlo a ogni esecuzione.
 
 Ruoli:
-- **Hermes**: orchestratore + scrittore. Fa: trigger foglio, lettura dati, scrittura
-  articolo, commit su GitHub, messaggio WhatsApp.
-- **GitHub Action** (`.github/workflows/gazzetta-cover.yml`): genera l'immagine (Puppeteer)
-  al commit dell'articolo. Hermes NON genera immagini.
+- **Hermes**: orchestratore + scrittore + illustratore. Fa: trigger foglio, lettura dati,
+  scrittura articolo, generazione dell'ILLUSTRAZIONE hero (tool `image_generate`), commit su
+  GitHub, messaggio WhatsApp.
+- **GitHub Action** (`.github/workflows/gazzetta-cover.yml`): COMPONE la copertina finale
+  con Puppeteer (template rosa + hero generato da Hermes + i 3 box dati) al commit dell'articolo.
 - **Vercel**: pubblica in automatico al push su `main`.
 
 ---
@@ -46,8 +47,10 @@ Scrivi l'articolo nello stile della Gazzetta (vedi "Voce editoriale" sotto). Com
 riferimento di stile, leggi SEMPRE 1–2 articoli reali "maturi" dal repo, es.:
 `public/articoli/md/SorpassoSC.md`, `public/articoli/md/gazzetta-finali-coppe.md`.
 
-Produci internamente un oggetto con: `title`, `description`, `body_md` e i dati `cover`
-(titolo_principale, sottotitolo, box1/2/3). Vedi il formato al passo 6.
+Produci internamente: `title`, `description`, `body_md` e i dati `cover`
+(titolo_principale, sottotitolo, `image_prompt` per l'illustrazione hero, e i 3 box DATI:
+Top 5 giornata / Classifica generale / Verdetti — riempiti coi numeri reali). Vedi il
+formato al passo 7.
 
 ### 5. Bozza all'utente (Telegram)
 Manda all'utente il **testo** dell'articolo (title + description + body_md).
@@ -56,9 +59,18 @@ Manda all'utente il **testo** dell'articolo (title + description + body_md).
 - Se dice di rifare → rigenera da capo.
 NON procedere alla pubblicazione senza l'OK.
 
-### 6. Commit dell'articolo su GitHub
+### 6. Genera l'ILLUSTRAZIONE hero e committala
+Dopo l'OK, genera l'illustrazione satirica della giornata con il tuo tool immagini
+(`image_generate`), usando `cover.image_prompt` che hai preparato al passo 4:
+- stile: illustrazione editoriale satirica da quotidiano sportivo vintage, scena epica e
+  goliardica ispirata alla giornata (il campione come re sul trono, gli sconfitti col
+  cucchiaio di legno, il lago di Como con barche e montagne sullo sfondo). NIENTE testo
+  leggibile dentro l'immagine. Orizzontale ~900x520.
+- salva il file e committalo come `public/image/gazzetta/gazzetta-g{N}-hero.png` sul branch `main`.
+
+### 7. Commit dell'articolo su GitHub
 Crea il file `public/articoli/md/gazzetta-g{N}.md` (N = numero giornata) sul branch `main`,
-con questo frontmatter ESATTO (il blocco `cover:` serve alla Action per l'immagine):
+con questo frontmatter ESATTO (il blocco `cover:` guida la Action che compone la copertina):
 
 ```markdown
 ---
@@ -71,24 +83,28 @@ cover:
   giornata: {N}
   titolo_principale: "MAIUSCOLO, MAX ~50 CARATTERI"
   sottotitolo: "Sommario della giornata, max ~180 caratteri"
-  box1: { tag: "IL VERDETTO", titolo: "MAX ~38 CAR", testo: "Max ~140 caratteri" }
-  box2: { tag: "IL PROCESSO", titolo: "...", testo: "..." }
-  box3: { tag: "CLASSIFICA", titolo: "...", testo: "..." }
+  hero_image: /image/gazzetta/gazzetta-g{N}-hero.png
+  box1: { title: "🏆 TOP 5 DI GIORNATA", rows: ["1. Squadra|89.5", "2. Squadra|84.5", "3. Squadra|83.0", "4. Squadra|81.5", "5. Squadra|80.0"] }
+  box2: { title: "📊 CLASSIFICA GENERALE", rows: ["1. Squadra|2935.5", "2. Squadra|2930.0", "3. Squadra|2920.0", "4. Squadra|2901.0", "5. Squadra|2889.0"] }
+  box3: { title: "📌 I VERDETTI", rows: ["Campione|Nome", "Record|112.5 Squadra", "Cucchiaio|Squadra 43"] }
 ---
 
 {corpo dell'articolo in Markdown}
 ```
 
 Regole:
-- `image` deve puntare a `/image/gazzetta/gazzetta-g{N}.png` (l'immagine NON esiste ancora:
-  la crea la Action). Non committare tu nessuna immagine.
+- `image` = `/image/gazzetta/gazzetta-g{N}.png` → è la copertina FINALE, la compone la Action
+  (non crearla tu). `hero_image` = l'illustrazione che hai generato al passo 6.
+- I 3 box sono DATI reali presi da `/api/verdetto` (Top 5 giornata, Classifica, Verdetti),
+  non testo libero. Formato riga: "Etichetta|Valore".
 - `date` = data odierna in formato ISO.
 - Il corpo usa `###` per le sezioni, `**grassetto**`, `>` per le profezie dell'Oracolo.
 
-Il commit su `main` fa partire la GitHub Action (immagine) e Vercel (deploy).
+Il commit su `main` fa partire la GitHub Action (che incastona l'hero + i box nella copertina
+finale) e Vercel (deploy).
 
-### 7. Verifica immagine (mandala su Telegram)
-La copertina la genera la GitHub Action, non tu. Dopo il commit:
+### 8. Verifica copertina finale (mandala su Telegram)
+La copertina FINALE (hero + testata + box) la compone la GitHub Action. Dopo il commit:
 - attendi ~90 secondi (tempo di run della Action), poi controlla se l'immagine esiste:
   `GET https://www.fantalaghee.live/image/gazzetta/gazzetta-g{N}.png` (oppure il file
   `public/image/gazzetta/gazzetta-g{N}.png` su GitHub, branch `main`).
@@ -97,8 +113,8 @@ La copertina la genera la GitHub Action, non tu. Dopo il commit:
 - Se dopo i tentativi non compare, avvisa l'utente che la Action potrebbe essere fallita
   (da controllare nella tab Actions di GitHub) e prosegui comunque col messaggio WhatsApp.
 
-### 8. Messaggio WhatsApp (copia/incolla)
-Dopo aver verificato l'immagine, manda all'utente su Telegram un messaggio **pronto da
+### 9. Messaggio WhatsApp (copia/incolla)
+Dopo aver verificato la copertina, manda all'utente su Telegram un messaggio **pronto da
 incollare** nel gruppo WhatsApp. Formato consigliato:
 
 ```
@@ -140,6 +156,7 @@ Italiano. Mai numeri inventati. Il system prompt completo è in `scripts/gazzett
 |---|---|
 | `APPS_SCRIPT_WEBAPP_URL` | URL della Web App dell'Apps Script (trigger calcolo) |
 | `APPS_SCRIPT_SECRET` | token segreto passato alla Web App |
-| accesso GitHub (repo `dritall/fantalaghee`) | committare l'articolo su `main` |
+| accesso GitHub (repo `dritall/fantalaghee`) | committare articolo + illustrazione su `main` |
 | accesso OpenRouter | scrivere l'articolo |
+| tool immagini (`image_generate`, es. FAL/Flux o gpt-image) | generare l'illustrazione hero |
 | capacità di fare richieste HTTP GET | trigger foglio + lettura `/api/verdetto` |

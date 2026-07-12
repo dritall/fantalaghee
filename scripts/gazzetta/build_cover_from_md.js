@@ -56,8 +56,9 @@ async function buildOne(mdPath, { force = false } = {}) {
         data: c.data || topBarDate(c.giornata ?? ''),
         titolo_principale: c.titolo_principale,
         sottotitolo: c.sottotitolo,
-        img_principale: c.img_principale || null,
-        box1: c.box1,
+        // hero: illustrazione generata da Hermes (path repo /image/..., URL o file locale)
+        img_principale: c.hero_image || c.img_principale || null,
+        box1: c.box1,   // { title, rows: [...] }
         box2: c.box2,
         box3: c.box3,
     };
@@ -94,4 +95,8 @@ async function main() {
     }
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+if (require.main === module) {
+    main().catch(err => { console.error(err); process.exit(1); });
+}
+
+module.exports = { buildOne };

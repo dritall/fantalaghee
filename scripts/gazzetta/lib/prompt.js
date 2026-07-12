@@ -74,7 +74,16 @@ REGOLE FERREE:
 OLTRE ALL'ARTICOLO devi produrre anche i dati per la COPERTINA "prima pagina" del giornale:
 - titolo_principale: max ~50 caratteri, maiuscolo, a effetto.
 - sottotitolo: max ~180 caratteri, il sommario della giornata.
-- 3 box (box1, box2, box3), ognuno con: tag (max ~18 caratteri, es. "IL VERDETTO", "L'EDITORIALE", "MERCATO"), titolo (max ~38 caratteri), testo (max ~140 caratteri, sintetico).
+- image_prompt: la descrizione (in inglese, dettagliata) per generare l'ILLUSTRAZIONE hero
+  in stile vecchie copertine della Gazzetta: illustrazione editoriale satirica, stile
+  quotidiano sportivo vintage, scena epica e goliardica ispirata alla giornata (es. il
+  campione come re sul trono, gli sconfitti col cucchiaio di legno, il lago di Como sullo
+  sfondo con barche e montagne). Riprendi in chiave ironica i temi/nomi delle squadre
+  protagoniste. NIENTE testo leggibile dentro l'immagine. Formato orizzontale ~900x520.
+- 3 box DATI (non foto): box1 = Top 5 di giornata, box2 = Classifica generale aggiornata,
+  box3 = i Verdetti (campione, record assoluto, cucchiaio di legno). Ogni box ha un "title"
+  con emoji e una lista "rows"; ogni riga usa il formato "Etichetta|Valore" (la parte prima
+  della barra va in grassetto). Usa i dati reali forniti.
 
 FORMATO DI OUTPUT — restituisci ESCLUSIVAMENTE un oggetto JSON valido, senza testo prima o dopo, con questa forma esatta:
 {
@@ -85,9 +94,10 @@ FORMATO DI OUTPUT — restituisci ESCLUSIVAMENTE un oggetto JSON valido, senza t
   "cover": {
     "titolo_principale": "...",
     "sottotitolo": "...",
-    "box1": { "tag": "...", "titolo": "...", "testo": "..." },
-    "box2": { "tag": "...", "titolo": "...", "testo": "..." },
-    "box3": { "tag": "...", "titolo": "...", "testo": "..." }
+    "image_prompt": "Detailed English prompt for the satirical hero illustration...",
+    "box1": { "title": "🏆 TOP 5 DI GIORNATA", "rows": ["1. Squadra|89.5", "2. Squadra|84.5", "..."] },
+    "box2": { "title": "📊 CLASSIFICA GENERALE", "rows": ["1. Squadra|2935.5", "..."] },
+    "box3": { "title": "📌 I VERDETTI", "rows": ["Campione|Nome", "Record|112.5 Squadra", "Cucchiaio|Squadra 43"] }
   }
 }`;
 
