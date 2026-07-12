@@ -87,9 +87,19 @@ Regole:
 
 Il commit su `main` fa partire la GitHub Action (immagine) e Vercel (deploy).
 
-### 7. Messaggio WhatsApp (copia/incolla)
-Dopo il commit, manda all'utente su Telegram un messaggio **pronto da incollare** nel gruppo
-WhatsApp. Formato consigliato:
+### 7. Verifica immagine (mandala su Telegram)
+La copertina la genera la GitHub Action, non tu. Dopo il commit:
+- attendi ~90 secondi (tempo di run della Action), poi controlla se l'immagine esiste:
+  `GET https://www.fantalaghee.live/image/gazzetta/gazzetta-g{N}.png` (oppure il file
+  `public/image/gazzetta/gazzetta-g{N}.png` su GitHub, branch `main`).
+- Se risponde 200 / il file esiste → **mandala all'utente su Telegram** come immagine, così
+  può verificarla. Se non c'è ancora, aspetta un altro minuto e riprova (max 4 tentativi).
+- Se dopo i tentativi non compare, avvisa l'utente che la Action potrebbe essere fallita
+  (da controllare nella tab Actions di GitHub) e prosegui comunque col messaggio WhatsApp.
+
+### 8. Messaggio WhatsApp (copia/incolla)
+Dopo aver verificato l'immagine, manda all'utente su Telegram un messaggio **pronto da
+incollare** nel gruppo WhatsApp. Formato consigliato:
 
 ```
 📰 *La Gazzetta del Laghèe* — Giornata {N}
