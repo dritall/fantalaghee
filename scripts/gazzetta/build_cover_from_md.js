@@ -26,6 +26,7 @@ const path = require('path');
 const matter = require('gray-matter');
 const { renderCover } = require('./genera_gazzetta');
 const { topBarDate } = require('./lib/publish');
+const { generateHero } = require('./lib/imagegen');
 
 const REPO_ROOT = path.join(__dirname, '../..');
 const MD_DIR = path.join(REPO_ROOT, 'public', 'articoli', 'md');
@@ -52,12 +53,34 @@ async function buildOne(mdPath, { force = false } = {}) {
     }
 
     const c = data.cover;
+
+    // Risoluzione dell'HERO:
+    // 1) se Hermes ha già fornito/committato un file hero -> lo usiamo;
+    // 2) altrimenti, se c'è image_prompt -> lo generiamo qui (Pollinations, gratis) e lo salviamo;
+    // 3) altrimenti -> nessun hero (placeholder).
+    let heroSrc = c.hero_image || c.img_principale || null;
+    const heroFile = heroSrc && heroSrc.startsWith('/') ? imageAbsPath(heroSrc) : null;
+    const heroMancante = !heroSrc || (heroFile && !fs.existsSync(heroFile));
+
+    if (heroMancante && c.image_prompt) {
+        const slug = path.basename(mdPath, '.md');
+        const genPath = heroFile || imageAbsPath(`/image/gazzetta/${slug}-hero.png`);
+        try {
+            const seed = Number(c.giornata) || undefined;
+            await generateHero(c.image_prompt, genPath, { seed });
+            heroSrc = genPath;
+            console.log(`  ↳ hero generato: ${path.basename(genPath)}`);
+        } catch (e) {
+            console.warn(`  ⚠ generazione hero fallita (${e.message}); copertina senza hero.`);
+            heroSrc = null;
+        }
+    }
+
     const coverData = {
         data: c.data || topBarDate(c.giornata ?? ''),
         titolo_principale: c.titolo_principale,
         sottotitolo: c.sottotitolo,
-        // hero: illustrazione generata da Hermes (path repo /image/..., URL o file locale)
-        img_principale: c.hero_image || c.img_principale || null,
+        img_principale: heroSrc,
         box1: c.box1,   // { title, rows: [...] }
         box2: c.box2,
         box3: c.box3,
