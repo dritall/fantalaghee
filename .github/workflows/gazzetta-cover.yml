@@ -10,7 +10,18 @@ on:
     branches: [main]
     paths:
       - 'public/articoli/md/**.md'
-  workflow_dispatch:   # avvio manuale dalla tab Actions (rigenera le immagini mancanti)
+  workflow_dispatch:   # avvio manuale dalla tab Actions (rigenera una copertina senza toccare l'articolo)
+    inputs:
+      slug:
+        description: "slug dell'articolo, es. gazzetta-g7"
+        required: false
+      seed:
+        description: "seed alternativo per una variante"
+        required: false
+      force:
+        description: "sovrascrivi la copertina esistente"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -36,7 +47,19 @@ jobs:
 
       - name: Genera copertine mancanti
         id: build
-        run: node scripts/gazzetta/build_cover_from_md.js --all
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          IMAGE_SEED: ${{ github.event.inputs.seed }}
+        run: |
+          ARGS="--all"
+          if [[ -n "${{ github.event.inputs.slug }}" ]]; then
+            ARGS="public/articoli/md/${{ github.event.inputs.slug }}.md"
+          fi
+          if [[ "${{ github.event.inputs.force }}" == "true" ]]; then
+            ARGS="$ARGS --force"
+          fi
+          node scripts/gazzetta/build_cover_from_md.js $ARGS
 
       - name: Commit immagini generate
         run: |

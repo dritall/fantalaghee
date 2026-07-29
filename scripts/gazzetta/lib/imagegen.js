@@ -1,44 +1,191 @@
+#!/usr/bin/env node
 /**
  * Generazione dell'illustrazione hero della copertina.
  *
- * Di default usa Pollinations.ai: gratis, senza chiave API, via semplice URL.
- * Il backend è Flux. In futuro si può passare a un provider a pagamento (FAL, OpenAI)
- * cambiando solo questa funzione e leggendo una chiave da GitHub Secret.
+ * Catena di provider, in ordine (si scende al successivo solo quando quello sopra
+ * ha esaurito i tentativi):
+ *   1. google       - Nano Banana 2 via Gemini API (GEMINI_API_KEY) - primario
+ *   2. openrouter   - Image API unificata (OPENROUTER_API_KEY) - scorta
+ *   3. pollinations - gratis, senza chiave, nessun riferimento di stile - ultima rete
+ *
+ * I provider "google" e "openrouter" ricevono in ingresso, insieme al prompt, due
+ * copertine storiche della testata come riferimento di stile (vedi loadStyleRefs),
+ * così la nuova illustrazione nasce nello stesso linguaggio visivo.
  *
  * Env opzionali:
- *   IMAGE_PROVIDER  - "pollinations" (default)
- *   IMAGE_WIDTH     - default 900
- *   IMAGE_HEIGHT    - default 520
+ *   IMAGE_PROVIDERS      - lista provider separata da virgole (default "google,openrouter,pollinations")
+ *   IMAGE_STYLE_REFS     - lista path (relativi a /public) separata da virgole per i riferimenti di stile
+ *   IMAGE_WIDTH          - default 900 (solo pollinations)
+ *   IMAGE_HEIGHT         - default 520 (solo pollinations)
+ *   GEMINI_API_KEY       - chiave Gemini
+ *   GEMINI_IMAGE_MODEL   - default "gemini-3.1-flash-image"
+ *   OPENROUTER_API_KEY   - chiave OpenRouter
+ *   OPENROUTER_IMAGE_MODEL - default "google/gemini-3.1-flash-image"
+ *
+ * CLI di test (nessuna scrittura nel repo):
+ *   GEMINI_API_KEY=... node scripts/gazzetta/lib/imagegen.js "<prompt>" /tmp/hero.png
  */
 
 const fs = require('fs');
 const path = require('path');
 
+const REPO_ROOT = path.join(__dirname, '../../..');
+const PUBLIC_DIR = path.join(REPO_ROOT, 'public');
+
 const WIDTH = parseInt(process.env.IMAGE_WIDTH || '900', 10);
 const HEIGHT = parseInt(process.env.IMAGE_HEIGHT || '520', 10);
 
-// Suffisso di stile per mantenere coerenza grafica con le vecchie copertine
+const DEFAULT_PROVIDERS = ['google', 'openrouter', 'pollinations'];
+const DEFAULT_STYLE_REFS = [
+    '/image/gazzetta/gazzetta-g30-sorpasso.webp',
+    '/image/gazzetta/gazzetta-g28-triello-onda.webp',
+];
+const DEFAULT_TENTATIVI = 2;
+const SEED_STEP = 1000;
+const MIN_BYTES = 20000;
+
+const GEMINI_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image';
+const OPENROUTER_MODEL = process.env.OPENROUTER_IMAGE_MODEL || 'google/gemini-3.1-flash-image';
+
+// Suffisso di stile per mantenere coerenza grafica con le vecchie copertine.
+// Descrive la testata (non la scena, che la scrive Hermes nel prompt).
 const STYLE_SUFFIX =
-    'vintage satirical sports newspaper editorial illustration, hand-drawn colored ink style, ' +
-    'epic and humorous scene set on Lake Como (Lario) with mountains and rowing boats, ' +
-    'dramatic lighting, rich detail, NO readable text, no watermark';
+    'Editorial satirical illustration for the front page of a fantasy-football newspaper. ' +
+    'Hand-drawn colored ink linework, vintage sports-newspaper flavor. ' +
+    'Warm color palette that reads well on pale pink newsprint. ' +
+    'Setting: Lake Como (Lario) - steep mountains, rowing boats, lakeside villages. ' +
+    'Epic and goliardic tone, never mean-spirited. Single focal subject. ' +
+    'Loose free edges suitable for cropping. ' +
+    'NO text, letters, numbers, watermark, signature or logo of any kind.';
+
+// Istruzione testuale che accompagna i riferimenti di stile (solo google/openrouter)
+const STYLE_REF_INSTRUCTION =
+    'The attached images are past covers of "La Gazzetta del Laghèe", a satirical fantasy-football ' +
+    'newspaper. Study their hand-drawn ink style, color palette, line weight and humorous register, ' +
+    'and carry that same visual language into the new illustration. Do NOT reuse their subject or ' +
+    'composition: those come only from the scene prompt below.';
+
+const MIME_BY_EXT = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' };
 
 /**
- * Genera l'hero da un prompt e lo salva su outPath.
- * @param {string} prompt - descrizione (in inglese) della scena
- * @param {string} outPath - percorso assoluto del file immagine da scrivere
- * @param {object} [opts]
- * @param {number} [opts.seed] - seed per riproducibilità
- * @returns {Promise<string>} outPath
+ * Carica le copertine storiche di riferimento come base64, per guidare lo stile.
+ * Salta silenziosamente i file mancanti; se non ne resta nessuno logga un avviso.
+ * @returns {{mime: string, data: string, path: string}[]}
  */
-async function generateHero(prompt, outPath, opts = {}) {
-    const provider = process.env.IMAGE_PROVIDER || 'pollinations';
-    if (provider !== 'pollinations') {
-        throw new Error(`IMAGE_PROVIDER "${provider}" non supportato (per ora solo pollinations).`);
+function loadStyleRefs() {
+    const refs = process.env.IMAGE_STYLE_REFS
+        ? process.env.IMAGE_STYLE_REFS.split(',').map(s => s.trim()).filter(Boolean)
+        : DEFAULT_STYLE_REFS;
+
+    const out = [];
+    for (const rel of refs) {
+        const filePath = path.join(PUBLIC_DIR, rel.replace(/^\//, ''));
+        if (!fs.existsSync(filePath)) continue;
+        const ext = path.extname(filePath).toLowerCase();
+        const mime = MIME_BY_EXT[ext] || 'image/webp';
+        out.push({ mime, data: fs.readFileSync(filePath).toString('base64'), path: filePath });
+    }
+    if (out.length === 0) {
+        console.warn('⚠ Nessun riferimento di stile trovato: la coerenza grafica con le copertine storiche non è garantita.');
+    }
+    return out;
+}
+
+/** Valida il buffer immagine: dimensione minima e magic bytes di PNG/JPEG/WEBP. */
+function isValidImageBuffer(buf) {
+    if (!buf || buf.length < MIN_BYTES) return false;
+    if (buf[0] === 0x89 && buf[1] === 0x50) return true; // PNG
+    if (buf[0] === 0xff && buf[1] === 0xd8) return true; // JPEG
+    if (buf.slice(0, 4).toString('ascii') === 'RIFF') return true; // WEBP
+    return false;
+}
+
+// --- Provider: Google (Nano Banana 2 via Gemini API) ---
+
+async function generaConGoogle(prompt, seed, styleRefs) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY non configurata');
+
+    const parts = [{ text: STYLE_REF_INSTRUCTION }];
+    for (const ref of styleRefs) {
+        parts.push({ inline_data: { mime_type: ref.mime, data: ref.data } });
+    }
+    parts.push({ text: `${prompt} ${STYLE_SUFFIX}` });
+
+    const url = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent`;
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ role: 'user', parts }],
+            generationConfig: {
+                responseModalities: ['TEXT', 'IMAGE'],
+                imageConfig: { aspectRatio: '16:9', imageSize: '1K' },
+                seed,
+            },
+        }),
+    });
+
+    if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        throw new Error(`Gemini ha risposto ${res.status}: ${body.slice(0, 300)}`);
     }
 
-    const fullPrompt = `${prompt}. ${STYLE_SUFFIX}`;
-    const seed = opts.seed ?? Math.floor(Math.random() * 1e6);
+    const json = await res.json();
+    const cand = json?.candidates?.[0];
+    const resParts = cand?.content?.parts || [];
+    for (const p of resParts) {
+        const inline = p.inlineData || p.inline_data;
+        if (inline?.data) return Buffer.from(inline.data, 'base64');
+    }
+    throw new Error(`Gemini non ha restituito un'immagine (finishReason: ${cand?.finishReason || 'sconosciuto'})`);
+}
+
+// --- Provider: OpenRouter Image API (scorta) ---
+
+async function generaConOpenRouter(prompt, seed, styleRefs) {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) throw new Error('OPENROUTER_API_KEY non configurata');
+
+    const body = {
+        model: OPENROUTER_MODEL,
+        prompt: `${prompt} ${STYLE_SUFFIX}`,
+        aspect_ratio: '16:9',
+        resolution: '1K',
+        output_format: 'png',
+        seed,
+    };
+    if (styleRefs.length > 0) {
+        body.input_references = styleRefs.map(ref => ({
+            type: 'image_url',
+            image_url: { url: `data:${ref.mime};base64,${ref.data}` },
+        }));
+    }
+
+    const res = await fetch('https://openrouter.ai/api/v1/images', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+        const errBody = await res.text().catch(() => '');
+        throw new Error(`OpenRouter ha risposto ${res.status}: ${errBody.slice(0, 300)}`);
+    }
+
+    const json = await res.json();
+    const b64 = json?.data?.[0]?.b64_json;
+    if (!b64) throw new Error('OpenRouter non ha restituito b64_json');
+    if (json?.usage?.cost != null) {
+        console.log(`  ↳ costo generazione OpenRouter: $${json.usage.cost}`);
+    }
+    return Buffer.from(b64, 'base64');
+}
+
+// --- Provider: Pollinations (gratis, senza chiave, nessun riferimento di stile) ---
+
+async function generaConPollinations(prompt, seed) {
+    const fullPrompt = `${prompt} ${STYLE_SUFFIX}`;
     const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}`
         + `?width=${WIDTH}&height=${HEIGHT}&nologo=true&model=flux&seed=${seed}&referrer=fantalaghee`;
 
@@ -46,13 +193,70 @@ async function generateHero(prompt, outPath, opts = {}) {
     if (!res.ok) {
         throw new Error(`Pollinations ha risposto ${res.status} ${res.statusText}`);
     }
-    const buf = Buffer.from(await res.arrayBuffer());
-    if (buf.length < 1000) {
-        throw new Error(`Immagine generata troppo piccola (${buf.length} byte): probabile errore.`);
-    }
-    fs.mkdirSync(path.dirname(outPath), { recursive: true });
-    fs.writeFileSync(outPath, buf);
-    return outPath;
+    return Buffer.from(await res.arrayBuffer());
 }
 
-module.exports = { generateHero };
+const PROVIDERS = {
+    google: generaConGoogle,
+    openrouter: generaConOpenRouter,
+    pollinations: (prompt, seed) => generaConPollinations(prompt, seed),
+};
+
+/**
+ * Genera l'hero da un prompt, provando la catena di provider in ordine, e lo salva su outPath.
+ * @param {string} prompt - descrizione (in inglese) della scena
+ * @param {string} outPath - percorso assoluto del file immagine da scrivere
+ * @param {object} [opts]
+ * @param {number} [opts.seed] - seed base per riproducibilità (incrementato di 1000 a ogni tentativo)
+ * @param {number} [opts.tentativi] - tentativi per provider (default 2)
+ * @returns {Promise<string>} outPath
+ */
+async function generateHero(prompt, outPath, opts = {}) {
+    const providers = process.env.IMAGE_PROVIDERS
+        ? process.env.IMAGE_PROVIDERS.split(',').map(s => s.trim()).filter(Boolean)
+        : DEFAULT_PROVIDERS;
+    const tentativi = opts.tentativi ?? DEFAULT_TENTATIVI;
+    const seedBase = opts.seed ?? Math.floor(Math.random() * 1e6);
+    const styleRefs = loadStyleRefs();
+
+    const errori = [];
+    for (const nome of providers) {
+        const fn = PROVIDERS[nome];
+        if (!fn) {
+            errori.push(`${nome}: provider sconosciuto`);
+            continue;
+        }
+        for (let i = 0; i < tentativi; i++) {
+            const seed = seedBase + i * SEED_STEP;
+            try {
+                const buf = await fn(prompt, seed, styleRefs);
+                if (!isValidImageBuffer(buf)) {
+                    throw new Error(`buffer non valido (${buf ? buf.length : 0} byte)`);
+                }
+                fs.mkdirSync(path.dirname(outPath), { recursive: true });
+                fs.writeFileSync(outPath, buf);
+                console.log(`✓ hero generato con ${nome} (tentativo ${i + 1}/${tentativi}, seed ${seed})`);
+                return outPath;
+            } catch (e) {
+                console.warn(`⚠ ${nome} tentativo ${i + 1}/${tentativi} fallito: ${e.message}`);
+                errori.push(`${nome} (tentativo ${i + 1}): ${e.message}`);
+            }
+        }
+    }
+
+    throw new Error(`Tutti i provider immagine sono falliti:\n${errori.join('\n')}`);
+}
+
+module.exports = { generateHero, loadStyleRefs, STYLE_SUFFIX };
+
+// --- CLI: `node imagegen.js "<prompt>" <outPath>` - prova un prompt senza toccare il repo ---
+if (require.main === module) {
+    const [, , prompt, outPath] = process.argv;
+    if (!prompt || !outPath) {
+        console.error('Uso: node scripts/gazzetta/lib/imagegen.js "<prompt>" <outPath>');
+        process.exit(1);
+    }
+    generateHero(prompt, outPath)
+        .then(p => console.log(`✓ Immagine salvata: ${p}`))
+        .catch(err => { console.error(err.message); process.exit(1); });
+}
