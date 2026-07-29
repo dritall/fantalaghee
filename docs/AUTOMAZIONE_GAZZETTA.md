@@ -5,99 +5,106 @@
 > le sessioni di Claude Code non condividono memoria tra loro. Leggi prima questo file,
 > poi continua da qui.
 
-## ⚡ STATO AGGIORNATO (12 luglio 2026) — architettura definitiva, manca solo un token
+## ⚡ STATO AGGIORNATO (29 luglio 2026) — le tre responsabilità spostate dal modello al codice
 
-### L'architettura scelta (cambiata rispetto alla prima idea)
+### Il principio
 
-Il piano iniziale prevedeva un bot Telegram standalone scritto da noi (`scripts/gazzetta/bot.js`,
-sempre acceso, lettura HERMES_API_KEY su OpenRouter). **Quel bot esiste ancora nel repo ma non è
-più la via scelta**: l'utente ha già un agente proprio, "Hermes" (Nous), collegato a Telegram,
-GitHub e OpenRouter. Quindi Hermes stesso fa da orchestratore — non serve un bot separato sempre
-acceso. Il ruolo di ogni pezzo:
+Fino a questa iterazione, Hermes scriveva prosa, copiava numeri a mano, componeva YAML e
+faceva un commit git — tre mestieri che non sono i suoi, e nei quali sbagliava (in
+particolare: nessun token GitHub nel suo ambiente, quindi il commit finale non partiva
+mai). Il principio applicato qui: **il modello scrive solo prosa e un prompt d'immagine;
+ogni numero che finisce in copertina lo mette il codice, rileggendolo dalla fonte
+(`/api/verdetto`).** Hermes non ha più bisogno di GitHub, non genera immagini, non
+compila i box dati e non deve più sapere a memoria il numero di giornata.
 
-- **Hermes** (agente Telegram dell'utente): legge i dati, scrive l'articolo, scrive il prompt
-  dell'immagine, committa il `.md` su GitHub, manda la bozza e il messaggio WhatsApp finale.
-  **Segue `docs/HERMES_PLAYBOOK.md`** (letto dal branch `main` a ogni esecuzione).
-- **GitHub Action** (`.github/workflows/gazzetta-cover.yml`): quando arriva un commit con un
-  articolo che ha il blocco `cover:`, genera l'illustrazione hero (Pollinations.ai, gratis,
-  nessuna chiave) e compone la copertina finale PNG con Puppeteer, poi la committa.
-- **Vercel**: pubblica in automatico a ogni push su `main` (già configurato da prima, non
-  toccato da questo lavoro).
+### Chi fa cosa, oggi
 
-Verificato con ricerca: **Hermes 4 di Nous è un modello di solo testo**, non genera immagini
-nativamente — per questo la generazione dell'illustrazione è stata spostata dalla Action
-(Pollinations) invece che da Hermes via tool `image_generate` (che richiederebbe una `FAL_KEY`
-non disponibile nell'ambiente di Hermes).
+- **Hermes** (agente Telegram dell'utente): legge `/api/gazzetta/stato`, scrive
+  l'articolo e un `image_prompt` in inglese, manda la bozza su Telegram per l'OK
+  dell'utente, poi pubblica con **una singola `POST /api/gazzetta/publish`**.
+  **Segue `docs/HERMES_PLAYBOOK.md`** (riscritto: 5 passi invece di 8, zero YAML, zero
+  git). Nessun accesso GitHub necessario.
+- **`app/api/gazzetta/stato/route.ts`** (nuovo): incrocia tre fonti — calendario Serie A
+  (`/api/football?endpoint=matchdays`), foglio (`/api/verdetto`), filesystem
+  (`public/articoli/md/gazzetta-g{N}.md`) — e risponde con un solo verdetto:
+  `PRONTA` / `FOGLIO_DA_RICALCOLARE` / `GIA_PUBBLICATA` / `NON_ANCORA`, più un `motivo`
+  in italiano che Hermes può riportare così com'è all'utente. Elimina l'attesa "a occhio"
+  del vecchio playbook e la domanda "che giornata è" all'utente.
+- **`app/api/gazzetta/publish/route.ts`** (nuovo): riceve la bozza di Hermes (title,
+  description, body_md, cover con titolo/sottotitolo/image_prompt), valida tutto a mano,
+  rifiuta un payload che include `box1/2/3` (li ricalcola da solo da `/api/verdetto`),
+  compone il frontmatter con `gray-matter` (mai YAML a mano) e committa il `.md` su
+  `main` via GitHub Contents API, autenticato con un token server-side che Hermes non
+  vede mai. Protetto da `Authorization: Bearer {GAZZETTA_PUBLISH_SECRET}`. Idempotente:
+  un articolo già esistente per quella giornata risponde `409` a meno di `force:true`.
+- **`scripts/gazzetta/lib/imagegen.js`** (riscritto): catena di provider
+  `google` (Nano Banana 2 via Gemini, primario) → `openrouter` (Image API, scorta) →
+  `pollinations` (gratis, ultima rete). I primi due ricevono in ingresso due copertine
+  storiche della testata (`gazzetta-g30-sorpasso.webp`, `gazzetta-g28-triello-onda.webp`)
+  come riferimento di stile, per restare coerenti con le copertine disegnate a mano.
+  Firma di `generateHero()` invariata, così `build_cover_from_md.js` non ha dovuto
+  cambiare la chiamata.
+- **`scripts/gazzetta/build_cover_from_md.js`** (corretto): un `.md` con blocco `cover`
+  ma senza illustrazione generabile ora fa fallire lo script (`exit 1`), invece di
+  pubblicare in silenzio una copertina senza hero come succedeva prima. Un `.md` senza
+  blocco `cover` (i vecchi articoli scritti a mano) resta un salto legittimo, non un
+  errore.
+- **GitHub Action** (`.github/workflows/gazzetta-cover.yml`): genera l'hero e compone la
+  copertina finale con Puppeteer. Ora riceve `GEMINI_API_KEY`/`OPENROUTER_API_KEY` solo
+  sullo step di build, non fa mai passare verde un fallimento reale (nessun
+  `continue-on-error`), e accetta `slug`/`seed`/`force` da `workflow_dispatch` per
+  rigenerare una copertina senza toccare l'articolo.
+- **Vercel**: pubblica in automatico a ogni push su `main` (invariato).
 
 ### Il flusso completo, oggi
 
 ```
 Utente -> messaggio a Hermes su Telegram ("fai la gazzetta")
-       -> Hermes accende il calcolo sul Google Sheet (Apps Script Web App)
-       -> attende ~3 min
-       -> legge i dati da /api/verdetto (nessuna credenziale, CSV pubblico)
-       -> scrive l'articolo (voce Buffa/Ziliani/Pardo) + un "image_prompt"
+       -> Hermes: GET /api/gazzetta/stato
+          - GIA_PUBBLICATA / NON_ANCORA -> riporta il motivo, fine
+          - FOGLIO_DA_RICALCOLARE -> sveglia l'Apps Script, ripolla stato ogni 60s (max 5)
+          - PRONTA -> continua
+       -> GET /api/verdetto -> scrive l'articolo + image_prompt (inglese)
        -> manda la BOZZA testuale su Telegram
 Utente -> OK (o correzioni -> Hermes riscrive)
-       -> Hermes committa SOLO il file .md su GitHub (branch main), con:
-            - il testo dell'articolo
-            - cover.image_prompt (descrizione in inglese dell'illustrazione satirica)
-            - cover.box1/2/3 = DATI reali (Top 5 giornata, Classifica, Verdetti)
-GitHub Action -> genera l'hero da image_prompt (Pollinations) 
+       -> Hermes: POST /api/gazzetta/publish { title, description, body_md, cover }
+Server -> risolve la giornata, verifica idempotenza su GitHub, richiama /api/verdetto,
+          costruisce box1/2/3 dai dati reali, compone il frontmatter (gray-matter),
+          committa il .md su main
+GitHub Action -> genera l'hero (google -> openrouter -> pollinations, con riferimento di stile)
               -> compone la copertina finale (template rosa + hero + 3 box dati)
-              -> committa il PNG
+              -> committa il PNG (o FALLISCE rumorosamente se l'hero non si genera)
 Vercel        -> deploy automatico -> articolo LIVE
-Hermes        -> recupera la copertina e la manda su Telegram per verifica
-              -> prepara il messaggio pronto da incollare su WhatsApp
+Hermes        -> attende ~90s, verifica che coverUrl risponda 200 (max 4 tentativi)
+              -> manda la copertina su Telegram, poi il messaggio pronto per WhatsApp
 ```
 
-### ✅ Cosa è stato costruito e testato (tutto già su `main`)
+### Variabili d'ambiente da configurare
 
-| Pezzo | File | Stato |
+| Variabile | Dove | A cosa serve |
 |---|---|---|
-| Template grafico copertina (rosa, logo, testata) | `scripts/gazzetta/template.html` | ✅ testato |
-| Motore di rendering PNG (Puppeteer) | `scripts/gazzetta/genera_gazzetta.js` | ✅ testato |
-| Generazione hero da testo (Pollinations, gratis) | `scripts/gazzetta/lib/imagegen.js` | ✅ scritto, non testabile nel sandbox (host bloccato dal proxy), ma è l'endpoint pubblico documentato |
-| Composizione copertina da frontmatter `.md` (usato dalla Action) | `scripts/gazzetta/build_cover_from_md.js` | ✅ testato |
-| GitHub Action che scatta al commit di un articolo | `.github/workflows/gazzetta-cover.yml` | ✅ attiva su `main` (verificato via API GitHub) |
-| Manuale operativo che Hermes legge e segue | `docs/HERMES_PLAYBOOK.md` | ✅ letto con successo da Hermes su `main` |
-| Prompt/voce editoriale (stile Buffa/Ziliani/Pardo, dai tuoi articoli veri) | `scripts/gazzetta/lib/prompt.js` | ✅ (usato dal bot standalone, non da Hermes — vedi nota sotto) |
-| Lettura dati giornata dal foglio | `/api/verdetto` (già esistente) + `scripts/gazzetta/lib/fetchGiornata.js` | ✅ |
-| **Prova end-to-end reale con Hermes** | — | ⚠️ **fatta parzialmente**: Hermes ha scritto un articolo di giornata 38 (stagione 2526, dati reali) col vecchio formato box, la Action ha generato la copertina correttamente. Poi il formato box è cambiato (ora sono dati, non testo) e quel test è stato rimosso dal repo (era di prova). **Va rifatto da capo col formato nuovo.** |
+| `GEMINI_API_KEY` | Secret di GitHub Actions | provider immagine primario (Nano Banana 2) |
+| `OPENROUTER_API_KEY` | Secret di GitHub Actions (e config Hermes, per scrivere l'articolo) | provider immagine di scorta / LLM di Hermes |
+| `GAZZETTA_PUBLISH_SECRET` | Environment Variable di Vercel + config Hermes | autentica `POST /api/gazzetta/publish` |
+| `GAZZETTA_GH_TOKEN` | Environment Variable di Vercel | token GitHub server-side (`contents: write`) per il commit dell'articolo — Hermes non lo vede mai |
+| `GITHUB_REPO_OWNER` / `GITHUB_REPO_NAME` | Environment Variable di Vercel (opzionali, default `dritall`/`fantalaghee`) | repo target del commit |
+| `APPS_SCRIPT_WEBAPP_URL` / `APPS_SCRIPT_SECRET` | config Hermes | trigger ricalcolo foglio |
+| `IMAGE_PROVIDERS`, `IMAGE_STYLE_REFS`, `GEMINI_IMAGE_MODEL`, `OPENROUTER_IMAGE_MODEL`, `IMAGE_SEED` | opzionali, Secret/env di GitHub Actions | override della catena provider e dei riferimenti di stile |
 
-### ❌ Cosa manca davvero (il vero "cosa devo risolvere")
+### Cosa resta da fare prima di andare live
 
-1. **GITHUB_TOKEN per Hermes.** Nell'ultimo tentativo Hermes ha scritto l'articolo ma
-   **non è riuscito a committarlo**: "l'autenticazione MCP GitHub è fallita (nessun token
-   configurato in questa sessione)". Senza un token con permesso di scrittura sul repo
-   `dritall/fantalaghee`, Hermes non può completare il passo 6 del playbook (commit).
-   **Questo è il blocco numero 1, quello che rompe l'automazione end-to-end oggi.**
-   Va risolto configurando l'accesso GitHub nel profilo/ambiente di Hermes (token con
-   permesso `contents: write` su quel repo).
-
-2. **Apps Script pubblicato come Web App** (per il trigger automatico del calcolo giornata).
-   Non risulta ancora confermato che sia stato fatto. Serve:
-   - pubblicare lo script del foglio come Web App (istruzioni già date in questa
-     conversazione: `Estensioni → Apps Script → doGet(e) con token → Distribuisci → App web`)
-   - dare a Hermes `APPS_SCRIPT_WEBAPP_URL` e `APPS_SCRIPT_SECRET`
-   Nota: **non blocca i test** — si può sempre saltare il passo 1 e leggere direttamente
-   `/api/verdetto?stagione=2526` (dati reali archiviati) per provare tutto il resto.
-
-3. **Un test end-to-end completo col formato definitivo** (hero da `image_prompt` + 3 box
-   dati). Non ancora fatto per intero: il test precedente usava il formato vecchio dei box
-   ed è stato rimosso. Da rifare una volta risolto il punto 1.
-
-4. **Qualità/coerenza dell'immagine generata da Pollinations** — mai vista in azione (solo
-   documentata). Da valutare alla prima immagine vera: se lo stile non convince o Pollinations
-   ha limiti di rate/qualità, si passa a un provider a pagamento (pochi centesimi/immagine)
-   cambiando solo `scripts/gazzetta/lib/imagegen.js`.
-
-### Riepilogo in una frase
-
-**Il sistema è scritto, collaudato a pezzi, e Hermes sa leggere le istruzioni e scrivere
-correttamente — l'unica cosa che blocca l'automazione reale oggi è che Hermes non ha ancora
-un permesso di scrittura (token) sul repo GitHub per completare da solo il commit finale.**
-Sistemato quello, si può fare un test end-to-end pulito e poi è operativo.
+1. **Popolare i secret sopra** (`GEMINI_API_KEY`, `OPENROUTER_API_KEY` su GitHub Actions;
+   `GAZZETTA_PUBLISH_SECRET`, `GAZZETTA_GH_TOKEN` su Vercel).
+2. **Un test end-to-end reale** col nuovo endpoint `/api/gazzetta/publish` — non ancora
+   fatto in questa sessione (nessuna chiamata di rete a Gemini/OpenRouter/GitHub è stata
+   fatta durante l'implementazione, per esplicita richiesta: il codice è scritto, non
+   collaudato contro le API vere).
+3. **Aggiornare `APPS_SCRIPT_WEBAPP_URL`/`APPS_SCRIPT_SECRET`** in config Hermes se non
+   già fatto (invariato rispetto a prima).
+4. **Valutare la qualità/coerenza delle prime immagini generate da Nano Banana 2** — mai
+   vista in azione. Se lo stile non convince, si aggiusta `STYLE_SUFFIX` o
+   `STYLE_REF_INSTRUCTION` in `scripts/gazzetta/lib/imagegen.js`, oppure si cambia
+   l'ordine dei provider via `IMAGE_PROVIDERS`.
 
 ---
 

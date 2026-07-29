@@ -65,15 +65,11 @@ async function buildOne(mdPath, { force = false } = {}) {
     if (heroMancante && c.image_prompt) {
         const slug = path.basename(mdPath, '.md');
         const genPath = heroFile || imageAbsPath(`/image/gazzetta/${slug}-hero.png`);
-        try {
-            const seed = Number(c.giornata) || undefined;
-            await generateHero(c.image_prompt, genPath, { seed });
-            heroSrc = genPath;
-            console.log(`  ↳ hero generato: ${path.basename(genPath)}`);
-        } catch (e) {
-            console.warn(`  ⚠ generazione hero fallita (${e.message}); copertina senza hero.`);
-            heroSrc = null;
-        }
+        const seedEnv = process.env.IMAGE_SEED;
+        const seed = seedEnv !== undefined && seedEnv !== '' ? Number(seedEnv) : (Number(c.giornata) || undefined);
+        await generateHero(c.image_prompt, genPath, { seed });
+        heroSrc = genPath;
+        console.log(`  ↳ hero generato: ${path.basename(genPath)}`);
     }
 
     const coverData = {
@@ -107,14 +103,26 @@ async function main() {
     }
 
     const generati = [];
+    const errori = [];
     for (const f of files) {
-        const out = await buildOne(f, { force });
-        if (out) generati.push(out);
+        try {
+            const out = await buildOne(f, { force });
+            if (out) generati.push(out);
+        } catch (e) {
+            console.error(`✗ errore su ${path.basename(f)}: ${e.message}`);
+            errori.push(`${path.basename(f)}: ${e.message}`);
+        }
     }
     console.log(`\nFatto. Immagini generate: ${generati.length}`);
     // esporta l'elenco per la Action (per capire se c'è qualcosa da committare)
     if (process.env.GITHUB_OUTPUT) {
         fs.appendFileSync(process.env.GITHUB_OUTPUT, `generated=${generati.length}\n`);
+    }
+
+    if (errori.length > 0) {
+        console.error(`\n${errori.length} copertina/e non generata/e:`);
+        errori.forEach(e => console.error(`  - ${e}`));
+        process.exit(1);
     }
 }
 
