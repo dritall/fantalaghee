@@ -14,15 +14,25 @@ cover:
     Scudetto a Stoke Azzo per 5,5 punti sui Raga di Oporto. Ultima giornata a
     Sove1907 (89.5); Cippalippa e Oporto sul podio di G38.
   image_prompt: >-
-    Lake Como sunset finale scene. Center in triumph: a vintage 1907-kit
-    footballer with sash and small day-crown celebrating as king of the last
-    matchday (Sove1907). Beside him, slightly elevated with championship laurel
-    and a playful rocket/eggplant emblem: the season champion figure (Stoke
-    Azzo), calm after a razor-thin win. To the side, festive Porto wine boys
-    almost touching the trophy but one step short (Raga di Oporto). Bottom
-    corner archive gag only: a wooden log with a face holds a wooden spoon (AS
-    Tronzi), mellow not cruel. Clean composition, 4 subjects max, no readable
-    text, no newspaper frame inside the image.
+    Finale di stagione satira sul Lago di Como al tramonto, illustrazione
+    fumetto moderna nitida. COMPOSIZIONE: al centro un podio a tre gradini della
+    CLASSIFICA GENERALE (non della sola giornata). Gradino più alto (1°
+    classifica): Stoke Azzo come gag goliardica fallica — melanzana antropomorfa
+    e/o razzo-melanzana con corona d'alloro da scudetto, tono vignetta, niente
+    volgarità esplicita, NIENTE maglia rosso-nera. Secondo gradino (2°
+    classifica): Raga di Oporto — due o tre ragazzi festanti stile Porto (vino
+    Porto, case colorate di Porto). Terzo gradino (3° classifica): Cuccioloni —
+    due cuccioli labrador o golden retriever con bandana, felici. A LATO del
+    podio, ben visibile ma non sul trono dello scudetto: il campione di giornata
+    Sove1907 — calciatore-sovrano vintage kit 1907 con corona piccola e fascia
+    da re dell'ultima giornata, in festa. Dall'altra parte, come cameo da
+    archivio stagione (solo per questo finale): Cippalippa1418 — figuretta
+    beffarda con gesto di scherno alla vecchia maniera che esibisce un cartello
+    NUMERICO vuoto/simbolo da record (niente scritte leggibili), a ricordare il
+    punteggio monstre di stagione. Sfondo: acqua e montagne del Lago di Como,
+    confetti leggeri. Niente testo leggibile, niente testata di giornale, niente
+    cornici o titoli dentro l'immagine. Solo i personaggi-gag nitidi e
+    riconoscibili.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
