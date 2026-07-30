@@ -14,25 +14,26 @@ cover:
     Scudetto a Stoke Azzo per 5,5 punti sui Raga di Oporto. Ultima giornata a
     Sove1907 (89.5); Cippalippa e Oporto sul podio di G38.
   image_prompt: >-
-    Finale di stagione satira sul Lago di Como al tramonto, illustrazione
-    fumetto moderna nitida. COMPOSIZIONE: al centro un podio a tre gradini della
-    CLASSIFICA GENERALE (non della sola giornata). Gradino più alto (1°
-    classifica): Stoke Azzo come gag goliardica fallica — melanzana antropomorfa
-    e/o razzo-melanzana con corona d'alloro da scudetto, tono vignetta, niente
-    volgarità esplicita, NIENTE maglia rosso-nera. Secondo gradino (2°
-    classifica): Raga di Oporto — due o tre ragazzi festanti stile Porto (vino
-    Porto, case colorate di Porto). Terzo gradino (3° classifica): Cuccioloni —
-    due cuccioli labrador o golden retriever con bandana, felici. A LATO del
-    podio, ben visibile ma non sul trono dello scudetto: il campione di giornata
-    Sove1907 — calciatore-sovrano vintage kit 1907 con corona piccola e fascia
-    da re dell'ultima giornata, in festa. Dall'altra parte, come cameo da
-    archivio stagione (solo per questo finale): Cippalippa1418 — figuretta
-    beffarda con gesto di scherno alla vecchia maniera che esibisce un cartello
-    NUMERICO vuoto/simbolo da record (niente scritte leggibili), a ricordare il
-    punteggio monstre di stagione. Sfondo: acqua e montagne del Lago di Como,
-    confetti leggeri. Niente testo leggibile, niente testata di giornale, niente
-    cornici o titoli dentro l'immagine. Solo i personaggi-gag nitidi e
-    riconoscibili.
+    Finale di stagione, satira fumetto moderno sul Lago di Como al tramonto.
+    COMPOSIZIONE: al centro un podio a tre gradini della CLASSIFICA GENERALE. 1°
+    gradino: Stoke Azzo come melanzana antropomorfa / razzo-melanzana che vola o
+    trionfa con alloro da scudetto, gag goliardica fallica leggera, NIENTE
+    maglia rosso-nera, NIENTE scritte. 2° gradino: Raga di Oporto — due ragazzi
+    festanti in maglia del Porto FC / atmosfera Porto (vino, case colorate),
+    identità chiara dalla maglia, SENZA etichette o nomi flottanti. 3° gradino:
+    Cuccioloni — due cuccioli labrador/golden con bandana, ovvi senza scritte. A
+    LATO del podio: campione di giornata Sove1907 — figura da sovrano/calciatore
+    vintage 1907 (corona piccola, fascia, kit d'epoca); se serve richiamare il
+    nome, fondilo nel design (monogramma/sovrano 1907 cucito nel costume o nella
+    corona come ornamento stilizzato), MAI un fumetto o cartello con scritto
+    Sove1907. Dall'altro lato, cameo record di stagione: Cippalippa1418 —
+    figuretta beffarda da 'segone' ironico ma fortissimo, gesto di scherno alla
+    vecchia maniera, che CELEBRA il punteggio di giornata più alto della
+    stagione: aura da mostro di punti, esplosione di stelle/bonus, trofeo o
+    montagna di punti stilizzata — visualizzare la forza del record SENZA
+    scritte leggibili del nome o del numero. Sfondo lago e montagne. VIETATO:
+    etichette nomi sopra le teste, didascalie umoristiche col nome squadra,
+    testo leggibile, testata giornale, cornici. Solo gag visive nitide.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
