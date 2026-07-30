@@ -29,15 +29,20 @@ Ruoli:
 
 ## ⛔ Regola dei due STOP (la più importante di tutte)
 
-La procedura ha **due punti in cui devi fermarti e aspettare una risposta dell'utente**:
+La procedura ha **due punti in cui devi fermarti e aspettare un click esplicito**:
 
 1. **Passo 3b** — conferma del **testo**, prima di pubblicare.
 2. **Passo 5** — conferma dell'**immagine**, prima di consegnare il messaggio WhatsApp.
 
-In entrambi: manda il messaggio, **chiudi il turno, non chiamare altri strumenti**. Non
-proseguire perché "tanto poi glielo faccio vedere": una volta pubblicato è online.
-Non decidere tu al posto dell'utente. **Il silenzio non è un sì**, e nemmeno un "bello!"
-generico è una conferma se non è riferito a quella domanda.
+**UI obbligatoria: bottoni Telegram cliccabili** via tool `clarify` (inline keyboard
+del gateway Hermes). Non chiedere di scrivere a mano `"ok testo"` / `"ok immagine"`.
+Non chiamare la Bot API a mano con `callback_data` custom: il gateway Hermes ignora
+callback sconosciuti. `clarify` manda i bottoni, blocca finché l'utente clicca, toglie
+la tastiera e restituisce la scelta. Timeout clarify ≠ sì (rimanda i bottoni).
+
+In entrambi gli stop: **non pubblicare / non mandare WhatsApp** finché non arriva il
+click. Una volta pubblicato è online. **Il silenzio non è un sì**, e nemmeno un
+"bello!" generico è una conferma se non è riferito a quella domanda.
 
 Se l'utente ti chiede di fare tutto in autonomia, spiega che le due conferme sono
 volute e chiedi comunque.
@@ -147,31 +152,31 @@ disegnano storte. Se serve evocare una scritta, usa un cartello **vuoto** o un s
 
 ### 3b. Conferma del TESTO (STOP OBBLIGATORIO)
 
-⛔ **Questo è uno stop vero: manda il messaggio e CHIUDI IL TURNO.** Non chiamare nessun
-altro strumento, non pubblicare, non proseguire "tanto poi glielo mostro". Devi aspettare
-un nuovo messaggio dell'utente.
+⛔ **Stop vero: niente publish finché non arriva il click.**
 
-Manda all'utente su Telegram il **testo** della bozza (title + description + body_md +
-image_prompt) e chiudi con:
+1. Manda su Telegram la bozza completa (`title`, `description`, `body_md`, `image_prompt`).
+2. Subito dopo chiama il tool **`clarify`** con bottoni:
 
 ```
-Confermi il TESTO?
-✅ "ok testo" → procedo con la pubblicazione
-✏️ dimmi cosa cambiare → riscrivo
-🔄 "rifai" → rigenero da capo
+clarify(
+  question="Confermi il TESTO della Gazzetta?",
+  choices=["✅ Pubblica", "✏️ Modifica", "🔄 Rifai"]
+)
 ```
 
-- Se risponde **ok / vai / 👍** → vai al passo 4.
-- Se manda **correzioni** → riscrivi e rimanda la bozza (di nuovo con lo stop).
-- Se dice di rifare → rigenera da capo.
+3. Interpreta la scelta:
+   - **✅ Pubblica** (o ok/vai/👍 esplicito) → passo 4 con `"conferma": true`
+   - **✏️ Modifica** → chiedi cosa cambiare, riscrivi, di nuovo STOP 1
+   - **🔄 Rifai** → rigenera da capo, di nuovo STOP 1
 
-**Il silenzio non è un sì.** Senza una risposta esplicita dell'utente non si pubblica.
+**Il silenzio non è un sì.** Timeout clarify ≠ sì. Senza click (o ok testuale
+equivalente via Other) non si pubblica.
 
 ### 4. Pubblica
 
 ```
 POST https://www.fantalaghee.live/api/gazzetta/publish
-Authorization: Bearer {GAZZETTA_PUBLISH_SECRET}
+Authorization: stesso Bearer del publish
 Content-Type: application/json
 
 {
@@ -187,7 +192,7 @@ Content-Type: application/json
 }
 ```
 
-`"conferma": true` va messo **solo dopo che l'utente ha detto sì al passo 3b**. Senza,
+`"conferma": true` va messo **solo dopo ✅ Pubblica al passo 3b**. Senza,
 il server risponde `409` e non pubblica: è la rete di sicurezza contro la pubblicazione
 non autorizzata. Non aggiungerlo mai di tua iniziativa per "sbloccare" la chiamata.
 
@@ -197,7 +202,7 @@ Non includere `box1`/`box2`/`box3`, `giornata` o `stagione`: il server li ricava
 Risposte:
 - **`201`** → pubblicato. Contiene `slug`, `commit`, `liveUrl`, `coverUrl`. Vai al passo 5.
 - **`409` con `richiedeConferma: true`** → hai saltato la conferma dell'utente. Torna al
-  passo 3b, mostra la bozza e aspetta la risposta.
+  passo 3b, mostra la bozza e aspetta il click sui bottoni.
 - **`400`** → `dettagli` elenca ogni campo da correggere. Correggi e ripeti la chiamata.
 - **`409`** → l'articolo esiste già o la giornata non è pronta. Riporta `error` all'utente
   e fermati (non ripetere con `force` senza che l'utente lo chieda esplicitamente).
@@ -206,40 +211,43 @@ Risposte:
 ### 5. Conferma dell'IMMAGINE (STOP OBBLIGATORIO)
 
 Attendi ~90 secondi (tempo di run della GitHub Action che genera la copertina), poi
-controlla che `coverUrl` risponda 200 (**max 4 tentativi, un minuto di distanza l'uno
-dall'altro**). Se dopo i tentativi non risponde ancora, avvisa l'utente che la Action
-potrebbe essere fallita (da controllare nella tab Actions di GitHub) e fermati.
+controlla che `coverUrl` risponda 200 con body PNG valido (**max 4–5 tentativi, ~60s
+di distanza**). Se dopo i tentativi non risponde ancora, avvisa l'utente che la Action
+potrebbe essere fallita (tab Actions di GitHub) e fermati.
 
-⛔ **Secondo stop vero.** Quando la copertina è pronta, **mandala su Telegram come
-immagine** e chiudi con:
+⛔ **Secondo stop vero.** Quando la copertina è pronta:
+
+1. **Mandala su Telegram come immagine** (`MEDIA:/path` o allegato nativo).
+2. Subito **`clarify`** con bottoni:
 
 ```
-Confermi l'IMMAGINE?
-✅ "ok immagine" → ti preparo il messaggio per WhatsApp
-🔄 "rigenera" → ne creo un'altra variante
+clarify(
+  question="Confermi l'IMMAGINE di copertina?",
+  choices=["✅ Ok immagine", "🔄 Rigenera"]
+)
 ```
 
-Poi **chiudi il turno e aspetta la risposta.** Non mandare il messaggio WhatsApp adesso.
+3. Interpreta:
+   - **✅ Ok immagine** → passo 6 (WhatsApp)
+   - **🔄 Rigenera** → chiama:
 
-- Se l'utente **approva** → vai al passo 6.
-- Se l'utente **vuole una variante** (o dice che l'immagine non va) → chiama:
+```
+POST https://www.fantalaghee.live/api/gazzetta/rigenera-copertina
+Authorization: stesso Bearer del publish
+Content-Type: application/json
 
-  ```
-  POST https://www.fantalaghee.live/api/gazzetta/rigenera-copertina
-  Authorization: Bearer {GAZZETTA_PUBLISH_SECRET}
-  Content-Type: application/json
+{ "giornata": 7 }
+```
 
-  { "giornata": 7 }
-  ```
+Il server fa ripartire la generazione con un **seed diverso** (non serve passare il seed:
+lo sceglie lui e te lo torna). Poi ri-attendi ~90 secondi, ricontrolla `coverUrl` e
+rimanda la nuova copertina + di nuovo i bottoni. Ripeti finché l'utente approva.
+- `403` → il token GitHub non può avviare le Action: riporta il messaggio (l'utente può
+  rigenerare a mano dalla tab Actions) e prosegui col passo 6 se l'immagine attuale basta.
 
-  Il server fa ripartire la generazione con un **seed diverso** (non serve passare il seed:
-  lo sceglie lui e te lo torna). Poi ri-attendi ~90 secondi, ricontrolla `coverUrl` e
-  rimanda la nuova copertina. Ripeti finché l'utente approva.
-  - `403` → il token GitHub non può avviare le Action: riporta il messaggio (l'utente può
-    rigenerare a mano dalla tab Actions) e prosegui col passo 6 se l'immagine attuale basta.
-
-**NON mandare il messaggio WhatsApp (passo 6) finché l'utente non ha approvato l'immagine.**
-L'articolo è già online, ma non va condiviso finché testo e immagine non sono ok.
+**NON mandare il messaggio WhatsApp (passo 6) finché l'utente non ha approvato l'immagine
+col bottone (o ok testuale equivalente).** L'articolo è già online, ma non va condiviso
+finché testo e immagine non sono ok.
 
 ### 6. Consegna (solo dopo l'OK su testo E immagine)
 
@@ -265,7 +273,7 @@ di cancellare un articolo già pubblicato — tipicamente un test, o un errore d
 
 ```
 DELETE https://www.fantalaghee.live/api/gazzetta/publish
-Authorization: Bearer {GAZZETTA_PUBLISH_SECRET}
+Authorization: stesso Bearer del publish
 Content-Type: application/json
 
 { "giornata": 7 }
