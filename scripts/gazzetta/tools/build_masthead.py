@@ -17,6 +17,7 @@ contrasto marcato, la stessa famiglia di grazie usata dalle testate sportive.
 """
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -54,6 +55,11 @@ WORDS = [
 WORD_SPACE = 165      # spazio fra parole, in unità/em ×1000
 UPEM_TARGET = 1000    # tutto normalizzato su una em da 1000
 CONDENSE = 0.94       # leggera compressione orizzontale: più "peso" da testata
+INK_SPREAD = 7        # allargamento d'inchiostro (unità/em ×1000)
+
+# Il tracciato viene ripassato con un filo di contorno tondo: è l'inchiostro che
+# si allarga sulla fibra della carta. Ingrossa appena le aste, arrotonda gli
+# angoli vivi e toglie quel taglio da vettoriale che tradisce il logo finto.
 
 
 def fetch(name: str, url: str) -> Path:
@@ -86,6 +92,28 @@ def shape(path: Path, text: str):
         (info.codepoint, pos.x_advance, pos.x_offset)
         for info, pos in zip(buf.glyph_infos, buf.glyph_positions)
     ], face.upem
+
+
+def aggiorna_css(width: int, height: int) -> None:
+    """Tiene allineato l'aspect-ratio di .testata-mark alle misure del marchio.
+
+    Sul sito la testata è una mask-image: se le proporzioni dichiarate nel CSS non
+    combaciano con quelle dell'SVG, il marchio resta più piccolo del suo riquadro
+    senza che nessuno se ne accorga. Meglio scriverlo qui che ricordarselo.
+    """
+    css = REPO / "app" / "globals.css"
+    if not css.exists():
+        return
+    testo = css.read_text(encoding="utf-8")
+    nuovo = re.sub(
+        r"(\.testata-mark \{[^}]*?aspect-ratio: )[\d.]+ / [\d.]+",
+        rf"\g<1>{width} / {height}",
+        testo,
+        flags=re.S,
+    )
+    if nuovo != testo:
+        css.write_text(nuovo, encoding="utf-8")
+        print(f"✓ app/globals.css  (.testata-mark aspect-ratio: {width} / {height})")
 
 
 def main() -> int:
@@ -125,7 +153,7 @@ def main() -> int:
 
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 {top} {width} {height}" width="{width}" height="{height}" role="img" aria-label="La Gazzetta del Laghèe">
   <title>La Gazzetta del Laghèe</title>
-  <g fill="currentColor">
+  <g fill="currentColor" stroke="currentColor" stroke-width="{INK_SPREAD}" stroke-linejoin="round" stroke-linecap="round">
 {chr(10).join('    ' + p for p in paths)}
   </g>
 </svg>
@@ -133,6 +161,7 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(svg, encoding="utf-8")
     print(f"✓ {OUT.relative_to(REPO)}  ({width}×{height}, {len(paths)} glifi)")
+    aggiorna_css(width, height)
     return 0
 
 
