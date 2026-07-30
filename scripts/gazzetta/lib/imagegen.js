@@ -47,8 +47,21 @@ const DEFAULT_TENTATIVI = 2;
 const SEED_STEP = 1000;
 const MIN_BYTES = 20000;
 
-const GEMINI_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image';
-const OPENROUTER_MODEL = process.env.OPENROUTER_IMAGE_MODEL || 'google/gemini-3.1-flash-image';
+// Modelli Gemini in ordine di preferenza: si prova il PRO (Nano Banana Pro, qualità
+// nettamente superiore) e si scende al flash solo se quel modello non è disponibile per
+// la chiave in uso. Sovrascrivibile con GEMINI_IMAGE_MODEL (uno solo) o
+// GEMINI_IMAGE_MODELS (lista separata da virgole).
+const GEMINI_MODELS = (process.env.GEMINI_IMAGE_MODEL || process.env.GEMINI_IMAGE_MODELS
+    || 'gemini-3-pro-image-preview,gemini-3.1-flash-image')
+    .split(',').map(s => s.trim()).filter(Boolean);
+const OPENROUTER_MODEL = process.env.OPENROUTER_IMAGE_MODEL || 'google/gemini-3-pro-image-preview';
+
+// Pollinations è l'ultima rete: gratis, ma modello debole e SENZA riferimenti di stile,
+// quindi produce copertine visibilmente più povere. Se le chiavi dei provider buoni sono
+// configurate ma falliscono (crediti esauriti, chiave non valida...) è un problema da
+// risolvere, non da mascherare: in quel caso NON si degrada in silenzio, si lancia errore.
+// IMAGE_ALLOW_FALLBACK=true riabilita il degrado silenzioso.
+const ALLOW_FALLBACK = process.env.IMAGE_ALLOW_FALLBACK === 'true';
 
 // Risoluzione dell'immagine. Il riquadro hero del template è 900x520 renderizzato a 2x
 // (~1800px reali): a "1K" (~1024px) l'immagine viene ingrandita e risulta morbida, quindi
@@ -134,13 +147,30 @@ async function generaConGoogle(prompt, seed, styleRefs) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('GEMINI_API_KEY non configurata');
 
+    // Prova i modelli in ordine: se il primo non esiste/non è abilitato per questa chiave
+    // (400/404) si passa al successivo. Su quota esaurita o chiave non valida non ha senso
+    // insistere con altri modelli: è un problema di account, si esce subito.
+    let ultimoErrore;
+    for (const model of GEMINI_MODELS) {
+        try {
+            return await chiamaGemini(model, apiKey, prompt, seed, styleRefs);
+        } catch (e) {
+            ultimoErrore = e;
+            if (e.fermaProvider) throw e;
+            console.warn(`  ↳ modello ${model} non utilizzabile (${e.message}); provo il successivo`);
+        }
+    }
+    throw ultimoErrore || new Error('Nessun modello Gemini utilizzabile');
+}
+
+async function chiamaGemini(model, apiKey, prompt, seed, styleRefs) {
     const parts = [{ text: STYLE_REF_INSTRUCTION }];
     for (const ref of styleRefs) {
         parts.push({ inline_data: { mime_type: ref.mime, data: ref.data } });
     }
     parts.push({ text: `${prompt} ${STYLE_SUFFIX}` });
 
-    const url = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`;
     const res = await fetch(url, {
         method: 'POST',
         headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
@@ -156,7 +186,22 @@ async function generaConGoogle(prompt, seed, styleRefs) {
 
     if (!res.ok) {
         const body = await res.text().catch(() => '');
-        throw new Error(`Gemini ha risposto ${res.status}: ${body.slice(0, 300)}`);
+        // 429 = quota/crediti esauriti, 401/403 = chiave non valida o senza permessi:
+        // sono problemi di account, non di modello. Messaggio esplicito su cosa fare.
+        if (res.status === 429) {
+            const err = new Error(
+                'crediti/quota Gemini esauriti - ricarica il credito su https://ai.studio/projects '
+                + '(la copertina uscirebbe dal provider gratuito, di qualità molto inferiore)'
+            );
+            err.fermaProvider = true;
+            throw err;
+        }
+        if (res.status === 401 || res.status === 403) {
+            const err = new Error(`GEMINI_API_KEY non valida o senza accesso (${res.status}) - ricontrolla il secret`);
+            err.fermaProvider = true;
+            throw err;
+        }
+        throw new Error(`Gemini (${model}) ha risposto ${res.status}: ${body.slice(0, 200)}`);
     }
 
     const json = await res.json();
@@ -198,7 +243,16 @@ async function generaConOpenRouter(prompt, seed, styleRefs) {
 
     if (!res.ok) {
         const errBody = await res.text().catch(() => '');
-        throw new Error(`OpenRouter ha risposto ${res.status}: ${errBody.slice(0, 300)}`);
+        if (res.status === 401) {
+            throw new Error(
+                'OPENROUTER_API_KEY non valida (401) - rigenera la chiave su openrouter.ai/keys '
+                + 'e aggiorna il secret GitHub'
+            );
+        }
+        if (res.status === 402 || res.status === 429) {
+            throw new Error(`credito/quota OpenRouter esaurito (${res.status}) - ricarica su openrouter.ai/credits`);
+        }
+        throw new Error(`OpenRouter ha risposto ${res.status}: ${errBody.slice(0, 200)}`);
     }
 
     const json = await res.json();
@@ -247,6 +301,13 @@ async function generateHero(prompt, outPath, opts = {}) {
     const seedBase = opts.seed ?? Math.floor(Math.random() * 1e6);
     const styleRefs = loadStyleRefs();
 
+    // Se una chiave di un provider "buono" è configurata, un suo fallimento non va
+    // mascherato scendendo su Pollinations: produrrebbe una copertina molto più povera
+    // e senza riferimenti di stile, e il vero problema (crediti, chiave) resterebbe nascosto.
+    const chiaviBuone = [];
+    if (process.env.GEMINI_API_KEY) chiaviBuone.push('GEMINI_API_KEY');
+    if (process.env.OPENROUTER_API_KEY) chiaviBuone.push('OPENROUTER_API_KEY');
+
     const errori = [];
     for (const nome of providers) {
         const fn = PROVIDERS[nome];
@@ -254,6 +315,17 @@ async function generateHero(prompt, outPath, opts = {}) {
             errori.push(`${nome}: provider sconosciuto`);
             continue;
         }
+
+        if (nome === 'pollinations' && chiaviBuone.length > 0 && !ALLOW_FALLBACK) {
+            const msg = `provider di qualità configurati (${chiaviBuone.join(', ')}) ma tutti falliti: `
+                + 'non scendo su pollinations perché la copertina sarebbe molto più povera. '
+                + 'Risolvi il problema qui sopra, oppure imposta IMAGE_ALLOW_FALLBACK=true '
+                + 'per accettare comunque l\'immagine gratuita.';
+            console.error(`✗ ${msg}`);
+            errori.push(msg);
+            continue;
+        }
+
         for (let i = 0; i < tentativi; i++) {
             const seed = seedBase + i * SEED_STEP;
             try {
@@ -264,10 +336,15 @@ async function generateHero(prompt, outPath, opts = {}) {
                 fs.mkdirSync(path.dirname(outPath), { recursive: true });
                 fs.writeFileSync(outPath, buf);
                 console.log(`✓ hero generato con ${nome} (tentativo ${i + 1}/${tentativi}, seed ${seed})`);
+                if (nome === 'pollinations') {
+                    console.warn('⚠ ATTENZIONE: copertina prodotta dal provider gratuito di riserva, '
+                        + 'senza riferimenti di stile: qualità inferiore al solito.');
+                }
                 return outPath;
             } catch (e) {
                 console.warn(`⚠ ${nome} tentativo ${i + 1}/${tentativi} fallito: ${e.message}`);
                 errori.push(`${nome} (tentativo ${i + 1}): ${e.message}`);
+                if (e.fermaProvider) break; // problema di account: inutile ritentare
             }
         }
     }
