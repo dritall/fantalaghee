@@ -56,7 +56,7 @@ async function buildOne(mdPath, { force = false } = {}) {
 
     // Risoluzione dell'HERO:
     // 1) se Hermes ha già fornito/committato un file hero -> lo usiamo;
-    // 2) altrimenti, se c'è image_prompt -> lo generiamo qui (Pollinations, gratis) e lo salviamo;
+    // 2) altrimenti, se c'è image_prompt -> lo generiamo qui e lo salviamo;
     // 3) altrimenti -> nessun hero (placeholder).
     let heroSrc = c.hero_image || c.img_principale || null;
     const heroFile = heroSrc && heroSrc.startsWith('/') ? imageAbsPath(heroSrc) : null;
@@ -64,11 +64,18 @@ async function buildOne(mdPath, { force = false } = {}) {
 
     if (heroMancante && c.image_prompt) {
         const slug = path.basename(mdPath, '.md');
-        const genPath = heroFile || imageAbsPath(`/image/gazzetta/${slug}-hero.png`);
+        // heroUrl è la forma PUBBLICO-relativa (es. /image/gazzetta/gazzetta-g7-hero.png):
+        // è quella che renderCover/toImgSrc risolvono correttamente. genPath (assoluto)
+        // serve SOLO per scrivere il file su disco. Attenzione: NON passare genPath come
+        // img_principale, perché toImgSrc interpreta ogni stringa che inizia con "/" come
+        // relativa a /public e con un path assoluto non troverebbe il file, rendendo il
+        // placeholder al posto dell'illustrazione.
+        const heroUrl = heroSrc && heroSrc.startsWith('/') ? heroSrc : `/image/gazzetta/${slug}-hero.png`;
+        const genPath = imageAbsPath(heroUrl);
         const seedEnv = process.env.IMAGE_SEED;
         const seed = seedEnv !== undefined && seedEnv !== '' ? Number(seedEnv) : (Number(c.giornata) || undefined);
         await generateHero(c.image_prompt, genPath, { seed });
-        heroSrc = genPath;
+        heroSrc = heroUrl;
         console.log(`  ↳ hero generato: ${path.basename(genPath)}`);
     }
 
