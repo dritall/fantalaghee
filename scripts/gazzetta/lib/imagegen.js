@@ -47,22 +47,34 @@ const MIN_BYTES = 20000;
 const GEMINI_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image';
 const OPENROUTER_MODEL = process.env.OPENROUTER_IMAGE_MODEL || 'google/gemini-3.1-flash-image';
 
+// Risoluzione dell'immagine. Il riquadro hero del template è 900x520 renderizzato a 2x
+// (~1800px reali): a "1K" (~1024px) l'immagine viene ingrandita e risulta morbida, quindi
+// il default è "2K" per una copertina nitida. Override con GEMINI_IMAGE_SIZE / OPENROUTER_RESOLUTION
+// (rimetti "1K" se un modello non accetta "2K").
+const GEMINI_IMAGE_SIZE = process.env.GEMINI_IMAGE_SIZE || '2K';
+const OPENROUTER_RESOLUTION = process.env.OPENROUTER_RESOLUTION || '2K';
+
 // Suffisso di stile per mantenere coerenza grafica con le vecchie copertine.
 // Descrive la testata (non la scena, che la scrive Hermes nel prompt).
+// Spinge su fumetto/cartoon a tratto netto e colori piatti, per assomigliare alle
+// copertine storiche disegnate a mano invece che a un'illustrazione pittorica/realistica.
 const STYLE_SUFFIX =
-    'Editorial satirical illustration for the front page of a fantasy-football newspaper. ' +
-    'Hand-drawn colored ink linework, vintage sports-newspaper flavor. ' +
+    'Editorial satirical cartoon illustration for the front page of a fantasy-football newspaper. ' +
+    'Bold hand-inked comic linework with clean confident outlines, flat limited color fills, ' +
+    'vintage comic-poster / graphic-novel look - NOT painterly, NOT photorealistic, NO 3D render. ' +
     'Warm color palette that reads well on pale pink newsprint. ' +
     'Setting: Lake Como (Lario) - steep mountains, rowing boats, lakeside villages. ' +
-    'Epic and goliardic tone, never mean-spirited. Single focal subject. ' +
+    'Epic and goliardic caricature tone, never mean-spirited. Single clear focal subject, ' +
+    'strong readable silhouette, uncluttered background. ' +
     'Loose free edges suitable for cropping. ' +
     'NO text, letters, numbers, watermark, signature or logo of any kind.';
 
 // Istruzione testuale che accompagna i riferimenti di stile (solo google/openrouter)
 const STYLE_REF_INSTRUCTION =
     'The attached images are past covers of "La Gazzetta del Laghèe", a satirical fantasy-football ' +
-    'newspaper. Study their hand-drawn ink style, color palette, line weight and humorous register, ' +
-    'and carry that same visual language into the new illustration. Do NOT reuse their subject or ' +
+    'newspaper. Match their hand-drawn comic-cartoon style closely: the same bold ink outlines, ' +
+    'flat color fills, limited warm palette, line weight and humorous caricature register. ' +
+    'Keep it a drawn cartoon, not a painting or a photo. Do NOT reuse their subject or ' +
     'composition: those come only from the scene prompt below.';
 
 const MIME_BY_EXT = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' };
@@ -120,7 +132,7 @@ async function generaConGoogle(prompt, seed, styleRefs) {
             contents: [{ role: 'user', parts }],
             generationConfig: {
                 responseModalities: ['TEXT', 'IMAGE'],
-                imageConfig: { aspectRatio: '16:9', imageSize: '1K' },
+                imageConfig: { aspectRatio: '16:9', imageSize: GEMINI_IMAGE_SIZE },
                 seed,
             },
         }),
@@ -151,7 +163,7 @@ async function generaConOpenRouter(prompt, seed, styleRefs) {
         model: OPENROUTER_MODEL,
         prompt: `${prompt} ${STYLE_SUFFIX}`,
         aspect_ratio: '16:9',
-        resolution: '1K',
+        resolution: OPENROUTER_RESOLUTION,
         output_format: 'png',
         seed,
     };
