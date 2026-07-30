@@ -92,6 +92,10 @@ function valida(payload: any): string[] {
         errori.push('conferma: se presente deve essere booleano');
     }
 
+    if (payload?.preview !== undefined && typeof payload.preview !== 'boolean') {
+        errori.push('preview: se presente deve essere booleano');
+    }
+
     return errori;
 }
 
@@ -211,6 +215,24 @@ async function trovaUltimaGiornataPubblicata(owner: string, repo: string, token:
         }
     }
     return max;
+}
+
+
+/** Legge il frontmatter di un .md su GitHub e dice se è bozza (draft: true). */
+async function isDraftSuGitHub(owner: string, repo: string, repoPath: string, token: string): Promise<boolean> {
+    const res = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/${repoPath}?ref=main`, {
+        headers: ghHeaders(token),
+        cache: 'no-store',
+    });
+    if (res.status === 404) return false;
+    if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        throw new Error(`GitHub ha risposto ${res.status} nel leggere ${repoPath}: ${body.slice(0, 200)}`);
+    }
+    const json = await res.json();
+    const raw = Buffer.from(String(json?.content || ''), 'base64').toString('utf8');
+    const { data } = matter(raw);
+    return data?.draft === true;
 }
 
 /**
@@ -351,15 +373,14 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // Presidio contro la pubblicazione senza l'OK dell'utente: senza `conferma: true`
-    // non si pubblica. Il server non può verificare davvero che un umano abbia detto sì
-    // (la garanzia vera sta nel playbook), ma così un agente che salta il passaggio
-    // riceve un errore esplicito invece di mandare online l'articolo.
+    // Presidio: senza `conferma: true` non si scrive nulla su GitHub (né bozza né live).
+    // preview:true = bozza offline (draft nel frontmatter, non in elenco sito) per generare la copertina.
+    // preview assente/false = go-live vero, solo dopo OK testo + OK immagine.
     if (payload.conferma !== true) {
         return NextResponse.json(
             {
                 ok: false,
-                error: 'Pubblicazione non confermata. Mostra prima la bozza all\'utente e chiedi il suo OK esplicito; '
+                error: 'Operazione non confermata. Mostra prima la bozza all\'utente e chiedi il suo OK esplicito; '
                     + 'solo dopo che l\'utente ha risposto di sì, ripeti questa chiamata aggiungendo "conferma": true. '
                     + 'Non aggiungere "conferma": true di tua iniziativa.',
                 richiedeConferma: true,
@@ -367,6 +388,8 @@ export async function POST(request: NextRequest) {
             { status: 409 }
         );
     }
+
+    const preview = payload.preview === true;
 
     const ghToken = process.env.GAZZETTA_GH_TOKEN;
     if (!ghToken) {
@@ -414,11 +437,27 @@ export async function POST(request: NextRequest) {
             { status: 502 }
         );
     }
-    if (shaEsistente && !force) {
-        return NextResponse.json(
-            { ok: false, error: `L'articolo della giornata ${giornata} (${slug}) esiste già. Passa force:true per sovrascriverlo.` },
-            { status: 409 }
-        );
+    // Idempotenza:
+    // - file live esistente → serve force
+    // - file draft esistente → si può sovrascrivere senza force (promuovere a live o aggiornare bozza)
+    // - go-live su draft esistente → ok senza force
+    let esistenteEDraft = false;
+    if (shaEsistente) {
+        try {
+            esistenteEDraft = await isDraftSuGitHub(owner, repo, repoPath, ghToken);
+        } catch (e: any) {
+            return NextResponse.json(
+                { ok: false, error: `Impossibile leggere se l'articolo esistente è bozza: ${e.message}` },
+                { status: 502 }
+            );
+        }
+        const puoSovrascrivereSenzaForce = esistenteEDraft; // bozza sempre updatable/promuovibile
+        if (!force && !puoSovrascrivereSenzaForce) {
+            return NextResponse.json(
+                { ok: false, error: `L'articolo della giornata ${giornata} (${slug}) esiste già online. Passa force:true per sovrascriverlo.` },
+                { status: 409 }
+            );
+        }
     }
 
     // 4. Dati reali per i tre box (mai dal payload)
@@ -442,7 +481,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Composizione del file (frontmatter via gray-matter, mai YAML a mano)
     const isoDate = new Date().toISOString().slice(0, 10);
-    const frontmatter = {
+    const frontmatter: Record<string, unknown> = {
         title: payload.title,
         date: isoDate,
         description: payload.description,
@@ -459,12 +498,20 @@ export async function POST(request: NextRequest) {
             box3,
         },
     };
-    const fileContent = matter.stringify(`${payload.body_md.trim()}\n`, frontmatter);
+    // Bozza: presente sul repo (così la GitHub Action genera la copertina) ma nascosta al sito.
+    if (preview) {
+        frontmatter.draft = true;
+    }
+    const fileContent = matter.stringify(`${payload.body_md.trim()}
+`, frontmatter);
 
     // 6. Commit su GitHub
+    const commitMsg = preview
+        ? `Gazzetta: bozza giornata ${giornata} (preview copertina)`
+        : `Gazzetta: giornata ${giornata}`;
     let commitSha: string;
     try {
-        commitSha = await committaFile(owner, repo, repoPath, fileContent, `Gazzetta: giornata ${giornata}`, ghToken, shaEsistente);
+        commitSha = await committaFile(owner, repo, repoPath, fileContent, commitMsg, ghToken, shaEsistente);
     } catch (e: any) {
         return NextResponse.json(
             { ok: false, error: `Commit su GitHub fallito: ${e.message}. Riprova; se persiste controlla GAZZETTA_GH_TOKEN.` },
@@ -479,8 +526,13 @@ export async function POST(request: NextRequest) {
             slug,
             giornata,
             commit: commitSha,
+            preview,
+            pubblicato: !preview,
             liveUrl: `https://www.fantalaghee.live/gazzetta/${slug}`,
             coverUrl: `https://www.fantalaghee.live/image/gazzetta/${slug}.png`,
+            nota: preview
+                ? 'Bozza salvata come draft: non compare in elenco né è leggibile sul sito. Attendi la copertina, poi pubblica senza preview dopo OK immagine.'
+                : 'Articolo pubblicato online.',
         },
         { status: 201 }
     );

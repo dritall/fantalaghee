@@ -14,6 +14,9 @@ export async function GET() {
             const fileContent = fs.readFileSync(filePath, 'utf8');
             const { data } = matter(fileContent);
 
+            // Bozze Hermes (preview copertina): non in elenco pubblico
+            if (data.draft === true) return null;
+
             const date = data.date || "Senza Data";
             const stagione = data.stagione || (
                 new Date(date) >= new Date(NEW_SEASON_ARTICLES_FROM) ? CURRENT_SEASON : ARCHIVED_SEASON
@@ -29,7 +32,7 @@ export async function GET() {
                 stagione,
                 placeholder: false
             };
-        });
+        }).filter(Boolean);
 
         // Strict chronological sort by date descending (newest first)
         articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import matter from 'gray-matter';
 import { getSeason } from '@/lib/seasons';
 
 export const runtime = 'nodejs';
@@ -53,7 +54,7 @@ async function leggiGiornataFoglio(origin: string, stagione: string): Promise<nu
     }
 }
 
-/** Giornata più alta già pubblicata, dai nomi file public/articoli/md/gazzetta-g{N}.md. */
+/** Giornata più alta già pubblicata ONLINE (esclude bozze draft:true). */
 function leggiGiornataPubblicata(): number {
     try {
         const mdDir = path.join(process.cwd(), 'public', 'articoli', 'md');
@@ -61,7 +62,16 @@ function leggiGiornataPubblicata(): number {
         let max = 0;
         for (const f of files) {
             const m = f.match(/^gazzetta-g(\d+)\.md$/);
-            if (m) max = Math.max(max, parseInt(m[1], 10));
+            if (!m) continue;
+            try {
+                const raw = fs.readFileSync(path.join(mdDir, f), 'utf8');
+                const { data } = matter(raw);
+                if (data?.draft === true) continue; // preview: non conta come pubblicata
+            } catch {
+                // se non leggiamo il frontmatter, per prudenza non contiamo il file
+                continue;
+            }
+            max = Math.max(max, parseInt(m[1], 10));
         }
         return max;
     } catch (e) {

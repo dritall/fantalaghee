@@ -5,13 +5,16 @@ articolo della Gazzetta, dall'inizio alla fine. Hermes deve rileggerlo a ogni es
 
 Ruoli:
 - **Hermes**: legge lo stato, scrive l'articolo, scrive il prompt dell'illustrazione
-  in inglese (`image_prompt`), manda la bozza su Telegram, poi pubblica con una singola
-  chiamata HTTP. Hermes **non tocca GitHub, non genera immagini, non compila numeri**.
+  in inglese (`image_prompt`), manda la bozza su Telegram, fa generare la copertina in
+  **preview** (senza andare online), e solo dopo OK testo+immagine pubblica sul sito.
+  Hermes **non tocca GitHub, non genera immagini, non compila numeri**.
 - **`/api/gazzetta/stato`**: dice se una giornata è pronta da raccontare (calcolato dai
-  dati reali, non da un'attesa a occhio).
+  dati reali, non da un'attesa a occhio). Le bozze `draft:true` **non** contano come
+  pubblicate.
 - **`/api/gazzetta/publish`**: riceve la bozza, legge i dati reali di giornata, compila i
-  tre box, scrive il file `.md` e lo committa su `main` — un'unica chiamata sostituisce
-  YAML a mano e commit git.
+  tre box, scrive il file `.md` e lo committa su `main`. Con `preview:true` salva una
+  **bozza nascosta** (`draft: true`) solo per far partire la copertina; senza `preview`
+  (dopo OK immagine) fa il **go-live** vero.
 - **GitHub Action** (`.github/workflows/gazzetta-cover.yml`): genera l'illustrazione hero
   dall'`image_prompt` (catena di provider con riferimento alle copertine storiche) e
   compone la copertina finale con Puppeteer (template rosa + hero + 3 box dati).
@@ -27,12 +30,16 @@ Ruoli:
 
 ---
 
-## ⛔ Regola dei due STOP (la più importante di tutte)
+## ⛔ Flusso a due STOP (niente online prima dell'OK immagine)
 
-La procedura ha **due punti in cui devi fermarti e aspettare un click esplicito**:
+Ordine fisso:
 
-1. **Passo 3b** — conferma del **testo**, prima di pubblicare.
-2. **Passo 5** — conferma dell'**immagine**, prima di consegnare il messaggio WhatsApp.
+1. **STOP 1 — testo** (passo 3b): l'utente legge la bozza e dà il primo OK.
+2. **Preview copertina** (passo 4): Hermes salva una **bozza `draft`** (`preview:true`)
+   che **non compare sul sito** e fa generare la copertina ufficiale.
+3. **STOP 2 — immagine** (passo 5): Hermes manda la copertina e aspetta OK / Rigenera.
+4. **Go-live** (passo 6): **solo dopo ✅ Ok immagine** Hermes richiama publish **senza**
+   `preview` (articolo + copertina online) e prepara il messaggio WhatsApp.
 
 **UI obbligatoria: bottoni Telegram cliccabili** via tool `clarify` (inline keyboard
 del gateway Hermes). Non chiedere di scrivere a mano `"ok testo"` / `"ok immagine"`.
@@ -40,9 +47,8 @@ Non chiamare la Bot API a mano con `callback_data` custom: il gateway Hermes ign
 callback sconosciuti. `clarify` manda i bottoni, blocca finché l'utente clicca, toglie
 la tastiera e restituisce la scelta. Timeout clarify ≠ sì (rimanda i bottoni).
 
-In entrambi gli stop: **non pubblicare / non mandare WhatsApp** finché non arriva il
-click. Una volta pubblicato è online. **Il silenzio non è un sì**, e nemmeno un
-"bello!" generico è una conferma se non è riferito a quella domanda.
+**Il silenzio non è un sì.** Nemmeno un "bello!" generico è conferma se non è riferito
+a quella domanda. **Niente go-live e niente WhatsApp** finché non ci sono entrambi gli OK.
 
 Se l'utente ti chiede di fare tutto in autonomia, spiega che le due conferme sono
 volute e chiedi comunque.
@@ -160,9 +166,9 @@ impaginazioni dentro l'immagine, altrimenti esce un giornale dentro il giornale.
 Niente testo leggibile nell'immagine: le scritte le mette il template, e i modelli le
 disegnano storte. Se serve evocare una scritta, usa un cartello **vuoto** o un simbolo.
 
-### 3b. Conferma del TESTO (STOP OBBLIGATORIO)
+### 3b. Conferma del TESTO (STOP 1 — OBBLIGATORIO)
 
-⛔ **Stop vero: niente publish finché non arriva il click.**
+⛔ **Stop vero: niente preview e niente go-live finché non arriva il click sul testo.**
 
 1. Manda su Telegram la bozza completa (`title`, `description`, `body_md`, `image_prompt`).
 2. Subito dopo chiama il tool **`clarify`** con bottoni:
@@ -170,19 +176,23 @@ disegnano storte. Se serve evocare una scritta, usa un cartello **vuoto** o un s
 ```
 clarify(
   question="Confermi il TESTO della Gazzetta?",
-  choices=["✅ Pubblica", "✏️ Modifica", "🔄 Rifai"]
+  choices=["✅ Ok testo", "✏️ Modifica", "🔄 Rifai"]
 )
 ```
 
 3. Interpreta la scelta:
-   - **✅ Pubblica** (o ok/vai/👍 esplicito) → passo 4 con `"conferma": true`
+   - **✅ Ok testo** (o ok/vai/👍 esplicito) → passo 4 (**preview**, non go-live)
    - **✏️ Modifica** → chiedi cosa cambiare, riscrivi, di nuovo STOP 1
    - **🔄 Rifai** → rigenera da capo, di nuovo STOP 1
 
-**Il silenzio non è un sì.** Timeout clarify ≠ sì. Senza click (o ok testuale
-equivalente via Other) non si pubblica.
+**Il silenzio non è un sì.** Timeout clarify ≠ sì.
 
-### 4. Pubblica
+### 4. Preview copertina (SENZA andare online)
+
+Dopo ✅ Ok testo chiama publish con **`preview: true`** e **`conferma: true`**.
+Il server scrive l'articolo come **bozza** (`draft: true` nel frontmatter): la GitHub
+Action genera la copertina, ma l'articolo **non compare** in elenco Gazzetta e l'URL
+diretto risponde 404 finché non fai il go-live.
 
 ```
 POST https://www.fantalaghee.live/api/gazzetta/publish
@@ -198,34 +208,36 @@ Content-Type: application/json
     "sottotitolo": "Sommario della giornata, max 180 caratteri",
     "image_prompt": "Detailed English prompt for the satirical hero illustration"
   },
+  "preview": true,
   "conferma": true
 }
 ```
 
-`"conferma": true` va messo **solo dopo ✅ Pubblica al passo 3b**. Senza,
-il server risponde `409` e non pubblica: è la rete di sicurezza contro la pubblicazione
-non autorizzata. Non aggiungerlo mai di tua iniziativa per "sbloccare" la chiamata.
+`"conferma": true` va messo **solo dopo ✅ Ok testo al passo 3b**. Senza, il server
+risponde `409`. Non aggiungerlo mai di tua iniziativa.
 
 Non includere `box1`/`box2`/`box3`, `giornata` o `stagione`: il server li ricava da solo
 (li puoi passare solo se stai deliberatamente forzando una giornata specifica, caso raro).
+In force esplicito: aggiungi anche `giornata`, `stagione`, `force: true` insieme a
+`preview: true`.
 
 Risposte:
-- **`201`** → pubblicato. Contiene `slug`, `commit`, `liveUrl`, `coverUrl`. Vai al passo 5.
-- **`409` con `richiedeConferma: true`** → hai saltato la conferma dell'utente. Torna al
-  passo 3b, mostra la bozza e aspetta il click sui bottoni.
-- **`400`** → `dettagli` elenca ogni campo da correggere. Correggi e ripeti la chiamata.
-- **`409`** → l'articolo esiste già o la giornata non è pronta. Riporta `error` all'utente
-  e fermati (non ripetere con `force` senza che l'utente lo chieda esplicitamente).
-- **`401`/`500`** → problema di configurazione lato server. Riporta l'errore e fermati.
+- **`201` con `preview: true`** → bozza salvata. Contiene `slug`, `commit`, `coverUrl`.
+  **Non** è online (`pubblicato: false`). Vai al passo 5.
+- **`409` con `richiedeConferma: true`** → hai saltato STOP 1. Torna al 3b.
+- **`400`** → `dettagli` elenca ogni campo da correggere. Correggi e ripeti.
+- **`409`** → articolo **live** già esistente (non bozza). Riporta e fermati, o `force`
+  solo se l'utente lo chiede esplicitamente. Una bozza draft esistente si può aggiornare
+  senza force.
+- **`401`/`500`** → config lato server. Riporta e fermati.
 
-### 5. Conferma dell'IMMAGINE (STOP OBBLIGATORIO)
+### 5. Conferma dell'IMMAGINE (STOP 2 — OBBLIGATORIO)
 
-Attendi ~90 secondi (tempo di run della GitHub Action che genera la copertina), poi
-controlla che `coverUrl` risponda 200 con body PNG valido (**max 4–5 tentativi, ~60s
-di distanza**). Se dopo i tentativi non risponde ancora, avvisa l'utente che la Action
-potrebbe essere fallita (tab Actions di GitHub) e fermati.
+Attendi ~90–150 secondi (GitHub Action), poi controlla che `coverUrl` risponda 200 con
+body PNG valido (**max 4–5 tentativi, ~60s di distanza**). Se non arriva, avvisa che la
+Action potrebbe essere fallita e fermati.
 
-⛔ **Secondo stop vero.** Quando la copertina è pronta:
+⛔ **Secondo stop vero — ancora niente go-live.** Quando la copertina è pronta:
 
 1. **Mandala su Telegram come immagine** (`MEDIA:/path` o allegato nativo).
 2. Subito **`clarify`** con bottoni:
@@ -238,7 +250,7 @@ clarify(
 ```
 
 3. Interpreta:
-   - **✅ Ok immagine** → passo 6 (WhatsApp)
+   - **✅ Ok immagine** → passo 6 (go-live + WhatsApp)
    - **🔄 Rigenera** → chiama:
 
 ```
@@ -249,19 +261,37 @@ Content-Type: application/json
 { "giornata": 7 }
 ```
 
-Il server fa ripartire la generazione con un **seed diverso** (non serve passare il seed:
-lo sceglie lui e te lo torna). Poi ri-attendi ~90 secondi, ricontrolla `coverUrl` e
-rimanda la nuova copertina + di nuovo i bottoni. Ripeti finché l'utente approva.
-- `403` → il token GitHub non può avviare le Action: riporta il messaggio (l'utente può
-  rigenerare a mano dalla tab Actions) e prosegui col passo 6 se l'immagine attuale basta.
+Poi ri-attendi la PNG, rimanda copertina + di nuovo i bottoni.
+- `403` → token GitHub non avvia Action: riporta; se l'immagine attuale basta e l'utente
+  la approva, prosegui al passo 6.
 
-**NON mandare il messaggio WhatsApp (passo 6) finché l'utente non ha approvato l'immagine
-col bottone (o ok testuale equivalente).** L'articolo è già online, ma non va condiviso
-finché testo e immagine non sono ok.
+Se l'utente chiede di **cancellare / lasciare perdere** a questo punto: `DELETE` a due
+passi (come sotto) sulla bozza — niente go-live, niente WhatsApp.
 
-### 6. Consegna (solo dopo l'OK su testo E immagine)
+### 6. Go-live + consegna WhatsApp (solo dopo ✅ Ok immagine)
 
-Manda all'utente il messaggio pronto da incollare su WhatsApp:
+**Solo ora** pubblica online **senza** `preview` (stesso payload testo/cover, con
+`conferma: true`). Se esiste già la bozza draft, il server la promuove a live senza
+richiedere `force`. La copertina già generata resta (la Action non la rigenera se il PNG
+c'è già).
+
+```
+POST https://www.fantalaghee.live/api/gazzetta/publish
+Authorization: stesso Bearer del publish
+Content-Type: application/json
+
+{
+  "title": "...",
+  "description": "...",
+  "body_md": "...",
+  "cover": { "titolo_principale": "...", "sottotitolo": "...", "image_prompt": "..." },
+  "conferma": true
+}
+```
+
+Risposta attesa: `201` con `pubblicato: true`, `liveUrl`, `coverUrl`.
+
+Poi manda all'utente il messaggio pronto da incollare su WhatsApp:
 
 ```
 📰 *La Gazzetta del Laghèe* — Giornata {N}

@@ -22,6 +22,11 @@ export async function GET(
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const { data, content } = matter(fileContent);
 
+        // Bozza non leggibile via URL diretto finché non è pubblicata
+        if (data.draft === true) {
+            return NextResponse.json({ error: 'Scritto non trovato' }, { status: 404 });
+        }
+
         return NextResponse.json({
             metadata: {
                 title: data.title || id,
