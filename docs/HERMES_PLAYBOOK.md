@@ -110,61 +110,52 @@ riferimento di stile, leggi SEMPRE 1–2 articoli reali "maturi" dal repo, es.:
 `public/articoli/md/SorpassoSC.md`, `public/articoli/md/gazzetta-finali-coppe.md`.
 
 Produci internamente: `title`, `description`, `body_md`, `cover.titolo_principale`,
-`cover.sottotitolo` e `cover.image_prompt` (in inglese, descrive solo la scena: lo stile
-della testata lo aggiunge automaticamente il generatore di immagini).
+`cover.sottotitolo` e `cover.image_prompt` (**in italiano**, descrive solo la scena:
+lo stile della testata lo aggiunge automaticamente il generatore di immagini).
 
-#### Come si scrive l'`image_prompt` — la regola del gioco di parole
+#### Come si scrive l'`image_prompt` — gioco di parole sul nome (obbligatorio)
 
-**Il cuore della copertina sono i nomi delle squadre trasformati in personaggi visivi.**
-Prendi i nomi VERI da `/api/verdetto` (campione di giornata, podio, cucchiaio di legno) e
-per ognuno inventa un **soggetto disegnabile che gioca sul nome**. Mai nomi inventati, mai
-un manager generico senza identità.
+**Il cuore della copertina sono i nomi delle squadre trasformati in personaggi/oggetti.**
+Mai calciatori generici in maglia colorata “a caso”. Mai manager senza identità.
+Ogni soggetto = **una gag leggibile dal nome** (personaggio illustre, oggetto, animale,
+verbo reso fisico, satira goliardica).
 
-Glossario visivo delle squadre ricorrenti (usa questo, ed estendilo con lo stesso criterio
-per le squadre che non sono in elenco):
+Glossario base (cresce quando arrivano tutti i ~50 nomi di stagione):
 
 | Squadra | Soggetto da disegnare |
 |---|---|
-| Cuccioloni | un cucciolo di golden retriever con bandana, disegnato bene |
-| Raga di Oporto | ragazzi festanti col vino Porto / caravelle e case colorate di Porto |
-| Stoke Azzo | un razzo che decolla, o una melanzana 🍆 gigante (allusione, mai volgarità esplicita) |
-| Brianza Boys | un gruppetto di ragazzi in tuta con lo striscione "Brianza" |
-| Stratosvarius | un tizio che fa una papera clamorosa, con stelline di svarione intorno |
-| Caniggia Vola | un giocatore coi capelloni anni '90 che vola a mezz'aria |
-| Fantagiulia | una figura femminile alata sopra la scena |
-| AS Tronzi | un tronco / ceppo di legno con la faccia |
-| Cippalippa1418 | un gesto di scherno alla vecchia maniera |
-| Fantamagica | un mago con cilindro e bacchetta |
+| Cuccioloni | uno o più cuccioli labrador/golden con bandana |
+| Raga di Oporto | ragazzi festanti col vino Porto / case colorate di Porto (ok 2–3 figure) |
+| Stoke Azzo | melanzana 🍆 antropomorfa e/o razzo fallico-goliardico con alloro; **mai** maglia rosso-nera tipo Stoke City; allusione, niente volgarità esplicita |
+| Brianza Boys | gruppetto in tuta con striscione vuoto “Brianza” (o solo striscione simbolo) |
+| Stratosvarius | tizio che fa una papera clamorosa, stelline di svarione |
+| Caniggia Vola | Caniggia anni ’90 (capelloni) **con ali**, in volo |
+| Fantagiulia | figura femminile alata/fatata che richiami “Giulia” |
+| AS Tronzi | tronco/ceppo con faccia + mestolo (cucchiaio di legno) |
+| Cippalippa1418 | gesto di scherno alla vecchia maniera / figuretta beffarda |
+| Fantamagica | mago con cilindro e bacchetta |
+| Sove1907 | sovrano/calciatore vintage kit 1907 + corona/fascia da re del giorno |
 
-Criterio per una squadra nuova: leggi il nome, trova la parola concreta dentro il nome
-(animale, città, oggetto, verbo) e disegna quella. Se il nome non suggerisce niente, dai
-alla squadra una maglia con un colore distintivo e un tratto caratteriale.
+Squadra nuova: parola concreta nel nome (animale, città, oggetto, verbo, personaggio) →
+disegna quella. Solo se il nome non suggerisce nulla: tratto caratteriale forte, **non**
+una maglia generica come unica idea.
 
-**Il ruolo lo decide la giornata**: il campione sta al centro in trionfo, il cucchiaio di
-legno è mesto in un angolo col mestolo, gli altri del podio reagiscono intorno.
+**Ruoli (giornata normale — max 3–4 soggetti):**
+- **centro:** campione di **giornata**
+- **intorno:** 1–2 del podio di giornata
+- **angolo (se serve):** cucchiaio di legno di giornata/stagione solo se è parte della storia
 
-**Massimo 3-4 soggetti, e ognuno deve avere un motivo per essere lì.** Ogni personaggio
-corrisponde a una squadra che ha fatto qualcosa in QUELLA giornata:
+**Ruoli (finale di stagione / giornate speciali — si allarga se l’articolo lo chiede):**
+es. G38: **podio classifica generale** (1°–2°–3°) al centro; **a lato** il campione di
+giornata; eventuali extra solo se l’articolo li celebra (record stagione, coppe…).
+Vittoria di coppa o pezzo speciale → l’immagine segue i protagonisti dell’articolo.
 
-- il **campione di giornata** al centro, in trionfo;
-- il **cucchiaio di legno** mesto in un angolo col mestolo;
-- **una o due squadre del podio** che reagiscono.
+**Vietato:** folla decorativa, gag del glossario per squadre che non c’entrano, testo
+leggibile, testata/cornici/titoli “giornale nel giornale”, maglie inventate al posto
+della gag sul nome.
 
-Niente comparse decorative, niente folla, niente gag prese dal glossario se quella squadra
-non c'entra con la giornata. Una scena pulita con 3-4 soggetti che significano qualcosa vale
-molto più di una affollata di roba a caso: è l'errore da evitare.
-
-**Descrivi ogni soggetto in modo concreto e disegnabile** (cosa è, cosa fa, com'è vestito):
-serve a farlo uscire nitido e riconoscibile, non una macchia informe. Lo stile grafico
-(fumetto moderno, colori vivaci, tratto pulito) lo aggiunge in automatico il generatore:
-tu descrivi solo **chi c'è e cosa fa**.
-
-**Descrivi solo l'illustrazione, mai la pagina.** L'immagine finisce dentro un template che
-ha già testata, titolo e box dati: non chiedere mai testate, titoli, cornici, riquadri o
-impaginazioni dentro l'immagine, altrimenti esce un giornale dentro il giornale.
-
-Niente testo leggibile nell'immagine: le scritte le mette il template, e i modelli le
-disegnano storte. Se serve evocare una scritta, usa un cartello **vuoto** o un simbolo.
+**Descrivi ogni soggetto in modo concreto** (cosa è, cosa fa, com’è vestito/fatto).
+Lo stile (fumetto moderno, colori vivaci, tratto pulito) lo mette il generatore.
 
 ### 3b. Conferma del TESTO (STOP 1 — OBBLIGATORIO)
 
