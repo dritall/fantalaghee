@@ -90,8 +90,13 @@ podio, cucchiaio di legno…), mai nomi inventati: così la caricatura ritrae le
 giuste della giornata (es. il campione sul trono è la squadra reale, il cucchiaio di legno
 ha il mestolo, ecc.). Puoi attingere ai **motivi ricorrenti** della testata: il cucciolo
 "Cuccioloni", il razzo "Stoke Azzo", il lupo, la pioggia di melanzane 🍆, il trono, il lago
-di Como con barca a remi, l'auto d'epoca "Brianza". Un solo soggetto focale chiaro. Niente
-testo leggibile nell'immagine (le scritte le mette il template).
+di Como con barca a remi, l'auto d'epoca "Brianza".
+
+**La scena deve essere affollata di gag, non un soggetto isolato**: descrivi un'azione
+centrale (l'eroe/il campione di giornata) MA circondata da 2-3 elementi comici di contorno
+(comparse che reagiscono, una mascotte, un oggetto/gag legato alla giornata) — guarda le
+copertine storiche come riferimento di densità, non stanno mai su un solo personaggio in
+uno spazio vuoto. Niente testo leggibile nell'immagine (le scritte le mette il template).
 
 ### 3b. Conferma del TESTO (obbligatoria)
 

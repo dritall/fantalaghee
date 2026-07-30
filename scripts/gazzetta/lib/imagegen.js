@@ -65,11 +65,16 @@ const STYLE_SUFFIX =
     'Detailed full-color comic caricature illustration for the front page of a satirical ' +
     'fantasy-football newspaper. Richly detailed hand-drawn editorial cartoon like classic ' +
     'satirical sports comics: bold clean ink outlines, saturated full colors with shading and ' +
-    'highlights, exaggerated caricatured characters and mascots with big expressions, lively and ' +
-    'busy but readable composition. Setting: Lake Como (Lario) with mountains, a rowing boat and ' +
-    'lakeside villages in the background. Goliardic playful humor, never mean-spirited. ' +
-    'This is a DRAWN COLORED COMIC - NOT flat or minimalist, NOT painterly-realistic, NOT a 3D render. ' +
-    'Clear focal subject. Loose free edges suitable for cropping. ' +
+    'highlights, exaggerated caricatured characters and mascots with big expressions. ' +
+    'The scene must be BUSY and PACKED, not sparse or minimal: one clear hero action in the ' +
+    'foreground, PLUS several extra comic elements scattered around it - side characters or ' +
+    'onlookers reacting, a recurring mascot animal, small sight-gag props and objects relevant ' +
+    'to the story, background details. Think crowded satirical-magazine cover, many things to look ' +
+    'at, not a single figure alone in empty space. Setting: Lake Como (Lario) with mountains, a ' +
+    'rowing boat and lakeside villages worked into the background. Goliardic playful humor, never ' +
+    'mean-spirited. This is a DRAWN COLORED COMIC - NOT flat or minimalist, NOT painterly-realistic, ' +
+    'NOT a 3D render, NOT a single isolated subject on an empty background. ' +
+    'Loose free edges suitable for cropping. ' +
     'NO readable text, letters, numbers, watermark, signature or logo of any kind.';
 
 // Istruzione testuale che accompagna i riferimenti di stile (solo google/openrouter)
@@ -77,9 +82,10 @@ const STYLE_REF_INSTRUCTION =
     'The attached images are past covers of "La Gazzetta del Laghèe", a satirical fantasy-football ' +
     'newspaper. Match their style very closely: the same richly detailed, full-color hand-drawn ' +
     'comic caricature look, bold ink outlines, saturated colors with shading, exaggerated character ' +
-    'faces, recurring mascots and lively busy composition. Keep it a drawn colored comic (not a ' +
-    'painting, not a photo, not a 3D render). Do NOT copy their exact subject or layout: the scene ' +
-    'comes only from the prompt below.';
+    'faces, recurring mascots, and above all the same BUSY, PACKED composition with several comic ' +
+    'elements sharing the frame - notice how none of these reference covers show just one isolated ' +
+    'figure in empty space. Keep it a drawn colored comic (not a painting, not a photo, not a 3D ' +
+    'render). Do NOT copy their exact subject or layout: the scene comes only from the prompt below.';
 
 const MIME_BY_EXT = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' };
 
