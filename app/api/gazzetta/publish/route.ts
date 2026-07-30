@@ -175,6 +175,151 @@ async function committaFile(owner: string, repo: string, repoPath: string, conte
     return json?.commit?.sha || '';
 }
 
+/** DELETE contenuti su GitHub. */
+async function eliminaFile(owner: string, repo: string, repoPath: string, sha: string, message: string, token: string): Promise<void> {
+    const res = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/${repoPath}`, {
+        method: 'DELETE',
+        headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, sha, branch: 'main' }),
+    });
+    if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        throw new Error(`GitHub ha rifiutato la cancellazione (${res.status}): ${body.slice(0, 300)}`);
+    }
+}
+
+/** Giornata più alta tra i gazzetta-g{N}.md realmente presenti su main (fonte: GitHub, non lo snapshot Vercel). */
+async function trovaUltimaGiornataPubblicata(owner: string, repo: string, token: string): Promise<number> {
+    const res = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/public/articoli/md?ref=main`, {
+        headers: ghHeaders(token),
+        cache: 'no-store',
+    });
+    if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        throw new Error(`GitHub ha risposto ${res.status} nel leggere l'elenco articoli: ${body.slice(0, 200)}`);
+    }
+    const json = await res.json();
+    let max = 0;
+    if (Array.isArray(json)) {
+        for (const entry of json) {
+            const m = String(entry?.name || '').match(/^gazzetta-g(\d+)\.md$/);
+            if (m) max = Math.max(max, parseInt(m[1], 10));
+        }
+    }
+    return max;
+}
+
+/**
+ * Cancella un articolo pubblicato (e la sua copertina) — "cancella ultima giornata" o una
+ * giornata specifica. Richiede conferma esplicita: senza `conferma:true` risponde con
+ * un'anteprima di cosa verrebbe cancellato, senza toccare nulla (è un'operazione difficile
+ * da invertire, non va eseguita al primo colpo su un'ambiguità).
+ *
+ * Body opzionale: { giornata?: number, conferma?: boolean }
+ * - giornata assente -> cancella la giornata pubblicata più alta ("ultima giornata")
+ */
+export async function DELETE(request: NextRequest) {
+    const publishSecret = process.env.GAZZETTA_PUBLISH_SECRET;
+    if (!publishSecret) {
+        return NextResponse.json(
+            { ok: false, error: 'GAZZETTA_PUBLISH_SECRET non configurato sul server: impossibile autenticare la cancellazione.' },
+            { status: 500 }
+        );
+    }
+    if (!autenticato(request, publishSecret)) {
+        return NextResponse.json({ ok: false, error: 'Autenticazione mancante o non valida.' }, { status: 401 });
+    }
+
+    const ghToken = process.env.GAZZETTA_GH_TOKEN;
+    if (!ghToken) {
+        return NextResponse.json(
+            { ok: false, error: 'GAZZETTA_GH_TOKEN non configurato sul server: impossibile cancellare da GitHub.' },
+            { status: 500 }
+        );
+    }
+
+    let payload: any = {};
+    try {
+        const testo = await request.text();
+        if (testo) payload = JSON.parse(testo);
+    } catch {
+        return NextResponse.json({ ok: false, error: 'Corpo della richiesta non è JSON valido.' }, { status: 400 });
+    }
+
+    if (payload?.giornata !== undefined && (typeof payload.giornata !== 'number' || !Number.isInteger(payload.giornata) || payload.giornata <= 0)) {
+        return NextResponse.json({ ok: false, error: 'giornata: se presente deve essere un numero intero positivo' }, { status: 400 });
+    }
+
+    const owner = process.env.GITHUB_REPO_OWNER || 'dritall';
+    const repo = process.env.GITHUB_REPO_NAME || 'fantalaghee';
+
+    let giornata: number;
+    try {
+        giornata = typeof payload.giornata === 'number' ? payload.giornata : await trovaUltimaGiornataPubblicata(owner, repo, ghToken);
+    } catch (e: any) {
+        return NextResponse.json({ ok: false, error: `Impossibile leggere l'elenco degli articoli pubblicati: ${e.message}` }, { status: 502 });
+    }
+
+    if (giornata <= 0) {
+        return NextResponse.json({ ok: false, error: 'Nessun articolo della Gazzetta risulta pubblicato: niente da cancellare.' }, { status: 404 });
+    }
+
+    const slug = `gazzetta-g${giornata}`;
+    const repoPathMd = `public/articoli/md/${slug}.md`;
+    const repoPathImg = `public/image/gazzetta/${slug}.png`;
+    const repoPathHero = `public/image/gazzetta/${slug}-hero.png`;
+
+    let shaMd: string | null;
+    try {
+        shaMd = await trovaShaEsistente(owner, repo, repoPathMd, ghToken);
+    } catch (e: any) {
+        return NextResponse.json({ ok: false, error: `Impossibile verificare l'articolo su GitHub: ${e.message}` }, { status: 502 });
+    }
+    if (!shaMd) {
+        return NextResponse.json(
+            { ok: false, error: `L'articolo della giornata ${giornata} (${slug}) non esiste su GitHub: niente da cancellare.` },
+            { status: 404 }
+        );
+    }
+
+    if (payload.conferma !== true) {
+        return NextResponse.json({
+            ok: true,
+            richiedeConferma: true,
+            giornata,
+            slug,
+            messaggio: `Stai per cancellare irreversibilmente l'articolo della giornata ${giornata} (${slug}) e la sua copertina. Ripeti la chiamata con "conferma": true per procedere.`,
+        });
+    }
+
+    try {
+        await eliminaFile(owner, repo, repoPathMd, shaMd, `Gazzetta: cancella articolo giornata ${giornata}`, ghToken);
+    } catch (e: any) {
+        return NextResponse.json({ ok: false, error: `Cancellazione dell'articolo fallita: ${e.message}` }, { status: 502 });
+    }
+
+    const fileRimossi = [repoPathMd];
+    for (const repoPathAsset of [repoPathImg, repoPathHero]) {
+        try {
+            const shaAsset = await trovaShaEsistente(owner, repo, repoPathAsset, ghToken);
+            if (shaAsset) {
+                await eliminaFile(owner, repo, repoPathAsset, shaAsset, `Gazzetta: cancella copertina giornata ${giornata}`, ghToken);
+                fileRimossi.push(repoPathAsset);
+            }
+        } catch (e) {
+            // best-effort: un'immagine che non si riesce a togliere non deve bloccare la cancellazione dell'articolo
+            console.error(`Cancellazione immagine ${repoPathAsset} fallita:`, e);
+        }
+    }
+
+    return NextResponse.json({
+        ok: true,
+        giornataCancellata: giornata,
+        slug,
+        fileRimossi,
+    });
+}
+
 export async function POST(request: NextRequest) {
     const publishSecret = process.env.GAZZETTA_PUBLISH_SECRET;
     if (!publishSecret) {
