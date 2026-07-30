@@ -5,6 +5,34 @@
 > le sessioni di Claude Code non condividono memoria tra loro. Leggi prima questo file,
 > poi continua da qui.
 
+## ➕ Aggiunta (30 luglio 2026, 3) — niente degrado silenzioso sulla copertina
+
+Diagnosi da log reali: una copertina uscita "basilare" non era colpa del prompt, ma del
+fatto che **l'immagine l'aveva generata Pollinations**, l'ultima rete gratuita — perché
+Gemini rispondeva `429` (crediti prepagati esauriti) e OpenRouter `401` (chiave non
+valida). Pollinations per progetto non riceve i riferimenti di stile, quindi la qualità
+crolla, e il degrado avveniva **in silenzio**: la Action passava verde e la copertina
+veniva pubblicata comunque.
+
+Correzioni in `scripts/gazzetta/lib/imagegen.js`:
+
+- **Nessun degrado silenzioso**: se `GEMINI_API_KEY` o `OPENROUTER_API_KEY` sono
+  configurate ma i loro provider falliscono, **non** si scende su Pollinations: si lancia
+  errore (e con il TASK 5 la Action fallisce rumorosamente). Meglio nessuna copertina che
+  una copertina povera pubblicata senza accorgersene. `IMAGE_ALLOW_FALLBACK=true`
+  riabilita il vecchio comportamento. Se non c'è nessuna chiave configurata, Pollinations
+  resta il fallback legittimo, e quando viene usato lo dichiara con un warning esplicito.
+- **Errori che dicono cosa fare**: `429` Gemini → "ricarica il credito su ai.studio";
+  `401/403` → "chiave non valida"; `401` OpenRouter → "rigenera la chiave su
+  openrouter.ai/keys"; `402/429` OpenRouter → "ricarica il credito". Su questi errori di
+  account non si ritenta (è inutile), si passa oltre subito.
+- **Modello Pro come default**: `GEMINI_MODELS` prova prima
+  `gemini-3-pro-image-preview` (Nano Banana Pro, qualità nettamente superiore) e scende a
+  `gemini-3.1-flash-image` solo se quel modello non è disponibile per la chiave in uso
+  (400/404). Override con `GEMINI_IMAGE_MODEL` o `GEMINI_IMAGE_MODELS`.
+
+---
+
 ## ➕ Aggiunta (30 luglio 2026, 2) — stop applicati dal server e gag sui nomi squadra
 
 Dai test reali sono emersi due problemi, entrambi corretti qui.
