@@ -7,13 +7,15 @@
 
     <!--
       PRIMA PAGINA — La Gazzetta del Laghèe
-      Impaginato come un quotidiano sportivo: testata vettoriale, occhiello,
-      titolo di richiamo, catenaccio su due colonne, foto d'apertura con
-      didascalia e tre riquadri di dati in coda.
+      Impaginato come un quotidiano sportivo: testata vettoriale a tutta
+      larghezza, titolo di richiamo, catenaccio, foto d'apertura con didascalia
+      e tre riquadri di dati in coda. Carta e velo di fibre arrivano come data
+      URI in --carta / --velo.
 
       Riempito da scripts/gazzetta/genera_gazzetta.js -> renderCover().
-      Gli id agganciati dal JS: top-date, top-kicker, main-headline, sub-headline,
-      main-img-tag, main-placeholder-text, box{1,2,3}-title, box{1,2,3}-rows.
+      Gli id agganciati dal JS: top-date, masthead-paths, main-headline,
+      sub-headline, main-img-tag, main-placeholder-text, hero-caption-text,
+      box{1,2,3}-title, box{1,2,3}-rows.
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,8 +24,8 @@
     <style>
         :root {
             /* Carta e inchiostri: rosa "rosea" un filo desaturato, nero caldo da stampa */
-            --paper:      #F3D2DA;
-            --paper-deep: #E9C2CB;
+            --paper:      #F7D9E0;
+            --paper-deep: #EDC8D1;
             --panel:      #FDF1F3;
             --ink:        #16100F;
             --ink-soft:   rgba(22, 16, 15, 0.62);
@@ -53,40 +55,52 @@
 
         /* ---------------------------------------------------------------
            IL FOGLIO
-           La grana è generata via SVG (feTurbulence) e sovrapposta in
-           multiply: dà l'irregolarità della carta senza file esterni.
+           La carta è una texture vera (fibre, macchie e granelli), iniettata
+           come data URI in --carta da genera_gazzetta.js e stesa in multiply.
+           Il mezzo tono (450px per una piastrella da 900) tiene la grana
+           nitida anche con deviceScaleFactor 2.
         --------------------------------------------------------------- */
         .page-container {
             width: 900px;
             position: relative;
-            padding: 26px 30px 22px;
+            padding: 22px 26px 20px;
+            /* rosa + texture fusi fra loro (background-blend-mode): niente
+               mix-blend-mode sul contenitore, che in cattura d'elemento
+               si comporterebbe in modo imprevedibile */
             background-color: var(--paper);
-            background-image:
-                radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0) 55%),
-                radial-gradient(90% 60% at 100% 100%, rgba(120, 60, 75, 0.10) 0%, rgba(120,60,75,0) 60%);
+            background-image: var(--carta);
+            background-size: 450px 450px;
+            background-repeat: repeat;
+            background-blend-mode: multiply;
             box-shadow: 0 18px 60px rgba(50, 20, 30, 0.35);
             overflow: hidden;
         }
-        /* grana della carta */
-        .page-container::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            opacity: 0.5;
-            mix-blend-mode: multiply;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.22'/></svg>");
-        }
-        /* fibre orizzontali appena percettibili */
+        /* ombreggiatura ai bordi: il foglio non è illuminato in modo uniforme */
         .page-container::after {
             content: '';
             position: absolute;
             inset: 0;
+            z-index: 6;
             pointer-events: none;
-            opacity: 0.35;
-            background-image: repeating-linear-gradient(0deg, rgba(22,16,15,0.035) 0 1px, rgba(255,255,255,0) 1px 4px);
+            box-shadow:
+                inset 0 0 70px rgba(96, 44, 60, 0.14),
+                inset 0 0 12px rgba(96, 44, 60, 0.10);
         }
         .page-inner { position: relative; z-index: 2; }
+        /* Velo di fibre SOPRA tutto: così anche la fotografia sembra stampata
+           sulla stessa carta. È un PNG nero con alfa, quindi scurisce senza
+           bisogno di mix-blend-mode. */
+        .page-inner::after {
+            content: '';
+            position: absolute;
+            inset: -22px -26px -20px;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0.46;
+            background-image: var(--velo);
+            background-size: 450px 450px;
+            background-repeat: repeat;
+        }
 
         /* ---------------------------------------------------------------
            FILETTO SUPERIORE (data, edizione, sito)
@@ -113,87 +127,36 @@
            Il marchio è un tracciato vettoriale (niente font a runtime):
            vedi scripts/gazzetta/tools/build_masthead.py
         --------------------------------------------------------------- */
-        .masthead {
-            display: grid;
-            grid-template-columns: 118px 1fr 118px;
-            align-items: center;
-            gap: 14px;
-            padding: 16px 0 6px;
-        }
+        /* La testata occupa la riga da un margine all'altro: è il marchio,
+           non un titolo. Nessun riquadro ai lati a rubarle spazio. */
+        .masthead { padding: 14px 0 2px; }
         .wordmark { width: 100%; height: auto; display: block; color: var(--ink); }
-
-        /* "orecchie" laterali della testata */
-        .ear {
-            font-family: var(--font-label);
-            text-transform: uppercase;
-            font-size: 9.5px;
-            line-height: 1.35;
-            letter-spacing: 0.8px;
-            color: var(--ink-soft);
-            text-align: center;
-        }
-        .ear b { display: block; font-size: 21px; font-weight: 700; color: var(--ink); letter-spacing: 0; line-height: 1; }
-        .ear .frame {
-            border: 1px solid var(--hairline);
-            border-radius: 2px;
-            padding: 7px 6px 6px;
-            background: rgba(255,255,255,0.35);
-        }
-        .crest { width: 34px; height: 34px; display: block; margin: 0 auto 4px; color: var(--ink); }
 
         .strapline {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            font-family: var(--font-label);
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 4.5px;
-            text-transform: uppercase;
-            color: var(--ink-soft);
-            margin-top: 2px;
+            gap: 9px;
+            font-family: var(--font-serif);
+            font-size: 15px;
+            color: var(--ink);
+            margin-top: -2px;
         }
-        .strapline::before,
-        .strapline::after { content: ''; flex: 1; height: 1px; background: var(--hairline); }
-        .strapline .ball { width: 13px; height: 13px; color: var(--red); }
+        .strapline .ball { width: 15px; height: 15px; color: var(--ink); }
 
         /* doppio filetto di chiusura testata */
-        .rule-double { margin-top: 12px; border-top: 5px solid var(--ink); border-bottom: 1.5px solid var(--ink); height: 4px; }
+        .rule-double { margin-top: 10px; border-top: 5px solid var(--ink); border-bottom: 1.5px solid var(--ink); height: 4px; }
 
         /* ---------------------------------------------------------------
-           APERTURA: occhiello + titolo + catenaccio
+           APERTURA: titolo + catenaccio
         --------------------------------------------------------------- */
-        .lead { padding: 16px 0 0; }
-
-        .kicker {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: var(--font-label);
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 2.4px;
-            text-transform: uppercase;
-            color: var(--ink-soft);
-            margin-bottom: 10px;
-        }
-        .kicker .tag {
-            background: var(--red);
-            color: #fff;
-            padding: 4px 10px 3px;
-            letter-spacing: 2px;
-            font-weight: 700;
-            clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
-            padding-right: 15px;
-        }
-        .kicker .line { flex: 1; height: 1px; background: var(--hairline); }
+        .lead { padding: 12px 0 0; }
 
         .headline {
             font-family: var(--font-display);
             font-weight: 400;
             font-size: 74px;      /* ricalcolato a runtime per riempire il blocco */
-            line-height: 0.92;
+            line-height: 0.94;
             letter-spacing: -0.5px;
             text-transform: uppercase;
             margin: 0;
@@ -201,29 +164,18 @@
         }
         .headline em { font-style: normal; color: var(--red); }
 
-        /* catenaccio: una colonna, due se il testo è lungo (classe .two-col da JS) */
+        /* catenaccio: stessa famiglia condensata del titolo, come sulle
+           vecchie copertine — tiene la parte alta compatta e "stampata" */
         .standfirst {
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px solid var(--hairline);
-            font-family: var(--font-serif);
-            font-size: 17.5px;
-            line-height: 1.42;
-            color: rgba(22,16,15,0.86);
-        }
-        .standfirst.two-col {
-            column-count: 2;
-            column-gap: 30px;
-            column-rule: 1px solid var(--hairline);
-        }
-        .standfirst p { margin: 0; }
-        .standfirst .dropline {
+            margin-top: 9px;
             font-family: var(--font-label);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
+            font-weight: 400;
+            font-size: 21px;
+            line-height: 1.24;
             color: var(--ink);
         }
+        .standfirst p { margin: 0; }
+        .standfirst .dropline { font-weight: 600; }
 
         /* ---------------------------------------------------------------
            FOTO D'APERTURA
@@ -419,39 +371,17 @@
 
         <!-- TESTATA -->
         <div class="masthead">
-            <div class="ear">
-                <div class="frame">
-                    Giornata
-                    <b id="ear-giornata">—</b>
-                    Stagione 25/26
-                </div>
-            </div>
-
             <!-- Marchio vettoriale: generato da tools/build_masthead.py -->
             <svg class="wordmark" viewBox="0 -790 10092 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="La Gazzetta del Laghèe">
                 <g fill="currentColor" id="masthead-paths"></g>
             </svg>
-
-            <div class="ear">
-                <div class="frame">
-                    <svg class="crest" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M32 5 L54 13 V31 C54 45 44 55 32 59 C20 55 10 45 10 31 V13 Z"/>
-                        <path d="M18 38 C24 33 30 41 36 36 C41 32 45 35 47 37" stroke-width="2.2"/>
-                        <path d="M18 45 C24 40 30 48 36 43 C41 39 45 42 47 44" stroke-width="2.2"/>
-                        <circle cx="32" cy="22" r="8.5" stroke-width="2.4"/>
-                        <path d="M32 13.5 L32 18 M23.8 19.2 L28 22 M40.2 19.2 L36 22 M27 29.6 L28.8 25.2 M37 29.6 L35.2 25.2" stroke-width="1.9"/>
-                    </svg>
-                    Edizione del Lario
-                </div>
-            </div>
         </div>
 
         <div class="strapline">
             Tutto il Lario
-            <svg class="ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-                <circle cx="12" cy="12" r="9.4"/>
-                <path d="M12 6.6l3.6 2.6-1.4 4.3H9.8L8.4 9.2 12 6.6Z" fill="currentColor" stroke="none"/>
-                <path d="M12 2.6v4M3.1 9.2l4.9 3.6M20.9 9.2L16 12.8M6.4 20.4l3.4-6.9M17.6 20.4l-3.4-6.9"/>
+            <svg class="ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <circle cx="12" cy="12" r="9.6"/>
+                <path d="M12 7.1l3.3 2.4-1.26 3.9H9.96L8.7 9.5 12 7.1Z" fill="currentColor" stroke="none"/>
             </svg>
             per la Vita
         </div>
@@ -460,12 +390,6 @@
 
         <!-- APERTURA -->
         <div class="lead">
-            <div class="kicker" id="lead-kicker">
-                <span class="tag" id="kicker-tag">Prima Pagina</span>
-                <span id="kicker-text">Il racconto della giornata</span>
-                <span class="line"></span>
-            </div>
-
             <h2 class="headline" id="main-headline">[INSERIRE TITOLO PRINCIPALE]</h2>
 
             <div class="standfirst">

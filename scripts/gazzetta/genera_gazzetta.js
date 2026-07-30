@@ -5,6 +5,9 @@ const path = require('path');
 const REPO_ROOT = path.join(__dirname, '../..');
 const PUBLIC_DIR = path.join(REPO_ROOT, 'public');
 const MASTHEAD_SVG = path.join(PUBLIC_DIR, 'image', 'gazzetta', 'masthead.svg');
+// forma pubblico-relativa: toImgSrc risolve le stringhe che iniziano con "/" dentro /public
+const CARTA_JPG = '/image/gazzetta/carta.jpg';
+const VELO_PNG = '/image/gazzetta/carta-velo.png';
 
 const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' };
 
@@ -49,7 +52,7 @@ function readMasthead() {
  *
  * @param {object} datiGiornata
  *   - data                 stringa top-bar (es. "GIORNATA 38 — ...")
- *   - titolo_principale     titolo grande (un ":" iniziale diventa occhiello)
+ *   - titolo_principale     titolo grande (corpo calcolato per riempire il blocco)
  *   - sottotitolo           sommario/catenaccio
  *   - didascalia            (opzionale) didascalia sotto l'illustrazione
  *   - img_principale        hero: URL / data URI / path repo (/image/...) / file locale
@@ -71,11 +74,14 @@ async function renderCover(datiGiornata, outputPath) {
         const htmlContent = fs.readFileSync(htmlPath, 'utf8');
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
-        // Risolviamo hero e testata PRIMA di entrare nel browser
+        // Risolviamo hero, testata e carta PRIMA di entrare nel browser
+        // (setContent non ha una base URL: i file vanno passati come data URI)
         const heroSrc = toImgSrc(datiGiornata.img_principale);
         const masthead = readMasthead();
+        const carta = toImgSrc(CARTA_JPG);
+        const velo = toImgSrc(VELO_PNG);
 
-        await page.evaluate((dati, heroSrc, masthead) => {
+        await page.evaluate((dati, heroSrc, masthead, carta, velo) => {
             const $ = (id) => document.getElementById(id);
             const set = (id, text) => { const el = $(id); if (el) el.innerText = text; };
 
@@ -92,25 +98,17 @@ async function renderCover(datiGiornata, outputPath) {
                 $('masthead-paths').innerHTML = masthead.paths;
             }
 
-            // ---- Filetto superiore + occhiello ------------------------------
+            // ---- Carta ------------------------------------------------------
+            const root = document.documentElement.style;
+            if (carta) root.setProperty('--carta', `url("${carta}")`);
+            if (velo) root.setProperty('--velo', `url("${velo}")`);
+
+            // ---- Filetto superiore ------------------------------------------
             const dataStr = clean(dati.data);
             set('top-date', dataStr);
-
             const nGiornata = (dataStr.match(/GIORNATA\s+(\d+)/i) || [])[1];
-            set('ear-giornata', nGiornata || '—');
-            $('kicker-tag').innerText = nGiornata ? `Giornata ${nGiornata}` : 'Speciale';
 
-            // Un titolo tipo "STOKE AZZO RE DEL LARIO: FINALE AL FILO DI LANA"
-            // diventa occhiello + titolo, come in prima pagina.
-            let titolo = clean(dati.titolo_principale);
-            let occhiello = '';
-            const tagli = titolo.split(/:\s+/);
-            if (tagli.length > 1) {
-                const testa = tagli[0].trim();
-                const coda = tagli.slice(1).join(': ').trim();
-                if (testa.length <= 42 && coda.length >= 12) { occhiello = testa; titolo = coda; }
-            }
-            set('kicker-text', occhiello || 'Il racconto della giornata');
+            const titolo = clean(dati.titolo_principale);
 
             // Titolo: il nome della squadra va in rosso, come in prima pagina.
             // L'evidenza si può forzare anche a mano scrivendo *così* nel titolo.
@@ -148,13 +146,11 @@ async function renderCover(datiGiornata, outputPath) {
                 p.innerText = sotto;
             }
             // il sommario non deve mai spingere fuori la foto: si stringe da solo
-            // e passa su due colonne solo quando è abbastanza lungo da reggerle
-            if (sotto.length > 230) p.parentElement.style.fontSize = '15.5px';
-            else if (sotto.length > 165) p.parentElement.style.fontSize = '16.5px';
-            if (sotto.length > 190) p.parentElement.classList.add('two-col');
+            if (sotto.length > 230) p.parentElement.style.fontSize = '18px';
+            else if (sotto.length > 165) p.parentElement.style.fontSize = '19.5px';
 
             // ---- Titolo: corpo calcolato per riempire il blocco -------------
-            const maxAltezza = 210;     // ~3 righe
+            const maxAltezza = 215;     // ~3 righe
             let corpo = 92;
             h.style.fontSize = corpo + 'px';
             while (corpo > 38 && h.scrollHeight > maxAltezza) {
@@ -222,7 +218,7 @@ async function renderCover(datiGiornata, outputPath) {
                     ul.appendChild(li);
                 });
             });
-        }, datiGiornata, heroSrc, masthead);
+        }, datiGiornata, heroSrc, masthead, carta, velo);
 
         // Attendi font e immagini prima dello scatto
         await page.evaluate(() => document.fonts.ready);

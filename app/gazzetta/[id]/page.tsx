@@ -109,16 +109,17 @@ export default function ArticlePage() {
             <div className="foglio grana max-w-[52rem] mx-auto rounded-md overflow-hidden shadow-[0_28px_80px_rgba(4,8,25,0.65)] ring-1 ring-black/25">
 
                 {/* --- TESTATA ------------------------------------------------ */}
-                <header className="relative z-10 bg-[#F3D2DA] border-b-[5px] border-[#16100F] px-5 sm:px-10 pt-4 pb-5">
+                <header className="foglio-rosa relative z-10 border-b-[5px] border-[#16100F] px-5 sm:px-10 pt-4 pb-5">
                     <div className="flex items-baseline justify-between gap-3 border-b border-black/20 pb-1.5 font-testata text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#16100F]">
                         <span>{dataIt}</span>
                         <span className="hidden sm:inline opacity-55 tracking-[0.3em] font-medium">Edizione del Lario</span>
                         <span className="text-[#C8102E]">fantalaghee.live</span>
                     </div>
 
-                    <div className="testata-mark text-[#16100F] mt-4 mb-2 max-w-[34rem] mx-auto" role="img" aria-label="La Gazzetta del Laghèe" />
+                    {/* Il marchio occupa la riga intera, come sulla prima pagina stampata */}
+                    <div className="testata-mark text-[#16100F] mt-3.5 mb-1.5" role="img" aria-label="La Gazzetta del Laghèe" />
 
-                    <div className="flex items-center gap-3 justify-center font-testata text-[9px] sm:text-[11px] uppercase tracking-[0.34em] text-[#16100F]/60">
+                    <div className="flex items-center gap-3 justify-center font-lora text-[12px] sm:text-[15px] text-[#16100F]">
                         <span className="h-px flex-1 bg-black/20" />
                         Tutto il Lario per la Vita
                         <span className="h-px flex-1 bg-black/20" />

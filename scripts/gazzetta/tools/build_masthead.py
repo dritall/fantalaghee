@@ -43,15 +43,17 @@ FONTS = {
 }
 
 # Le parole del marchio: (testo, stile, crenatura extra in unità/em ×1000).
-# "del" in corsivo è il dettaglio che trasforma una scritta in una testata.
+# Tutto in tondo e ben serrato, come sulle copertine storiche della Gazzetta
+# del Laghèe: la testata deve occupare la riga da un margine all'altro.
 WORDS = [
-    ("La", "roman", -8),
-    ("Gazzetta", "roman", -14),
-    ("del", "italic", -6),
-    ("Laghèe", "roman", -14),
+    ("La", "roman", -20),
+    ("Gazzetta", "roman", -24),
+    ("del", "roman", -20),
+    ("Laghèe", "roman", -24),
 ]
-WORD_SPACE = 150      # spazio fra parole, in unità/em ×1000
+WORD_SPACE = 165      # spazio fra parole, in unità/em ×1000
 UPEM_TARGET = 1000    # tutto normalizzato su una em da 1000
+CONDENSE = 0.94       # leggera compressione orizzontale: più "peso" da testata
 
 
 def fetch(name: str, url: str) -> Path:
@@ -109,13 +111,14 @@ def main() -> int:
             if d:
                 # y va invertito: le coordinate font salgono, quelle SVG scendono
                 paths.append(
-                    f'<path transform="translate({x + off * scale:.1f} 0) '
-                    f'scale({scale:.5f} {-scale:.5f})" d="{d}"/>'
+                    f'<path transform="translate({(x + off * scale) * CONDENSE:.1f} 0) '
+                    f'scale({scale * CONDENSE:.5f} {-scale:.5f})" d="{d}"/>'
                 )
             x += adv * scale + tracking
         x += WORD_SPACE
+    x *= CONDENSE
 
-    width = round(x - WORD_SPACE)
+    width = round(x - WORD_SPACE * CONDENSE)
     # cap-height + discendenti di Playfair: riquadro generoso, ritagliato dal viewBox
     top, bottom = -760, 220
     height = bottom - top
