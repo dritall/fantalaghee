@@ -85,13 +85,24 @@ Produci internamente: `title`, `description`, `body_md`, `cover.titolo_principal
 `cover.sottotitolo` e `cover.image_prompt` (in inglese, descrive solo la scena: lo stile
 della testata lo aggiunge automaticamente il generatore di immagini).
 
+**L'`image_prompt` usa i nomi VERI delle squadre presi da `/api/verdetto`** (campione,
+podio, cucchiaio di legno…), mai nomi inventati: così la caricatura ritrae le squadre
+giuste della giornata (es. il campione sul trono è la squadra reale, il cucchiaio di legno
+ha il mestolo, ecc.). Puoi attingere ai **motivi ricorrenti** della testata: il cucciolo
+"Cuccioloni", il razzo "Stoke Azzo", il lupo, la pioggia di melanzane 🍆, il trono, il lago
+di Como con barca a remi, l'auto d'epoca "Brianza". Un solo soggetto focale chiaro. Niente
+testo leggibile nell'immagine (le scritte le mette il template).
+
+### 3b. Conferma del TESTO (obbligatoria)
+
 Manda all'utente su Telegram il **testo** della bozza (title + description + body_md +
-image_prompt).
+image_prompt) e chiedi esplicitamente: **«Pubblico così? Vuoi modificare qualcosa (dimmi
+cosa)? O rifaccio?»**
 - Se risponde **OK / vai / 👍** → vai al passo 4.
 - Se manda **correzioni** → riscrivi applicandole e rimanda la bozza.
 - Se dice di rifare → rigenera da capo.
 
-**NON procedere alla pubblicazione senza l'OK dell'utente.**
+**NON procedere alla pubblicazione senza un OK esplicito dell'utente sul testo.**
 
 ### 4. Pubblica
 
@@ -122,16 +133,39 @@ Risposte:
   e fermati (non ripetere con `force` senza che l'utente lo chieda esplicitamente).
 - **`401`/`500`** → problema di configurazione lato server. Riporta l'errore e fermati.
 
-### 5. Verifica e consegna
+### 5. Conferma dell'IMMAGINE (obbligatoria)
 
 Attendi ~90 secondi (tempo di run della GitHub Action che genera la copertina), poi
 controlla che `coverUrl` risponda 200 (**max 4 tentativi, un minuto di distanza l'uno
 dall'altro**). Se dopo i tentativi non risponde ancora, avvisa l'utente che la Action
-potrebbe essere fallita (da controllare nella tab Actions di GitHub) e prosegui comunque.
+potrebbe essere fallita (da controllare nella tab Actions di GitHub) e fermati.
 
-Quando la copertina è pronta:
-1. Mandala su Telegram all'utente per verifica.
-2. Manda il messaggio pronto da incollare su WhatsApp:
+Quando la copertina è pronta, **mandala su Telegram** e chiedi: **«Ti va bene questa
+copertina, o ne rigenero un'altra variante?»**
+
+- Se l'utente **approva** → vai al passo 6.
+- Se l'utente **vuole una variante** (o dice che l'immagine non va) → chiama:
+
+  ```
+  POST https://www.fantalaghee.live/api/gazzetta/rigenera-copertina
+  Authorization: Bearer {GAZZETTA_PUBLISH_SECRET}
+  Content-Type: application/json
+
+  { "giornata": 7 }
+  ```
+
+  Il server fa ripartire la generazione con un **seed diverso** (non serve passare il seed:
+  lo sceglie lui e te lo torna). Poi ri-attendi ~90 secondi, ricontrolla `coverUrl` e
+  rimanda la nuova copertina. Ripeti finché l'utente approva.
+  - `403` → il token GitHub non può avviare le Action: riporta il messaggio (l'utente può
+    rigenerare a mano dalla tab Actions) e prosegui col passo 6 se l'immagine attuale basta.
+
+**NON mandare il messaggio WhatsApp (passo 6) finché l'utente non ha approvato l'immagine.**
+L'articolo è già online, ma non va condiviso finché testo e immagine non sono ok.
+
+### 6. Consegna (solo dopo l'OK su testo E immagine)
+
+Manda all'utente il messaggio pronto da incollare su WhatsApp:
 
 ```
 📰 *La Gazzetta del Laghèe* — Giornata {N}
@@ -195,6 +229,18 @@ Highlight colorati con `<span style="color:...">` per i momenti salienti: oro `#
 
 Italiano. Mai numeri inventati. Il system prompt completo è in `scripts/gazzetta/lib/prompt.js`.
 
+### Regole di misura (rispettale sempre)
+
+- **Mai scrivere "Euro" o il simbolo `€`** per i premi. Se proprio devi indicare un premio
+  in denaro, usa l'emoji della melanzana 🍆 (è la valuta scherzosa della testata), oppure
+  gira la frase evitando la cifra.
+- **Niente superlativi gratuiti**: "epico", "mostruoso", "leggendario", "storico",
+  "clamoroso" solo se sono **letteralmente veri** per quella giornata (un vero record, un
+  vero sorpasso in vetta). Se la giornata è normale, raccontala normale.
+- **Riferimenti al lago con misura**: i toponimi lariani e le metafore d'acqua sono il
+  sapore della testata, ma **usane pochi**, non in ogni frase. Meglio uno calzante che
+  cinque a raffica.
+
 ---
 
 ## Config necessaria a Hermes
@@ -203,9 +249,9 @@ Italiano. Mai numeri inventati. Il system prompt completo è in `scripts/gazzett
 |---|---|
 | `APPS_SCRIPT_WEBAPP_URL` | URL della Web App dell'Apps Script (trigger calcolo) |
 | `APPS_SCRIPT_SECRET` | token segreto passato alla Web App |
-| `GAZZETTA_PUBLISH_SECRET` | Bearer token per `POST /api/gazzetta/publish` |
+| `GAZZETTA_PUBLISH_SECRET` | Bearer token per `POST`/`DELETE` `/api/gazzetta/publish` e `POST /api/gazzetta/rigenera-copertina` |
 | accesso HTTP GET | trigger foglio + lettura `/api/gazzetta/stato` e `/api/verdetto` |
-| accesso HTTP POST | pubblicazione via `/api/gazzetta/publish` |
+| accesso HTTP POST | pubblicazione, rigenerazione copertina |
 | accesso OpenRouter | scrivere l'articolo (LLM) |
 
 > **Nessun accesso GitHub.** Hermes non ha bisogno di un token GitHub né dell'MCP GitHub:

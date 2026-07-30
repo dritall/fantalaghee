@@ -36,9 +36,12 @@ const WIDTH = parseInt(process.env.IMAGE_WIDTH || '900', 10);
 const HEIGHT = parseInt(process.env.IMAGE_HEIGHT || '520', 10);
 
 const DEFAULT_PROVIDERS = ['google', 'openrouter', 'pollinations'];
+// Copertine storiche di riferimento: sono quelle nello stile fumetto-caricatura ricco e
+// affollato che vogliamo imitare. Sovrascrivibili con IMAGE_STYLE_REFS.
 const DEFAULT_STYLE_REFS = [
-    '/image/gazzetta/gazzetta-g30-sorpasso.webp',
-    '/image/gazzetta/gazzetta-g28-triello-onda.webp',
+    '/image/gazzetta/edizione-straordinaria-2627.webp',
+    '/image/gazzetta/trilogia-del-potere.webp',
+    '/image/gazzetta/speciale-giro-di-boa.webp',
 ];
 const DEFAULT_TENTATIVI = 2;
 const SEED_STEP = 1000;
@@ -56,26 +59,27 @@ const OPENROUTER_RESOLUTION = process.env.OPENROUTER_RESOLUTION || '2K';
 
 // Suffisso di stile per mantenere coerenza grafica con le vecchie copertine.
 // Descrive la testata (non la scena, che la scrive Hermes nel prompt).
-// Spinge su fumetto/cartoon a tratto netto e colori piatti, per assomigliare alle
-// copertine storiche disegnate a mano invece che a un'illustrazione pittorica/realistica.
+// Le copertine storiche sono caricature a fumetto RICCHE, dettagliate e super colorate
+// (non minimal/piatte): il suffisso spinge esattamente in quella direzione.
 const STYLE_SUFFIX =
-    'Editorial satirical cartoon illustration for the front page of a fantasy-football newspaper. ' +
-    'Bold hand-inked comic linework with clean confident outlines, flat limited color fills, ' +
-    'vintage comic-poster / graphic-novel look - NOT painterly, NOT photorealistic, NO 3D render. ' +
-    'Warm color palette that reads well on pale pink newsprint. ' +
-    'Setting: Lake Como (Lario) - steep mountains, rowing boats, lakeside villages. ' +
-    'Epic and goliardic caricature tone, never mean-spirited. Single clear focal subject, ' +
-    'strong readable silhouette, uncluttered background. ' +
-    'Loose free edges suitable for cropping. ' +
-    'NO text, letters, numbers, watermark, signature or logo of any kind.';
+    'Detailed full-color comic caricature illustration for the front page of a satirical ' +
+    'fantasy-football newspaper. Richly detailed hand-drawn editorial cartoon like classic ' +
+    'satirical sports comics: bold clean ink outlines, saturated full colors with shading and ' +
+    'highlights, exaggerated caricatured characters and mascots with big expressions, lively and ' +
+    'busy but readable composition. Setting: Lake Como (Lario) with mountains, a rowing boat and ' +
+    'lakeside villages in the background. Goliardic playful humor, never mean-spirited. ' +
+    'This is a DRAWN COLORED COMIC - NOT flat or minimalist, NOT painterly-realistic, NOT a 3D render. ' +
+    'Clear focal subject. Loose free edges suitable for cropping. ' +
+    'NO readable text, letters, numbers, watermark, signature or logo of any kind.';
 
 // Istruzione testuale che accompagna i riferimenti di stile (solo google/openrouter)
 const STYLE_REF_INSTRUCTION =
     'The attached images are past covers of "La Gazzetta del Laghèe", a satirical fantasy-football ' +
-    'newspaper. Match their hand-drawn comic-cartoon style closely: the same bold ink outlines, ' +
-    'flat color fills, limited warm palette, line weight and humorous caricature register. ' +
-    'Keep it a drawn cartoon, not a painting or a photo. Do NOT reuse their subject or ' +
-    'composition: those come only from the scene prompt below.';
+    'newspaper. Match their style very closely: the same richly detailed, full-color hand-drawn ' +
+    'comic caricature look, bold ink outlines, saturated colors with shading, exaggerated character ' +
+    'faces, recurring mascots and lively busy composition. Keep it a drawn colored comic (not a ' +
+    'painting, not a photo, not a 3D render). Do NOT copy their exact subject or layout: the scene ' +
+    'comes only from the prompt below.';
 
 const MIME_BY_EXT = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' };
 
