@@ -150,9 +150,15 @@ es. G38: **podio classifica generale** (1°–2°–3°) al centro; **a lato** i
 giornata; eventuali extra solo se l’articolo li celebra (record stagione, coppe…).
 Vittoria di coppa o pezzo speciale → l’immagine segue i protagonisti dell’articolo.
 
-**Vietato:** folla decorativa, gag del glossario per squadre che non c’entrano, testo
-leggibile, testata/cornici/titoli “giornale nel giornale”, maglie inventate al posto
-della gag sul nome.
+**Vietato:** folla decorativa; gag del glossario per squadre che non c’entrano;
+**etichette/nomi flottanti** o fumetti didascalici col nome squadra (es. cartello
+«Raga di Oporto», commento «Sove1907»); testo leggibile; testata/cornici/titoli
+“giornale nel giornale”; maglie inventate al posto della gag sul nome.
+
+Se l’identità non è ovvia, il nome si **fonde** nel design del soggetto (costume,
+forma, simbolo), non compare come scritta staccata. Cippalippa1418 = beffardo da
+“segone” + fortissimo: mostra il **record** (punteggio giornata più alto di stagione)
+con visual da mostro di punti, senza scritte del nome.
 
 **Descrivi ogni soggetto in modo concreto** (cosa è, cosa fa, com’è vestito/fatto).
 Lo stile (fumetto moderno, colori vivaci, tratto pulito) lo mette il generatore.
