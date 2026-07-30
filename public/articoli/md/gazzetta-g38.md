@@ -54,7 +54,6 @@ cover:
       - Campione|Sove1907
       - Record|112.5 Cippalippa1418
       - Cucchiaio|AS Tronzi 30.5
-draft: true
 ---
 # STOKE AZZO RE DEL LARIO: FINALE AL FILO DI LANA
 
