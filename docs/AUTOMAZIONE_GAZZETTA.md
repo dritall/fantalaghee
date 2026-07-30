@@ -5,6 +5,30 @@
 > le sessioni di Claude Code non condividono memoria tra loro. Leggi prima questo file,
 > poi continua da qui.
 
+## ➕ Aggiunta (30 luglio 2026) — conferma testo+immagine e rigenerazione copertina
+
+Su richiesta: Hermes non pubblica più "di slancio". Ora il flusso ha **due conferme**
+esplicite — prima sul testo (prima di pubblicare), poi sull'immagine (dopo che la Action
+ha composto la copertina). L'articolo viene committato prima di vedere l'immagine, ma non
+viene condiviso (WhatsApp) finché l'utente non approva anche la copertina.
+
+Per far provare varianti dell'illustrazione **senza dare a Hermes accesso a GitHub e senza
+mettere le chiavi immagine su Vercel**, è stato aggiunto **`POST /api/gazzetta/rigenera-copertina`**
+(`app/api/gazzetta/rigenera-copertina/route.ts`): stessa autenticazione
+(`GAZZETTA_PUBLISH_SECRET`), lato server fa partire la GitHub Action `gazzetta-cover.yml`
+via `workflow_dispatch` con `slug` + un **seed nuovo** + `force`, usando `GAZZETTA_GH_TOKEN`
+(già su Vercel). L'immagine continua a generarla la Action, dove le chiavi
+`GEMINI_API_KEY`/`OPENROUTER_API_KEY` già vivono. Nota: il token deve poter avviare le
+Action (un token classic con scope `repo` lo può; un fine-grained richiede "Actions:
+Read and write") — altrimenti l'endpoint risponde `403` con istruzioni.
+
+Rifinita anche la resa dell'illustrazione (`scripts/gazzetta/lib/imagegen.js`): stile spinto
+verso la **caricatura a fumetto ricca e colorata** delle copertine storiche (non minimal/
+pittorica) e riferimenti di stile di default aggiornati a tre copertine reali
+(`edizione-straordinaria-2627`, `trilogia-del-potere`, `speciale-giro-di-boa`).
+
+---
+
 ## ➕ Aggiunta (29 luglio 2026) — cancellazione articolo, a due passi
 
 Su richiesta dell'utente (comodo per pulire un test pubblicato senza una nuova giornata
