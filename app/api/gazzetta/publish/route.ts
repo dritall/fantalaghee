@@ -88,6 +88,10 @@ function valida(payload: any): string[] {
         errori.push('force: se presente deve essere booleano');
     }
 
+    if (payload?.conferma !== undefined && typeof payload.conferma !== 'boolean') {
+        errori.push('conferma: se presente deve essere booleano');
+    }
+
     return errori;
 }
 
@@ -344,6 +348,23 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             { ok: false, error: 'Payload non valido: correggi i campi indicati e riprova.', dettagli: errori },
             { status: 400 }
+        );
+    }
+
+    // Presidio contro la pubblicazione senza l'OK dell'utente: senza `conferma: true`
+    // non si pubblica. Il server non può verificare davvero che un umano abbia detto sì
+    // (la garanzia vera sta nel playbook), ma così un agente che salta il passaggio
+    // riceve un errore esplicito invece di mandare online l'articolo.
+    if (payload.conferma !== true) {
+        return NextResponse.json(
+            {
+                ok: false,
+                error: 'Pubblicazione non confermata. Mostra prima la bozza all\'utente e chiedi il suo OK esplicito; '
+                    + 'solo dopo che l\'utente ha risposto di sì, ripeti questa chiamata aggiungendo "conferma": true. '
+                    + 'Non aggiungere "conferma": true di tua iniziativa.',
+                richiedeConferma: true,
+            },
+            { status: 409 }
         );
     }
 

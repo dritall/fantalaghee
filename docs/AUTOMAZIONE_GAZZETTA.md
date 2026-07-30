@@ -5,6 +5,30 @@
 > le sessioni di Claude Code non condividono memoria tra loro. Leggi prima questo file,
 > poi continua da qui.
 
+## ➕ Aggiunta (30 luglio 2026, 2) — stop applicati dal server e gag sui nomi squadra
+
+Dai test reali sono emersi due problemi, entrambi corretti qui.
+
+**Hermes pubblicava senza aspettare l'OK.** Mostrava la bozza ma proseguiva nello stesso
+turno. Il playbook ora ha una sezione "Regola dei due STOP" in testa e stop espliciti ai
+passi 3b (testo) e 5 (immagine), con l'istruzione di chiudere il turno. In più c'è un
+presidio lato server: `POST /api/gazzetta/publish` **richiede `"conferma": true`**,
+altrimenti risponde `409 richiedeConferma`. Il server non può verificare davvero che un
+umano abbia detto sì — la garanzia sta nel prompt — ma un agente che salta il passaggio
+ora riceve un errore invece di mandare online l'articolo.
+
+**L'illustrazione usciva in stile "vignetta retrò da settimana enigmistica"**, con soggetti
+poco riconoscibili. Il suffisso di stile in `imagegen.js` è stato riscritto verso il
+**fumetto moderno pulito**: colori vivaci, tratto netto, e soprattutto una clausola
+`CLARITY IS ESSENTIAL` (ogni soggetto dev'essere riconoscibile a colpo d'occhio) più una
+lista esplicita di cose da evitare (texture di stampa vintage, retini, xilografia, palette
+slavata, tratto sporco). Nel playbook è stato aggiunto un **glossario visivo dei nomi
+squadra**: il criterio è trasformare il nome in un soggetto disegnabile (Cuccioloni → un
+cucciolo, Raga di Oporto → Porto/vino, Stratosvarius → una papera clamorosa…), così la
+copertina racconta le squadre vere invece di manager generici.
+
+---
+
 ## ➕ Aggiunta (30 luglio 2026) — conferma testo+immagine e rigenerazione copertina
 
 Su richiesta: Hermes non pubblica più "di slancio". Ora il flusso ha **due conferme**

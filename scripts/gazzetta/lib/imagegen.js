@@ -59,33 +59,39 @@ const OPENROUTER_RESOLUTION = process.env.OPENROUTER_RESOLUTION || '2K';
 
 // Suffisso di stile per mantenere coerenza grafica con le vecchie copertine.
 // Descrive la testata (non la scena, che la scrive Hermes nel prompt).
-// Le copertine storiche sono caricature a fumetto RICCHE, dettagliate e super colorate
-// (non minimal/piatte): il suffisso spinge esattamente in quella direzione.
+// Obiettivo: fumetto MODERNO, pulito e leggibile - ogni personaggio e oggetto si deve
+// riconoscere a colpo d'occhio. Da evitare come la peste il look "vignetta retrò da
+// settimanale enigmistico" (texture di stampa vintage, retini, xilografia, colori spenti),
+// che è quello che il modello produceva prima.
 const STYLE_SUFFIX =
-    'Detailed full-color comic caricature illustration for the front page of a satirical ' +
-    'fantasy-football newspaper. Richly detailed hand-drawn editorial cartoon like classic ' +
-    'satirical sports comics: bold clean ink outlines, saturated full colors with shading and ' +
-    'highlights, exaggerated caricatured characters and mascots with big expressions. ' +
-    'The scene must be BUSY and PACKED, not sparse or minimal: one clear hero action in the ' +
-    'foreground, PLUS several extra comic elements scattered around it - side characters or ' +
-    'onlookers reacting, a recurring mascot animal, small sight-gag props and objects relevant ' +
-    'to the story, background details. Think crowded satirical-magazine cover, many things to look ' +
-    'at, not a single figure alone in empty space. Setting: Lake Como (Lario) with mountains, a ' +
-    'rowing boat and lakeside villages worked into the background. Goliardic playful humor, never ' +
-    'mean-spirited. This is a DRAWN COLORED COMIC - NOT flat or minimalist, NOT painterly-realistic, ' +
-    'NOT a 3D render, NOT a single isolated subject on an empty background. ' +
+    'Modern polished full-color comic illustration for the front page of a satirical ' +
+    'fantasy-football newspaper. Contemporary digital cartoon art with crisp clean ink outlines, ' +
+    'bright saturated colors, smooth cel shading and highlights, expressive caricatured characters ' +
+    'and mascots with big readable faces. ' +
+    'CLARITY IS ESSENTIAL: every character, animal, object and prop must be drawn cleanly and be ' +
+    'instantly recognizable for what it is - solid well-defined shapes, correct anatomy and ' +
+    'proportions, no vague blobs, no mushy or scribbly details, no ambiguous shapes. ' +
+    'The scene must be BUSY and PACKED, not sparse: one clear hero action in the foreground, PLUS ' +
+    'several extra comic elements around it - side characters reacting, mascot animals, sight-gag ' +
+    'props relevant to the story. Many things to look at, but each one crisply drawn. ' +
+    'Setting: Lake Como (Lario) with mountains, a rowing boat and lakeside villages in the background. ' +
+    'Irreverent, cheeky, fun modern humor - never mean-spirited, never dated. ' +
+    'ABSOLUTELY AVOID: vintage or retro print look, old newspaper cartoon style, halftone dot ' +
+    'texture, woodcut / engraving / linocut / risograph, aged paper texture, muted washed-out ' +
+    'palette, sketchy scratchy linework, painterly realism, photorealism, 3D render, ' +
+    'single isolated subject on an empty background. ' +
     'Loose free edges suitable for cropping. ' +
     'NO readable text, letters, numbers, watermark, signature or logo of any kind.';
 
 // Istruzione testuale che accompagna i riferimenti di stile (solo google/openrouter)
 const STYLE_REF_INSTRUCTION =
     'The attached images are past covers of "La Gazzetta del Laghèe", a satirical fantasy-football ' +
-    'newspaper. Match their style very closely: the same richly detailed, full-color hand-drawn ' +
-    'comic caricature look, bold ink outlines, saturated colors with shading, exaggerated character ' +
-    'faces, recurring mascots, and above all the same BUSY, PACKED composition with several comic ' +
-    'elements sharing the frame - notice how none of these reference covers show just one isolated ' +
-    'figure in empty space. Keep it a drawn colored comic (not a painting, not a photo, not a 3D ' +
-    'render). Do NOT copy their exact subject or layout: the scene comes only from the prompt below.';
+    'newspaper. Match their style very closely: the same modern, clean, brightly colored comic ' +
+    'illustration look, crisp ink outlines, expressive caricatured faces, recurring mascots, and ' +
+    'the same BUSY composition with several elements sharing the frame. Note especially how every ' +
+    'single element in them is drawn clearly and is immediately recognizable, and how bright and ' +
+    'contemporary the colors are - not faded, not retro-print, not a vintage newspaper cartoon. ' +
+    'Do NOT copy their exact subject or layout: the scene comes only from the prompt below.';
 
 const MIME_BY_EXT = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' };
 
