@@ -27,6 +27,23 @@ Ruoli:
 
 ---
 
+## ⛔ Regola dei due STOP (la più importante di tutte)
+
+La procedura ha **due punti in cui devi fermarti e aspettare una risposta dell'utente**:
+
+1. **Passo 3b** — conferma del **testo**, prima di pubblicare.
+2. **Passo 5** — conferma dell'**immagine**, prima di consegnare il messaggio WhatsApp.
+
+In entrambi: manda il messaggio, **chiudi il turno, non chiamare altri strumenti**. Non
+proseguire perché "tanto poi glielo faccio vedere": una volta pubblicato è online.
+Non decidere tu al posto dell'utente. **Il silenzio non è un sì**, e nemmeno un "bello!"
+generico è una conferma se non è riferito a quella domanda.
+
+Se l'utente ti chiede di fare tutto in autonomia, spiega che le due conferme sono
+volute e chiedi comunque.
+
+---
+
 ## Procedura completa (in ordine)
 
 ### 1. Che giornata è
@@ -85,29 +102,70 @@ Produci internamente: `title`, `description`, `body_md`, `cover.titolo_principal
 `cover.sottotitolo` e `cover.image_prompt` (in inglese, descrive solo la scena: lo stile
 della testata lo aggiunge automaticamente il generatore di immagini).
 
-**L'`image_prompt` usa i nomi VERI delle squadre presi da `/api/verdetto`** (campione,
-podio, cucchiaio di legno…), mai nomi inventati: così la caricatura ritrae le squadre
-giuste della giornata (es. il campione sul trono è la squadra reale, il cucchiaio di legno
-ha il mestolo, ecc.). Puoi attingere ai **motivi ricorrenti** della testata: il cucciolo
-"Cuccioloni", il razzo "Stoke Azzo", il lupo, la pioggia di melanzane 🍆, il trono, il lago
-di Como con barca a remi, l'auto d'epoca "Brianza".
+#### Come si scrive l'`image_prompt` — la regola del gioco di parole
 
-**La scena deve essere affollata di gag, non un soggetto isolato**: descrivi un'azione
-centrale (l'eroe/il campione di giornata) MA circondata da 2-3 elementi comici di contorno
-(comparse che reagiscono, una mascotte, un oggetto/gag legato alla giornata) — guarda le
-copertine storiche come riferimento di densità, non stanno mai su un solo personaggio in
-uno spazio vuoto. Niente testo leggibile nell'immagine (le scritte le mette il template).
+**Il cuore della copertina sono i nomi delle squadre trasformati in personaggi visivi.**
+Prendi i nomi VERI da `/api/verdetto` (campione di giornata, podio, cucchiaio di legno) e
+per ognuno inventa un **soggetto disegnabile che gioca sul nome**. Mai nomi inventati, mai
+un manager generico senza identità.
 
-### 3b. Conferma del TESTO (obbligatoria)
+Glossario visivo delle squadre ricorrenti (usa questo, ed estendilo con lo stesso criterio
+per le squadre che non sono in elenco):
+
+| Squadra | Soggetto da disegnare |
+|---|---|
+| Cuccioloni | un cucciolo di golden retriever con bandana, disegnato bene |
+| Raga di Oporto | ragazzi festanti col vino Porto / caravelle e case colorate di Porto |
+| Stoke Azzo | un razzo che decolla, o una melanzana 🍆 gigante (allusione, mai volgarità esplicita) |
+| Brianza Boys | un gruppetto di ragazzi in tuta con lo striscione "Brianza" |
+| Stratosvarius | un tizio che fa una papera clamorosa, con stelline di svarione intorno |
+| Caniggia Vola | un giocatore coi capelloni anni '90 che vola a mezz'aria |
+| Fantagiulia | una figura femminile alata sopra la scena |
+| AS Tronzi | un tronco / ceppo di legno con la faccia |
+| Cippalippa1418 | un gesto di scherno alla vecchia maniera |
+| Fantamagica | un mago con cilindro e bacchetta |
+
+Criterio per una squadra nuova: leggi il nome, trova la parola concreta dentro il nome
+(animale, città, oggetto, verbo) e disegna quella. Se il nome non suggerisce niente, dai
+alla squadra una maglia con un colore distintivo e un tratto caratteriale.
+
+**Il ruolo lo decide la giornata**: il campione sta al centro in trionfo, il cucchiaio di
+legno è mesto in un angolo col mestolo, gli altri del podio reagiscono intorno.
+
+**La scena deve essere affollata di gag, non un soggetto isolato**: un'azione centrale
+(il campione di giornata) circondata da 2-3 elementi comici di contorno — le altre squadre
+come personaggi, una mascotte, un oggetto-gag legato alla giornata, il lago sullo sfondo.
+Le copertine storiche non mostrano mai un solo personaggio in uno spazio vuoto.
+
+**Descrivi ogni soggetto in modo concreto e disegnabile** (cosa è, cosa fa, com'è vestito):
+serve a farlo uscire nitido e riconoscibile, non una macchia informe. Lo stile grafico
+(fumetto moderno, colori vivaci, tratto pulito) lo aggiunge in automatico il generatore:
+tu descrivi solo **chi c'è e cosa fa**.
+
+Niente testo leggibile nell'immagine: le scritte le mette il template, e i modelli le
+disegnano storte. Se serve evocare una scritta, usa un cartello **vuoto** o un simbolo.
+
+### 3b. Conferma del TESTO (STOP OBBLIGATORIO)
+
+⛔ **Questo è uno stop vero: manda il messaggio e CHIUDI IL TURNO.** Non chiamare nessun
+altro strumento, non pubblicare, non proseguire "tanto poi glielo mostro". Devi aspettare
+un nuovo messaggio dell'utente.
 
 Manda all'utente su Telegram il **testo** della bozza (title + description + body_md +
-image_prompt) e chiedi esplicitamente: **«Pubblico così? Vuoi modificare qualcosa (dimmi
-cosa)? O rifaccio?»**
-- Se risponde **OK / vai / 👍** → vai al passo 4.
-- Se manda **correzioni** → riscrivi applicandole e rimanda la bozza.
+image_prompt) e chiudi con:
+
+```
+Confermi il TESTO?
+✅ "ok testo" → procedo con la pubblicazione
+✏️ dimmi cosa cambiare → riscrivo
+🔄 "rifai" → rigenero da capo
+```
+
+- Se risponde **ok / vai / 👍** → vai al passo 4.
+- Se manda **correzioni** → riscrivi e rimanda la bozza (di nuovo con lo stop).
 - Se dice di rifare → rigenera da capo.
 
-**NON procedere alla pubblicazione senza un OK esplicito dell'utente sul testo.**
+**Il silenzio non è un sì.** Senza una risposta esplicita dell'utente non si pubblica.
 
 ### 4. Pubblica
 
@@ -124,29 +182,44 @@ Content-Type: application/json
     "titolo_principale": "MAIUSCOLO, MAX 60 CARATTERI",
     "sottotitolo": "Sommario della giornata, max 180 caratteri",
     "image_prompt": "Detailed English prompt for the satirical hero illustration"
-  }
+  },
+  "conferma": true
 }
 ```
+
+`"conferma": true` va messo **solo dopo che l'utente ha detto sì al passo 3b**. Senza,
+il server risponde `409` e non pubblica: è la rete di sicurezza contro la pubblicazione
+non autorizzata. Non aggiungerlo mai di tua iniziativa per "sbloccare" la chiamata.
 
 Non includere `box1`/`box2`/`box3`, `giornata` o `stagione`: il server li ricava da solo
 (li puoi passare solo se stai deliberatamente forzando una giornata specifica, caso raro).
 
 Risposte:
 - **`201`** → pubblicato. Contiene `slug`, `commit`, `liveUrl`, `coverUrl`. Vai al passo 5.
+- **`409` con `richiedeConferma: true`** → hai saltato la conferma dell'utente. Torna al
+  passo 3b, mostra la bozza e aspetta la risposta.
 - **`400`** → `dettagli` elenca ogni campo da correggere. Correggi e ripeti la chiamata.
 - **`409`** → l'articolo esiste già o la giornata non è pronta. Riporta `error` all'utente
   e fermati (non ripetere con `force` senza che l'utente lo chieda esplicitamente).
 - **`401`/`500`** → problema di configurazione lato server. Riporta l'errore e fermati.
 
-### 5. Conferma dell'IMMAGINE (obbligatoria)
+### 5. Conferma dell'IMMAGINE (STOP OBBLIGATORIO)
 
 Attendi ~90 secondi (tempo di run della GitHub Action che genera la copertina), poi
 controlla che `coverUrl` risponda 200 (**max 4 tentativi, un minuto di distanza l'uno
 dall'altro**). Se dopo i tentativi non risponde ancora, avvisa l'utente che la Action
 potrebbe essere fallita (da controllare nella tab Actions di GitHub) e fermati.
 
-Quando la copertina è pronta, **mandala su Telegram** e chiedi: **«Ti va bene questa
-copertina, o ne rigenero un'altra variante?»**
+⛔ **Secondo stop vero.** Quando la copertina è pronta, **mandala su Telegram come
+immagine** e chiudi con:
+
+```
+Confermi l'IMMAGINE?
+✅ "ok immagine" → ti preparo il messaggio per WhatsApp
+🔄 "rigenera" → ne creo un'altra variante
+```
+
+Poi **chiudi il turno e aspetta la risposta.** Non mandare il messaggio WhatsApp adesso.
 
 - Se l'utente **approva** → vai al passo 6.
 - Se l'utente **vuole una variante** (o dice che l'immagine non va) → chiama:
