@@ -3,214 +3,524 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Template - La Gazzetta del Laghée</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Template - La Gazzetta del Laghèe</title>
+
+    <!--
+      PRIMA PAGINA — La Gazzetta del Laghèe
+      Impaginato come un quotidiano sportivo: testata vettoriale, occhiello,
+      titolo di richiamo, catenaccio su due colonne, foto d'apertura con
+      didascalia e tre riquadri di dati in coda.
+
+      Riempito da scripts/gazzetta/genera_gazzetta.js -> renderCover().
+      Gli id agganciati dal JS: top-date, top-kicker, main-headline, sub-headline,
+      main-img-tag, main-placeholder-text, box{1,2,3}-title, box{1,2,3}-rows.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400;1,500&family=Roboto+Condensed:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --gazzetta-pink: #F9D5DB;
-            --text-dark: #111111;
+            /* Carta e inchiostri: rosa "rosea" un filo desaturato, nero caldo da stampa */
+            --paper:      #F3D2DA;
+            --paper-deep: #E9C2CB;
+            --panel:      #FDF1F3;
+            --ink:        #16100F;
+            --ink-soft:   rgba(22, 16, 15, 0.62);
+            --hairline:   rgba(22, 16, 15, 0.24);
+            --red:        #C8102E;
+            --blue:       #1B4C8C;
+            --gold:       #A97514;
+
+            --font-display: 'Anton', 'Oswald', 'Liberation Sans Narrow', Impact, sans-serif;
+            --font-label:   'Oswald', 'Liberation Sans Narrow', sans-serif;
+            --font-serif:   'Lora', 'Liberation Serif', Georgia, serif;
+            --font-data:    'Roboto Condensed', 'Liberation Sans Narrow', sans-serif;
         }
+
+        * { box-sizing: border-box; }
 
         body {
-            background-color: var(--gazzetta-pink);
-            color: var(--text-dark);
-            font-family: 'Roboto', sans-serif;
+            background-color: #cfa9b2;
+            color: var(--ink);
+            font-family: var(--font-data);
             margin: 0;
-            padding: 20px;
+            padding: 24px;
             display: flex;
             justify-content: center;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* ---------------------------------------------------------------
+           IL FOGLIO
+           La grana è generata via SVG (feTurbulence) e sovrapposta in
+           multiply: dà l'irregolarità della carta senza file esterni.
+        --------------------------------------------------------------- */
         .page-container {
             width: 900px;
-            background-color: var(--gazzetta-pink);
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Top bar */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 3px solid var(--text-dark);
-            border-bottom: 2px solid var(--text-dark);
-            padding: 5px 0;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-        }
-
-        /* Logo */
-        .header-logo-container {
-            text-align: center;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .gazzetta-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 85px;
-            font-weight: 900;
-            color: var(--text-dark);
-            letter-spacing: -2.5px;
-            margin: 0;
-            line-height: 1;
-            transform: scaleY(1.15) scaleX(0.95);
-            transform-origin: center bottom;
-        }
-        .gazzetta-subtitle {
-            font-family: 'Roboto', sans-serif;
-            font-size: 16px;
-            margin-top: 18px;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .pink-globe { color: #d13264; font-size: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
-
-        /* Titoli principali */
-        .main-titles {
-            text-align: center;
-            margin-bottom: 15px;
-            border-bottom: 4px solid var(--text-dark);
-            padding-bottom: 15px;
-        }
-        .main-titles h2 {
-            font-family: 'Oswald', sans-serif;
-            font-size: 52px;
-            line-height: 1.1;
-            margin: 0 0 10px 0;
-            text-transform: uppercase;
-        }
-        .main-titles h3 {
-            font-family: 'Roboto', sans-serif;
-            font-size: 22px;
-            font-weight: 400;
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        /* Immagine hero */
-        .main-image-wrapper {
-            width: 100%;
-            height: 520px;
-            border: 3px solid var(--text-dark);
-            background-color: #e8c6cc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
             position: relative;
+            padding: 26px 30px 22px;
+            background-color: var(--paper);
+            background-image:
+                radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0) 55%),
+                radial-gradient(90% 60% at 100% 100%, rgba(120, 60, 75, 0.10) 0%, rgba(120,60,75,0) 60%);
+            box-shadow: 0 18px 60px rgba(50, 20, 30, 0.35);
             overflow: hidden;
         }
-        .main-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .placeholder-text {
-            color: rgba(0,0,0,0.5);
-            font-family: 'Oswald', sans-serif;
-            font-size: 24px;
+        /* grana della carta */
+        .page-container::before {
+            content: '';
             position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.5;
+            mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.22'/></svg>");
+        }
+        /* fibre orizzontali appena percettibili */
+        .page-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.35;
+            background-image: repeating-linear-gradient(0deg, rgba(22,16,15,0.035) 0 1px, rgba(255,255,255,0) 1px 4px);
+        }
+        .page-inner { position: relative; z-index: 2; }
+
+        /* ---------------------------------------------------------------
+           FILETTO SUPERIORE (data, edizione, sito)
+        --------------------------------------------------------------- */
+        .top-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            font-family: var(--font-label);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1.1px;
+            text-transform: uppercase;
+            padding: 6px 0 7px;
+            border-top: 4px solid var(--ink);
+            border-bottom: 1px solid var(--hairline);
+        }
+        .top-strip .center { color: var(--ink-soft); letter-spacing: 3px; font-weight: 500; }
+        .top-strip .right { color: var(--red); }
+
+        /* ---------------------------------------------------------------
+           TESTATA
+           Il marchio è un tracciato vettoriale (niente font a runtime):
+           vedi scripts/gazzetta/tools/build_masthead.py
+        --------------------------------------------------------------- */
+        .masthead {
+            display: grid;
+            grid-template-columns: 118px 1fr 118px;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 0 6px;
+        }
+        .wordmark { width: 100%; height: auto; display: block; color: var(--ink); }
+
+        /* "orecchie" laterali della testata */
+        .ear {
+            font-family: var(--font-label);
+            text-transform: uppercase;
+            font-size: 9.5px;
+            line-height: 1.35;
+            letter-spacing: 0.8px;
+            color: var(--ink-soft);
+            text-align: center;
+        }
+        .ear b { display: block; font-size: 21px; font-weight: 700; color: var(--ink); letter-spacing: 0; line-height: 1; }
+        .ear .frame {
+            border: 1px solid var(--hairline);
+            border-radius: 2px;
+            padding: 7px 6px 6px;
+            background: rgba(255,255,255,0.35);
+        }
+        .crest { width: 34px; height: 34px; display: block; margin: 0 auto 4px; color: var(--ink); }
+
+        .strapline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: var(--font-label);
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 4.5px;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin-top: 2px;
+        }
+        .strapline::before,
+        .strapline::after { content: ''; flex: 1; height: 1px; background: var(--hairline); }
+        .strapline .ball { width: 13px; height: 13px; color: var(--red); }
+
+        /* doppio filetto di chiusura testata */
+        .rule-double { margin-top: 12px; border-top: 5px solid var(--ink); border-bottom: 1.5px solid var(--ink); height: 4px; }
+
+        /* ---------------------------------------------------------------
+           APERTURA: occhiello + titolo + catenaccio
+        --------------------------------------------------------------- */
+        .lead { padding: 16px 0 0; }
+
+        .kicker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-label);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2.4px;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin-bottom: 10px;
+        }
+        .kicker .tag {
+            background: var(--red);
+            color: #fff;
+            padding: 4px 10px 3px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
+            padding-right: 15px;
+        }
+        .kicker .line { flex: 1; height: 1px; background: var(--hairline); }
+
+        .headline {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-size: 74px;      /* ricalcolato a runtime per riempire il blocco */
+            line-height: 0.92;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            margin: 0;
+            text-wrap: balance;
+        }
+        .headline em { font-style: normal; color: var(--red); }
+
+        /* catenaccio: una colonna, due se il testo è lungo (classe .two-col da JS) */
+        .standfirst {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--hairline);
+            font-family: var(--font-serif);
+            font-size: 17.5px;
+            line-height: 1.42;
+            color: rgba(22,16,15,0.86);
+        }
+        .standfirst.two-col {
+            column-count: 2;
+            column-gap: 30px;
+            column-rule: 1px solid var(--hairline);
+        }
+        .standfirst p { margin: 0; }
+        .standfirst .dropline {
+            font-family: var(--font-label);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--ink);
+        }
+
+        /* ---------------------------------------------------------------
+           FOTO D'APERTURA
+        --------------------------------------------------------------- */
+        .hero {
+            margin: 18px 0 0;
+            position: relative;
+            border: 2px solid var(--ink);
+            background: var(--paper-deep);
+            overflow: hidden;
+        }
+        .hero-frame {
+            height: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .hero-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        /* leggerissima retinatura: l'illustrazione "si siede" sulla carta */
+        .hero-frame::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(255,240,244,0.10) 0%, rgba(0,0,0,0) 35%, rgba(30,10,18,0.16) 100%);
+        }
+        .placeholder-text {
+            font-family: var(--font-label);
+            font-size: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(22,16,15,0.42);
             text-align: center;
             padding: 20px;
         }
+        .hero-caption {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 2px solid var(--ink);
+            background: var(--ink);
+            color: rgba(255,255,255,0.92);
+            font-family: var(--font-data);
+            font-size: 12px;
+            letter-spacing: 0.3px;
+            padding: 7px 12px;
+        }
+        .hero-caption .label {
+            font-family: var(--font-label);
+            font-weight: 700;
+            font-size: 10.5px;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            color: var(--paper);
+            border: 1px solid rgba(246,217,223,0.5);
+            padding: 2px 7px 1px;
+            white-space: nowrap;
+        }
+        .hero-caption .text { flex: 1; opacity: 0.88; }
 
-        /* 3 box DATI (Top5 / Classifica / Verdetti) */
-        .bottom-boxes {
+        /* ---------------------------------------------------------------
+           TRE RIQUADRI DI DATI
+        --------------------------------------------------------------- */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            font-family: var(--font-label);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3.4px;
+            text-transform: uppercase;
+            color: var(--red);
+        }
+        .section-label::before,
+        .section-label::after { content: ''; height: 2px; background: var(--ink); }
+        .section-label::before { width: 26px; }
+        .section-label::after { flex: 1; opacity: 0.25; }
+
+        .panels {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 14px;
+            margin-top: 10px;
         }
-        .box {
-            border: 2px solid var(--text-dark);
+        .panel {
+            border: 1.5px solid var(--ink);
+            background: var(--panel);
             display: flex;
             flex-direction: column;
-            background-color: #fdeef1;
+            box-shadow: 3px 3px 0 rgba(22,16,15,0.12);
         }
-        .box-header {
-            font-family: 'Oswald', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
+        .panel .panel-rows { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; }
+        .panel-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px 6px;
+            color: #fff;
+            border-bottom: 1.5px solid var(--ink);
+            font-family: var(--font-label);
+            font-size: 14.5px;
+            font-weight: 600;
+            letter-spacing: 1.4px;
             text-transform: uppercase;
-            color: white;
-            padding: 7px 10px;
-            letter-spacing: 0.3px;
-            border-bottom: 2px solid var(--text-dark);
+            line-height: 1.1;
         }
-        .box-rows {
-            list-style: none;
-            margin: 0;
-            padding: 8px 10px;
+        .panel-head svg { width: 15px; height: 15px; flex: none; opacity: 0.95; }
+        .panel-rows { list-style: none; margin: 0; padding: 6px 10px 9px; }
+        .panel-rows li {
             display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .box-rows li {
-            font-family: 'Roboto', sans-serif;
+            align-items: baseline;
+            gap: 7px;
             font-size: 14px;
-            line-height: 1.35;
-            padding: 3px 0;
-            border-bottom: 1px dashed rgba(0,0,0,0.18);
-            display: flex;
-            gap: 6px;
+            line-height: 1.5;
+            padding: 4.5px 0;
+            border-bottom: 1px dotted rgba(22,16,15,0.22);
         }
-        .box-rows li:last-child { border-bottom: none; }
-        .box-rows li b { font-weight: 700; }
+        .panel-rows li:last-child { border-bottom: none; }
 
-        .bg-dark { background-color: #222; }
-        .bg-red { background-color: #d11124; }
-        .bg-blue { background-color: #295c9e; }
-        .bg-gold { background-color: #b8860b; }
+        .rank {
+            flex: none;
+            width: 19px;
+            height: 19px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-label);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #fff;
+            background: var(--ink);
+            border-radius: 50%;
+            align-self: center;
+        }
+        .rank.r1 { background: var(--gold); }
+        .rank.r2 { background: #7C8489; }
+        .rank.r3 { background: #A2643A; }
+
+        .name { font-weight: 500; letter-spacing: 0.1px; }
+        .name.strong { font-weight: 700; }
+        /* filetto puntinato che collega nome e valore, come nelle tabelle dei quotidiani */
+        .leader { flex: 1; height: 0; border-bottom: 1px dotted rgba(22,16,15,0.3); transform: translateY(-4px); }
+        .value {
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+        .panel-rows li.plain { justify-content: space-between; }
+
+        .bg-dark { background-color: var(--ink); }
+        .bg-red  { background-color: var(--red); }
+        .bg-blue { background-color: var(--blue); }
+        .bg-gold { background-color: var(--gold); }
+
+        /* ---------------------------------------------------------------
+           PIEDE DI PAGINA
+        --------------------------------------------------------------- */
+        .colophon {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 16px;
+            padding-top: 8px;
+            border-top: 2.5px solid var(--ink);
+            font-family: var(--font-label);
+            font-size: 10.5px;
+            font-weight: 500;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+        }
+        .barcode { display: flex; align-items: flex-end; gap: 1.5px; height: 16px; opacity: 0.75; }
+        .barcode i { display: block; width: 1.5px; height: 100%; background: var(--ink); }
+        .barcode i.w { width: 3px; }
+        .barcode i.s { height: 65%; }
     </style>
 </head>
 <body>
 
     <div class="page-container">
+      <div class="page-inner">
 
-        <div class="top-bar">
+        <div class="top-strip">
             <div id="top-date">EDIZIONE STRAORDINARIA — [INSERIRE DATA QUI]</div>
-            <div id="top-website">www.fantalaghee.live</div>
+            <div class="center">Fanta Laghèe — Stagione 2025/26</div>
+            <div class="right" id="top-website">www.fantalaghee.live</div>
         </div>
 
-        <div class="header-logo-container">
-            <h1 class="gazzetta-title">La Gazzetta del Laghèe</h1>
-            <div class="gazzetta-subtitle">
-                Tutto il Lario <span class="pink-globe">⚽</span> per la Vita
+        <!-- TESTATA -->
+        <div class="masthead">
+            <div class="ear">
+                <div class="frame">
+                    Giornata
+                    <b id="ear-giornata">—</b>
+                    Stagione 25/26
+                </div>
+            </div>
+
+            <!-- Marchio vettoriale: generato da tools/build_masthead.py -->
+            <svg class="wordmark" viewBox="0 -790 10092 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="La Gazzetta del Laghèe">
+                <g fill="currentColor" id="masthead-paths"></g>
+            </svg>
+
+            <div class="ear">
+                <div class="frame">
+                    <svg class="crest" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M32 5 L54 13 V31 C54 45 44 55 32 59 C20 55 10 45 10 31 V13 Z"/>
+                        <path d="M18 38 C24 33 30 41 36 36 C41 32 45 35 47 37" stroke-width="2.2"/>
+                        <path d="M18 45 C24 40 30 48 36 43 C41 39 45 42 47 44" stroke-width="2.2"/>
+                        <circle cx="32" cy="22" r="8.5" stroke-width="2.4"/>
+                        <path d="M32 13.5 L32 18 M23.8 19.2 L28 22 M40.2 19.2 L36 22 M27 29.6 L28.8 25.2 M37 29.6 L35.2 25.2" stroke-width="1.9"/>
+                    </svg>
+                    Edizione del Lario
+                </div>
             </div>
         </div>
 
-        <div class="main-titles">
-            <h2 id="main-headline">[INSERIRE TITOLO PRINCIPALE]</h2>
-            <h3 id="sub-headline">[Inserire sottotitolo...]</h3>
+        <div class="strapline">
+            Tutto il Lario
+            <svg class="ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <circle cx="12" cy="12" r="9.4"/>
+                <path d="M12 6.6l3.6 2.6-1.4 4.3H9.8L8.4 9.2 12 6.6Z" fill="currentColor" stroke="none"/>
+                <path d="M12 2.6v4M3.1 9.2l4.9 3.6M20.9 9.2L16 12.8M6.4 20.4l3.4-6.9M17.6 20.4l-3.4-6.9"/>
+            </svg>
+            per la Vita
         </div>
 
-        <!-- HERO: illustrazione satirica generata dall'AI -->
-        <div class="main-image-wrapper" id="main-image-container">
-            <span class="placeholder-text" id="main-placeholder-text">IMMAGINE PRINCIPALE</span>
-            <img id="main-img-tag" src="" alt="" style="display: none;">
-        </div>
+        <div class="rule-double"></div>
 
-        <!-- 3 BOX DATI -->
-        <div class="bottom-boxes">
-            <div class="box" id="box-1">
-                <div class="box-header bg-gold" id="box1-title">[TITOLO BOX 1]</div>
-                <ul class="box-rows" id="box1-rows"></ul>
+        <!-- APERTURA -->
+        <div class="lead">
+            <div class="kicker" id="lead-kicker">
+                <span class="tag" id="kicker-tag">Prima Pagina</span>
+                <span id="kicker-text">Il racconto della giornata</span>
+                <span class="line"></span>
             </div>
-            <div class="box" id="box-2">
-                <div class="box-header bg-blue" id="box2-title">[TITOLO BOX 2]</div>
-                <ul class="box-rows" id="box2-rows"></ul>
-            </div>
-            <div class="box" id="box-3">
-                <div class="box-header bg-red" id="box3-title">[TITOLO BOX 3]</div>
-                <ul class="box-rows" id="box3-rows"></ul>
+
+            <h2 class="headline" id="main-headline">[INSERIRE TITOLO PRINCIPALE]</h2>
+
+            <div class="standfirst">
+                <p id="sub-headline">[Inserire sottotitolo...]</p>
             </div>
         </div>
 
+        <!-- FOTO D'APERTURA -->
+        <figure class="hero">
+            <div class="hero-frame" id="main-image-container">
+                <span class="placeholder-text" id="main-placeholder-text">Immagine principale</span>
+                <img id="main-img-tag" src="" alt="" style="display: none;">
+            </div>
+            <figcaption class="hero-caption">
+                <span class="label">L'illustrazione</span>
+                <span class="text" id="hero-caption-text">La giornata del Fanta Laghèe vista dalle sponde del Lario.</span>
+            </figcaption>
+        </figure>
+
+        <!-- RIQUADRI DATI -->
+        <div class="section-label">I numeri della giornata</div>
+        <div class="panels">
+            <div class="panel" id="box-1">
+                <div class="panel-head bg-gold">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/><path d="M10 14v3h4v-3M8 20h8"/></svg>
+                    <span id="box1-title">[TITOLO BOX 1]</span>
+                </div>
+                <ul class="panel-rows" id="box1-rows"></ul>
+            </div>
+            <div class="panel" id="box-2">
+                <div class="panel-head bg-blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+                    <span id="box2-title">[TITOLO BOX 2]</span>
+                </div>
+                <ul class="panel-rows" id="box2-rows"></ul>
+            </div>
+            <div class="panel" id="box-3">
+                <div class="panel-head bg-red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V4h6v7l3 4H6l3-4Z"/><path d="M12 15v5"/></svg>
+                    <span id="box3-title">[TITOLO BOX 3]</span>
+                </div>
+                <ul class="panel-rows" id="box3-rows"></ul>
+            </div>
+        </div>
+
+        <!-- PIEDE -->
+        <div class="colophon">
+            <span>La Gazzetta del Laghèe — Organo ufficiale del Fanta Laghèe</span>
+            <span class="barcode" aria-hidden="true">
+                <i></i><i class="w"></i><i class="s"></i><i></i><i class="w s"></i><i></i><i></i><i class="w"></i><i class="s"></i><i></i><i class="w"></i><i></i><i class="s"></i><i class="w"></i><i></i>
+            </span>
+            <span id="colophon-right">www.fantalaghee.live</span>
+        </div>
+
+      </div>
     </div>
 
 </body>

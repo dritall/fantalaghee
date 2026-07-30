@@ -83,6 +83,7 @@ async function buildOne(mdPath, { force = false } = {}) {
         data: c.data || topBarDate(c.giornata ?? ''),
         titolo_principale: c.titolo_principale,
         sottotitolo: c.sottotitolo,
+        didascalia: c.didascalia,
         img_principale: heroSrc,
         box1: c.box1,   // { title, rows: [...] }
         box2: c.box2,

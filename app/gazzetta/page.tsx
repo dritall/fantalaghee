@@ -42,12 +42,17 @@ export default function GazzettaPage() {
         <main className="min-h-screen pt-24 pb-12 px-4 md:px-8 relative">
 
             <div className="relative z-30 max-w-7xl mx-auto space-y-12">
+                {/* Testata: lo stesso marchio vettoriale della prima pagina stampata */}
                 <div className="text-center space-y-4">
-                    <h1 className="text-4xl md:text-6xl font-bold font-oswald text-pink-600 uppercase tracking-tight">
-                        La Gazzetta del Laghèe
-                    </h1>
-                    <p className="text-lg text-white/55 font-serif italic">
-                        "L'unica testata che non ha paura di prendere 65.5"
+                    <h1 className="sr-only">La Gazzetta del Laghèe</h1>
+                    <div className="testata-mark text-pink-200 w-full max-w-3xl mx-auto" aria-hidden="true" />
+                    <div className="flex items-center gap-4 justify-center max-w-2xl mx-auto font-testata text-[10px] md:text-xs uppercase tracking-[0.34em] text-white/45">
+                        <span className="h-px flex-1 bg-white/20" />
+                        Tutto il Lario per la Vita
+                        <span className="h-px flex-1 bg-white/20" />
+                    </div>
+                    <p className="text-lg text-white/55 font-lora italic">
+                        &ldquo;L&apos;unica testata che non ha paura di prendere 65.5&rdquo;
                     </p>
                 </div>
 

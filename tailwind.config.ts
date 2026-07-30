@@ -10,7 +10,10 @@ const config: Config = {
         extend: {
             fontFamily: {
                 outfit: ['var(--font-outfit)', 'sans-serif'],
-                inter: ['var(--font-inter)', 'sans-serif']
+                inter: ['var(--font-inter)', 'sans-serif'],
+                // Coppia della Gazzetta: condensato per i titoli, grazie per il testo
+                testata: ['var(--font-condensed)', 'ui-sans-serif', 'system-ui'],
+                lora: ['var(--font-lora)', 'Georgia', 'serif']
             },
             sans: ["var(--font-inter)", "ui-sans-serif", "system-ui"],
             oswald: ["var(--font-outfit)", "ui-sans-serif", "system-ui"],
