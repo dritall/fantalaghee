@@ -5,6 +5,21 @@
 > le sessioni di Claude Code non condividono memoria tra loro. Leggi prima questo file,
 > poi continua da qui.
 
+## ➕ Aggiunta (29 luglio 2026) — cancellazione articolo, a due passi
+
+Su richiesta dell'utente (comodo per pulire un test pubblicato senza una nuova giornata
+reale da raccontare): `app/api/gazzetta/publish/route.ts` espone ora anche
+**`DELETE`**, stesso endpoint, stessa autenticazione (`GAZZETTA_PUBLISH_SECRET`).
+Cancella l'articolo `.md` e la copertina (`.png` + eventuale hero intermedio) di una
+giornata — quella indicata in `{ "giornata": N }`, o la più alta pubblicata se omessa
+("ultima giornata"). **A due passi apposta**, perché è un'operazione difficile da
+invertire: la prima chiamata (senza `"conferma": true`) non cancella nulla e risponde
+solo con un'anteprima di cosa verrebbe rimosso; solo una seconda chiamata con
+`"conferma": true` esegue davvero. Playbook aggiornato in
+`docs/HERMES_PLAYBOOK.md` (sezione "Comando extra: cancella ultima giornata").
+
+---
+
 ## ⚡ STATO AGGIORNATO (29 luglio 2026) — le tre responsabilità spostate dal modello al codice
 
 ### Il principio

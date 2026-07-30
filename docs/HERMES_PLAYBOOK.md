@@ -145,6 +145,39 @@ Quando la copertina è pronta:
 
 ---
 
+## Comando extra: "cancella ultima giornata"
+
+Se l'utente scrive **"cancella ultima giornata"** (o "cancella giornata N"), è una richiesta
+di cancellare un articolo già pubblicato — tipicamente un test, o un errore da rimuovere.
+**È un'operazione difficile da invertire: procedi sempre in due passi.**
+
+```
+DELETE https://www.fantalaghee.live/api/gazzetta/publish
+Authorization: Bearer {GAZZETTA_PUBLISH_SECRET}
+Content-Type: application/json
+
+{ "giornata": 7 }
+```
+
+Ometti `"giornata"` per cancellare quella pubblicata più alta ("ultima giornata" alla
+lettera).
+
+1. **Prima chiamata (senza `"conferma"`)**: il server NON cancella nulla, risponde con
+   `richiedeConferma: true` e un `messaggio` che dice esattamente cosa verrebbe cancellato
+   (slug e giornata). **Riporta questo messaggio all'utente e aspetta un secondo OK
+   esplicito** — non basta il comando iniziale.
+2. **Solo dopo l'OK esplicito**, ripeti la stessa chiamata aggiungendo `"conferma": true`
+   nel body. Questa seconda chiamata cancella davvero il `.md` e la copertina (`.png` e
+   l'eventuale hero intermedio) da `main`.
+3. Risposta finale: `{ "ok": true, "giornataCancellata": N, "slug": "...", "fileRimossi": [...] }`.
+   Conferma all'utente cosa è stato rimosso.
+4. `404` → non esiste nessun articolo per quella giornata (o nessun articolo pubblicato):
+   riporta l'errore e fermati. `401`/`500` → problema di configurazione, riporta e fermati.
+
+Non serve mai per il flusso normale (pubblica-e-basta): usalo solo su richiesta esplicita.
+
+---
+
 ## Voce editoriale (sintesi)
 
 Un mix di tre firme, tutte presenti in ogni pezzo:
