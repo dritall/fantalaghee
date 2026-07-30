@@ -137,15 +137,25 @@ alla squadra una maglia con un colore distintivo e un tratto caratteriale.
 **Il ruolo lo decide la giornata**: il campione sta al centro in trionfo, il cucchiaio di
 legno è mesto in un angolo col mestolo, gli altri del podio reagiscono intorno.
 
-**La scena deve essere affollata di gag, non un soggetto isolato**: un'azione centrale
-(il campione di giornata) circondata da 2-3 elementi comici di contorno — le altre squadre
-come personaggi, una mascotte, un oggetto-gag legato alla giornata, il lago sullo sfondo.
-Le copertine storiche non mostrano mai un solo personaggio in uno spazio vuoto.
+**Massimo 3-4 soggetti, e ognuno deve avere un motivo per essere lì.** Ogni personaggio
+corrisponde a una squadra che ha fatto qualcosa in QUELLA giornata:
+
+- il **campione di giornata** al centro, in trionfo;
+- il **cucchiaio di legno** mesto in un angolo col mestolo;
+- **una o due squadre del podio** che reagiscono.
+
+Niente comparse decorative, niente folla, niente gag prese dal glossario se quella squadra
+non c'entra con la giornata. Una scena pulita con 3-4 soggetti che significano qualcosa vale
+molto più di una affollata di roba a caso: è l'errore da evitare.
 
 **Descrivi ogni soggetto in modo concreto e disegnabile** (cosa è, cosa fa, com'è vestito):
 serve a farlo uscire nitido e riconoscibile, non una macchia informe. Lo stile grafico
 (fumetto moderno, colori vivaci, tratto pulito) lo aggiunge in automatico il generatore:
 tu descrivi solo **chi c'è e cosa fa**.
+
+**Descrivi solo l'illustrazione, mai la pagina.** L'immagine finisce dentro un template che
+ha già testata, titolo e box dati: non chiedere mai testate, titoli, cornici, riquadri o
+impaginazioni dentro l'immagine, altrimenti esce un giornale dentro il giornale.
 
 Niente testo leggibile nell'immagine: le scritte le mette il template, e i modelli le
 disegnano storte. Se serve evocare una scritta, usa un cartello **vuoto** o un simbolo.

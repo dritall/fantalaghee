@@ -84,27 +84,39 @@ const STYLE_SUFFIX =
     'CLARITY IS ESSENTIAL: every character, animal, object and prop must be drawn cleanly and be ' +
     'instantly recognizable for what it is - solid well-defined shapes, correct anatomy and ' +
     'proportions, no vague blobs, no mushy or scribbly details, no ambiguous shapes. ' +
-    'The scene must be BUSY and PACKED, not sparse: one clear hero action in the foreground, PLUS ' +
-    'several extra comic elements around it - side characters reacting, mascot animals, sight-gag ' +
-    'props relevant to the story. Many things to look at, but each one crisply drawn. ' +
+    'The scene is populated but PURPOSEFUL: one clear hero action in the foreground plus only the ' +
+    'few supporting characters and props named in the scene description - every element must mean ' +
+    'something. Do not pad the picture with extra random characters, crowds or props that were not ' +
+    'asked for. Better a clean scene with 3-4 meaningful subjects than a cluttered one. ' +
     'Setting: Lake Como (Lario) with mountains, a rowing boat and lakeside villages in the background. ' +
     'Irreverent, cheeky, fun modern humor - never mean-spirited, never dated. ' +
-    'ABSOLUTELY AVOID: vintage or retro print look, old newspaper cartoon style, halftone dot ' +
-    'texture, woodcut / engraving / linocut / risograph, aged paper texture, muted washed-out ' +
-    'palette, sketchy scratchy linework, painterly realism, photorealism, 3D render, ' +
-    'single isolated subject on an empty background. ' +
+    '' +
+    'OUTPUT THE ARTWORK ONLY. This image is placed inside an existing newspaper layout that already ' +
+    'has its own masthead, headline and data boxes, so the picture itself must be JUST the ' +
+    'illustration, edge to edge, like a single painting. Do NOT draw a newspaper or magazine page. ' +
+    'Do NOT draw a masthead, logo, title bar, headline strip, caption, byline, page border, frame, ' +
+    'margins, columns, or small thumbnail panels/boxes along any edge. Nothing that looks like page ' +
+    'furniture. ' +
+    '' +
+    'ABSOLUTELY AVOID: any newspaper/magazine page layout inside the image, vintage or retro print ' +
+    'look, old newspaper cartoon style, halftone dot texture, woodcut / engraving / linocut / ' +
+    'risograph, aged paper texture, muted washed-out palette, sketchy scratchy linework, painterly ' +
+    'realism, photorealism, 3D render, single isolated subject on an empty background. ' +
     'Loose free edges suitable for cropping. ' +
     'NO readable text, letters, numbers, watermark, signature or logo of any kind.';
 
 // Istruzione testuale che accompagna i riferimenti di stile (solo google/openrouter)
 const STYLE_REF_INSTRUCTION =
-    'The attached images are past covers of "La Gazzetta del Laghèe", a satirical fantasy-football ' +
-    'newspaper. Match their style very closely: the same modern, clean, brightly colored comic ' +
-    'illustration look, crisp ink outlines, expressive caricatured faces, recurring mascots, and ' +
-    'the same BUSY composition with several elements sharing the frame. Note especially how every ' +
-    'single element in them is drawn clearly and is immediately recognizable, and how bright and ' +
-    'contemporary the colors are - not faded, not retro-print, not a vintage newspaper cartoon. ' +
-    'Do NOT copy their exact subject or layout: the scene comes only from the prompt below.';
+    'The attached images are past FRONT PAGES of "La Gazzetta del Laghèe", a satirical ' +
+    'fantasy-football newspaper. Look ONLY at the big central illustration inside them and copy its ' +
+    'DRAWING STYLE: modern clean brightly-colored comic art, crisp ink outlines, expressive ' +
+    'caricatured faces, recurring mascots, every element clearly drawn and instantly recognizable, ' +
+    'bright contemporary colors (not faded, not retro-print). ' +
+    'CRITICAL: these references are full newspaper pages, but you must NOT reproduce the page ' +
+    'itself. Ignore completely their masthead/logo, their headline text, their coloured caption ' +
+    'bars and the row of small panels at the bottom. Your output must be ONLY the central ' +
+    'illustration artwork, filling the whole frame, with no page layout around it. ' +
+    'Do NOT copy their subject or composition either: the scene comes only from the prompt below.';
 
 const MIME_BY_EXT = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' };
 
