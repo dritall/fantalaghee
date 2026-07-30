@@ -9,20 +9,20 @@ export async function GET() {
         const mdDir = path.join(process.cwd(), 'public', 'articoli', 'md');
         const files = fs.readdirSync(mdDir).filter(f => f.endsWith('.md'));
 
-        const articles = files.map(filename => {
+        const articles = files.flatMap(filename => {
             const filePath = path.join(mdDir, filename);
             const fileContent = fs.readFileSync(filePath, 'utf8');
             const { data } = matter(fileContent);
 
             // Bozze Hermes (preview copertina): non in elenco pubblico
-            if (data.draft === true) return null;
+            if (data.draft === true) return [];
 
             const date = data.date || "Senza Data";
             const stagione = data.stagione || (
                 new Date(date) >= new Date(NEW_SEASON_ARTICLES_FROM) ? CURRENT_SEASON : ARCHIVED_SEASON
             );
 
-            return {
+            return [{
                 id: filename.replace('.md', ''),
                 title: data.title || filename.replace('.md', ''),
                 date,
@@ -31,8 +31,8 @@ export async function GET() {
                 imageUrl: data.image || "/image/gazzetta/default.jpg",
                 stagione,
                 placeholder: false
-            };
-        }).filter(Boolean);
+            }];
+        });
 
         // Strict chronological sort by date descending (newest first)
         articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
