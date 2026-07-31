@@ -42,10 +42,25 @@ check(
     playerPhoto({ 'playerImagehomeleftplayerImages/x/y.webp': null }) ===
         viaProxy('https://media-sdp.legaseriea.it/playerImages/x/y.webp')
 );
+// schema verificato su un URL reale di legaseriea.it: l'underscore prima di
+// "left" c'e', e senza quello ogni foto era un 404
 check(
     'fallback costruito da stagione+squadra+giocatore',
     playerPhoto({ playerId: 'x::p9' }, 's::S1', 't::T1', 'away') ===
-        viaProxy('https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/S1/T1/away/p9left.webp')
+        viaProxy('https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/S1/T1/away/p9_left.webp')
+);
+check(
+    'caso reale: Gudmundsson della Fiorentina',
+    decodeURIComponent(
+        playerPhoto(
+            { playerId: 'serie-a::Football_Player::00b2476da2394a2dba30220e84d3d9c4' },
+            'serie-a::Football_Season::5f0e080fc3a44073984b75b3a8e06a8a',
+            'serie-a::Football_Team::5bce12d5bd864c2297695d970f92576d',
+            'home'
+        )
+    ).endsWith(
+        'https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/5f0e080fc3a44073984b75b3a8e06a8a/5bce12d5bd864c2297695d970f92576d/home/00b2476da2394a2dba30220e84d3d9c4_left.webp'
+    )
 );
 check('niente dati -> null', playerPhoto({}) === null);
 
@@ -113,7 +128,7 @@ check('ammonizione', lautaro?.yellow === true);
 check('minuti da stats array', lautaro?.minutes === 90, lautaro?.minutes);
 check('voto', lautaro?.rating === 7.5, lautaro?.rating);
 check('coordinate normalizzate', lautaro?.x === 0.5 && lautaro?.y === 0.8, [lautaro?.x, lautaro?.y]);
-check('foto costruita col fallback e proxata', String(lautaro?.photo).startsWith('/api/lega-image?src=') && decodeURIComponent(String(lautaro?.photo)).includes('/S1/H/home/p2left.webp'), lautaro?.photo);
+check('foto costruita col fallback e proxata', String(lautaro?.photo).startsWith('/api/lega-image?src=') && decodeURIComponent(String(lautaro?.photo)).includes('/S1/H/home/p2_left.webp'), lautaro?.photo);
 
 const leao = n.away.starters.find((p) => p.name === 'Leao');
 check('stats dal blocco playerstats', leao?.minutes === 85, leao?.minutes);

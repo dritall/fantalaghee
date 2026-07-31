@@ -73,6 +73,9 @@ const ROLE_LABELS: Record<number, string> = { 1: 'Portiere', 2: 'Difensore', 3: 
 
 const MEDIA_BASE = 'https://media-sdp.legaseriea.it';
 
+/** Chiave fissa della libreria foto di Lega, uguale per tutte le stagioni. */
+const PLAYER_IMAGES_KEY = 'ec93b94f74294dc98ab5bcfd67fc0d88';
+
 export const shortId = (raw: any): string => {
     if (raw == null) return '';
     const s = String(raw);
@@ -143,9 +146,12 @@ export function playerPhoto(p: any, seasonId?: string, teamId?: string, side: 'h
     const pid = shortId(p.playerId || p.id || p.player?.playerId);
     const sid = shortId(seasonId);
     const tid = shortId(teamId);
+    // Schema verificato su un URL reale servito da legaseriea.it:
+    // /playerImages/{costante}/{stagione}/{squadra}/{lato}/{giocatore}_left.webp
+    // L'underscore prima di "left" mancava, e senza quello ogni foto era un 404.
     if (pid && sid && tid) {
         return proxied(
-            `${MEDIA_BASE}/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/${sid}/${tid}/${side}/${pid}left.webp`
+            `${MEDIA_BASE}/playerImages/${PLAYER_IMAGES_KEY}/${sid}/${tid}/${side}/${pid}_left.webp`
         );
     }
     return null;

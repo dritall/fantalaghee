@@ -6,6 +6,7 @@ import { Loader2, AlertCircle, Trophy, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WaitingFirstMatchday } from "@/components/ui/WaitingFirstMatchday";
 import { CURRENT_SEASON } from "@/lib/seasons";
+import { toNumber, stripDecorations } from "@/lib/numbers";
 import { SeasonBanner } from "@/components/ui/SeasonBanner";
 import { SeasonPill } from "@/components/ui/SeasonPill";
 
@@ -34,22 +35,6 @@ function ClassificaContent() {
         }
         fetchData();
     }, [stagione]);
-
-    // Le colonne arrivano da un foglio compilato a mano: i punteggi possono
-    // avere la virgola decimale ("70,5") e spazi intorno. `parseFloat` su
-    // "70,5" restituisce 70 — mezzo punto perso a ogni giornata, con
-    // ordinamenti e massimi sbagliati. Qui la conversione è esplicita.
-    const toNumber = (raw: unknown): number | null => {
-        if (raw === null || raw === undefined) return null;
-        const s = String(raw)
-            .replace(/ /g, " ")   // spazio unificatore incollato dal foglio
-            .trim()
-            .replace(/\s/g, "")
-            .replace(",", ".");
-        if (s === "" || s === "-") return null;
-        const n = Number(s);
-        return Number.isFinite(n) ? n : null;
-    };
 
     // Le giornate si ricavano dalle colonne che il foglio espone davvero: se
     // una intestazione cambia o ne manca una, la tabella segue il dato invece
@@ -167,7 +152,7 @@ function ClassificaContent() {
 
                     <div className="flex flex-col gap-2">
                         {(mobileView === "totale" ? leaderboard : giornataBoard)?.map((team, index) => {
-                            const value = mobileView === "totale" ? team.Generale : team[lastPlayedMatchday] || "-";
+                            const value = stripDecorations(mobileView === "totale" ? team.Generale : team[lastPlayedMatchday]) || "-";
                             return (
                                 <div
                                     key={team.Team || index}
@@ -274,13 +259,13 @@ function ClassificaContent() {
 
                                         <td className="sticky left-[calc(3.5rem+190px)] z-30 bg-[#0d1330] py-2.5 px-3 text-center border-b border-r border-white/[0.12] group-hover:bg-[#131b40]">
                                             <span className="font-score font-bold text-cyan-300 text-xl tabular-nums">
-                                                {team.Generale}
+                                                {stripDecorations(team.Generale)}
                                             </span>
                                         </td>
 
                                         {matchdays.map((g) => {
-                                            const raw = team[g];
-                                            const value = toNumber(raw);
+                                            const value = toNumber(team[g]);
+                                            const raw = stripDecorations(team[g]);
                                             // il miglior punteggio della giornata si riconosce a colpo d'occhio
                                             const isBest =
                                                 value !== null && bestPerMatchday[g] != null && value === bestPerMatchday[g];
