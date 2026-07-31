@@ -138,6 +138,20 @@ export function playerPhoto(p: any, seasonId?: string, teamId?: string, side: 'h
         }
     }
 
+    // Le foto reali arrivano dentro p.imagery (da lineups API):
+    // { playerImage_home_left: "playerImages/.../left.webp",
+    //   playerImage_home_celeb: "playerImages/.../celeb.webp",
+    //   playerImage_home_middle: "playerImages/.../middle.webp" }
+    if (p.imagery && typeof p.imagery === 'object' && !Array.isArray(p.imagery)) {
+        for (const key of Object.keys(p.imagery)) {
+            const lower = key.toLowerCase();
+            const value = p.imagery[key];
+            if (typeof value === 'string' && value.includes('.webp') && lower.includes('playerimage')) {
+                return absolutize(value);
+            }
+        }
+    }
+
     for (const field of ['image', 'photo', 'pictureUrl', 'imageUrl', 'playerImage']) {
         const v = p[field] ?? p.details?.[field] ?? p.player?.[field];
         if (typeof v === 'string' && v.includes('.webp')) return absolutize(v);

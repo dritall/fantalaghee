@@ -15,27 +15,37 @@ const GROUPS: { title: string; stats: StatDef[] }[] = [
             { label: "Gol", keys: ["goals", "goal"] },
             { label: "Tiri totali", keys: ["totalscoringatt", "shots", "totalshots"] },
             { label: "Tiri in porta", keys: ["ontargetscoringatt", "shotsontarget"] },
+            { label: "Tiri dentro area", keys: ["attemptsibox", "shotinsidebox"] },
+            { label: "Tiri fuori area", keys: ["attemptsobox", "shotoutsidebox"] },
+            { label: "xG", keys: ["expectedgoals", "expected-goals"] },
+            { label: "Assist", keys: ["goalassist", "assists", "assist"] },
             { label: "Occasioni create", keys: ["bigchancecreated", "chancescreated", "keypass", "keypasses"] },
+            { label: "Tocchi area avversaria", keys: ["touchesinoppbox", "touchesinopponentbox"] },
             { label: "Fuorigioco", keys: ["totaloffside", "offsides", "offside"] },
         ],
     },
     {
         title: "Passaggi",
         stats: [
-            { label: "Assist", keys: ["goalassist", "assists", "assist"] },
             { label: "Passaggi totali", keys: ["totalpass", "totalpasses", "passes"] },
             { label: "Passaggi riusciti", keys: ["accuratepass", "accuratepasses"] },
             { label: "Precisione", keys: ["accuratepassperc", "passingaccuracyperc", "passaccuracy"], percent: true },
+            { label: "Passaggi in avanti", keys: ["fwdpass", "forwardpass", "accurateforwardpass"] },
+            { label: "Passaggi chiave", keys: ["keypass", "keypasses", "totalattassist"] },
             { label: "Cross", keys: ["totalcross", "crosses"] },
+            { label: "Cross riusciti", keys: ["accuratecross", "crossessuccessful"] },
         ],
     },
     {
         title: "Difesa",
         stats: [
             { label: "Contrasti", keys: ["totaltackle", "tackles", "tackle"] },
+            { label: "Contrasti riusciti", keys: ["wontackle", "tacklessuccessful", "tackleswon"] },
             { label: "Intercetti", keys: ["interception", "interceptions", "interceptionwon"] },
             { label: "Spazzate", keys: ["effectiveclearance", "clearances", "totalclearance"] },
             { label: "Tiri rimpallati", keys: ["blockedscoringatt", "blockedshots"] },
+            { label: "Duelli aerei vinti", keys: ["aerialwon", "aerialswon", "aerialduelswon"] },
+            { label: "Palle recuperate", keys: ["ballrecovery", "ballrecoveries", "recovery"] },
             { label: "Parate", keys: ["saves", "savestotal", "totalsaves"] },
         ],
     },
@@ -46,7 +56,9 @@ const GROUPS: { title: string; stats: StatDef[] }[] = [
             { label: "Duelli aerei vinti", keys: ["aerialwon", "aerialswon"] },
             { label: "Dribbling riusciti", keys: ["succdribblingperc", "dribblingsuccessful"] },
             { label: "Falli commessi", keys: ["fouls", "foulscommitted", "foulsconceded"] },
-            { label: "Falli subiti", keys: ["wasfouled", "foulssuffered", "foulswon"] },
+            { label: "Falli subiti", keys: ["wasfouled", "foulssuffered", "foulswon", "fkfoulwon"] },
+            { label: "Palle perse", keys: ["posslostall", "possessionlost", "turnovers"] },
+            { label: "Tocchi", keys: ["touches"] },
         ],
     },
 ];
@@ -57,7 +69,7 @@ function StatGroup({ title, stats, source }: { title: string; stats: StatDef[]; 
             const raw = statOf(source, s.keys);
             if (raw == null) return null;
             const n = typeof raw === "number" ? raw : Number(raw);
-            if (Number.isFinite(n) && n === 0) return null; // uno zero secco non dice niente
+            if (Number.isFinite(n) && n === 0) return null;
             return { label: s.label, value: s.percent && !String(raw).includes("%") ? `${raw}%` : String(raw) };
         })
         .filter(Boolean) as { label: string; value: string }[];

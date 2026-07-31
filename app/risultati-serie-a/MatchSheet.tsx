@@ -162,17 +162,58 @@ function buildTeamStats(raw: any): TeamStatRow[] {
     };
 
     return [
+        // ── Possesso ──
         pick(["possession-perc", "possessionpercentage"], "Possesso palla"),
+
+        // ── Tiri ──
         pick(["totalscoringatt", "shots"], "Tiri totali"),
         pick(["ontargetscoringatt", "shots-on-target"], "Tiri in porta"),
+        pick(["shots-at-goal-inside-box", "attemptsibox"], "Tiri dentro area"),
+        pick(["shots-at-goal-outside-box", "attemptsobox"], "Tiri fuori area"),
+        pick(["blocked-scoring-att", "blockedshots"], "Tiri bloccati"),
+        pick(["big-chances", "bigchancecreated"], "Grandi occasioni"),
+        pick(["hitwoodwork", "hitwoodwork", "shots-crossbar", "shots-post"], "Legni"),
+
+        // ── xG & punti ──
+        pick(["expected-goals", "expectedgoals"], "xG"),
+        pick(["goalassist", "assists"], "Assist"),
+        pick(["own-goals"], "Autogol"),
+        pick(["penalty-goals"], "Gol su rigore"),
+
+        // ── Passaggi ──
         pick(["totalpass", "total-passes"], "Passaggi"),
+        pick(["passes-completed", "accuratepass"], "Passaggi riusciti"),
         pick(["accurate-pass-perc", "passing-accuracy-perc"], "Precisione passaggi"),
+        pick(["key-passes", "totalattassist"], "Passaggi chiave"),
+        pick(["crosses", "totalcross"], "Cross"),
+        pick(["crosses-successful", "accuratecross"], "Cross riusciti"),
         pick(["cornertaken", "corners"], "Corner"),
+
+        // ── Difesa ──
         pick(["totaltackle", "tackles"], "Contrasti"),
-        pick(["fouls", "foulsconceded"], "Falli"),
+        pick(["tackles-successful", "wontackle"], "Contrasti riusciti"),
+        pick(["tackles-won-perc", "tackleswonperc"], "% Contrasti vinti"),
+        pick(["interception", "interceptions"], "Intercetti"),
+        pick(["totalclearance", "clearences"], "Spazzate"),
+        pick(["saves"], "Parate"),
+
+        // ── Duelli ──
+        pick(["duels-won", "duelwon"], "Duelli vinti"),
+        pick(["aerial-duels-won", "aerialduelswon", "aerialwon"], "Duelli aerei vinti"),
+        pick(["aerial-duels-won-perc", "aerialduelswonperc"], "% Duelli aerei vinti"),
+
+        // ── Disciplina ──
+        pick(["fouls", "foulsconceded"], "Falli commessi"),
+        pick(["fouls-suffered", "foulssuffered"], "Falli subiti"),
         pick(["totaloffside", "offsides"], "Fuorigioco"),
         pick(["totalyellowcard", "yellow-cards"], "Ammonizioni"),
         pick(["totalredcard", "red-cards"], "Espulsioni"),
+
+        // ── Fisico & spazio ──
+        pick(["touches-opponent-box", "touchesinoppbox"], "Tocchi area avversaria"),
+        pick(["sprints"], "Sprint"),
+        pick(["distance-covered"], "Distanza (km)"),
+        pick(["touches"], "Tocchi totali"),
     ].filter(Boolean) as TeamStatRow[];
 }
 
