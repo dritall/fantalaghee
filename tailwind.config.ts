@@ -20,6 +20,9 @@ const config: Config = {
                 oswald: ["var(--font-outfit)", "ui-sans-serif", "system-ui"],
                 display: ["var(--font-outfit)", "ui-sans-serif", "system-ui"],
                 cursive: ["var(--font-great-vibes)", "cursive"],
+                // Condensato sportivo per i numeri grossi: punteggi, punti in
+                // classifica, voti. È la firma tipografica del sito.
+                score: ["var(--font-condensed)", "ui-sans-serif", "system-ui"],
                 // Coppia della Gazzetta: condensato per i titoli, grazie per il testo
                 testata: ['var(--font-condensed)', 'ui-sans-serif', 'system-ui'],
                 lora: ['var(--font-lora)', 'Georgia', 'serif']

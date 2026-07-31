@@ -51,15 +51,17 @@
     @apply border-border;
   }
 
-  body {
-    @apply text-[#10241a] antialiased;
-    background-color: #0d0a2a;
-  }
-
   html {
+    /* il colore sta sull'html, non sul body: così lo strato dello stadio può
+       stare a z-index negativo senza finire dietro al fondo del body */
+    background-color: #0d0a2a;
     scroll-behavior: smooth;
     /* le ancore non finiscono sotto la navbar fissa */
     scroll-padding-top: 6.5rem;
+  }
+
+  body {
+    @apply text-[#10241a] antialiased;
   }
 
   /* Anello di focus visibile solo da tastiera, coerente su tutto il sito */
@@ -169,24 +171,29 @@
     mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
   }
 
-  /* Sfondo stadio reale — overlay scuro/colorato per far risaltare le card glass */
-  .stadium-bg {
+  /* Sfondo stadio: uno strato fisso dietro al contenuto.
+     `background-attachment: fixed` costa un ridisegno a ogni frame di scroll
+     su Safari e su diversi browser mobile; un livello in position:fixed dà lo
+     stesso effetto senza quel prezzo. */
+  .stadium-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background-image:
       linear-gradient(180deg, rgba(10,8,30,0.78) 0%, rgba(13,10,42,0.62) 35%, rgba(13,10,42,0.68) 70%, rgba(8,6,28,0.88) 100%),
       url('/image/bg-mobile-2627.webp');
     background-size: cover;
     background-position: center;
-    background-attachment: scroll;
     background-repeat: no-repeat;
     background-color: #0d0a2a;
   }
 
   @media (min-width: 768px) {
-    .stadium-bg {
+    .stadium-layer {
       background-image:
         linear-gradient(180deg, rgba(10,8,30,0.78) 0%, rgba(13,10,42,0.60) 35%, rgba(13,10,42,0.66) 70%, rgba(8,6,28,0.88) 100%),
         url('/image/bg-desktop-2627.webp');
-      background-attachment: fixed;
     }
   }
 
@@ -194,7 +201,7 @@
   .ambient-blobs {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: -1;
     pointer-events: none;
     overflow: hidden;
   }

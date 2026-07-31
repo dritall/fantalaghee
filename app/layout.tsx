@@ -29,7 +29,13 @@ const oswald = Oswald({
   variable: "--font-condensed"
 });
 
+/** Base per risolvere in URL assoluti le immagini di anteprima dei link. */
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://fantalaghee.live");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: `Fanta Laghèe — ${LEAGUE_TAGLINE}`,
     template: "%s · Fanta Laghèe",
@@ -68,7 +74,8 @@ export default function RootLayout({
           media="(max-width: 767px)"
         />
       </head>
-      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} ${lora.variable} ${oswald.variable} font-sans antialiased text-[#10241a] bg-[#0d0a2a] stadium-bg relative overflow-x-hidden min-h-screen flex flex-col`}>
+      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} ${lora.variable} ${oswald.variable} font-sans antialiased text-[#10241a] relative overflow-x-hidden min-h-screen flex flex-col`}>
+        <div className="stadium-layer" aria-hidden="true" />
         <a
           href="#contenuto"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100]

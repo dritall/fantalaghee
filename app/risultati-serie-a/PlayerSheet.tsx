@@ -87,7 +87,7 @@ function HeroStat({ label, value, accent }: { label: string; value: string; acce
         <div className="flex-1 rounded-2xl border border-white/[0.08] bg-white/[0.04] py-2.5 text-center">
             <span
                 className={cn(
-                    "block text-lg font-black tabular-nums leading-none",
+                    "block font-score text-2xl font-bold tabular-nums leading-none",
                     accent ? "text-cyan-300" : "text-white"
                 )}
             >

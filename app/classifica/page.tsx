@@ -4,7 +4,6 @@ import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle, Trophy, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { MagicCard } from "@/components/ui/MagicCard";
 import { WaitingFirstMatchday } from "@/components/ui/WaitingFirstMatchday";
 import { CURRENT_SEASON } from "@/lib/seasons";
 import { SeasonBanner } from "@/components/ui/SeasonBanner";
@@ -45,6 +44,15 @@ function ClassificaContent() {
         return hasData ? g : acc;
     }, matchdays[0]);
 
+    // Miglior punteggio di ogni giornata: serve a evidenziare la casella vincente
+    const bestPerMatchday = matchdays.reduce((acc, g) => {
+        const values = leaderboard
+            .map((team) => parseFloat(team[g]))
+            .filter((v) => Number.isFinite(v));
+        if (values.length > 0) acc[g] = Math.max(...values);
+        return acc;
+    }, {} as Record<string, number>);
+
     // Classifica della sola ultima giornata, ordinata per punteggio della giornata
     const giornataBoard = [...leaderboard]
         .map((team) => ({ ...team, _giornataScore: parseFloat(team[lastPlayedMatchday]) || 0 }))
@@ -82,129 +90,186 @@ function ClassificaContent() {
     );
 
     return (
-        <main className="min-h-screen pt-24 pb-8 px-4 md:px-8 flex flex-col relative">
+        <main className="min-h-screen pt-28 pb-10 px-4 md:px-8 flex flex-col relative">
 
             <div className="relative z-30 flex flex-col flex-1 max-w-6xl mx-auto w-full">
                 <SeasonBanner />
+
                 <div className="my-6 flex flex-wrap items-end justify-between gap-3">
                     <div>
-                        <h1 className="text-3xl md:text-5xl font-black font-oswald uppercase tracking-tight text-3d-metallic mb-3">Classifica Generale</h1>
+                        <h1 className="text-3xl md:text-5xl font-black font-oswald uppercase tracking-tight text-3d-metallic mb-3">
+                            Classifica Generale
+                        </h1>
                         <SeasonPill stagione={stagione} />
                     </div>
-                    <p className="text-white/35 text-xs hidden sm:block">Scorri orizzontalmente per vedere tutte le giornate.</p>
+                    <p className="text-white/30 text-[11px] hidden sm:block">
+                        Scorri in orizzontale per le altre giornate · <span className="text-cyan-300">in ciano</span> il miglior punteggio di giornata
+                    </p>
                 </div>
 
-                {/* Mobile: lista di card con switch Totale / Ultima Giornata */}
+                {/* ===== TELEFONO: card per squadra ===== */}
                 <div className="sm:hidden">
-                    <div className="flex gap-1.5 mb-4 bg-black/5 p-1 rounded-full w-fit">
-                        <button
-                            onClick={() => setMobileView("totale")}
-                            className={cn(
-                                "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all",
-                                mobileView === "totale" ? "bg-white text-secondary shadow-sm" : "text-gray-400"
-                            )}
-                        >
-                            <Trophy className="w-3.5 h-3.5" /> Totale
-                        </button>
-                        <button
-                            onClick={() => setMobileView("giornata")}
-                            className={cn(
-                                "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all",
-                                mobileView === "giornata" ? "bg-white text-secondary shadow-sm" : "text-gray-400"
-                            )}
-                        >
-                            <CalendarDays className="w-3.5 h-3.5" /> {lastPlayedMatchday}
-                        </button>
+                    <div className="flex gap-1 mb-4 p-1 rounded-2xl border border-white/10 bg-white/[0.04] w-fit">
+                        {([
+                            { key: "totale" as const, label: "Totale", icon: Trophy },
+                            { key: "giornata" as const, label: lastPlayedMatchday, icon: CalendarDays },
+                        ]).map((v) => (
+                            <button
+                                key={v.key}
+                                onClick={() => setMobileView(v.key)}
+                                aria-pressed={mobileView === v.key}
+                                className={cn(
+                                    "relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-colors",
+                                    mobileView === v.key ? "text-white" : "text-white/40"
+                                )}
+                            >
+                                {mobileView === v.key && (
+                                    <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary to-cyan-500" />
+                                )}
+                                <v.icon className="relative w-3.5 h-3.5" />
+                                <span className="relative">{v.label}</span>
+                            </button>
+                        ))}
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        {(mobileView === "totale" ? leaderboard : giornataBoard)?.map((team, index) => (
-                            <MagicCard key={team.Team || index} glowColor="#FACC15">
-                                <div className="flex items-center gap-3 p-4">
-                                    <div className={cn(
-                                        "w-8 h-8 flex items-center justify-center rounded-full font-bold text-xs shrink-0",
-                                        index === 0 ? "bg-amber-400 text-white" :
-                                            index === 1 ? "bg-gray-300 text-[#10241a]" :
-                                                index === 2 ? "bg-amber-600 text-white" :
-                                                    "bg-black/5 text-gray-400"
-                                    )}>
+                        {(mobileView === "totale" ? leaderboard : giornataBoard)?.map((team, index) => {
+                            const value = mobileView === "totale" ? team.Generale : team[lastPlayedMatchday] || "-";
+                            return (
+                                <div
+                                    key={team.Team || index}
+                                    className={cn(
+                                        // fondo pieno e sfocatura: sotto c'è la foto dello stadio,
+                                        // con una card troppo trasparente i numeri si perdono
+                                        "relative flex items-center gap-3 p-3.5 rounded-2xl border backdrop-blur-xl transition-colors",
+                                        "bg-[#0d1330]/85",
+                                        index === 0
+                                            ? "border-amber-300/40 shadow-[0_0_24px_rgba(250,204,21,0.10)]"
+                                            : index === 1
+                                              ? "border-white/20"
+                                              : index === 2
+                                                ? "border-orange-400/30"
+                                                : "border-white/[0.09]"
+                                    )}
+                                >
+                                    <span
+                                        className={cn(
+                                            "w-8 h-8 shrink-0 flex items-center justify-center rounded-xl font-black text-xs tabular-nums",
+                                            index === 0
+                                                ? "bg-amber-400 text-[#231a02]"
+                                                : index === 1
+                                                  ? "bg-slate-300 text-[#12172e]"
+                                                  : index === 2
+                                                    ? "bg-orange-500 text-[#2a1405]"
+                                                    : "bg-white/[0.07] text-white/40"
+                                        )}
+                                    >
                                         {mobileView === "totale" ? team.rank : index + 1}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="font-bold text-base text-[#10241a] truncate">{team.Team}</div>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                        <div className="font-black text-secondary text-2xl leading-none">
-                                            {mobileView === "totale" ? team.Generale : team[lastPlayedMatchday] || "-"}
-                                        </div>
-                                        <div className="text-[10px] uppercase tracking-wider text-gray-400">
+                                    </span>
+
+                                    <span className="flex-1 min-w-0 font-bold text-[15px] text-white truncate">{team.Team}</span>
+
+                                    <span className="text-right shrink-0">
+                                        <span className="block font-score font-bold text-cyan-300 text-2xl leading-none tabular-nums">
+                                            {value}
+                                        </span>
+                                        <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/30 mt-1">
                                             {mobileView === "totale" ? "Totale" : lastPlayedMatchday}
-                                        </div>
-                                    </div>
+                                        </span>
+                                    </span>
                                 </div>
-                            </MagicCard>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
-                {/* Desktop / Tablet: tabella completa con giornate */}
-                <MagicCard glowColor="#FACC15" className="hidden sm:flex flex-1 w-full relative overflow-hidden flex-col">
-
-                    {/* Scrollable Wrapper */}
-                    <div className="overflow-auto w-full h-full max-h-[80vh] custom-scrollbar">
+                {/* ===== DESKTOP: tabella con tutte le giornate ===== */}
+                <div className="hidden sm:flex flex-1 w-full flex-col surface rounded-[1.75rem] overflow-hidden">
+                    <div className="overflow-auto w-full max-h-[76vh] custom-scrollbar">
                         <table className="w-full text-left text-sm whitespace-nowrap border-collapse">
-                            <thead className="sticky top-0 z-40 bg-white shadow-sm">
-                                <tr className="border-b border-black/5">
-                                    <th className="sticky left-0 z-50 bg-white p-4 font-semibold text-gray-400 w-16 text-center border-r border-black/5">#</th>
-                                    <th className="sticky left-[4rem] z-50 bg-white p-4 font-semibold text-[#10241a] min-w-[200px] border-r border-black/5 shadow-md">Squadra</th>
-                                    <th className="sticky left-[calc(4rem+200px)] z-50 bg-black/[0.02] p-4 font-bold text-[#10241a] text-right border-r border-black/10 shadow-md">TOTALE</th>
-                                    {matchdays.map(g => (
-                                        <th key={g} className="p-3 font-medium text-gray-400 text-center min-w-[60px] border-r border-black/5">{g}</th>
+                            <thead className="sticky top-0 z-40">
+                                <tr>
+                                    <th className="sticky left-0 z-50 bg-[#0b1026] p-3 w-14 text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/30 border-b border-r border-white/[0.08]">
+                                        #
+                                    </th>
+                                    <th className="sticky left-14 z-50 bg-[#0b1026] p-3 min-w-[190px] text-[10px] font-black uppercase tracking-[0.14em] text-white/50 border-b border-r border-white/[0.08]">
+                                        Squadra
+                                    </th>
+                                    <th className="sticky left-[calc(3.5rem+190px)] z-50 bg-[#0d1330] p-3 text-center text-[10px] font-black uppercase tracking-[0.14em] text-cyan-300 border-b border-r border-white/[0.12]">
+                                        Totale
+                                    </th>
+                                    {matchdays.map((g) => (
+                                        <th
+                                            key={g}
+                                            className="bg-[#0b1026] p-3 min-w-[58px] text-center text-[10px] font-black uppercase tracking-wider text-white/25 border-b border-r border-white/[0.05]"
+                                        >
+                                            {g}
+                                        </th>
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-black/5">
+                            <tbody>
                                 {leaderboard?.map((team, index) => (
-                                    <tr
-                                        key={index}
-                                        className="hover:bg-black/[0.02] transition-colors duration-150"
-                                    >
-                                        {/* Rank */}
-                                        <td className="sticky left-0 z-30 bg-white p-4 text-center border-r border-black/5">
-                                            <div className={cn(
-                                                "w-6 h-6 flex items-center justify-center rounded-full font-bold text-xs mx-auto",
-                                                index === 0 ? "bg-amber-400 text-white" :
-                                                    index === 1 ? "bg-gray-300 text-[#10241a]" :
-                                                        index === 2 ? "bg-amber-600 text-white" :
-                                                            "text-gray-400"
-                                            )}>
+                                    <tr key={index} className="group">
+                                        <td
+                                            className={cn(
+                                                "sticky left-0 z-30 bg-[#0b1026] p-2.5 text-center border-b border-r border-white/[0.05]",
+                                                "group-hover:bg-[#111838]"
+                                            )}
+                                        >
+                                            <span
+                                                className={cn(
+                                                    "w-6 h-6 flex items-center justify-center rounded-lg font-black text-[11px] tabular-nums mx-auto",
+                                                    index === 0
+                                                        ? "bg-amber-400 text-[#231a02]"
+                                                        : index === 1
+                                                          ? "bg-slate-300 text-[#12172e]"
+                                                          : index === 2
+                                                            ? "bg-orange-500 text-[#2a1405]"
+                                                            : "text-white/35"
+                                                )}
+                                            >
                                                 {team.rank}
-                                            </div>
+                                            </span>
                                         </td>
 
-                                        <td className="py-3 px-2 sticky left-[4rem] z-30 bg-white border-r border-black/5 shadow-md">
-                                          <div className="font-bold text-base text-[#10241a]">
-                                            {team.Team}
-                                          </div>
+                                        <td className="sticky left-14 z-30 bg-[#0b1026] py-2.5 px-3 border-b border-r border-white/[0.05] group-hover:bg-[#111838]">
+                                            <span className="font-bold text-[15px] text-white/90 group-hover:text-white transition-colors">
+                                                {team.Team}
+                                            </span>
                                         </td>
 
-                                        {/* Total Score */}
-                                        <td className="py-3 px-2 w-16 text-center font-black text-secondary text-xl sticky left-[calc(4rem+200px)] z-30 bg-black/[0.02] border-r border-black/10 shadow-md">
-                                            {team.Generale}
+                                        <td className="sticky left-[calc(3.5rem+190px)] z-30 bg-[#0d1330] py-2.5 px-3 text-center border-b border-r border-white/[0.12] group-hover:bg-[#131b40]">
+                                            <span className="font-score font-bold text-cyan-300 text-xl tabular-nums">
+                                                {team.Generale}
+                                            </span>
                                         </td>
 
-                                        {/* Matchdays */}
-                                        {matchdays.map(g => (
-                                            <td key={g} className="p-3 text-center border-r border-black/5 text-gray-500">
-                                                {team[g] || "-"}
-                                            </td>
-                                        ))}
+                                        {matchdays.map((g) => {
+                                            const raw = team[g];
+                                            const value = parseFloat(raw);
+                                            // il miglior punteggio della giornata si riconosce a colpo d'occhio
+                                            const isBest =
+                                                Number.isFinite(value) && bestPerMatchday[g] != null && value === bestPerMatchday[g];
+                                            return (
+                                                <td
+                                                    key={g}
+                                                    className={cn(
+                                                        "p-2.5 text-center border-b border-r border-white/[0.05] tabular-nums transition-colors",
+                                                        "group-hover:bg-white/[0.04]",
+                                                        isBest ? "text-cyan-300 font-black bg-cyan-400/[0.07]" : "text-white/45"
+                                                    )}
+                                                >
+                                                    {raw || "-"}
+                                                </td>
+                                            );
+                                        })}
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                </MagicCard>
+                </div>
             </div>
 
         </main>

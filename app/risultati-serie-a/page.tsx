@@ -385,7 +385,7 @@ function ScoutHubContent() {
                               </div>
 
                               <div className="shrink-0 px-2.5 py-1 rounded-lg border border-white/10 bg-white/[0.05] min-w-[62px] text-center">
-                                <span className={`font-black tabular-nums tracking-tight ${played ? 'text-base text-white' : 'text-[11px] text-cyan-300/80'}`}>
+                                <span className={`font-score font-bold tabular-nums tracking-tight ${played ? 'text-lg text-white' : 'text-[11px] text-cyan-300/80'}`}>
                                   {played ? `${hs} – ${as_}` : 'VS'}
                                 </span>
                               </div>
@@ -454,7 +454,7 @@ function ScoutHubContent() {
                             </span>
                           </div>
 
-                          <span className="col-span-1 text-center font-black text-cyan-300 text-sm tabular-nums">{t.points}</span>
+                          <span className="col-span-1 text-center font-score font-bold text-cyan-300 text-base tabular-nums">{t.points}</span>
                           <span className="col-span-1 text-center text-xs tabular-nums text-white/45">{t.played}</span>
                           <span className="col-span-1 text-center text-xs tabular-nums text-emerald-300/80">{t.win}</span>
                           <span className="col-span-1 text-center text-xs tabular-nums text-white/35">{t.draw}</span>

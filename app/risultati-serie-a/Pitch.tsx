@@ -129,7 +129,7 @@ function PitchPlayer({
             </span>
             {player.rating != null && (
                 <span
-                    className="rounded px-1.5 text-[9px] font-black tabular-nums"
+                    className="rounded px-1.5 font-score text-[10px] font-bold tabular-nums"
                     style={{ backgroundColor: `${accent}33`, color: accent }}
                 >
                     {player.rating.toFixed(1)}

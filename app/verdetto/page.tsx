@@ -234,13 +234,13 @@ function VerdettoContent() {
                     </Highlight>
 
                     <Highlight icon={Flame} title="Record assoluto" hex="#ec4899" delay={0.12}>
-                        <p className="text-3xl font-black text-white tabular-nums leading-none">{data.recordAssoluto.punteggio}</p>
+                        <p className="font-score text-4xl font-bold text-white tabular-nums leading-none">{data.recordAssoluto.punteggio}</p>
                         <p className="text-sm font-bold text-white/70 mt-1.5 truncate">{data.recordAssoluto.squadra}</p>
                         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">{data.recordAssoluto.giornata}</p>
                     </Highlight>
 
                     <Highlight icon={ThumbsDown} title="Cucchiaio di legno" hex="#f87171" delay={0.19}>
-                        <p className="text-3xl font-black text-white tabular-nums leading-none">{data.cucchiaioDiLegno.punteggio}</p>
+                        <p className="font-score text-4xl font-bold text-white tabular-nums leading-none">{data.cucchiaioDiLegno.punteggio}</p>
                         <p className="text-sm font-bold text-white/70 mt-1.5 truncate">{data.cucchiaioDiLegno.squadra}</p>
                         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">{data.cucchiaioDiLegno.giornata}</p>
                     </Highlight>
@@ -276,7 +276,7 @@ function VerdettoContent() {
                                         <span className="text-2xl shrink-0">{['🥇', '🥈', '🥉'][i]}</span>
                                         <span className="min-w-0 flex-1">
                                             <span className="block font-black text-white text-sm truncate">{p.squadra}</span>
-                                            <span className="block text-[11px] font-bold text-cyan-300 tabular-nums mt-0.5">{p.punteggio} pt</span>
+                                            <span className="block font-score text-sm font-bold text-cyan-300 tabular-nums mt-0.5">{p.punteggio} pt</span>
                                         </span>
                                     </div>
                                 ))}
@@ -315,7 +315,7 @@ function VerdettoContent() {
                                         >
                                             {i < 3 && <span className="text-xl mb-1">{['🥇', '🥈', '🥉'][i]}</span>}
                                             <p className="text-white font-bold text-xs text-center leading-tight line-clamp-2">{p.squadra}</p>
-                                            <p className="text-amber-300 font-black text-xl tabular-nums mt-1.5">{p.totale}</p>
+                                            <p className="text-amber-300 font-score font-bold text-2xl tabular-nums mt-1.5">{p.totale}</p>
                                             <span className="text-sm">🍆</span>
                                         </div>
                                     ))}
@@ -348,7 +348,7 @@ function VerdettoContent() {
                                 className="flex-1 flex flex-col items-center justify-center text-center py-4 cursor-pointer"
                             >
                                 <p className="text-white/70 font-semibold text-sm">{data.premi.migliorPunteggio.info}</p>
-                                <p className="text-3xl font-black text-amber-300 tabular-nums mt-2">
+                                <p className="font-score text-4xl font-bold text-amber-300 tabular-nums mt-2">
                                     {data.premi.migliorPunteggio.premio} 🍆
                                 </p>
                             </div>

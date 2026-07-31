@@ -198,7 +198,7 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                     <div key={r.label}>
                         <div className="flex items-center justify-between gap-3 mb-1.5">
                             <span
-                                className="text-sm font-black tabular-nums w-12"
+                                className="font-score text-base font-bold tabular-nums w-12"
                                 style={{ color: homeLeads ? HOME_ACCENT : "rgba(255,255,255,0.45)" }}
                             >
                                 {r.home}
@@ -208,7 +208,7 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                                 {r.label}
                             </span>
                             <span
-                                className="text-sm font-black tabular-nums w-12 text-right"
+                                className="font-score text-base font-bold tabular-nums w-12 text-right"
                                 style={{ color: awayLeads ? AWAY_ACCENT : "rgba(255,255,255,0.45)" }}
                             >
                                 {r.away}
@@ -336,7 +336,7 @@ export function MatchSheet({
                             </div>
 
                             <div className="shrink-0 px-2 text-center">
-                                <span className="block text-4xl md:text-5xl font-black tabular-nums tracking-tighter">
+                                <span className="block font-score text-5xl md:text-6xl font-bold tabular-nums tracking-tight">
                                     {played ? `${hs}–${as_}` : "VS"}
                                 </span>
                                 {normalized?.home.formation && normalized?.away.formation && (
