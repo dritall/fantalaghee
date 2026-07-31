@@ -10,9 +10,21 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { SEASONS, CURRENT_SEASON } from '@/lib/seasons';
 
 const PlayerStatsTable = dynamic(() => import('./PlayerStatsTable'), { ssr: false });
-import { X, Loader2, AlertTriangle } from 'lucide-react';
+import { X, Loader2, AlertTriangle, CalendarDays, ListOrdered, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SeasonBanner } from '@/components/ui/SeasonBanner';
 
 const TOTAL_ROUNDS = 38;
+
+/** Data e ora di inizio, nel formato compatto usato sulle card partita. */
+const formatKickoff = (m: any): string => {
+  const raw = m?.matchDateLocal || m?.matchDateUtc || m?.dateTime;
+  if (!raw) return '';
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return '';
+  return new Intl.DateTimeFormat('it-IT', {
+    weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+  }).format(d).replace('.', '');
+};
 
 const TEAM_LOGOS: Record<string, string> = {
   Inter: 'https://tmssl.akamaized.net/images/wappen/head/46.png',
@@ -362,7 +374,9 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   function ScoutHubContent() {
   const searchParams = useSearchParams();
   const stagione = searchParams.get('stagione') || CURRENT_SEASON;
-  const seasonLabel = SEASONS[stagione]?.label || SEASONS[CURRENT_SEASON].label;
+  const seasonConfig = SEASONS[stagione] || SEASONS[CURRENT_SEASON];
+  const seasonLabel = seasonConfig.label;
+  const isArchiveSeason = seasonConfig.archived;
 
   const [activeTab, setActiveTab]           = useState('calendario');
   const [selectedRound, setSelectedRound]   = useState<number | null>(null);
@@ -523,8 +537,17 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
   };
 
   const FormDot = ({ type }: { type: string }) => {
-    const colors: Record<string, string> = { W: 'bg-emerald-500', D: 'bg-zinc-400', L: 'bg-red-500' };
-    return <span className={`w-2 h-2 rounded-full inline-block ${colors[type] || 'bg-zinc-600'}`} />;
+    const colors: Record<string, string> = {
+      W: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.55)]',
+      D: 'bg-white/35',
+      L: 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.5)]',
+    };
+    return (
+      <span
+        title={type === 'W' ? 'Vittoria' : type === 'L' ? 'Sconfitta' : 'Pareggio'}
+        className={`w-2 h-2 rounded-full inline-block ${colors[type] || 'bg-white/15'}`}
+      />
+    );
   };
 
   const formatEventMinute = (ev: any) => {
@@ -881,92 +904,204 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
 
   return (
-    <div className="min-h-screen text-[#10241a] p-4 pt-24 font-sans selection:bg-secondary/20">
+    <div className="min-h-screen p-4 pt-28 pb-16 font-sans">
       <div className="max-w-5xl mx-auto">
 
-        {/* TAB switcher */}
-        <div className="flex glass p-1.5 rounded-2xl mb-8 max-w-xs mx-auto">
-          {['calendario', 'classifica'].map(t => (
-            <button key={t} onClick={() => setActiveTab(t)}
-              className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300
-                ${activeTab === t ? 'bg-secondary text-white shadow-lg' : 'text-gray-400 hover:text-[#10241a]'}`}>
-              {t}
+        <SeasonBanner />
+
+        {/* ===== TESTATA ===== */}
+        <header className="text-center space-y-4 mb-8 mt-4">
+          <span className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.24em] px-4 py-1.5 rounded-full border
+            ${isArchiveSeason
+              ? 'text-amber-200 bg-amber-400/10 border-amber-300/25'
+              : 'text-cyan-200 bg-cyan-400/10 border-cyan-300/25'}`}>
+            <span className="relative flex h-1.5 w-1.5">
+              {!isArchiveSeason && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-70" />}
+              <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${isArchiveSeason ? 'bg-amber-300' : 'bg-cyan-300'}`} />
+            </span>
+            Serie A {seasonLabel}
+          </span>
+          <h1 className="text-4xl md:text-6xl font-black font-oswald uppercase tracking-tight text-3d-metallic">
+            Risultati Serie A
+          </h1>
+          <p className="text-white/45 text-sm max-w-xl mx-auto">
+            Calendario, tabellini e classifica ufficiale. Tocca una partita per formazioni, eventi e statistiche.
+          </p>
+        </header>
+
+        {/* ===== SELETTORE VISTA ===== */}
+        <div className="relative flex p-1 rounded-2xl mb-8 max-w-xs mx-auto border border-white/10 bg-white/[0.04] backdrop-blur-md">
+          {[
+            { id: 'calendario', label: 'Calendario', icon: CalendarDays },
+            { id: 'classifica', label: 'Classifica', icon: ListOrdered },
+          ].map(t => (
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
+              aria-pressed={activeTab === t.id}
+              className={`relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.16em] transition-colors duration-300
+                ${activeTab === t.id ? 'text-white' : 'text-white/40 hover:text-white/75'}`}>
+              {activeTab === t.id && (
+                <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary to-cyan-500 shadow-[0_6px_18px_rgba(37,99,235,0.45)]" />
+              )}
+              <t.icon className="relative w-3.5 h-3.5" />
+              <span className="relative">{t.label}</span>
             </button>
           ))}
         </div>
 
-        <div className="text-center mb-10">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary bg-secondary/5 px-4 py-1.5 rounded-full border border-secondary/10">
-            Stagione {seasonLabel}
-          </span>
-        </div>
-
         {seasonUnavailable ? (
-          <div className="glass-card rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
-            <AlertTriangle className="w-10 h-10 text-gray-400" />
-            <p className="text-gray-600 text-sm font-bold uppercase tracking-widest">Calendario non ancora disponibile</p>
-            <p className="text-gray-400 text-xs max-w-md">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
+          <div className="surface rounded-[2rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-white/25" />
+            <p className="text-white/70 text-sm font-black uppercase tracking-widest">Calendario non ancora disponibile</p>
+            <p className="text-white/40 text-xs max-w-md leading-relaxed">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
           </div>
         ) : initializingRound ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-24">
-            <Loader2 className="w-8 h-8 text-secondary animate-spin" />
-            <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Cerco la giornata in corso...</p>
+          <div className="flex flex-col items-center justify-center gap-4 py-24">
+            <div className="relative">
+              <Loader2 className="w-9 h-9 text-cyan-400 animate-spin" />
+              <div className="absolute inset-0 bg-cyan-400/25 blur-xl rounded-full animate-pulse" />
+            </div>
+            <p className="text-white/40 text-[11px] font-black uppercase tracking-[0.28em]">Cerco la giornata in corso…</p>
           </div>
         ) : selectedRound === null ? (
-          <div className="glass-card rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
-            <AlertTriangle className="w-10 h-10 text-gray-400" />
-            <p className="text-gray-600 text-sm font-bold uppercase tracking-widest">Dati non disponibili</p>
-            <p className="text-gray-400 text-xs max-w-md">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
+          <div className="surface rounded-[2rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-white/25" />
+            <p className="text-white/70 text-sm font-black uppercase tracking-widest">Dati non disponibili</p>
+            <p className="text-white/40 text-xs max-w-md leading-relaxed">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
           </div>
         ) : (
         <>
         {/* ===== CALENDARIO ===== */}
         {activeTab === 'calendario' && (
           <div className="space-y-6">
-            <div ref={scrollRef} className="flex overflow-x-auto gap-2 pb-4 no-scrollbar scroll-smooth">
-              {Array.from({ length: TOTAL_ROUNDS }, (_, i) => i + 1).map(r => (
-                <button key={r} onClick={() => handleRoundChange(r)}
-                  className={`px-5 py-2 rounded-xl shrink-0 font-bold text-xs border transition-all duration-300
-                    ${selectedRound === r
-                      ? 'active-round-btn border-secondary bg-secondary/10 text-[#10241a] shadow-sm'
-                      : 'border-black/5 text-gray-400 hover:border-black/20 hover:text-gray-600'}`}>
-                  G.{r}
-                </button>
-              ))}
+            {/* Selettore giornata: frecce ai lati + carosello con sfumature */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => selectedRound > 1 && handleRoundChange(selectedRound - 1)}
+                disabled={selectedRound <= 1}
+                aria-label="Giornata precedente"
+                className="shrink-0 w-9 h-9 rounded-xl border border-white/10 bg-white/[0.05] flex items-center justify-center
+                           text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div ref={scrollRef} className="flex-1 flex overflow-x-auto gap-1.5 py-1 no-scrollbar scroll-smooth edge-fade-x">
+                {Array.from({ length: TOTAL_ROUNDS }, (_, i) => i + 1).map(r => (
+                  <button key={r} onClick={() => handleRoundChange(r)}
+                    aria-current={selectedRound === r ? 'true' : undefined}
+                    className={`px-4 py-2 rounded-xl shrink-0 font-black text-xs tabular-nums border transition-all duration-300
+                      ${selectedRound === r
+                        ? 'active-round-btn border-cyan-400/50 bg-gradient-to-b from-cyan-400/20 to-secondary/15 text-white shadow-[0_0_18px_rgba(34,211,238,0.28)]'
+                        : 'border-white/[0.08] bg-white/[0.02] text-white/40 hover:text-white hover:border-white/20 hover:bg-white/[0.06]'}`}>
+                    {r}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => selectedRound < TOTAL_ROUNDS && handleRoundChange(selectedRound + 1)}
+                disabled={selectedRound >= TOTAL_ROUNDS}
+                aria-label="Giornata successiva"
+                className="shrink-0 w-9 h-9 rounded-xl border border-white/10 bg-white/[0.05] flex items-center justify-center
+                           text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <h2 className="text-[10px] font-black uppercase tracking-[0.28em] text-white/40">
+                Giornata {selectedRound}
+              </h2>
+              <span className="h-px flex-1 bg-white/10" />
             </div>
 
             {loadingMatches ? (
-              <div className="flex justify-center py-20">
-                <Loader2 className="w-8 h-8 text-secondary animate-spin" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-[92px] rounded-[1.5rem] border border-white/[0.07] bg-white/[0.03] overflow-hidden relative">
+                    <div className="absolute inset-0 animate-shimmer bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)] bg-[length:200%_100%]" />
+                  </div>
+                ))}
               </div>
             ) : matchError ? (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-6">
-                <div className="flex items-center gap-2 text-red-500 font-bold mb-2 text-xs uppercase tracking-widest">
+              <div className="rounded-[1.5rem] border border-red-400/25 bg-red-500/[0.08] p-6">
+                <div className="flex items-center gap-2 text-red-300 font-black mb-2 text-xs uppercase tracking-widest">
                   <AlertTriangle className="w-4 h-4" /> Errore caricamento
                 </div>
-                <p className="text-gray-500 text-xs font-mono">{matchError}</p>
+                <p className="text-white/45 text-xs font-mono break-words">{matchError}</p>
+              </div>
+            ) : matches.length === 0 ? (
+              <div className="surface rounded-[1.5rem] p-10 text-center">
+                <p className="text-white/40 text-xs font-black uppercase tracking-[0.2em]">Nessuna partita per questa giornata</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {matches.map((m: any, idx: number) => {
                   const home = resolveTeam(m.homeTeam || m.home, 'Casa');
                   const away = resolveTeam(m.awayTeam || m.away, 'Ospite');
                   const hs = m.providerHomeScore ?? m.homeScore;
                   const as_ = m.providerAwayScore ?? m.awayScore;
                   const played = hs !== null && hs !== undefined;
+                  const isLive = m.matchStatus === 'Playing' || m.matchStatus === 'Live';
+                  const homeWin = played && hs > as_;
+                  const awayWin = played && as_ > hs;
+
                   return (
-                    <div key={m.matchId || m.id || idx} onClick={() => openMatch(m)}
-                      className="glass-card p-5 rounded-[2rem] flex justify-between items-center cursor-pointer group">
-                      <div className="flex justify-end pr-4 w-[42%]">
-                        <TeamLogo team={home} className="w-10 h-10 group-hover:scale-110 transition-transform" />
+                    <button
+                      key={m.matchId || m.id || idx}
+                      onClick={() => openMatch(m)}
+                      className="group relative text-left rounded-[1.5rem] p-[1px] overflow-hidden
+                                 bg-[linear-gradient(150deg,rgba(56,189,248,0.28),rgba(255,255,255,0.07)_45%,rgba(255,255,255,0.02))]
+                                 shadow-[0_8px_26px_rgba(6,10,30,0.45)] transition-all duration-300
+                                 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(6,10,30,0.65)]"
+                    >
+                      <div className="relative rounded-[calc(1.5rem-1px)] bg-gradient-to-b from-[#0c1228] to-[#080b1e] px-4 py-3.5 overflow-hidden">
+                        <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                        <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none
+                                         bg-[radial-gradient(280px_circle_at_50%_-20%,rgba(56,189,248,0.16),transparent_65%)]" />
+
+                        {/* riga di stato */}
+                        <div className="relative flex items-center justify-between mb-2.5">
+                          <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/30">
+                            {formatKickoff(m)}
+                          </span>
+                          {isLive ? (
+                            <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.16em] text-red-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                              Live
+                            </span>
+                          ) : played ? (
+                            <span className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-300/70">Finita</span>
+                          ) : (
+                            <span className="text-[9px] font-black uppercase tracking-[0.16em] text-white/25">Da giocare</span>
+                          )}
+                        </div>
+
+                        {/* squadre */}
+                        <div className="relative flex items-center gap-3">
+                          <div className="flex-1 min-w-0 flex items-center gap-2.5">
+                            <TeamLogo team={home} className="w-8 h-8 transition-transform duration-300 group-hover:scale-110" />
+                            <span className={`text-[13px] font-bold truncate ${homeWin ? 'text-white' : played ? 'text-white/50' : 'text-white/75'}`}>
+                              {home.name}
+                            </span>
+                          </div>
+
+                          <div className="shrink-0 px-2.5 py-1 rounded-lg border border-white/10 bg-white/[0.05] min-w-[62px] text-center">
+                            <span className={`font-black tabular-nums tracking-tight ${played ? 'text-base text-white' : 'text-[11px] text-cyan-300/80'}`}>
+                              {played ? `${hs} – ${as_}` : 'VS'}
+                            </span>
+                          </div>
+
+                          <div className="flex-1 min-w-0 flex items-center gap-2.5 justify-end">
+                            <span className={`text-[13px] font-bold truncate text-right ${awayWin ? 'text-white' : played ? 'text-white/50' : 'text-white/75'}`}>
+                              {away.name}
+                            </span>
+                            <TeamLogo team={away} className="w-8 h-8 transition-transform duration-300 group-hover:scale-110" />
+                          </div>
+                        </div>
                       </div>
-                      <div className={`text-center font-black italic text-base tracking-tighter min-w-[70px] ${played ? 'text-[#10241a]' : 'text-secondary'}`}>
-                        {played ? `${hs} - ${as_}` : 'VS'}
-                      </div>
-                      <div className="flex justify-start pl-4 w-[42%]">
-                        <TeamLogo team={away} className="w-10 h-10 group-hover:scale-110 transition-transform" />
-                      </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -976,71 +1111,78 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
 
         {/* ===== CLASSIFICA ===== */}
         {activeTab === 'classifica' && (
-          <div className="glass-card rounded-[2.5rem] p-4 md:p-8 overflow-x-auto">
-            <div className="min-w-[640px]">
-              <div className="grid grid-cols-12 items-center py-2 px-4 text-[9px] font-black uppercase text-gray-400 border-b border-black/10 mb-1 tracking-widest">
-                <span className="col-span-1 text-center">#</span>
-                <span className="col-span-4">Squadra</span>
-                <span className="col-span-1 text-center text-secondary">PTS</span>
-                <span className="col-span-1 text-center">G</span>
-                <span className="col-span-1 text-center text-emerald-600">V</span>
-                <span className="col-span-1 text-center">N</span>
-                <span className="col-span-1 text-center text-red-500">P</span>
-                <span className="col-span-1 text-center">DR</span>
-                <span className="col-span-1 text-center">Forma</span>
-              </div>
+          <div className="space-y-4">
+            <div className="surface rounded-[1.75rem] p-3 md:p-5 overflow-x-auto custom-scrollbar">
+              <div className="min-w-[620px]">
+                <div className="grid grid-cols-12 items-center py-2.5 px-3 text-[9px] font-black uppercase text-white/30 border-b border-white/10 tracking-[0.16em]">
+                  <span className="col-span-1 text-center">#</span>
+                  <span className="col-span-4">Squadra</span>
+                  <span className="col-span-1 text-center text-cyan-300/80">Pt</span>
+                  <span className="col-span-1 text-center">G</span>
+                  <span className="col-span-1 text-center text-emerald-300/70">V</span>
+                  <span className="col-span-1 text-center">N</span>
+                  <span className="col-span-1 text-center text-red-300/70">P</span>
+                  <span className="col-span-1 text-center">DR</span>
+                  <span className="col-span-1 text-center">Forma</span>
+                </div>
 
+                {loadingStandings ? (
+                  <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-cyan-400 animate-spin" /></div>
+                ) : standings.length === 0 ? (
+                  <p className="py-12 text-center text-white/35 text-xs font-black uppercase tracking-[0.2em]">
+                    Classifica non ancora disponibile
+                  </p>
+                ) : standings.map((t: any, i: number) => {
+                  // colonnina di zona: Champions, Europa, retrocessione
+                  const zone =
+                    i < 4 ? 'bg-cyan-400'
+                      : i < 6 ? 'bg-amber-400'
+                        : i >= standings.length - 3 ? 'bg-red-500'
+                          : 'bg-transparent';
+                  return (
+                    <div
+                      key={t.id}
+                      className="relative grid grid-cols-12 items-center py-2.5 px-3 border-b border-white/[0.05] last:border-0
+                                 hover:bg-white/[0.04] rounded-xl transition-colors group"
+                    >
+                      <span className={`absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full ${zone}`} />
 
-              {loadingStandings ? (
-                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-secondary animate-spin" /></div>
-              ) : standings.map((t: any, i: number) => {
-                const isZone = i < 4 ? 'border-l-2 border-secondary' : i < 6 ? 'border-l-2 border-orange-400' : i >= 17 ? 'border-l-2 border-red-500' : '';
-                return (
-                  <div
-                    key={t.id}
-                    className={`grid grid-cols-12 items-center py-3 border-b border-black/5 last:border-0 hover:bg-black/[0.02] px-4 rounded-xl transition-all group ${isZone}`}
-                  >
-                    <span className="col-span-1 text-center text-[11px] font-black text-gray-400 group-hover:text-secondary">
-                      {i + 1}
-                    </span>
-
-                    <div className="col-span-4 flex items-center gap-4 min-w-0">
-                      <TeamLogo team={t} className="w-8 h-8 shrink-0" />
-                      <span className="text-xs font-black uppercase tracking-tight truncate text-[#10241a] group-hover:text-secondary">
-                        {t.name}
+                      <span className="col-span-1 text-center text-[11px] font-black text-white/35 tabular-nums group-hover:text-cyan-300 transition-colors">
+                        {i + 1}
                       </span>
+
+                      <div className="col-span-4 flex items-center gap-3 min-w-0">
+                        <TeamLogo team={t} className="w-7 h-7 shrink-0" />
+                        <span className="text-xs font-black uppercase tracking-tight truncate text-white/85 group-hover:text-white transition-colors">
+                          {t.name}
+                        </span>
+                      </div>
+
+                      <span className="col-span-1 text-center font-black text-cyan-300 text-sm tabular-nums">{t.points}</span>
+                      <span className="col-span-1 text-center text-xs tabular-nums text-white/45">{t.played}</span>
+                      <span className="col-span-1 text-center text-xs tabular-nums text-emerald-300/80">{t.win}</span>
+                      <span className="col-span-1 text-center text-xs tabular-nums text-white/35">{t.draw}</span>
+                      <span className="col-span-1 text-center text-xs tabular-nums text-red-300/80">{t.lose}</span>
+                      <span className="col-span-1 text-center text-xs tabular-nums font-bold text-white/50">
+                        {t.gd > 0 ? `+${t.gd}` : t.gd}
+                      </span>
+
+                      <div className="col-span-1 flex justify-center gap-1">
+                        {(t.form || []).slice(-3).map((f: string, fi: number) => (
+                          <FormDot key={fi} type={f} />
+                        ))}
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
+            </div>
 
-                    <span className="col-span-1 text-center font-black text-secondary text-sm">
-                      {t.points}
-                    </span>
-
-                    <span className="col-span-1 text-center text-xs font-mono text-gray-600">
-                      {t.played}
-                    </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-emerald-600">
-                      {t.win}
-                    </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-gray-400">
-                      {t.draw}
-                    </span>
-                    <span className="col-span-1 text-center text-xs font-mono text-red-500">
-                      {t.lose}
-                    </span>
-                    <span className="col-span-1 text-center text-xs font-mono font-bold text-gray-500">
-                      {t.gd > 0 ? `+${t.gd}` : t.gd}
-                    </span>
-
-                    <div className="col-span-1 flex justify-center gap-0.5">
-                      {(t.form || []).slice(-3).map((f: string, fi: number) => (
-                        <FormDot key={fi} type={f} />
-                      ))}
-                    </div>
-                  </div>
-                );
-
-
-              })}
+            {/* legenda delle zone */}
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] font-bold uppercase tracking-[0.14em] text-white/35">
+              <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-cyan-400" /> Champions</span>
+              <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-amber-400" /> Europa</span>
+              <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-red-500" /> Retrocessione</span>
             </div>
           </div>
         )}
@@ -1052,7 +1194,7 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
       <Dialog.Root open={!!modalFixture} onOpenChange={() => { setModalFixture(null); setMatchDetails(null); }}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-[#06060f]/95 backdrop-blur-md z-[100]" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0a0a1e] border border-white/10 rounded-[3rem] w-[95vw] max-w-xl z-[101] overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0a0a1e] text-white border border-white/10 rounded-[2.5rem] w-[95vw] max-w-xl z-[101] overflow-hidden flex flex-col max-h-[85vh] shadow-[0_30px_90px_rgba(0,0,0,0.75)]">
             <Dialog.Title className="sr-only">Dettagli Partita</Dialog.Title>
             <Dialog.Description className="sr-only">
               Dettagli e statistiche della partita selezionata
@@ -1274,7 +1416,8 @@ const getPlayerPosition = (p: any, roleIndex: number, totalInRole: number) => {
             </div>
 
             <button onClick={() => { setModalFixture(null); setMatchDetails(null); }}
-              className="absolute top-6 right-6 p-2.5 bg-zinc-900/80 rounded-full border border-white/10 hover:bg-red-500 hover:border-red-500 transition-all">
+              aria-label="Chiudi"
+              className="absolute top-5 right-5 p-2.5 bg-zinc-900/80 text-white/70 rounded-full border border-white/10 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all">
               <X className="w-4 h-4" />
             </button>
           </Dialog.Content>
@@ -1288,7 +1431,7 @@ export default function ScoutHub() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex justify-center items-center pt-24">
-        <Loader2 className="w-10 h-10 text-secondary animate-spin" />
+        <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
       </div>
     }>
       <ScoutHubContent />

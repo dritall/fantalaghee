@@ -9,6 +9,8 @@ import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
 import { MagicCard } from '@/components/ui/MagicCard';
 import { WaitingFirstMatchday } from '@/components/ui/WaitingFirstMatchday';
 import { CURRENT_SEASON } from '@/lib/seasons';
+import { SeasonBanner } from '@/components/ui/SeasonBanner';
+import { SeasonPill } from '@/components/ui/SeasonPill';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -88,10 +90,12 @@ function VerdettoContent() {
     if (isPreSeason) return (
         <main className="min-h-screen pt-24 pb-12 px-4 md:px-8 relative">
             <div className="relative z-30 max-w-4xl mx-auto space-y-8">
+                <SeasonBanner />
                 <div className="text-center space-y-4">
                     <h1 className={`${oswald.className} text-4xl md:text-6xl font-bold text-3d-metallic uppercase tracking-wide`}>
                         IL VERDETTO
                     </h1>
+                    <SeasonPill stagione={stagione} />
                 </div>
                 <WaitingFirstMatchday subtitle="Premi, record e classifiche compariranno qui dopo la prima giornata di campionato." />
             </div>
@@ -167,12 +171,16 @@ function VerdettoContent() {
             <div className="relative z-30 max-w-6xl mx-auto space-y-12">
 
                 {/* Header */}
+                <SeasonBanner />
                 <div className="text-center space-y-4">
                     <h1 className={`${oswald.className} text-4xl md:text-6xl font-bold text-3d-metallic uppercase tracking-wide`}>
                         IL VERDETTO
                     </h1>
-                    <div className="inline-block px-4 py-2 rounded-full bg-secondary/10 border border-secondary/20 text-secondary font-medium">
-                        Aggiornato alla Giornata {data.numeroGiornata}
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        <SeasonPill stagione={stagione} />
+                        <span className="inline-block px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/12 text-white/60 text-xs font-bold uppercase tracking-wider">
+                            Aggiornato alla Giornata {data.numeroGiornata}
+                        </span>
                     </div>
                 </div>
 

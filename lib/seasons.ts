@@ -37,6 +37,12 @@ export const NEW_SEASON_ARTICLES_FROM = '2026-08-01';
 /** Link al form di iscrizione per la nuova stagione */
 export const ISCRIZIONE_FORM_URL = 'https://forms.gle/Jmj5wdFUUjcJcxKt6';
 
+/** PDF del regolamento in vigore, servito da /public/docs */
+export const REGOLAMENTO_PDF_URL = '/docs/regolamento-fantalaghee-2627.pdf';
+
+/** Sottotitolo della lega, usato nell'header e nei metadati */
+export const LEAGUE_TAGLINE = 'Il Fantacalcio del Lario';
+
 export function getSeason(slug?: string | null): SeasonConfig {
     if (slug && SEASONS[slug]) return SEASONS[slug];
     return SEASONS[CURRENT_SEASON];

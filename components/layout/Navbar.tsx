@@ -1,23 +1,101 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
-import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, UserPlus, Download } from "lucide-react";
+import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, UserPlus, Download, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { Suspense } from "react";
 import { SeasonSwitcher } from "@/components/ui/SeasonSwitcher";
-import { ISCRIZIONE_FORM_URL } from "@/lib/seasons";
+import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE } from "@/lib/seasons";
+import { SeasonLink } from "@/components/ui/SeasonLink";
 
 const navItems = [
-    { name: "Classifica Lega", href: "/classifica", icon: Trophy },
-    { name: "Il Verdetto", href: "/verdetto", icon: Gavel },
-    { name: "Risultati Serie A", href: "/risultati-serie-a", icon: Activity },
-    { name: "La Gazzetta", href: "/gazzetta", icon: Newspaper },
-    { name: "Regolamento", href: "/regolamento", icon: BookOpen },
+    { name: "Classifica", full: "Classifica Lega", href: "/classifica", icon: Trophy },
+    { name: "Verdetto", full: "Il Verdetto", href: "/verdetto", icon: Gavel },
+    { name: "Serie A", full: "Risultati Serie A", href: "/risultati-serie-a", icon: Activity },
+    { name: "Gazzetta", full: "La Gazzetta", href: "/gazzetta", icon: Newspaper },
+    { name: "Regolamento", full: "Regolamento", href: "/regolamento", icon: BookOpen },
 ];
+
+/** I link del menu devono portarsi dietro la stagione selezionata. */
+function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+    const pathname = usePathname();
+
+    return (
+        <>
+            {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                    <SeasonLink
+                        key={item.href}
+                        href={item.href}
+                        onClick={onNavigate}
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                            "group relative px-3.5 py-2 rounded-full text-[13px] font-semibold transition-colors duration-200",
+                            isActive ? "text-white" : "text-white/55 hover:text-white"
+                        )}
+                    >
+                        <span className="relative z-10 flex items-center gap-1.5">
+                            <item.icon
+                                className={cn(
+                                    "w-[15px] h-[15px] transition-all duration-300",
+                                    isActive ? "text-cyan-300" : "text-white/35 group-hover:text-cyan-300/80"
+                                )}
+                                strokeWidth={2.2}
+                            />
+                            {item.name}
+                        </span>
+
+                        {/* sfondo che scivola sulla voce attiva */}
+                        {isActive && (
+                            <motion.span
+                                layoutId="navbar-indicator"
+                                className="absolute inset-0 rounded-full bg-white/[0.09] border border-white/15 shadow-[0_0_22px_rgba(34,211,238,0.22)]"
+                                initial={false}
+                                transition={{ type: "spring", stiffness: 500, damping: 34 }}
+                            />
+                        )}
+                        {/* alone soffuso in hover, solo sulle voci non attive */}
+                        {!isActive && (
+                            <span className="absolute inset-0 rounded-full bg-white/0 group-hover:bg-white/[0.06] transition-colors duration-200" />
+                        )}
+                    </SeasonLink>
+                );
+            })}
+        </>
+    );
+}
+
+/** Sottile barra di avanzamento della lettura, agganciata al bordo della navbar. */
+function ScrollProgress() {
+    const [progress, setProgress] = useState(0);
+
+    useEffect(() => {
+        const update = () => {
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0);
+        };
+        update();
+        window.addEventListener("scroll", update, { passive: true });
+        window.addEventListener("resize", update);
+        return () => {
+            window.removeEventListener("scroll", update);
+            window.removeEventListener("resize", update);
+        };
+    }, []);
+
+    return (
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] overflow-hidden" aria-hidden="true">
+            <div className="h-full w-full gradient-bar opacity-35" />
+            <div
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-300 to-secondary shadow-[0_0_10px_rgba(34,211,238,0.7)] transition-[width] duration-150 ease-out"
+                style={{ width: `${progress * 100}%` }}
+            />
+        </div>
+    );
+}
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -25,137 +103,163 @@ export function Navbar() {
     const pathname = usePathname();
 
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener("scroll", handleScroll);
+        const handleScroll = () => setScrolled(window.scrollY > 16);
+        handleScroll();
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    // Il menu mobile si chiude cambiando pagina o con Esc
+    useEffect(() => setIsOpen(false), [pathname]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+    }, [isOpen]);
 
     return (
         <nav
             className={cn(
                 "fixed top-0 w-full z-50 transition-all duration-300",
                 scrolled
-                    ? "bg-[#0d0a2a]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.3)] py-1 md:py-1.5"
-                    : "bg-[#0d0a2a]/45 backdrop-blur-md border-b border-white/5 py-1.5 md:py-3"
+                    ? "bg-[#0b0824]/85 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
+                    : "bg-gradient-to-b from-[#0b0824]/80 via-[#0b0824]/45 to-transparent backdrop-blur-md border-b border-transparent"
             )}
         >
-            <div className="h-[2px] w-full gradient-bar" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-12 md:h-16">
-                    {/* Logo */}
-                    <Link href="/" className="flex-shrink-0 flex items-center gap-3 group">
-                        <div className="relative w-auto h-8 md:h-11 flex items-center justify-center rounded-2xl px-1.5 transition-all duration-300 group-hover:bg-white/[0.06]">
-                            {/* alone neon dietro al logo */}
-                            <span className="absolute inset-0 rounded-2xl opacity-60 group-hover:opacity-100 blur-lg transition-opacity duration-500 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.35),transparent_70%)]" />
+                <div
+                    className={cn(
+                        "flex items-center justify-between gap-4 transition-all duration-300",
+                        scrolled ? "h-14 md:h-16" : "h-16 md:h-20"
+                    )}
+                >
+                    {/* ============ MARCHIO ============
+                        Il logo è già il lettering "Fanta Laghèe": ripeterlo
+                        accanto in due colori faceva a pugni con l'insegna al
+                        neon. Resta il marchio, affiancato dal solo sottotitolo. */}
+                    <SeasonLink
+                        href="/"
+                        className="group flex items-center gap-3 min-w-0 shrink-0"
+                        aria-label="Fanta Laghèe — home"
+                    >
+                        <span className="relative flex items-center">
+                            <span className="absolute -inset-2 rounded-2xl opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-500 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.35),transparent_70%)]" />
                             <Image
-                                src="/image/logo-fantalaghee.png"
-                                alt="Fantalaghee Logo"
-                                width={120}
-                                height={48}
-                                className="relative object-contain h-full w-auto drop-shadow-[0_0_14px_rgba(236,72,153,0.4)] transition-transform duration-300 group-hover:scale-105"
+                                src="/image/logo-mark.png"
+                                alt="Fanta Laghèe"
+                                width={319}
+                                height={246}
                                 priority
+                                className={cn(
+                                    "relative w-auto object-contain transition-all duration-300",
+                                    "drop-shadow-[0_0_16px_rgba(99,102,241,0.45)] group-hover:drop-shadow-[0_0_22px_rgba(56,189,248,0.6)]",
+                                    scrolled ? "h-9 md:h-10" : "h-10 md:h-12"
+                                )}
                             />
-                        </div>
-                        <span className="font-black text-lg tracking-tight text-white hidden sm:flex flex-col leading-none">
-                            <span>FANTA <span className="text-gradient">LAGHÈE</span></span>
-                            <span className="text-[9px] font-semibold tracking-[0.3em] uppercase text-white/35 mt-1">Il Fantacalcio d&apos;élite</span>
                         </span>
-                    </Link>
 
-                    {/* Desktop Menu */}
-                    <div className="hidden lg:flex items-center gap-0.5">
-                        {navItems.map((item) => {
-                            const isActive = pathname === item.href;
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={cn(
-                                        "px-3.5 py-2 rounded-full text-[13px] font-medium transition-all relative",
-                                        isActive
-                                            ? "text-white"
-                                            : "text-white/55 hover:text-white hover:bg-white/5"
-                                    )}
-                                >
-                                    {item.name}
-                                    {isActive && (
-                                        <motion.div
-                                            layoutId="navbar-indicator"
-                                            className="absolute inset-0 -z-10 rounded-full bg-white/10 border border-white/15 shadow-[0_0_18px_rgba(34,211,238,0.25)]"
-                                            initial={false}
-                                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                        />
-                                    )}
-                                </Link>
-                            );
-                        })}
+                        <span className="hidden sm:flex flex-col leading-none pl-3 border-l border-white/10">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/70">
+                                {LEAGUE_TAGLINE}
+                            </span>
+                            <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.22em] text-white/30">
+                                Lega privata · dal 2025
+                            </span>
+                        </span>
+                    </SeasonLink>
+
+                    {/* ============ MENU DESKTOP ============ */}
+                    <div className="hidden lg:flex items-center gap-0.5 rounded-full border border-white/[0.07] bg-white/[0.03] px-1 py-1 backdrop-blur-sm">
+                        <NavLinks />
                     </div>
 
-                    {/* Season Switcher + Mobile Menu Button */}
-                    <div className="flex items-center gap-2">
+                    {/* ============ AZIONI ============ */}
+                    <div className="flex items-center gap-2 shrink-0">
+                        <a
+                            href={REGOLAMENTO_PDF_URL}
+                            download
+                            className="group hidden md:inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] pl-3 pr-3.5 py-1.5
+                                       text-[12px] font-bold text-white/80 backdrop-blur-md transition-all duration-300
+                                       hover:bg-white/[0.12] hover:text-white hover:border-white/25"
+                            title="Scarica il regolamento in PDF"
+                        >
+                            <Download className="w-3.5 h-3.5 text-cyan-300 transition-transform duration-300 group-hover:translate-y-0.5" />
+                            <span className="hidden xl:inline">Scarica Regolamento</span>
+                            <span className="xl:hidden">Regolamento</span>
+                        </a>
+
                         <Suspense fallback={null}>
                             <SeasonSwitcher />
                         </Suspense>
-                        <div className="lg:hidden">
-                            <button
-                                onClick={() => setIsOpen(!isOpen)}
-                                className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors focus:outline-none"
-                                aria-label="Menu"
-                            >
-                                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                            </button>
-                        </div>
+
+                        <button
+                            onClick={() => setIsOpen((v) => !v)}
+                            className="lg:hidden p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                            aria-label={isOpen ? "Chiudi il menu" : "Apri il menu"}
+                            aria-expanded={isOpen}
+                        >
+                            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* Mobile Menu Dropdown */}
+            <ScrollProgress />
+
+            {/* ============ MENU MOBILE ============ */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="lg:hidden bg-[#0d0a2a]/95 backdrop-blur-xl border-t border-white/10 overflow-hidden"
+                        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                        className="lg:hidden bg-[#0b0824]/97 backdrop-blur-2xl border-t border-white/10 overflow-hidden"
                     >
-                        <div className="px-4 pt-3 pb-6 space-y-1">
-                            <a
-                                href={ISCRIZIONE_FORM_URL}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                        <div className="px-4 pt-4 pb-8 space-y-1.5 max-h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
+                            <SeasonLink
+                                href="/"
                                 onClick={() => setIsOpen(false)}
-                                className="flex items-center justify-center gap-2 px-3 py-3.5 mb-2 rounded-xl text-base font-black uppercase tracking-wider
-                                           bg-gradient-to-r from-secondary to-cyan-500 text-white shadow-[0_8px_24px_rgba(37,99,235,0.4)] border border-white/20"
+                                className={cn(
+                                    "flex items-center gap-3 px-3 py-3 rounded-2xl text-base font-semibold transition-colors",
+                                    pathname === "/"
+                                        ? "bg-white/10 text-white border border-white/10"
+                                        : "text-white/60 hover:text-white hover:bg-white/5"
+                                )}
                             >
-                                <UserPlus className="w-5 h-5" />
-                                Iscriviti alla Lega
-                            </a>
-                            <a
-                                href="/docs/regolamento-fantalaghee-2627.pdf"
-                                download
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center justify-center gap-2 px-3 py-3.5 mb-2 rounded-xl text-base font-bold uppercase tracking-wider
-                                           bg-white/5 text-white border border-white/15 hover:bg-white/10 transition-colors"
-                            >
-                                <Download className="w-5 h-5" />
-                                Scarica Regolamento
-                            </a>
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
+                                <Home className="w-5 h-5" />
+                                Home
+                            </SeasonLink>
+
+                            <div className="flex flex-col gap-1.5 [&>a]:!rounded-2xl [&>a]:!px-3 [&>a]:!py-3 [&>a]:!text-base">
+                                <NavLinks onNavigate={() => setIsOpen(false)} />
+                            </div>
+
+                            <div className="pt-4 space-y-2">
+                                <a
+                                    href={ISCRIZIONE_FORM_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     onClick={() => setIsOpen(false)}
-                                    className={cn(
-                                        "flex items-center gap-3 px-3 py-3 rounded-xl text-base font-medium transition-colors",
-                                        pathname === item.href
-                                            ? "bg-white/10 text-white border border-white/10"
-                                            : "text-white/60 hover:text-white hover:bg-white/5"
-                                    )}
+                                    className="flex items-center justify-center gap-2 px-3 py-3.5 rounded-2xl text-base font-black uppercase tracking-wider
+                                               bg-gradient-to-r from-secondary to-cyan-500 text-white shadow-[0_8px_24px_rgba(37,99,235,0.4)] border border-white/20"
                                 >
-                                    <item.icon className="w-5 h-5" />
-                                    {item.name}
-                                </Link>
-                            ))}
+                                    <UserPlus className="w-5 h-5" />
+                                    Iscriviti alla Lega
+                                </a>
+                                <a
+                                    href={REGOLAMENTO_PDF_URL}
+                                    download
+                                    onClick={() => setIsOpen(false)}
+                                    className="flex items-center justify-center gap-2 px-3 py-3.5 rounded-2xl text-base font-bold uppercase tracking-wider
+                                               bg-white/5 text-white border border-white/15 hover:bg-white/10 transition-colors"
+                                >
+                                    <Download className="w-5 h-5" />
+                                    Scarica Regolamento
+                                </a>
+                            </div>
                         </div>
                     </motion.div>
                 )}

@@ -55,6 +55,24 @@
     @apply text-[#10241a] antialiased;
     background-color: #0d0a2a;
   }
+
+  html {
+    scroll-behavior: smooth;
+    /* le ancore non finiscono sotto la navbar fissa */
+    scroll-padding-top: 6.5rem;
+  }
+
+  /* Anello di focus visibile solo da tastiera, coerente su tutto il sito */
+  :focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: rgba(37, 99, 235, 0.35);
+    color: #fff;
+  }
 }
 
 @layer utilities {
@@ -77,6 +95,78 @@
 
   .text-highlight {
     @apply text-[#2563EB];
+  }
+
+  /* ---------------------------------------------------------------
+     Superfici scure — il linguaggio grafico del sito è notturno:
+     queste classi sostituiscono le vecchie card bianche là dove
+     stonavano sopra lo sfondo dello stadio.
+     --------------------------------------------------------------- */
+  .surface {
+    @apply bg-gradient-to-b from-[#0d1330]/90 to-[#080b1e]/90 backdrop-blur-xl border border-white/10
+           shadow-[0_12px_40px_rgba(6,10,30,0.5)];
+  }
+
+  .surface-card {
+    @apply surface rounded-3xl transition-all duration-300
+           hover:border-white/20 hover:shadow-[0_18px_50px_rgba(6,10,30,0.65)];
+  }
+
+  /* Bordo a gradiente: un padding di 1px colorato attorno alla card */
+  .ring-gradient {
+    @apply relative p-[1.5px] rounded-[1.75rem] overflow-hidden
+           bg-[linear-gradient(160deg,rgba(56,189,248,0.45),rgba(255,255,255,0.10)_45%,rgba(255,255,255,0.03))];
+  }
+
+  /* Riflesso superiore, come un bordo illuminato */
+  .sheen::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    pointer-events: none;
+  }
+
+  /* Barre di scorrimento: erano chiare su un sito scuro */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.55);
+  }
+
+  /* Sfumature ai lati di un carosello orizzontale */
+  .edge-fade-x {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
   }
 
   /* Sfondo stadio reale — overlay scuro/colorato per far risaltare le card glass */
@@ -399,11 +489,11 @@
   100% { background-position: 200% 50%; }
 }
 
-/* Scrollbar chiara */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+/* Scrollbar della pagina, intonata al fondo notturno */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0a0820; }
+::-webkit-scrollbar-thumb { background: #2b3566; border-radius: 10px; border: 2px solid #0a0820; }
+::-webkit-scrollbar-thumb:hover { background: #3d4a8a; }
 
 @keyframes chrome-sweep {
   0% { transform: rotate(0deg); opacity: 1; }
@@ -430,10 +520,47 @@
   animation: border-flow 6s linear infinite;
 }
 
+/* Riflettore che segue il puntatore dentro una card.
+   Le coordinate --mx/--my sono aggiornate in JS da <SpotlightCard>. */
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, 0%),
+    var(--spot, rgba(56, 189, 248, 0.22)),
+    transparent 68%
+  );
+}
+
+.spotlight:hover::after,
+.spotlight:focus-within::after {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
   .ambient-blobs::before,
   .ambient-blobs::after,
-  .gradient-bar {
+  .gradient-bar,
+  .animate-season-pulse,
+  .animate-season-pulse-archive,
+  .animate-shimmer,
+  .animate-float-soft {
     animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
   }
 }
