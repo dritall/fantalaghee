@@ -422,9 +422,10 @@ export function normalizeMatch(raw: {
     const awayTeamId = awayTeamRaw?.teamId || awayTeamRaw?.id;
 
     // indice delle statistiche per giocatore, così la ricerca è O(1)
+    // Attenzione: l'API nidifica playerId dentro entry.player.playerId, non a livello top
     const playerStats = new Map<string, any>();
     (raw?.playerStats?.players || raw?.playerStats || []).forEach?.((entry: any) => {
-        const id = shortId(entry?.playerId || entry?.id);
+        const id = shortId(entry?.playerId || entry?.id || entry?.player?.playerId);
         if (id) playerStats.set(id, entry?.stats ?? entry);
     });
 

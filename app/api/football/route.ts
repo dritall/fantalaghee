@@ -12,8 +12,11 @@ const HEADERS: HeadersInit = {
 // Cache la risposta di Lega Serie A per qualche minuto: evita di rifare la stessa
 // chiamata pesante (tutte le partite della stagione) ad ogni round selezionato
 // dall'utente, velocizzando la pagina e riducendo il rischio di errori/timeout
-// lato Lega Serie A.
-const SEASON_FETCH_REVALIDATE = 300; // 5 minuti
+// lato Lega Serie A. Tempi lunghi per non farsi bannare.
+const SEASON_FETCH_REVALIDATE = 300; // 5 minuti per season data
+const MATCH_REVALIDATE = 120;        // 2 minuti per match details
+const STATS_REVALIDATE = 600;        // 10 minuti per statistiche statiche
+const STANDINGS_REVALIDATE = 120;    // 2 minuti per classifica
 
 async function legaFetch(url: string, revalidate: number = SEASON_FETCH_REVALIDATE) {
   const res = await fetch(url, {
@@ -91,7 +94,7 @@ export async function GET(request: Request) {
     }
 
     if (endpoint === 'standings') {
-      const data = await legaFetch(`${BASE}/standings/overall?locale=it-IT`, 60);
+      const data = await legaFetch(`${BASE}/standings/overall?locale=it-IT`, STANDINGS_REVALIDATE);
       const teams = data?.standings?.[0]?.teams || [];
       return NextResponse.json(
         {
@@ -189,11 +192,11 @@ export async function GET(request: Request) {
       const enc = encodeURIComponent(matchId);
 
       const [header, stats, lineups, events1, playerStats] = await Promise.allSettled([
-        legaFetch(`${BASE}/matches/${enc}/header?locale=it-IT`, 60),
-        legaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`, 60),
-        legaFetch(`${BASE}/matches/${enc}/lineups?locale=it-IT`, 60),
-        legaFetch(`${BASE}/match/${enc}/action?locale=it-IT`, 60).catch(() => legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`, 60)),
-        legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`, 60),
+        legaFetch(`${BASE}/matches/${enc}/header?locale=it-IT`, MATCH_REVALIDATE),
+        legaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`, STATS_REVALIDATE),
+        legaFetch(`${BASE}/matches/${enc}/lineups?locale=it-IT`, MATCH_REVALIDATE),
+        legaFetch(`${BASE}/match/${enc}/action?locale=it-IT`, MATCH_REVALIDATE).catch(() => legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`, MATCH_REVALIDATE)),
+        legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`, STATS_REVALIDATE),
       ]);
 
       const payload = {
@@ -217,7 +220,7 @@ export async function GET(request: Request) {
 
       return NextResponse.json(
         { ok: true, data: { ...payload, normalized } },
-        { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' } }
+        { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=60' } }
       );
     }
 
