@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSeason } from '@/lib/seasons';
+import { normalizeMatch } from '@/lib/lega-normalize';
 
 const HEADERS: HeadersInit = {
   'User-Agent': 'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
@@ -195,18 +196,61 @@ export async function GET(request: Request) {
         legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`, 60),
       ]);
 
+      const payload = {
+        header: header.status === 'fulfilled' ? header.value : null,
+        stats: stats.status === 'fulfilled' ? stats.value : null,
+        lineups: lineups.status === 'fulfilled' ? lineups.value : null,
+        events: events1.status === 'fulfilled' ? events1.value : null,
+        playerStats: playerStats.status === 'fulfilled' ? playerStats.value : null,
+      };
+
+      // I blocchi grezzi restano (retrocompatibilità e diagnostica), ma il sito
+      // consuma `normalized`: formazioni, foto, eventi e statistiche già uniti
+      // in una forma stabile. Se la normalizzazione fallisce la pagina continua
+      // a funzionare con i dati grezzi.
+      let normalized = null;
+      try {
+        normalized = normalizeMatch(payload);
+      } catch (err: any) {
+        normalized = null;
+      }
+
       return NextResponse.json(
-        {
-          ok: true,
-          data: {
-            header: header.status === 'fulfilled' ? header.value : null,
-            stats: stats.status === 'fulfilled' ? stats.value : null,
-            lineups: lineups.status === 'fulfilled' ? lineups.value : null,
-            events: events1.status === 'fulfilled' ? events1.value : null,
-            playerStats: playerStats.status === 'fulfilled' ? playerStats.value : null,
-          },
-        },
+        { ok: true, data: { ...payload, normalized } },
         { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' } }
+      );
+    }
+
+    if (endpoint === 'player') {
+      const playerId = searchParams.get('id');
+      if (!playerId) {
+        return NextResponse.json({ ok: false, error: 'id mancante' }, { status: 400 });
+      }
+
+      const enc = encodeURIComponent(playerId);
+
+      // Non tutte le stagioni espongono la scheda giocatore: proviamo gli
+      // endpoint noti e restituiamo il primo che risponde. Il chiamante ha
+      // comunque le statistiche della singola partita come base garantita,
+      // quindi un fallimento qui degrada senza rompere nulla.
+      const attempts = await Promise.allSettled([
+        legaFetch(`${BASE}/players/${enc}?locale=it-IT`, 3600),
+        legaFetch(`${BASE}/player/${enc}/stats?locale=it-IT`, 600),
+      ]);
+
+      const profile = attempts[0].status === 'fulfilled' ? attempts[0].value : null;
+      const seasonStats = attempts[1].status === 'fulfilled' ? attempts[1].value : null;
+
+      if (!profile && !seasonStats) {
+        return NextResponse.json(
+          { ok: false, error: 'Scheda giocatore non disponibile per questa stagione', unavailable: true },
+          { headers: { 'Cache-Control': 'public, s-maxage=600' } }
+        );
+      }
+
+      return NextResponse.json(
+        { ok: true, data: { profile, seasonStats } },
+        { headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=300' } }
       );
     }
 
@@ -215,7 +259,7 @@ export async function GET(request: Request) {
       {
         ok: false,
         error: 'Endpoint non valido',
-        disponibili: ['seasons', 'standings', 'matches?round=1-38', 'match?id=...'],
+        disponibili: ['seasons', 'standings', 'matchdays', 'matches?round=1-38', 'match?id=...', 'player?id=...'],
       },
       { status: 400 }
     );

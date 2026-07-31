@@ -6,7 +6,6 @@ import { useSearchParams } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
-import { MagicCard } from '@/components/ui/MagicCard';
 import { WaitingFirstMatchday } from '@/components/ui/WaitingFirstMatchday';
 import { CURRENT_SEASON } from '@/lib/seasons';
 import { SeasonBanner } from '@/components/ui/SeasonBanner';
@@ -102,28 +101,22 @@ function VerdettoContent() {
         </main>
     );
 
-    // Chart Config
+    // Grafico: palette pensata per il fondo notturno del sito
     const chartData = {
         labels: data?.classifica?.map((d: any) => d.squadra) || [],
         datasets: [{
             label: 'Punti Totali',
             data: data?.classifica?.map((d: any) => d.punti) || [],
             backgroundColor: [
-                'rgba(255, 215, 0, 0.7)', // Gold
-                'rgba(192, 192, 192, 0.7)', // Silver
-                'rgba(205, 127, 50, 0.7)',  // Bronze
-                'rgba(74, 222, 128, 0.6)',
-                'rgba(74, 222, 128, 0.6)',
+                'rgba(250, 204, 21, 0.75)',
+                'rgba(203, 213, 225, 0.65)',
+                'rgba(217, 119, 6, 0.65)',
+                'rgba(34, 211, 238, 0.45)',
+                'rgba(34, 211, 238, 0.45)',
             ],
-            borderColor: [
-                '#FFD700',
-                '#C0C0C0',
-                '#CD7F32',
-                '#4ade80',
-                '#4ade80',
-            ],
-            borderWidth: 2,
-            borderRadius: 6,
+            borderColor: ['#facc15', '#cbd5e1', '#d97706', '#22d3ee', '#22d3ee'],
+            borderWidth: 1.5,
+            borderRadius: 8,
         }]
     };
 
@@ -133,30 +126,31 @@ function VerdettoContent() {
         indexAxis: 'y' as const,
         scales: {
             x: {
-                grid: { display: false, color: 'rgba(0, 0, 0, 0.05)' },
-                ticks: { color: '#6b7280', font: { family: 'Inter' } }
+                grid: { display: true, color: 'rgba(255, 255, 255, 0.06)' },
+                border: { display: false },
+                ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 } }
             },
             y: {
                 grid: { display: false },
-                ticks: { color: '#10241a', font: { weight: 'bold' as const, size: 14 } }
+                border: { display: false },
+                ticks: { color: 'rgba(255,255,255,0.8)', font: { weight: 'bold' as const, size: 12 } }
             }
         },
         plugins: {
             legend: { display: false },
             tooltip: {
-                backgroundColor: 'rgba(255, 255, 255, 0.97)',
-                titleColor: '#10241a',
-                bodyColor: '#374151',
-                padding: 16,
-                titleFont: { size: 16, family: 'Oswald' },
-                bodyFont: { size: 14, family: 'serif' },
-                borderColor: 'rgba(0,0,0,0.08)',
+                backgroundColor: 'rgba(10, 15, 38, 0.97)',
+                titleColor: '#ffffff',
+                bodyColor: 'rgba(255,255,255,0.7)',
+                padding: 14,
+                borderColor: 'rgba(255,255,255,0.12)',
                 borderWidth: 1,
+                displayColors: false,
                 callbacks: {
                     label: (context: any) => {
                         const dataPoint = data?.classifica[context.dataIndex];
                         return [
-                            `Punti Totali: ${context.raw}`,
+                            `Punti totali: ${context.raw}`,
                             `Media: ${dataPoint?.mediaPunti || 'N/D'}`
                         ];
                     }
@@ -165,294 +159,222 @@ function VerdettoContent() {
         }
     };
 
+    /* Riquadro con accento di colore, usato per i tre verdetti in cima. */
+    const Highlight = ({ icon: Icon, title, hex, children, delay }: any) => (
+        <motion.div
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.45 }}
+            className="relative h-full rounded-[1.5rem] p-[1.5px] overflow-hidden shadow-[0_10px_34px_rgba(6,10,30,0.5)]"
+            style={{ background: `linear-gradient(155deg, ${hex}66, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.02))` }}
+        >
+            <div className="relative h-full rounded-[calc(1.5rem-1.5px)] bg-gradient-to-b from-[#0c1228] to-[#080b1e] p-5 overflow-hidden">
+                <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                <span className="absolute -right-4 -top-4 opacity-[0.07] pointer-events-none">
+                    <Icon className="w-28 h-28" style={{ color: hex }} />
+                </span>
+                <span
+                    className="absolute -inset-px opacity-50 pointer-events-none"
+                    style={{ background: `radial-gradient(300px circle at 50% -20%, ${hex}30, transparent 65%)` }}
+                />
+                <div className="relative">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.22em] mb-3" style={{ color: hex }}>{title}</h3>
+                    {children}
+                </div>
+            </div>
+        </motion.div>
+    );
+
+    /* Riga premio: squadra a sinistra, importo a destra. */
+    const PrizeRow = ({ squadra, premio, rank }: any) => (
+        <div
+            onMouseEnter={fireConfetti}
+            onTouchStart={fireConfetti}
+            className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl cursor-pointer transition-colors hover:bg-white/[0.06]"
+        >
+            <span className="flex items-center gap-2 min-w-0">
+                {rank !== undefined && <span className="text-sm shrink-0">{['🥇', '🥈', '🥉', '4️⃣'][rank] || `${rank + 1}.`}</span>}
+                <span className="text-xs text-white/60 truncate">{squadra}</span>
+            </span>
+            <span className="text-xs font-black text-amber-300 tabular-nums shrink-0">{premio} 🍆</span>
+        </div>
+    );
+
+    const Panel = ({ title, icon: Icon, hex, children, className = "" }: any) => (
+        <div className={`surface rounded-[1.5rem] p-5 flex flex-col ${className}`}>
+            <div className="flex items-center gap-2 mb-4">
+                {Icon && <Icon className="w-4 h-4 shrink-0" style={{ color: hex }} />}
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: hex }}>{title}</h4>
+            </div>
+            {children}
+        </div>
+    );
+
     return (
-        <main className="min-h-screen pt-24 pb-12 px-4 md:px-8 relative">
+        <main className="min-h-screen pt-28 pb-16 px-4 md:px-8 relative">
+            <div className="relative z-30 max-w-6xl mx-auto space-y-10">
 
-            <div className="relative z-30 max-w-6xl mx-auto space-y-12">
-
-                {/* Header */}
                 <SeasonBanner />
-                <div className="text-center space-y-4">
+
+                {/* ===== TESTATA ===== */}
+                <header className="text-center space-y-4">
                     <h1 className={`${oswald.className} text-4xl md:text-6xl font-bold text-3d-metallic uppercase tracking-wide`}>
-                        IL VERDETTO
+                        Il Verdetto
                     </h1>
                     <div className="flex flex-wrap items-center justify-center gap-2">
                         <SeasonPill stagione={stagione} />
-                        <span className="inline-block px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/12 text-white/60 text-xs font-bold uppercase tracking-wider">
-                            Aggiornato alla Giornata {data.numeroGiornata}
+                        <span className="inline-flex items-center rounded-full border border-white/12 bg-white/[0.06] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white/55">
+                            Giornata {data.numeroGiornata}
                         </span>
                     </div>
+                </header>
+
+                {/* ===== I TRE VERDETTI ===== */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                    <Highlight icon={Trophy} title="Leader attuale" hex="#facc15" delay={0.05}>
+                        <p className="text-2xl md:text-3xl font-black text-white break-words leading-tight">{data.leaderAttuale}</p>
+                    </Highlight>
+
+                    <Highlight icon={Flame} title="Record assoluto" hex="#ec4899" delay={0.12}>
+                        <p className="text-3xl font-black text-white tabular-nums leading-none">{data.recordAssoluto.punteggio}</p>
+                        <p className="text-sm font-bold text-white/70 mt-1.5 truncate">{data.recordAssoluto.squadra}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">{data.recordAssoluto.giornata}</p>
+                    </Highlight>
+
+                    <Highlight icon={ThumbsDown} title="Cucchiaio di legno" hex="#f87171" delay={0.19}>
+                        <p className="text-3xl font-black text-white tabular-nums leading-none">{data.cucchiaioDiLegno.punteggio}</p>
+                        <p className="text-sm font-bold text-white/70 mt-1.5 truncate">{data.cucchiaioDiLegno.squadra}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">{data.cucchiaioDiLegno.giornata}</p>
+                    </Highlight>
                 </div>
 
-                {/* Main Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    {/* Leader */}
+                {/* ===== PODIO + TOP 5 ===== */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }}
-                        style={{ '--team-color': '250, 204, 21' } as any}
+                        initial={{ y: 18, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.26 }}
+                        className="lg:col-span-2"
                     >
-                        <MagicCard glowColor="#FACC15" className="h-full">
-                            <div className="p-6 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1">
-                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <Trophy className="w-24 h-24 text-amber-400" />
-                                </div>
-                                <div className="relative z-10">
-                                    <h3 className="text-xl font-bold uppercase text-amber-500 tracking-widest mb-3">Leader Attuale</h3>
-                                    <p className="text-3xl md:text-5xl font-bold text-[#10241a] break-words">{data.leaderAttuale}</p>
-                                </div>
+                        <Panel title="Top 5 classifica" icon={Medal} hex="#22d3ee" className="h-full">
+                            <div className="flex-1 min-h-[260px] md:min-h-[300px]">
+                                <Bar data={chartData} options={chartOptions} />
                             </div>
-                        </MagicCard>
+                        </Panel>
                     </motion.div>
 
-                    {/* Record */}
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2 }}
-                        style={{ '--team-color': '249, 115, 22' } as any}
-                    >
-                        <MagicCard glowColor="#EC4899" className="h-full">
-                            <div className="p-6 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1">
-                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <Flame className="w-24 h-24 text-pink-500" />
-                                </div>
-                                <div className="relative z-10">
-                                    <h3 className="text-xl font-bold uppercase text-pink-500 tracking-widest mb-3">Record Assoluto</h3>
-                                    <div className="space-y-1">
-                                        <p className="text-2xl font-bold text-[#10241a]">{data.recordAssoluto.punteggio}</p>
-                                        <p className="text-lg text-gray-600">{data.recordAssoluto.squadra}</p>
-                                        <p className="text-sm text-gray-400 uppercase">{data.recordAssoluto.giornata}</p>
+                    <motion.div initial={{ y: 18, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.32 }}>
+                        <Panel title="Podio di giornata" icon={Trophy} hex="#facc15" className="h-full">
+                            <div className="space-y-2 flex-1">
+                                {data.podio.map((p: any, i: number) => (
+                                    <div
+                                        key={i}
+                                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-colors ${
+                                            i === 0
+                                                ? 'border-amber-300/30 bg-amber-400/[0.08]'
+                                                : i === 1
+                                                  ? 'border-white/15 bg-white/[0.05]'
+                                                  : 'border-orange-400/20 bg-orange-500/[0.06]'
+                                        }`}
+                                    >
+                                        <span className="text-2xl shrink-0">{['🥇', '🥈', '🥉'][i]}</span>
+                                        <span className="min-w-0 flex-1">
+                                            <span className="block font-black text-white text-sm truncate">{p.squadra}</span>
+                                            <span className="block text-[11px] font-bold text-cyan-300 tabular-nums mt-0.5">{p.punteggio} pt</span>
+                                        </span>
                                     </div>
-                                </div>
+                                ))}
                             </div>
-                        </MagicCard>
+                        </Panel>
                     </motion.div>
-
-                    {/* Cucchiaio */}
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.3 }}
-                        style={{ '--team-color': '248, 113, 113' } as any}
-                    >
-                        <MagicCard glowColor="#7C3AED" className="h-full">
-                            <div className="p-6 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 bg-red-500/5">
-                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <ThumbsDown className="w-24 h-24 text-red-400" />
-                                </div>
-                                <div className="relative z-10">
-                                    <h3 className="text-xl font-bold uppercase text-red-500 tracking-widest mb-3">Cucchiaio di Legno</h3>
-                                    <div className="space-y-1">
-                                        <p className="text-2xl font-bold text-[#10241a]">{data.cucchiaioDiLegno.punteggio}</p>
-                                        <p className="text-lg text-gray-600">{data.cucchiaioDiLegno.squadra}</p>
-                                        <p className="text-sm text-gray-400 uppercase">{data.cucchiaioDiLegno.giornata}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </MagicCard>
-                    </motion.div>
-
                 </div>
 
-                {/* Chart & Podium Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* ===== MONTEPREMI ===== */}
+                <section className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        <Coins className="w-5 h-5 text-amber-300 shrink-0" />
+                        <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-amber-300">Montepremi</h2>
+                        <span className="h-px flex-1 bg-white/10" />
+                    </div>
 
-                    {/* Chart */}
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}
-                        className="lg:col-span-2 flex flex-col h-full"
-                    >
-                        <MagicCard glowColor="#2563EB" className="h-full">
-                            <div className="p-6 flex flex-col h-full">
-                                <h3 className={`${oswald.className} text-2xl text-[#10241a] mb-6 pl-2 border-l-4 border-secondary`}>TOP 5 CLASSIFICA</h3>
-                                <div className="flex-1 min-h-[300px]">
-                                    <Bar data={chartData} options={chartOptions} />
-                                </div>
-                            </div>
-                        </MagicCard>
-                    </motion.div>
-
-                    {/* Podium */}
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }}
-                        className="flex flex-col h-full"
-                    >
-                        <MagicCard glowColor="#FACC15" className="h-full">
-                            <div className="p-6 flex flex-col h-full">
-                                <h3 className={`${oswald.className} text-2xl text-[#10241a] mb-6 pl-2 border-l-4 border-amber-400`}>PODIO DI GIORNATA</h3>
-                                <div className="space-y-4 flex-1">
-                                    {data.podio.map((p: any, i: number) => (
-                                        <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-black/5 border border-black/5">
-                                            <span className="text-3xl filter drop-shadow-lg">{['🥇', '🥈', '🥉'][i]}</span>
-                                            <div>
-                                                <p className="font-bold text-[#10241a] text-lg">{p.squadra}</p>
-                                                <p className="text-sm text-secondary font-mono">{p.punteggio} pts</p>
-                                            </div>
+                    {/* il totale per squadra apre la sezione: è il dato che interessa di più */}
+                    {data.premi.riepilogo?.length > 0 && (
+                        <motion.div initial={{ y: 18, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.38 }}>
+                            <Panel title="Totale per squadra" icon={Medal} hex="#facc15">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                                    {data.premi.riepilogo.map((p: any, i: number) => (
+                                        <div
+                                            key={i}
+                                            onMouseEnter={fireConfetti}
+                                            onTouchStart={fireConfetti}
+                                            className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border cursor-pointer transition-all hover:-translate-y-1 ${
+                                                i === 0
+                                                    ? 'border-amber-300/40 bg-amber-400/[0.10]'
+                                                    : i === 1
+                                                      ? 'border-white/20 bg-white/[0.06]'
+                                                      : i === 2
+                                                        ? 'border-orange-400/30 bg-orange-500/[0.08]'
+                                                        : 'border-white/[0.08] bg-white/[0.03]'
+                                            }`}
+                                        >
+                                            {i < 3 && <span className="text-xl mb-1">{['🥇', '🥈', '🥉'][i]}</span>}
+                                            <p className="text-white font-bold text-xs text-center leading-tight line-clamp-2">{p.squadra}</p>
+                                            <p className="text-amber-300 font-black text-xl tabular-nums mt-1.5">{p.totale}</p>
+                                            <span className="text-sm">🍆</span>
                                         </div>
                                     ))}
                                 </div>
-                            </div>
-                        </MagicCard>
-                    </motion.div>
-                </div>
-
-
-                {/* Premi Section */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-3 justify-center mb-8">
-                        <Coins className="w-8 h-8 text-amber-400" />
-                        <h2 className={`${oswald.className} text-3xl font-bold text-amber-500`}>MONTEPREMI</h2>
-                        <Coins className="w-8 h-8 text-amber-400" />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                        {/* Classifica Premi */}
-                        <div className="h-full">
-                            <MagicCard glowColor="#2563EB" className="h-full">
-                                <div className="p-5 flex flex-col h-full">
-                                    <h4 className="text-center font-bold text-secondary mb-6 uppercase tracking-wide text-lg">Classifica Generale</h4>
-                                    <div className="space-y-2">
-                                        {data.premi.classifica.map((p: any, i: number) => (
-                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/5 rounded transition-colors cursor-pointer">
-                                                <span className="text-gray-600">{p.squadra}</span>
-                                                <span className="font-bold text-amber-500">{p.premio} 🍆</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </MagicCard>
-                        </div>
-
-                        {/* Giornata Premi */}
-                        <div className="h-full">
-                            <MagicCard glowColor="#2563EB" className="h-full">
-                                <div className="p-5 flex flex-col h-full">
-                                    <h4 className="text-center font-bold text-secondary mb-6 uppercase tracking-wide text-lg">Premi di Giornata</h4>
-                                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar flex-1">
-                                        {data.premi.giornata.map((p: any, i: number) => (
-                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/5 rounded transition-colors cursor-pointer">
-                                                <span className="text-gray-600">{p.squadra}</span>
-                                                <span className="font-bold text-amber-500">{p.premio} 🍆</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </MagicCard>
-                        </div>
-
-                        {/* Miglior Punteggio */}
-                        <div className="h-full">
-                            <MagicCard glowColor="#FACC15" className="h-full">
-                                <div className="p-5 flex flex-col items-center justify-center text-center space-y-3 relative overflow-hidden h-full">
-                                    <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
-                                    <h4 className="font-bold text-secondary uppercase tracking-wide text-lg relative z-10">Miglior Punteggio</h4>
-                                    <div onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="py-4 cursor-pointer">
-                                        <p className="text-[#10241a] font-semibold text-lg">{data.premi.migliorPunteggio.info}</p>
-                                        <p className="text-4xl font-bold text-amber-500 mt-2">{data.premi.migliorPunteggio.premio} 🍆</p>
-                                    </div>
-                                </div>
-                            </MagicCard>
-                        </div>
-
-                        {/* Premi Super Lega */}
-                        {data.premi.superLega?.length > 0 && (
-                        <div className="h-full">
-                            <MagicCard glowColor="#7C3AED" className="h-full">
-                                <div className="p-5 flex flex-col h-full">
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <Trophy className="w-5 h-5 text-violet-500" />
-                                        <h4 className="font-bold text-violet-600 uppercase tracking-wide text-lg">Premi Super Lega</h4>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {data.premi.superLega?.map((p: any, i: number) => (
-                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/5 rounded transition-colors cursor-pointer">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-lg">{['🥇','🥈','🥉','4️⃣'][i] || `${i+1}.`}</span>
-                                                    <span className="text-gray-600">{p.squadra}</span>
-                                                </div>
-                                                <span className="font-bold text-amber-500">{p.premio} 🍆</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </MagicCard>
-                        </div>
-                        )}
-
-                        {/* Premi Coppa UEFA */}
-                        {data.premi.coppaUefa?.length > 0 && (
-                        <div className="h-full">
-                            <MagicCard glowColor="#2563EB" className="h-full">
-                                <div className="p-5 flex flex-col h-full">
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <Trophy className="w-5 h-5 text-sky-500" />
-                                        <h4 className="font-bold text-sky-600 uppercase tracking-wide text-lg">Premi Coppa UEFA</h4>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {data.premi.coppaUefa?.map((p: any, i: number) => (
-                                            <div key={i} onMouseEnter={fireConfetti} onTouchStart={fireConfetti} className="flex justify-between items-center text-sm p-2 hover:bg-black/5 rounded transition-colors cursor-pointer">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-lg">{['🥇','🥈'][i] || `${i+1}.`}</span>
-                                                    <span className="text-gray-600">{p.squadra}</span>
-                                                </div>
-                                                <span className="font-bold text-amber-500">{p.premio} 🍆</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </MagicCard>
-                        </div>
-                        )}
-
-                    </div>
-
-                    {/* Riepilogo aggregato premi */}
-                    {data.premi.riepilogo?.length > 0 && (
-                        <motion.div
-                            initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }}
-                        >
-                            <MagicCard glowColor="#FACC15" className="w-full">
-                                <div className="p-6">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <Medal className="w-6 h-6 text-amber-500" />
-                                        <h4 className={`${oswald.className} text-2xl font-bold text-amber-500 uppercase tracking-wide`}>Riepilogo Premi Totali</h4>
-                                        <span className="text-xs text-gray-400 ml-2">(Classifica + Giornata + Miglior Punteggio + Coppe)</span>
-                                    </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                                        {data.premi.riepilogo.map((p: any, i: number) => (
-                                            <div
-                                                key={i}
-                                                onMouseEnter={fireConfetti}
-                                                onTouchStart={fireConfetti}
-                                                className={`flex flex-col items-center justify-center p-4 rounded-xl border cursor-pointer transition-all hover:-translate-y-1 ${
-                                                    i === 0 ? 'border-amber-400/50 bg-amber-400/10' :
-                                                    i === 1 ? 'border-slate-300/60 bg-slate-300/10' :
-                                                    i === 2 ? 'border-orange-500/40 bg-orange-500/10' :
-                                                    'border-black/5 bg-black/5'
-                                                }`}
-                                            >
-                                                {i < 3 ? (
-                                                    <>
-                                                        <span className="text-2xl mb-1">{['🥇','🥈','🥉'][i]}</span>
-                                                        <p className="text-[#10241a] font-bold text-sm text-center leading-tight">{p.squadra}</p>
-                                                        <p className="text-amber-500 font-bold text-xl mt-1">{p.totale}</p>
-                                                        <span className="text-xl mt-0.5">🍆</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <p className="text-[#10241a] font-bold text-sm text-center leading-tight">{p.squadra}</p>
-                                                        <p className="text-amber-500 font-bold text-xl mt-1">{p.totale}</p>
-                                                        <span className="text-xl mt-0.5">🍆</span>
-                                                    </>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </MagicCard>
+                            </Panel>
                         </motion.div>
                     )}
 
-                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Panel title="Classifica generale" icon={Trophy} hex="#22d3ee">
+                            <div className="space-y-0.5">
+                                {data.premi.classifica.map((p: any, i: number) => (
+                                    <PrizeRow key={i} squadra={p.squadra} premio={p.premio} />
+                                ))}
+                            </div>
+                        </Panel>
 
+                        <Panel title="Premi di giornata" icon={Medal} hex="#22d3ee">
+                            <div className="space-y-0.5 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                                {data.premi.giornata.map((p: any, i: number) => (
+                                    <PrizeRow key={i} squadra={p.squadra} premio={p.premio} />
+                                ))}
+                            </div>
+                        </Panel>
+
+                        <Panel title="Miglior punteggio" icon={Flame} hex="#facc15">
+                            <div
+                                onMouseEnter={fireConfetti}
+                                onTouchStart={fireConfetti}
+                                className="flex-1 flex flex-col items-center justify-center text-center py-4 cursor-pointer"
+                            >
+                                <p className="text-white/70 font-semibold text-sm">{data.premi.migliorPunteggio.info}</p>
+                                <p className="text-3xl font-black text-amber-300 tabular-nums mt-2">
+                                    {data.premi.migliorPunteggio.premio} 🍆
+                                </p>
+                            </div>
+                        </Panel>
+
+                        {data.premi.superLega?.length > 0 && (
+                            <Panel title="Premi Super Lega" icon={Trophy} hex="#a78bfa">
+                                <div className="space-y-0.5">
+                                    {data.premi.superLega.map((p: any, i: number) => (
+                                        <PrizeRow key={i} squadra={p.squadra} premio={p.premio} rank={i} />
+                                    ))}
+                                </div>
+                            </Panel>
+                        )}
+
+                        {data.premi.coppaUefa?.length > 0 && (
+                            <Panel title="Premi Coppa UEFA" icon={Trophy} hex="#38bdf8">
+                                <div className="space-y-0.5">
+                                    {data.premi.coppaUefa.map((p: any, i: number) => (
+                                        <PrizeRow key={i} squadra={p.squadra} premio={p.premio} rank={i} />
+                                    ))}
+                                </div>
+                            </Panel>
+                        )}
+                    </div>
+                </section>
 
             </div>
         </main>
