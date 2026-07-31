@@ -35,27 +35,60 @@ function ClassificaContent() {
         fetchData();
     }, [stagione]);
 
-    // Generate Matchday Columns (G1 to G38)
-    const matchdays = Array.from({ length: 38 }, (_, i) => `G${i + 1}`);
+    // Le colonne arrivano da un foglio compilato a mano: i punteggi possono
+    // avere la virgola decimale ("70,5") e spazi intorno. `parseFloat` su
+    // "70,5" restituisce 70 — mezzo punto perso a ogni giornata, con
+    // ordinamenti e massimi sbagliati. Qui la conversione è esplicita.
+    const toNumber = (raw: unknown): number | null => {
+        if (raw === null || raw === undefined) return null;
+        const s = String(raw)
+            .replace(/ /g, " ")   // spazio unificatore incollato dal foglio
+            .trim()
+            .replace(/\s/g, "")
+            .replace(",", ".");
+        if (s === "" || s === "-") return null;
+        const n = Number(s);
+        return Number.isFinite(n) ? n : null;
+    };
 
-    // Trova l'ultima giornata giocata (l'ultima colonna con almeno un punteggio)
+    // Le giornate si ricavano dalle colonne che il foglio espone davvero: se
+    // una intestazione cambia o ne manca una, la tabella segue il dato invece
+    // di mostrare buchi. G1..G38 resta come ripiego finché non arrivano righe.
+    const matchdays = (() => {
+        const found = new Set<string>();
+        leaderboard.forEach((team) => {
+            Object.keys(team || {}).forEach((k) => {
+                if (/^G\s*\d{1,2}$/i.test(k.trim())) found.add(k);
+            });
+        });
+        if (found.size === 0) return Array.from({ length: 38 }, (_, i) => `G${i + 1}`);
+        return Array.from(found).sort(
+            (a, b) => parseInt(a.replace(/\D/g, ""), 10) - parseInt(b.replace(/\D/g, ""), 10)
+        );
+    })();
+
+    // Ultima giornata giocata: serve un punteggio vero, non una cella
+    // riempita da una formula con stringa vuota o uno zero di comodo.
     const lastPlayedMatchday = matchdays.reduce((acc, g) => {
-        const hasData = leaderboard.some((team) => team[g] !== undefined && team[g] !== null && team[g] !== "");
-        return hasData ? g : acc;
+        const played = leaderboard.some((team) => {
+            const n = toNumber(team[g]);
+            return n !== null && n > 0;
+        });
+        return played ? g : acc;
     }, matchdays[0]);
 
     // Miglior punteggio di ogni giornata: serve a evidenziare la casella vincente
     const bestPerMatchday = matchdays.reduce((acc, g) => {
         const values = leaderboard
-            .map((team) => parseFloat(team[g]))
-            .filter((v) => Number.isFinite(v));
+            .map((team) => toNumber(team[g]))
+            .filter((v): v is number => v !== null);
         if (values.length > 0) acc[g] = Math.max(...values);
         return acc;
     }, {} as Record<string, number>);
 
     // Classifica della sola ultima giornata, ordinata per punteggio della giornata
     const giornataBoard = [...leaderboard]
-        .map((team) => ({ ...team, _giornataScore: parseFloat(team[lastPlayedMatchday]) || 0 }))
+        .map((team) => ({ ...team, _giornataScore: toNumber(team[lastPlayedMatchday]) ?? 0 }))
         .sort((a, b) => b._giornataScore - a._giornataScore);
 
     if (loading) return (
@@ -74,7 +107,7 @@ function ClassificaContent() {
     );
 
     // Stagione non ancora iniziata: nessun dato o tutti i totali a zero
-    const isPreSeason = leaderboard.length === 0 || leaderboard.every((t) => !parseFloat(t.Generale));
+    const isPreSeason = leaderboard.length === 0 || leaderboard.every((t) => !toNumber(t.Generale));
 
     if (isPreSeason) return (
         <main className="min-h-screen pt-24 pb-8 px-4 md:px-8 flex flex-col relative">
@@ -247,10 +280,10 @@ function ClassificaContent() {
 
                                         {matchdays.map((g) => {
                                             const raw = team[g];
-                                            const value = parseFloat(raw);
+                                            const value = toNumber(raw);
                                             // il miglior punteggio della giornata si riconosce a colpo d'occhio
                                             const isBest =
-                                                Number.isFinite(value) && bestPerMatchday[g] != null && value === bestPerMatchday[g];
+                                                value !== null && bestPerMatchday[g] != null && value === bestPerMatchday[g];
                                             return (
                                                 <td
                                                     key={g}

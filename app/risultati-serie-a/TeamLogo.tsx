@@ -68,6 +68,14 @@ const resolveImageUrl = (path: string | null | undefined): string | null => {
 };
 
 /** Tutti gli URL plausibili, dal più specifico al più generico. */
+/**
+ * Gli stemmi stanno sull'infrastruttura di Lega, che risponde solo a chi
+ * dichiara di arrivare dal loro sito: come le foto dei giocatori, passano dal
+ * ponte. Le altre sorgenti (Transfermarkt) restano dirette.
+ */
+const viaProxy = (url: string) =>
+    url.includes("legaseriea.it") ? `/api/lega-image?src=${encodeURIComponent(url)}` : url;
+
 export const getTeamLogoUrls = (team: any): string[] => {
     if (!team || typeof team !== "object") return [];
 
@@ -86,7 +94,7 @@ export const getTeamLogoUrls = (team: any): string[] => {
         teamName ? TEAM_LOGOS[teamName] : null,
     ];
 
-    return Array.from(new Set(urls.filter((u): u is string => typeof u === "string")));
+    return Array.from(new Set(urls.filter((u): u is string => typeof u === "string"))).map(viaProxy);
 };
 
 export const getTeamLogoUrl = (team: any) => getTeamLogoUrls(team)[0] || null;

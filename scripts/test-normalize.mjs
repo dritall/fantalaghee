@@ -29,19 +29,23 @@ const player = (over = {}) => ({
 
 // ---------------------------------------------------------------- foto
 console.log('\nfoto giocatore');
+// le foto passano dal ponte /api/lega-image: senza, Lega rifiuta la richiesta
+const viaProxy = (absolute) => `/api/lega-image?src=${encodeURIComponent(absolute)}`;
+
 check(
-    'valore diretto',
-    playerPhoto({ playerImagehomeleft: '/playerImages/a/b.webp' }) === 'https://media-sdp.legaseriea.it/playerImages/a/b.webp'
+    'valore diretto, servito dal ponte',
+    playerPhoto({ playerImagehomeleft: '/playerImages/a/b.webp' }) ===
+        viaProxy('https://media-sdp.legaseriea.it/playerImages/a/b.webp')
 );
 check(
     'percorso dentro il nome della chiave',
     playerPhoto({ 'playerImagehomeleftplayerImages/x/y.webp': null }) ===
-        'https://media-sdp.legaseriea.it/playerImages/x/y.webp'
+        viaProxy('https://media-sdp.legaseriea.it/playerImages/x/y.webp')
 );
 check(
     'fallback costruito da stagione+squadra+giocatore',
     playerPhoto({ playerId: 'x::p9' }, 's::S1', 't::T1', 'away') ===
-        'https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/S1/T1/away/p9left.webp'
+        viaProxy('https://media-sdp.legaseriea.it/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/S1/T1/away/p9left.webp')
 );
 check('niente dati -> null', playerPhoto({}) === null);
 
@@ -109,7 +113,7 @@ check('ammonizione', lautaro?.yellow === true);
 check('minuti da stats array', lautaro?.minutes === 90, lautaro?.minutes);
 check('voto', lautaro?.rating === 7.5, lautaro?.rating);
 check('coordinate normalizzate', lautaro?.x === 0.5 && lautaro?.y === 0.8, [lautaro?.x, lautaro?.y]);
-check('foto costruita col fallback', String(lautaro?.photo).includes('/S1/H/home/p2left.webp'), lautaro?.photo);
+check('foto costruita col fallback e proxata', String(lautaro?.photo).startsWith('/api/lega-image?src=') && decodeURIComponent(String(lautaro?.photo)).includes('/S1/H/home/p2left.webp'), lautaro?.photo);
 
 const leao = n.away.starters.find((p) => p.name === 'Leao');
 check('stats dal blocco playerstats', leao?.minutes === 85, leao?.minutes);

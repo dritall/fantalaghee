@@ -113,7 +113,13 @@ function fullPlayerName(p: any): string {
 export function playerPhoto(p: any, seasonId?: string, teamId?: string, side: 'home' | 'away' = 'home'): string | null {
     if (!p) return null;
 
-    const absolutize = (v: string) => (v.startsWith('http') ? v : `${MEDIA_BASE}${v.startsWith('/') ? '' : '/'}${v}`);
+    // Le immagini di Lega rispondono solo a chi dichiara di arrivare dal loro
+    // sito, quindi non si possono mettere direttamente in un <img>: passano
+    // dal ponte /api/lega-image, che rifà la richiesta con le intestazioni
+    // giuste.
+    const proxied = (absolute: string) => `/api/lega-image?src=${encodeURIComponent(absolute)}`;
+    const absolutize = (v: string) =>
+        proxied(v.startsWith('http') ? v : `${MEDIA_BASE}${v.startsWith('/') ? '' : '/'}${v}`);
 
     const prefixes = ['playerimagehome', 'playerimageaway'];
     for (const key of Object.keys(p)) {
@@ -138,7 +144,9 @@ export function playerPhoto(p: any, seasonId?: string, teamId?: string, side: 'h
     const sid = shortId(seasonId);
     const tid = shortId(teamId);
     if (pid && sid && tid) {
-        return `${MEDIA_BASE}/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/${sid}/${tid}/${side}/${pid}left.webp`;
+        return proxied(
+            `${MEDIA_BASE}/playerImages/ec93b94f74294dc98ab5bcfd67fc0d88/${sid}/${tid}/${side}/${pid}left.webp`
+        );
     }
     return null;
 }
