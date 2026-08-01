@@ -3,35 +3,40 @@
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
 import { WaitingFirstMatchday } from '@/components/ui/WaitingFirstMatchday';
 import { CURRENT_SEASON } from '@/lib/seasons';
 import { SeasonBanner } from '@/components/ui/SeasonBanner';
 import { SeasonPill } from '@/components/ui/SeasonPill';
-import { Bar } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
-import { Oswald } from 'next/font/google';
-
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
+import dynamic from 'next/dynamic';
+/**
+ * Il grafico Top 5 e' l'unica cosa che tira dentro Chart.js: una libreria da
+ * ~90 kB per un riquadro che sta sotto la piega. Caricandolo a parte il resto
+ * della pagina diventa interattivo senza aspettarlo.
+ */
+const Bar = dynamic(
+    () =>
+        Promise.all([import('react-chartjs-2'), import('chart.js')]).then(([rc, chart]) => {
+            chart.Chart.register(
+                chart.CategoryScale,
+                chart.LinearScale,
+                chart.BarElement,
+                chart.Title,
+                chart.Tooltip,
+                chart.Legend
+            );
+            return rc.Bar;
+        }),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="h-full min-h-[260px] flex items-center justify-center">
+                <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+            </div>
+        ),
+    }
 );
-
-const oswald = Oswald({ subsets: ['latin'] });
 
 function VerdettoContent() {
     const searchParams = useSearchParams();
@@ -39,11 +44,15 @@ function VerdettoContent() {
 
     const [data, setData] = useState<any>(null);
 
+    // I coriandoli partono solo al passaggio del mouse su un premio: la
+    // libreria viene scaricata alla prima interazione, non al caricamento.
     const fireConfetti = useCallback((e: React.MouseEvent | React.TouchEvent) => {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         const x = (rect.left + rect.width / 2) / window.innerWidth;
         const y = (rect.top + rect.height / 2) / window.innerHeight;
-        confetti({ particleCount: 60, spread: 70, origin: { x, y }, colors: ['#FFD700', '#a855f7', '#38bdf8', '#4ade80', '#f97316'] });
+        import('canvas-confetti').then(({ default: confetti }) => {
+            confetti({ particleCount: 60, spread: 70, origin: { x, y }, colors: ['#FFD700', '#a855f7', '#38bdf8', '#4ade80', '#f97316'] });
+        });
     }, []);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -91,7 +100,7 @@ function VerdettoContent() {
             <div className="relative z-30 max-w-4xl mx-auto space-y-8">
                 <SeasonBanner />
                 <div className="text-center space-y-4">
-                    <h1 className={`${oswald.className} text-4xl md:text-6xl font-bold text-3d-metallic uppercase tracking-wide`}>
+                    <h1 className={"font-score text-5xl md:text-7xl font-bold text-3d-metallic uppercase tracking-wide"}>
                         IL VERDETTO
                     </h1>
                     <SeasonPill stagione={stagione} />
@@ -216,7 +225,7 @@ function VerdettoContent() {
 
                 {/* ===== TESTATA ===== */}
                 <header className="text-center space-y-4">
-                    <h1 className={`${oswald.className} text-4xl md:text-6xl font-bold text-3d-metallic uppercase tracking-wide`}>
+                    <h1 className={"font-score text-5xl md:text-7xl font-bold text-3d-metallic uppercase tracking-wide"}>
                         Il Verdetto
                     </h1>
                     <div className="flex flex-wrap items-center justify-center gap-2">

@@ -78,25 +78,8 @@
 }
 
 @layer utilities {
-  /* Card "glass" chiara su sfondo stadio */
-  .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgba(15,35,25,0.08)] transition-all duration-300;
-  }
-
-  .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-white/70 shadow-[0_8px_30px_rgba(15,35,25,0.08)] hover:bg-white/95 hover:shadow-[0_12px_40px_rgba(15,35,25,0.12)] hover:-translate-y-0.5 transition-all duration-300 rounded-2xl;
-  }
-
-  .glass-panel {
-    @apply bg-white/75 backdrop-blur-xl border-b border-white/60;
-  }
-
   .text-gradient {
     @apply text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] via-[#2563EB] to-[#4f46e5];
-  }
-
-  .text-highlight {
-    @apply text-[#2563EB];
   }
 
   /* ---------------------------------------------------------------

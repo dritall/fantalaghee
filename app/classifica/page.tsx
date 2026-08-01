@@ -121,7 +121,7 @@ function ClassificaContent() {
                         <SeasonPill stagione={stagione} />
                     </div>
                     <p className="text-white/30 text-[11px] hidden sm:block">
-                        Scorri in orizzontale per le altre giornate · <span className="text-cyan-300">in ciano</span> il miglior punteggio di giornata
+                        Scorri in orizzontale per le altre giornate · <span className="text-amber-300">in oro</span> il miglior punteggio di giornata
                     </p>
                 </div>
 
@@ -275,7 +275,7 @@ function ClassificaContent() {
                                                     className={cn(
                                                         "p-2.5 text-center border-b border-r border-white/[0.05] tabular-nums transition-colors",
                                                         "group-hover:bg-white/[0.04]",
-                                                        isBest ? "text-cyan-300 font-black bg-cyan-400/[0.07]" : "text-white/45"
+                                                        isBest ? "text-amber-300 font-black bg-amber-400/[0.10]" : "text-white/45"
                                                     )}
                                                 >
                                                     {raw || "-"}
