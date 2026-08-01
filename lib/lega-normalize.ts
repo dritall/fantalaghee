@@ -24,6 +24,10 @@ export type NormalizedEvent = {
     /** per le sostituzioni: chi esce */
     playerOut?: string | null;
     assist?: string | null;
+    /** descrizione testuale dell'evento (es. "Tiro da fuori area", "Cross in area") */
+    description?: string | null;
+    /** tipo specifico di cartellino */
+    cardType?: 'yellow' | 'red';
 };
 
 export type NormalizedPlayer = {
@@ -329,6 +333,8 @@ function normalizeEvents(raw: any, homeTeamId: string, fallbackPlayers: { home: 
         const minute = Number(e?.time ?? e?.minute) || 0;
         const extra = Number(e?.additionalTime) || 0;
         const type = String(e?.type || '').toLowerCase();
+        // Estrai descrizione testuale se presente nei vari campi API
+        const desc = e?.description || e?.comment || e?.subtitle || e?.text || e?.detail || null;
         collected.push({
             type,
             kind: eventKind(type),
@@ -344,6 +350,8 @@ function normalizeEvents(raw: any, homeTeamId: string, fallbackPlayers: { home: 
                 : e?.relatedPlayerName && !type.includes('sub')
                   ? playerName({ shortName: e.relatedPlayerName })
                   : null,
+            description: typeof desc === 'string' && desc.length > 2 ? desc.trim() : null,
+            cardType: type.includes('yellow') ? 'yellow' : type.includes('red') ? 'red' : undefined,
         });
     };
 
