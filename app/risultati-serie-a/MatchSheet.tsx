@@ -161,76 +161,19 @@ function buildTeamStats(raw: any): TeamStatRow[] {
         return null;
     };
 
-    const addSection = (title: string, stats: (TeamStatRow | null)[]) => {
-        const rows = stats.filter(Boolean) as TeamStatRow[];
-        if (rows.length === 0) return;
-        // inserisce un separatore invisibile: label vuota, valori -1 (non viene renderizzata come barra)
-        out.push({ label: `__sep__${title}`, home: -1, away: -1, percent: false });
-        rows.forEach(r => out.push(r));
-    };
-
-    const out: TeamStatRow[] = [];
-
-    addSection("POSSESSO", [pick(["possession-perc", "possessionpercentage"], "Possesso palla")]);
-
-    addSection("TIRO", [
+    return [
+        pick(["possession-perc", "possessionpercentage"], "Possesso palla"),
         pick(["totalscoringatt", "shots"], "Tiri totali"),
         pick(["ontargetscoringatt", "shots-on-target"], "Tiri in porta"),
-        pick(["shots-at-goal-inside-box", "attemptsibox"], "Tiri dentro area"),
-        pick(["shots-at-goal-outside-box", "attemptsobox"], "Tiri fuori area"),
-        pick(["blocked-scoring-att", "blockedshots"], "Tiri bloccati"),
-        pick(["big-chances", "bigchancecreated"], "Grandi occasioni"),
-        pick(["hitwoodwork", "hitwoodwork", "shots-crossbar", "shots-post"], "Legni"),
-    ]);
-
-    addSection("xG & PUNTI", [
-        pick(["expected-goals", "expectedgoals"], "xG"),
-        pick(["goalassist", "assists"], "Assist"),
-        pick(["own-goals"], "Autogol"),
-        pick(["penalty-goals"], "Gol su rigore"),
-    ]);
-
-    addSection("PASSAGGI", [
         pick(["totalpass", "total-passes"], "Passaggi"),
-        pick(["passes-completed", "accuratepass"], "Passaggi riusciti"),
         pick(["accurate-pass-perc", "passing-accuracy-perc"], "Precisione passaggi"),
-        pick(["key-passes", "totalattassist"], "Passaggi chiave"),
-        pick(["crosses", "totalcross"], "Cross"),
-        pick(["crosses-successful", "accuratecross"], "Cross riusciti"),
         pick(["cornertaken", "corners"], "Corner"),
-    ]);
-
-    addSection("DIFESA", [
         pick(["totaltackle", "tackles"], "Contrasti"),
-        pick(["tackles-successful", "wontackle"], "Contrasti riusciti"),
-        pick(["tackles-won-perc", "tackleswonperc"], "% Contrasti vinti"),
-        pick(["interception", "interceptions"], "Intercetti"),
-        pick(["totalclearance", "clearences"], "Spazzate"),
-        pick(["saves"], "Parate"),
-    ]);
-
-    addSection("DUELLI", [
-        pick(["duels-won", "duelwon"], "Duelli vinti"),
-        pick(["aerial-duels-won", "aerialduelswon", "aerialwon"], "Duelli aerei vinti"),
-        pick(["aerial-duels-won-perc", "aerialduelswonperc"], "% Duelli aerei vinti"),
-    ]);
-
-    addSection("DISCIPLINA", [
-        pick(["fouls", "foulsconceded"], "Falli commessi"),
-        pick(["fouls-suffered", "foulssuffered"], "Falli subiti"),
+        pick(["fouls", "foulsconceded"], "Falli"),
         pick(["totaloffside", "offsides"], "Fuorigioco"),
         pick(["totalyellowcard", "yellow-cards"], "Ammonizioni"),
         pick(["totalredcard", "red-cards"], "Espulsioni"),
-    ]);
-
-    addSection("FISICO & SPAZIO", [
-        pick(["touches-opponent-box", "touchesinoppbox"], "Tocchi area avversaria"),
-        pick(["sprints"], "Sprint"),
-        pick(["distance-covered"], "Distanza (km)"),
-        pick(["touches"], "Tocchi totali"),
-    ]);
-
-    return out;
+    ].filter(Boolean) as TeamStatRow[];
 }
 
 function TeamStats({ rows }: { rows: TeamStatRow[] }) {
@@ -245,20 +188,6 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
     return (
         <div className="space-y-4 py-2">
             {rows.map((r) => {
-                // Se la label inizia con __sep__, è un separatore di sezione
-                if (r.label.startsWith("__sep__")) {
-                    const sectionName = r.label.slice(7);
-                    return (
-                        <div key={r.label} className="flex items-center gap-2 pt-1">
-                            <span className="h-px flex-1 bg-white/10" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.22em] text-white/25 shrink-0">
-                                {sectionName}
-                            </span>
-                            <span className="h-px flex-1 bg-white/10" />
-                        </div>
-                    );
-                }
-
                 const total = r.percent ? 100 : r.home + r.away;
                 const homePct = total > 0 ? (r.home / total) * 100 : 50;
                 const awayPct = r.percent ? 100 - homePct : total > 0 ? (r.away / total) * 100 : 50;
@@ -269,7 +198,7 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                     <div key={r.label}>
                         <div className="flex items-center justify-between gap-3 mb-1.5">
                             <span
-                                className="font-score text-base font-bold tabular-nums w-12"
+                                className="text-sm font-black tabular-nums w-12"
                                 style={{ color: homeLeads ? HOME_ACCENT : "rgba(255,255,255,0.45)" }}
                             >
                                 {r.home}
@@ -279,7 +208,7 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                                 {r.label}
                             </span>
                             <span
-                                className="font-score text-base font-bold tabular-nums w-12 text-right"
+                                className="text-sm font-black tabular-nums w-12 text-right"
                                 style={{ color: awayLeads ? AWAY_ACCENT : "rgba(255,255,255,0.45)" }}
                             >
                                 {r.away}
@@ -346,8 +275,6 @@ export function MatchSheet({
     const as_ = fixture.providerAwayScore ?? fixture.awayScore;
     const played = hs !== null && hs !== undefined;
     const isLive = fixture.matchStatus === "Playing" || fixture.matchStatus === "LIVE";
-    const stadiumName = fixture.stadiumName || fixture.stadium || details?.header?.stadiumName || null;
-    const cityName = fixture.cityName || details?.header?.cityName || null;
 
     const selectPlayer = (side: "home" | "away") => (p: NormalizedPlayer) =>
         setSelected({
@@ -409,7 +336,7 @@ export function MatchSheet({
                             </div>
 
                             <div className="shrink-0 px-2 text-center">
-                                <span className="block font-score text-5xl md:text-6xl font-bold tabular-nums tracking-tight">
+                                <span className="block text-4xl md:text-5xl font-black tabular-nums tracking-tighter">
                                     {played ? `${hs}–${as_}` : "VS"}
                                 </span>
                                 {normalized?.home.formation && normalized?.away.formation && (
@@ -426,12 +353,6 @@ export function MatchSheet({
                                 </span>
                             </div>
                         </div>
-                        {stadiumName && (
-                            <div className="relative mt-2 flex items-center justify-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white/30">
-                                <span>🏟️ {stadiumName}</span>
-                                {cityName && <><span className="w-1 h-1 rounded-full bg-white/20" /><span>📍 {cityName}</span></>}
-                            </div>
-                        )}
                     </header>
 
                     {/* ---------------- schede ---------------- */}
