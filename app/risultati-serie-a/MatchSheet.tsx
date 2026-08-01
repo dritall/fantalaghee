@@ -161,19 +161,80 @@ function buildTeamStats(raw: any): TeamStatRow[] {
         return null;
     };
 
-    return [
+    const sep = (title: string): TeamStatRow => ({ label: `__sep__${title}`, home: -1, away: -1, percent: false });
+
+    const addSection = (title: string, stats: (TeamStatRow | null)[]) => {
+        const rows = stats.filter(Boolean) as TeamStatRow[];
+        if (rows.length === 0) return;
+        if (out.length > 0) out.push(sep(""));
+        out.push(sep(title));
+        rows.forEach(r => out.push(r));
+    };
+
+    const out: TeamStatRow[] = [];
+
+    addSection("POSSESSO", [
         pick(["possession-perc", "possessionpercentage"], "Possesso palla"),
+    ]);
+
+    addSection("TIRO", [
         pick(["totalscoringatt", "shots"], "Tiri totali"),
         pick(["ontargetscoringatt", "shots-on-target"], "Tiri in porta"),
+        pick(["shots-at-goal-inside-box", "attemptsibox"], "Tiri dentro area"),
+        pick(["shots-at-goal-outside-box", "attemptsobox"], "Tiri fuori area"),
+        pick(["blocked-scoring-att", "blockedshots"], "Tiri bloccati"),
+        pick(["big-chances", "bigchancecreated"], "Grandi occasioni"),
+        pick(["hitwoodwork", "hitwoodwork", "shots-crossbar", "shots-post"], "Legni"),
+    ]);
+
+    addSection("xG & PUNTI", [
+        pick(["expected-goals", "expectedgoals"], "xG"),
+        pick(["goalassist", "assists"], "Assist"),
+        pick(["own-goals"], "Autogol"),
+        pick(["penalty-goals"], "Gol su rigore"),
+    ]);
+
+    addSection("PASSAGGI", [
         pick(["totalpass", "total-passes"], "Passaggi"),
+        pick(["passes-completed", "accuratepass"], "Passaggi riusciti"),
         pick(["accurate-pass-perc", "passing-accuracy-perc"], "Precisione passaggi"),
+        pick(["key-passes", "totalattassist"], "Passaggi chiave"),
+        pick(["crosses", "totalcross"], "Cross"),
+        pick(["crosses-successful", "accuratecross"], "Cross riusciti"),
         pick(["cornertaken", "corners"], "Corner"),
+    ]);
+
+    addSection("DIFESA", [
         pick(["totaltackle", "tackles"], "Contrasti"),
-        pick(["fouls", "foulsconceded"], "Falli"),
+        pick(["tackles-successful", "wontackle"], "Contrasti riusciti"),
+        pick(["tackles-won-perc", "tackleswonperc"], "% Contrasti vinti"),
+        pick(["interception", "interceptions"], "Intercetti"),
+        pick(["totalclearance", "clearences"], "Spazzate"),
+        pick(["saves"], "Parate"),
+    ]);
+
+    addSection("DUELLI", [
+        pick(["duels-won", "duelwon"], "Duelli vinti"),
+        pick(["aerial-duels-won", "aerialduelswon", "aerialwon"], "Duelli aerei vinti"),
+        pick(["aerial-duels-won-perc", "aerialduelswonperc"], "% Duelli aerei vinti"),
+    ]);
+
+    addSection("DISCIPLINA", [
+        pick(["fouls", "foulsconceded"], "Falli commessi"),
+        pick(["fouls-suffered", "foulssuffered"], "Falli subiti"),
         pick(["totaloffside", "offsides"], "Fuorigioco"),
         pick(["totalyellowcard", "yellow-cards"], "Ammonizioni"),
         pick(["totalredcard", "red-cards"], "Espulsioni"),
-    ].filter(Boolean) as TeamStatRow[];
+    ]);
+
+    addSection("FISICO & SPAZIO", [
+        pick(["touches-opponent-box", "touchesinoppbox"], "Tocchi area avversaria"),
+        pick(["sprints"], "Sprint"),
+        pick(["distance-covered"], "Distanza (km)"),
+        pick(["touches"], "Tocchi totali"),
+    ]);
+
+    return out;
 }
 
 function TeamStats({ rows }: { rows: TeamStatRow[] }) {
@@ -188,6 +249,24 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
     return (
         <div className="space-y-4 py-2">
             {rows.map((r) => {
+                // Se la label inizia con __sep__, è un separatore di sezione
+                if (r.label.startsWith("__sep__")) {
+                    const sectionName = r.label.slice(7);
+                    if (!sectionName) {
+                        // Separatore vuoto
+                        return <div key={r.label} className="h-px bg-white/6 my-1" />;
+                    }
+                    return (
+                        <div key={r.label} className="flex items-center gap-2 pt-1">
+                            <span className="h-px flex-1 bg-white/10" />
+                            <span className="text-[9px] font-black uppercase tracking-[0.22em] text-white/25 shrink-0">
+                                {sectionName}
+                            </span>
+                            <span className="h-px flex-1 bg-white/10" />
+                        </div>
+                    );
+                }
+
                 const total = r.percent ? 100 : r.home + r.away;
                 const homePct = total > 0 ? (r.home / total) * 100 : 50;
                 const awayPct = r.percent ? 100 - homePct : total > 0 ? (r.away / total) * 100 : 50;
@@ -276,6 +355,10 @@ export function MatchSheet({
     const played = hs !== null && hs !== undefined;
     const isLive = fixture.matchStatus === "Playing" || fixture.matchStatus === "LIVE";
 
+    // Stadio dall'header API
+    const stadiumName = fixture?.stadiumName || fixture?.stadium || fixture?.venue || null;
+    const stadiumCity = fixture?.cityName || fixture?.city || fixture?.location || null;
+
     const selectPlayer = (side: "home" | "away") => (p: NormalizedPlayer) =>
         setSelected({
             player: p,
@@ -353,6 +436,12 @@ export function MatchSheet({
                                 </span>
                             </div>
                         </div>
+                        {stadiumName && (
+                            <div className="relative mt-2 flex items-center justify-center gap-1.5 text-[9px] font-bold tracking-wider text-white/35">
+                                <span>🏟️</span>
+                                <span>{stadiumName}{stadiumCity ? ` · ${stadiumCity}` : ""}</span>
+                            </div>
+                        )}
                     </header>
 
                     {/* ---------------- schede ---------------- */}
