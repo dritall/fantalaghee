@@ -42,7 +42,7 @@ const EVENT_TAG: Partial<Record<NormalizedEvent["kind"], { text: string; classNa
     var: { text: "VAR", className: "text-violet-300 bg-violet-500/10 border-violet-400/25" },
 };
 
-/* --------------------------------------------------------- timeline eventi */
+/* ========================================================= TIMELINE EVENTI */
 
 const EVENT_MOMENTUM: Record<string, number> = {
     goal: 12,
@@ -54,7 +54,9 @@ const EVENT_MOMENTUM: Record<string, number> = {
     other: 0,
 };
 
-function calcMomentum(events: NormalizedEvent[]): { label: string; homePct: number }[] {
+type MomentumPoint = { label: string; home: number; away: number };
+
+function calcMomentum(events: NormalizedEvent[]): MomentumPoint[] {
     if (events.length === 0) return [];
     const buckets: { min: number; home: number; away: number }[] = [];
     let lastMin = 0;
@@ -71,37 +73,65 @@ function calcMomentum(events: NormalizedEvent[]): { label: string; homePct: numb
     const maxVal = Math.max(...buckets.map((b) => Math.max(b.home, b.away)), 1);
     return buckets.map((b) => ({
         label: b.min <= 45 ? `${b.min}'` : b.min <= 90 ? `${b.min}'` : `${b.min}+'`,
-        homePct: Math.round((b.home / maxVal) * 100),
+        home: Math.round((b.home / maxVal) * 100),
+        away: Math.round((b.away / maxVal) * 100),
     }));
 }
 
+/** Grafico momentum stile LegaSerieA: home↑, away↓, linea centrale. */
 function MomentumChart({ events }: { events: NormalizedEvent[] }) {
     const data = calcMomentum(events);
     if (data.length < 2) return null;
     return (
-        <section className="mb-5">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2.5">
+        <section className="mb-6">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">
                 📊 MOMENTUM
             </h4>
-            <div className="h-16 flex items-end gap-[2px] overflow-x-auto pb-1">
-                {data.map((d, i) => (
-                    <div key={i} className="flex flex-col items-center gap-px flex-shrink-0 min-w-[22px]">
-                        <div className="flex flex-col-reverse items-center w-full" style={{ height: 52 }}>
+            <div className="relative h-24 overflow-x-auto pb-2">
+                {/* Asse centrale */}
+                <div className="absolute left-0 right-0 top-1/2 h-px bg-white/10" />
+
+                <div className="flex items-center h-full gap-[2px] min-w-fit">
+                    {data.map((d, i) => (
+                        <div key={i} className="flex flex-col items-center flex-shrink-0 min-w-[24px] h-full justify-center">
+                            {/* Barra home (su) */}
                             <div
                                 className="w-full rounded-t-sm transition-all duration-500 ease-out"
                                 style={{
-                                    height: `${d.homePct}%`,
+                                    height: `${d.home}%`,
                                     backgroundColor: HOME_ACCENT,
-                                    opacity: 0.5 + d.homePct / 200,
-                                    minHeight: d.homePct > 0 ? 3 : 0,
+                                    opacity: 0.4 + d.home / 200,
+                                    minHeight: d.home > 0 ? 2 : 0,
+                                }}
+                            />
+                            {/* Minuto sotto */}
+                            <span className="text-[7px] font-bold text-white/20 tabular-nums leading-none mt-px">
+                                {d.label}
+                            </span>
+                            {/* Barra away (giù) */}
+                            <div
+                                className="w-full rounded-b-sm transition-all duration-500 ease-out"
+                                style={{
+                                    height: `${d.away}%`,
+                                    backgroundColor: AWAY_ACCENT,
+                                    opacity: 0.4 + d.away / 200,
+                                    minHeight: d.away > 0 ? 2 : 0,
                                 }}
                             />
                         </div>
-                        <span className="text-[7px] font-bold text-white/25 tabular-nums leading-none mt-0.5">
-                            {d.label}
-                        </span>
-                    </div>
-                ))}
+                    ))}
+                </div>
+            </div>
+            {/* Legenda */}
+            <div className="flex justify-between mt-1">
+                <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: HOME_ACCENT }} />
+                    Home
+                </span>
+                <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider">
+                    Away
+                    <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: AWAY_ACCENT }} />
+                </span>
             </div>
         </section>
     );
@@ -120,11 +150,18 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
         <div>
             <MomentumChart events={events} />
 
-            <div className="relative">
-                {/* Linea temporale centrale */}
-                <span className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent -translate-x-1/2" />
+            {/* Intestazione colonne */}
+            <div className="flex items-center pb-2 mb-2 border-b border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-white/25">
+                <span className="flex-1 text-left">CASA</span>
+                <span className="w-12 text-center shrink-0">MIN</span>
+                <span className="flex-1 text-right">TRASFERTA</span>
+            </div>
 
-                <ol className="relative space-y-1.5">
+            <div className="relative">
+                {/* Linea verticale centrale */}
+                <span className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent -translate-x-1/2" />
+
+                <ol className="relative space-y-2">
                     {events.map((e, i) => {
                         const isHome = e.side === "home";
                         const tag = EVENT_TAG[e.kind];
@@ -135,110 +172,120 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
                         const isSub = e.kind === "sub";
                         const kind = e.kind;
 
+                        const iconCircle = (
+                            <span className="relative z-10 flex flex-col items-center shrink-0">
+                                <span
+                                    className={cn(
+                                        "rounded-full flex items-center justify-center border bg-[#0d1330]",
+                                        isGoal
+                                            ? "w-9 h-9 md:w-10 md:h-10 text-base md:text-lg"
+                                            : isCard
+                                              ? "w-7 h-7 text-xs md:text-sm"
+                                              : "w-7 h-7 text-xs",
+                                        isGoal ? "border-yellow-400/40" : "border-white/10"
+                                    )}
+                                    style={
+                                        isGoal
+                                            ? { boxShadow: `0 0 20px ${accent}55` }
+                                            : isCard
+                                              ? { boxShadow: `0 0 10px ${kind === "red" ? "#ef4444" : "#eab308"}44` }
+                                              : undefined
+                                    }
+                                >
+                                    <span className={cn(isGoal && "animate-pulse drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]")}>
+                                        {icon.icon}
+                                    </span>
+                                </span>
+                            </span>
+                        );
+
+                        // Contenuto testuale
+                        const textContent = (
+                            <span className="min-w-0 flex flex-col">
+                                {isSub ? (
+                                    <>
+                                        <span className="text-[12px] md:text-[13px] font-black text-white flex items-center gap-1 leading-tight">
+                                            <span className="text-emerald-400 text-xs">↑</span>
+                                            <span className="truncate">{e.player}</span>
+                                        </span>
+                                        {e.playerOut && (
+                                            <span className="text-[10px] font-bold text-white/40 flex items-center gap-1 mt-0.5">
+                                                <span className="text-red-400 text-[10px]">↓</span>
+                                                <span className="truncate">{e.playerOut}</span>
+                                            </span>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <span
+                                            className={cn(
+                                                "text-white truncate max-w-full flex items-center gap-1 leading-tight",
+                                                isGoal ? "text-sm md:text-base font-black" : "text-[12px] font-bold"
+                                            )}
+                                        >
+                                            <span className="truncate">{e.player}</span>
+                                            {isGoal && (
+                                                <span className="drop-shadow-[0_0_8px_rgba(255,200,0,0.6)] text-base md:text-lg animate-pulse shrink-0">
+                                                    💥
+                                                </span>
+                                            )}
+                                        </span>
+                                        {e.assist && (
+                                            <span className="text-[9px] font-bold uppercase tracking-wider text-white/35 mt-0.5">
+                                                {e.assist}
+                                            </span>
+                                        )}
+                                        {e.description && (
+                                            <span className="text-[9px] italic text-white/30 mt-0.5 leading-snug max-w-[180px]">
+                                                {e.description}
+                                            </span>
+                                        )}
+                                    </>
+                                )}
+                                {tag && (
+                                    <span
+                                        className={cn(
+                                            "mt-1 w-fit rounded border px-1.5 py-[1px] text-[8px] font-black uppercase tracking-wider",
+                                            tag.className
+                                        )}
+                                    >
+                                        {tag.text}
+                                    </span>
+                                )}
+                            </span>
+                        );
+
                         return (
                             <li
                                 key={`${e.minute}-${e.player}-${i}`}
-                                className={cn(
-                                    "relative flex items-start gap-2.5 md:gap-4 py-2 md:py-2.5",
-                                    isHome ? "flex-row-reverse" : "flex-row"
-                                )}
+                                className="relative flex items-start gap-2"
                             >
-                                {/* Lato testo evento */}
-                                <span
-                                    className={cn(
-                                        "flex-1 min-w-0 flex flex-col",
-                                        isHome ? "items-end text-right" : "items-start text-left"
-                                    )}
-                                >
-                                    {isSub ? (
-                                        <>
-                                            <span className="text-[13px] font-black text-white flex items-center gap-1.5 leading-tight">
-                                                <span className="text-emerald-400 shrink-0">↑</span>
-                                                <span className="truncate">{e.player}</span>
-                                            </span>
-                                            {e.playerOut && (
-                                                <span className="text-[11px] font-bold text-white/40 flex items-center gap-1.5 mt-0.5">
-                                                    <span className="text-red-400 shrink-0">↓</span>
-                                                    <span className="truncate">{e.playerOut}</span>
-                                                </span>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span
-                                                className={cn(
-                                                    "text-white truncate max-w-full flex items-center gap-1 leading-tight",
-                                                    isGoal ? "text-base md:text-lg font-black" : "text-[13px] font-bold"
-                                                )}
-                                            >
-                                                {!isHome && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: accent }} />}
-                                                <span className="truncate">{e.player}</span>
-                                                {isHome && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: accent }} />}
-                                                {isGoal && (
-                                                    <span className="drop-shadow-[0_0_10px_rgba(255,200,0,0.6)] text-lg md:text-xl animate-pulse shrink-0">
-                                                        💥
-                                                    </span>
-                                                )}
-                                                {e.assist && !isGoal && (
-                                                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider ml-1">
-                                                        (A: {e.assist})
-                                                    </span>
-                                                )}
-                                            </span>
-                                            {e.assist && isGoal && (
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-white/35 mt-0.5">
-                                                    Assist: <span className="text-white/60 font-black">{e.assist}</span>
-                                                </span>
-                                            )}
-                                            {e.description && (
-                                                <span className="text-[10px] italic text-white/30 mt-0.5 leading-snug max-w-[200px]">
-                                                    {e.description}
-                                                </span>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {tag && (
-                                        <span
-                                            className={cn(
-                                                "mt-1.5 inline-block w-fit rounded border px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider",
-                                                tag.className
-                                            )}
-                                        >
-                                            {tag.text}
-                                        </span>
-                                    )}
-                                </span>
-
-                                {/* Icona centrale */}
-                                <span className="relative z-10 flex flex-col items-center shrink-0">
-                                    <span
-                                        className={cn(
-                                            "rounded-full flex items-center justify-center border bg-[#0d1330]",
-                                            isGoal
-                                                ? "w-10 h-10 md:w-12 md:h-12 text-lg md:text-xl"
-                                                : isCard
-                                                  ? "w-8 h-8 text-sm"
-                                                  : "w-8 h-8 text-xs",
-                                            isGoal ? "border-yellow-400/40" : "border-white/10"
-                                        )}
-                                        style={
-                                            isGoal
-                                                ? { boxShadow: `0 0 28px ${accent}55, 0 0 60px ${accent}22` }
-                                                : isCard
-                                                  ? { boxShadow: `0 0 12px ${kind === "red" ? "#ef4444" : "#eab308"}44` }
-                                                  : undefined
-                                        }
-                                    >
-                                        <span className={cn(isGoal && "animate-pulse drop-shadow-[0_0_8px_rgba(255,200,0,0.7)]")}>
-                                            {icon.icon}
-                                        </span>
+                                {/* Colonna home (sinistra) */}
+                                {isHome ? (
+                                    <span className="flex-1 flex items-start justify-end gap-2 text-right">
+                                        {textContent}
+                                        {iconCircle}
                                     </span>
-                                    <span className="mt-1 text-[9px] font-black text-white/50 tabular-nums">{e.label}</span>
+                                ) : (
+                                    <span className="flex-1" />
+                                )}
+
+                                {/* Minuto centrale */}
+                                <span className="relative z-10 w-12 shrink-0 flex justify-center">
+                                    <span className="text-[9px] font-black text-white/40 tabular-nums bg-[#0d1330] px-1.5 py-0.5 rounded-full border border-white/5">
+                                        {e.label}
+                                    </span>
                                 </span>
 
-                                {/* Spazio vuoto lato opposto (per bilanciare) */}
-                                <span className="flex-1 hidden md:block" />
+                                {/* Colonna away (destra) */}
+                                {!isHome ? (
+                                    <span className="flex-1 flex items-start gap-2">
+                                        {iconCircle}
+                                        {textContent}
+                                    </span>
+                                ) : (
+                                    <span className="flex-1" />
+                                )}
                             </li>
                         );
                     })}
