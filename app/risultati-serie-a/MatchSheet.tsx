@@ -126,12 +126,10 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
 
 /* -------------------------------------------------------- statistiche team */
 
-type TeamStatItem =
-    | { kind: 'stat'; label: string; home: number; away: number; percent: boolean }
-    | { kind: 'section'; label: string };
+type TeamStatRow = { label: string; home: number; away: number; percent: boolean };
 
 /** Riduce le molte forme del blocco teamstats a righe confrontabili. */
-function buildTeamStats(raw: any): TeamStatItem[] {
+function buildTeamStats(raw: any): TeamStatRow[] {
     const list: any[] = Array.isArray(raw) ? raw : raw?.stats || [];
     if (!Array.isArray(list) || list.length === 0) return [];
 
@@ -147,7 +145,7 @@ function buildTeamStats(raw: any): TeamStatItem[] {
         });
     });
 
-    const pick = (aliases: string[], label: string): TeamStatItem | null => {
+    const pick = (aliases: string[], label: string): TeamStatRow | null => {
         for (const a of aliases) {
             for (const key of Array.from(map.keys())) {
                 if (key === a || key.includes(a)) {
@@ -156,30 +154,26 @@ function buildTeamStats(raw: any): TeamStatItem[] {
                     const aw = Number(v.away);
                     if (!Number.isFinite(h) && !Number.isFinite(aw)) return null;
                     if (h === 0 && aw === 0) return null;
-                    return { kind: 'stat', label, home: h || 0, away: aw || 0, percent: v.percent };
+                    return { label, home: h || 0, away: aw || 0, percent: v.percent };
                 }
             }
         }
         return null;
     };
 
-    const sec = (l: string): TeamStatItem => ({ kind: 'section', label: l });
-
-    const out: TeamStatItem[] = [];
-
-    const section = (title: string, rows: (TeamStatItem | null)[]) => {
-        const filtered = rows.filter(Boolean) as TeamStatItem[];
-        if (filtered.length === 0) return;
-        if (out.length > 0) out.push(sec(""));
-        out.push(sec(title));
-        out.push(...filtered);
+    const addSection = (title: string, stats: (TeamStatRow | null)[]) => {
+        const rows = stats.filter(Boolean) as TeamStatRow[];
+        if (rows.length === 0) return;
+        // inserisce un separatore invisibile: label vuota, valori -1 (non viene renderizzata come barra)
+        out.push({ label: `__sep__${title}`, home: -1, away: -1, percent: false });
+        rows.forEach(r => out.push(r));
     };
 
-    section("POSSESSO", [
-        pick(["possession-perc", "possessionpercentage"], "Possesso palla"),
-    ]);
+    const out: TeamStatRow[] = [];
 
-    section("TIRO", [
+    addSection("POSSESSO", [pick(["possession-perc", "possessionpercentage"], "Possesso palla")]);
+
+    addSection("TIRO", [
         pick(["totalscoringatt", "shots"], "Tiri totali"),
         pick(["ontargetscoringatt", "shots-on-target"], "Tiri in porta"),
         pick(["shots-at-goal-inside-box", "attemptsibox"], "Tiri dentro area"),
@@ -189,14 +183,14 @@ function buildTeamStats(raw: any): TeamStatItem[] {
         pick(["hitwoodwork", "hitwoodwork", "shots-crossbar", "shots-post"], "Legni"),
     ]);
 
-    section("xG & PUNTI", [
+    addSection("xG & PUNTI", [
         pick(["expected-goals", "expectedgoals"], "xG"),
         pick(["goalassist", "assists"], "Assist"),
         pick(["own-goals"], "Autogol"),
         pick(["penalty-goals"], "Gol su rigore"),
     ]);
 
-    section("PASSAGGI", [
+    addSection("PASSAGGI", [
         pick(["totalpass", "total-passes"], "Passaggi"),
         pick(["passes-completed", "accuratepass"], "Passaggi riusciti"),
         pick(["accurate-pass-perc", "passing-accuracy-perc"], "Precisione passaggi"),
@@ -206,7 +200,7 @@ function buildTeamStats(raw: any): TeamStatItem[] {
         pick(["cornertaken", "corners"], "Corner"),
     ]);
 
-    section("DIFESA", [
+    addSection("DIFESA", [
         pick(["totaltackle", "tackles"], "Contrasti"),
         pick(["tackles-successful", "wontackle"], "Contrasti riusciti"),
         pick(["tackles-won-perc", "tackleswonperc"], "% Contrasti vinti"),
@@ -215,13 +209,13 @@ function buildTeamStats(raw: any): TeamStatItem[] {
         pick(["saves"], "Parate"),
     ]);
 
-    section("DUELLI", [
+    addSection("DUELLI", [
         pick(["duels-won", "duelwon"], "Duelli vinti"),
         pick(["aerial-duels-won", "aerialduelswon", "aerialwon"], "Duelli aerei vinti"),
         pick(["aerial-duels-won-perc", "aerialduelswonperc"], "% Duelli aerei vinti"),
     ]);
 
-    section("DISCIPLINA", [
+    addSection("DISCIPLINA", [
         pick(["fouls", "foulsconceded"], "Falli commessi"),
         pick(["fouls-suffered", "foulssuffered"], "Falli subiti"),
         pick(["totaloffside", "offsides"], "Fuorigioco"),
@@ -229,7 +223,7 @@ function buildTeamStats(raw: any): TeamStatItem[] {
         pick(["totalredcard", "red-cards"], "Espulsioni"),
     ]);
 
-    section("FISICO & SPAZIO", [
+    addSection("FISICO & SPAZIO", [
         pick(["touches-opponent-box", "touchesinoppbox"], "Tocchi area avversaria"),
         pick(["sprints"], "Sprint"),
         pick(["distance-covered"], "Distanza (km)"),
@@ -239,7 +233,7 @@ function buildTeamStats(raw: any): TeamStatItem[] {
     return out;
 }
 
-function TeamStats({ rows }: { rows: TeamStatItem[] }) {
+function TeamStats({ rows }: { rows: TeamStatRow[] }) {
     if (rows.length === 0) {
         return (
             <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
@@ -250,17 +244,17 @@ function TeamStats({ rows }: { rows: TeamStatItem[] }) {
 
     return (
         <div className="space-y-4 py-2">
-            {rows.map((r, i) => {
-                if (r.kind === 'section') {
+            {rows.map((r) => {
+                // Se la label inizia con __sep__, è un separatore di sezione
+                if (r.label.startsWith("__sep__")) {
+                    const sectionName = r.label.slice(7);
                     return (
-                        <div key={`sec-${i}`} className="flex items-center gap-2 pt-1">
+                        <div key={r.label} className="flex items-center gap-2 pt-1">
                             <span className="h-px flex-1 bg-white/10" />
-                            {r.label && (
-                                <span className="text-[9px] font-black uppercase tracking-[0.22em] text-white/25 shrink-0">
-                                    {r.label}
-                                </span>
-                            )}
-                            {r.label && <span className="h-px flex-1 bg-white/10" />}
+                            <span className="text-[9px] font-black uppercase tracking-[0.22em] text-white/25 shrink-0">
+                                {sectionName}
+                            </span>
+                            <span className="h-px flex-1 bg-white/10" />
                         </div>
                     );
                 }
