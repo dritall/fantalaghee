@@ -8,6 +8,67 @@ import { TeamLogo } from "./TeamLogo";
 import { Pitch } from "./Pitch";
 import { PlayerSheet } from "./PlayerSheet";
 import type { NormalizedMatch, NormalizedPlayer, NormalizedEvent } from "@/lib/lega-normalize";
+// Mappa colori squadre Serie A (presi da stemmi ufficiali)
+// Formato: [primaryHex, secondaryHex] — secondario usato come fallback se troppo simile
+type AccentPair = [string, string];
+const TEAM_COLORS: Record<string, AccentPair> = {
+    fiorentina: ["#8B0029", "#FFFFFF"],
+    atalanta: ["#1A1A5E", "#FFFFFF"],
+    inter: ["#01013E", "#FFFFFF"],
+    milan: ["#FB090B", "#000000"],
+    juventus: ["#000000", "#FFFFFF"],
+    roma: ["#8E1F2F", "#FFD700"],
+    lazio: ["#7EC8E3", "#FFFFFF"],
+    napoli: ["#12A0E1", "#FFFFFF"],
+    bologna: ["#8C1B2D", "#FFFFFF"],
+    torino: ["#8B0000", "#FFFFFF"],
+    parma: ["#1B4583", "#FFE000"],
+    sassuolo: ["#007B3F", "#FFFFFF"],
+    udinese: ["#000000", "#FFFFFF"],
+    como: ["#15317E", "#FFFFFF"],
+    cremonese: ["#9B2B2B", "#FFFFFF"],
+    lecce: ["#FFE000", "#0000FF"],
+    genoa: ["#A8001E", "#003F87"],
+    cagliari: ["#0000AA", "#FF0000"],
+    pisa: ["#1A3A8A", "#800080"],
+    empoli: ["#0066CC", "#FFFFFF"],
+    monza: ["#E60000", "#FFFFFF"],
+    venezia: ["#006400", "#FFA500"],
+    hellas verona: ["#1C4C9A", "#FFFF00"],
+    verona: ["#1C4C9A", "#FFFF00"],
+    spezia: ["#FFFFFF", "#000080"],
+    frosinone: ["#FFC0CB", "#0000FF"],
+    salernitana: ["#6B1D2A", "#FFFFFF"],
+};
+const FALLBACK_HOME = "#22d3ee";
+const FALLBACK_AWAY = "#f59e0b";
+
+/** Calcola la differenza percepita tra due colori (0-765). Soglia ≈200 = troppo simili. */
+function colorDistance(c1: string, c2: string): number {
+    const p = (h: string) => parseInt(h.slice(1), 16);
+    const r1 = (p(c1) >> 16) & 0xff, g1 = (p(c1) >> 8) & 0xff, b1 = p(c1) & 0xff;
+    const r2 = (p(c2) >> 16) & 0xff, g2 = (p(c2) >> 8) & 0xff, b2 = p(c2) & 0xff;
+    return Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2);
+}
+
+/** Restituisce l'accent color per una squadra, garantendo che home e away siano distinguibili. */
+function teamAccent(teamName: string, opponentAccent?: string, isHome?: boolean): string {
+    const key = teamName.toLowerCase().trim();
+    const pair = TEAM_COLORS[key];
+    if (!pair) return isHome ? FALLBACK_HOME : FALLBACK_AWAY;
+    let color = pair[0];
+    // Se bianco puro, usa il secondario
+    if (color === "#FFFFFF") color = pair[1];
+    // Se nero puro E secondario chiaro, usa secondario
+    if (color === "#000000" && pair[1] !== "#000000") color = pair[1];
+    // Controlla contrasto col avversario
+    if (opponentAccent && colorDistance(color, opponentAccent) < 200) {
+        const alt = pair[1];
+        if (alt && colorDistance(alt, opponentAccent) >= 200) return alt;
+        return isHome ? FALLBACK_HOME : FALLBACK_AWAY;
+    }
+    return color;
+}
 import { cn } from "@/lib/utils";
 
 const HOME_ACCENT = "#22d3ee";
@@ -78,8 +139,8 @@ function calcMomentum(events: NormalizedEvent[]): MomentumPoint[] {
     }));
 }
 
-/** Grafico momentum stile LegaSerieA: home↑, away↓, linea centrale. */
-function MomentumChart({ events }: { events: NormalizedEvent[] }) {
+/** Grafico momentum stile LegaSerieA: barre sottili, home↑, away↓, linea centrale, nitido. */
+function MomentumChart({ events, homeColor, awayColor }: { events: NormalizedEvent[]; homeColor: string; awayColor: string }) {
     const data = calcMomentum(events);
     if (data.length < 2) return null;
     return (
@@ -87,57 +148,69 @@ function MomentumChart({ events }: { events: NormalizedEvent[] }) {
             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">
                 📊 MOMENTUM
             </h4>
-            <div className="relative h-24 overflow-x-auto pb-2">
+            <div className="relative h-28 overflow-x-auto pb-2 bg-[#0a0e24]/60 rounded-lg border border-white/[0.04]">
                 {/* Asse centrale */}
-                <div className="absolute left-0 right-0 top-1/2 h-px bg-white/10" />
+                <div className="sticky left-0 right-0 top-1/2 h-px bg-white/10 z-10" />
 
-                <div className="flex items-center h-full gap-[2px] min-w-fit">
+                {/* Etichette fisse ai lati */}
+                <span
+                    className="sticky left-1 top-2 text-[8px] font-black uppercase tracking-wider z-10 drop-shadow-[0_0_6px_#000]"
+                    style={{ color: homeColor }}
+                >
+                    H
+                </span>
+                <span
+                    className="sticky right-1 bottom-2 text-[8px] font-black uppercase tracking-wider z-10 drop-shadow-[0_0_6px_#000] float-right -mt-4"
+                    style={{ color: awayColor }}
+                >
+                    A
+                </span>
+
+                <div className="flex items-center h-full gap-0 min-w-fit px-1">
                     {data.map((d, i) => (
-                        <div key={i} className="flex flex-col items-center flex-shrink-0 min-w-[24px] h-full justify-center">
-                            {/* Barra home (su) */}
+                        <div key={i} className="flex flex-col items-center flex-shrink-0 w-[4px] mx-[1px] h-full justify-center">
+                            {/* Barra home (su) — spigoli vivi */}
                             <div
-                                className="w-full rounded-t-sm transition-all duration-500 ease-out"
+                                className="w-full transition-all duration-300 ease-out"
                                 style={{
                                     height: `${d.home}%`,
-                                    backgroundColor: HOME_ACCENT,
-                                    opacity: 0.4 + d.home / 200,
-                                    minHeight: d.home > 0 ? 2 : 0,
+                                    backgroundColor: homeColor,
+                                    opacity: Math.max(0.3, Math.min(1, 0.4 + d.home / 150)),
                                 }}
                             />
-                            {/* Minuto sotto */}
-                            <span className="text-[7px] font-bold text-white/20 tabular-nums leading-none mt-px">
-                                {d.label}
-                            </span>
-                            {/* Barra away (giù) */}
+                            {/* Spazio per la linea centrale + minuto sotto */}
+                            <div className="h-3 w-full" />
+                            {/* Barra away (giù) — spigoli vivi */}
                             <div
-                                className="w-full rounded-b-sm transition-all duration-500 ease-out"
+                                className="w-full transition-all duration-300 ease-out"
                                 style={{
                                     height: `${d.away}%`,
-                                    backgroundColor: AWAY_ACCENT,
-                                    opacity: 0.4 + d.away / 200,
-                                    minHeight: d.away > 0 ? 2 : 0,
+                                    backgroundColor: awayColor,
+                                    opacity: Math.max(0.3, Math.min(1, 0.4 + d.away / 150)),
                                 }}
                             />
                         </div>
                     ))}
                 </div>
-            </div>
-            {/* Legenda */}
-            <div className="flex justify-between mt-1">
-                <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider">
-                    <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: HOME_ACCENT }} />
-                    Home
-                </span>
-                <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider">
-                    Away
-                    <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: AWAY_ACCENT }} />
-                </span>
+
+                {/* Minuto indicator — fisso sotto */}
+                <div className="flex items-center gap-0 min-w-fit px-1 mt-px">
+                    {data.map((d, i) => (
+                        <div key={i} className="w-[4px] mx-[1px] flex-shrink-0 text-center">
+                            {i % Math.max(1, Math.floor(data.length / 8)) === 0 && (
+                                <span className="text-[6px] font-bold text-white/20 tabular-nums leading-none">
+                                    {d.label}
+                                </span>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
         </section>
     );
 }
 
-function Timeline({ events }: { events: NormalizedEvent[] }) {
+function Timeline({ events, homeColor, awayColor }: { events: NormalizedEvent[]; homeColor: string; awayColor: string }) {
     if (events.length === 0) {
         return (
             <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
@@ -148,7 +221,7 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
 
     return (
         <div>
-            <MomentumChart events={events} />
+            <MomentumChart events={events} homeColor={homeColor} awayColor={awayColor} />
 
             {/* Intestazione colonne */}
             <div className="flex items-center pb-2 mb-2 border-b border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-white/25">
@@ -165,7 +238,7 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
                     {events.map((e, i) => {
                         const isHome = e.side === "home";
                         const tag = EVENT_TAG[e.kind];
-                        const accent = isHome ? HOME_ACCENT : AWAY_ACCENT;
+                        const accent = isHome ? homeColor : awayColor;
                         const icon = EVENT_ICON[e.kind];
                         const isGoal = e.kind === "goal" || e.kind === "penalty-goal";
                         const isCard = e.kind === "yellow" || e.kind === "red";
@@ -408,7 +481,7 @@ function buildTeamStats(raw: any): TeamStatRow[] {
     return out;
 }
 
-function TeamStats({ rows }: { rows: TeamStatRow[] }) {
+function TeamStats({ rows, homeColor, awayColor }: { rows: TeamStatRow[]; homeColor: string; awayColor: string }) {
     if (rows.length === 0) {
         return (
             <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
@@ -449,7 +522,7 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                         <div className="flex items-center justify-between gap-3 mb-1.5">
                             <span
                                 className="text-sm font-black tabular-nums w-12"
-                                style={{ color: homeLeads ? HOME_ACCENT : "rgba(255,255,255,0.45)" }}
+                                style={{ color: homeLeads ? homeColor : "rgba(255,255,255,0.45)" }}
                             >
                                 {r.home}
                                 {r.percent ? "%" : ""}
@@ -459,7 +532,7 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                             </span>
                             <span
                                 className="text-sm font-black tabular-nums w-12 text-right"
-                                style={{ color: awayLeads ? AWAY_ACCENT : "rgba(255,255,255,0.45)" }}
+                                style={{ color: awayLeads ? awayColor : "rgba(255,255,255,0.45)" }}
                             >
                                 {r.away}
                                 {r.percent ? "%" : ""}
@@ -468,11 +541,11 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                         <div className="flex h-1.5 rounded-full overflow-hidden bg-white/[0.07]">
                             <span
                                 className="h-full transition-all duration-500"
-                                style={{ width: `${homePct}%`, backgroundColor: HOME_ACCENT }}
+                                style={{ width: `${homePct}%`, backgroundColor: homeColor }}
                             />
                             <span
                                 className="h-full transition-all duration-500"
-                                style={{ width: `${awayPct}%`, backgroundColor: AWAY_ACCENT }}
+                                style={{ width: `${awayPct}%`, backgroundColor: awayColor }}
                             />
                         </div>
                     </div>
@@ -526,7 +599,13 @@ export function MatchSheet({
     const played = hs !== null && hs !== undefined;
     const isLive = fixture.matchStatus === "Playing" || fixture.matchStatus === "LIVE";
 
-    // Stadio dall'header API
+    // Colori squadra reali (con fallback leggibilità reciproca)
+    const rawHome = teamAccent(homeName);
+    const rawAway = teamAccent(awayName);
+    const hColor = colorDistance(rawHome, rawAway) < 200 ? (teamAccent(homeName, rawAway) || FALLBACK_HOME) : rawHome;
+    const aColor = colorDistance(hColor, rawAway) < 200 ? (teamAccent(awayName, hColor) || FALLBACK_AWAY) : rawAway;
+
+    // Stadio
     const stadiumName = fixture?.stadiumName || fixture?.stadium || fixture?.venue || null;
     const stadiumCity = fixture?.cityName || fixture?.city || fixture?.location || null;
 
@@ -534,7 +613,7 @@ export function MatchSheet({
         setSelected({
             player: p,
             team: side === "home" ? homeName : awayName,
-            accent: side === "home" ? HOME_ACCENT : AWAY_ACCENT,
+            accent: side === "home" ? hColor : aColor,
         });
 
     return (
@@ -677,6 +756,8 @@ export function MatchSheet({
                                         <Pitch
                                             home={normalized.home}
                                             away={normalized.away}
+                                            homeColor={hColor}
+                                            awayColor={aColor}
                                             onSelectPlayer={(p) => {
                                                 const inHome =
                                                     normalized.home.starters.some((x) => x.id === p.id) ||
@@ -685,8 +766,8 @@ export function MatchSheet({
                                             }}
                                         />
                                     )}
-                                    {tab === "eventi" && <Timeline events={normalized.events} />}
-                                    {tab === "statistiche" && <TeamStats rows={teamStats} />}
+                                    {tab === "eventi" && <Timeline events={normalized.events} homeColor={hColor} awayColor={aColor} />}
+                                    {tab === "statistiche" && <TeamStats rows={teamStats} homeColor={hColor} awayColor={aColor} />}
                                 </motion.div>
                             </AnimatePresence>
                         )}
@@ -706,7 +787,7 @@ export function MatchSheet({
             <PlayerSheet
                 player={selected?.player ?? null}
                 teamName={selected?.team ?? ""}
-                accent={selected?.accent ?? HOME_ACCENT}
+                accent={selected?.accent ?? hColor}
                 stagione={stagione}
                 onClose={() => setSelected(null)}
             />
