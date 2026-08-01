@@ -70,7 +70,6 @@ function teamAccent(teamName: string, opponentAccent?: string, isHome?: boolean)
     }
     return color;
 }
-import { cn } from "@/lib/utils";
 
 const HOME_ACCENT = "#22d3ee";
 const AWAY_ACCENT = "#f59e0b";
