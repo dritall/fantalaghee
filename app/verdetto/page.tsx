@@ -4,11 +4,13 @@
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { Loader2, Trophy, Medal, Flame, ThumbsDown, Coins } from 'lucide-react';
 import { WaitingFirstMatchday } from '@/components/ui/WaitingFirstMatchday';
 import { CURRENT_SEASON } from '@/lib/seasons';
 import { SeasonBanner } from '@/components/ui/SeasonBanner';
 import { SeasonPill } from '@/components/ui/SeasonPill';
+import { giornateDisponibili, verdettoAllaGiornata, type VerdettoGiornata } from '@/lib/verdetto-storico';
 import dynamic from 'next/dynamic';
 /**
  * Il grafico Top 5 e' l'unica cosa che tira dentro Chart.js: una libreria da
@@ -44,6 +46,12 @@ function VerdettoContent() {
 
     const [data, setData] = useState<any>(null);
 
+    // Il foglio del Verdetto contiene solo la giornata corrente. Lo storico si
+    // ricava dalle colonne G1..G38 del foglio classifica, che carichiamo a
+    // parte per poter tornare indietro nel tempo.
+    const [righeClassifica, setRigheClassifica] = useState<any[]>([]);
+    const [giornataScelta, setGiornataScelta] = useState<number | null>(null);
+
     // I coriandoli partono solo al passaggio del mouse su un premio: la
     // libreria viene scaricata alla prima interazione, non al caricamento.
     const fireConfetti = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -73,6 +81,15 @@ function VerdettoContent() {
             }
         }
         fetchDashboard();
+    }, [stagione]);
+
+    useEffect(() => {
+        let vivo = true;
+        fetch(`/api/classifica?stagione=${stagione}`)
+            .then((r) => r.json())
+            .then((j) => { if (vivo) setRigheClassifica(j?.classifica || []); })
+            .catch(() => null);
+        return () => { vivo = false; };
     }, [stagione]);
 
     if (loading) return (
@@ -110,12 +127,19 @@ function VerdettoContent() {
         </main>
     );
 
+    // Giornate ricavabili dal foglio classifica e verdetto ricalcolato.
+    const giornate = giornateDisponibili(righeClassifica);
+    const storico: VerdettoGiornata | null =
+        giornataScelta !== null && righeClassifica.length > 0
+            ? verdettoAllaGiornata(righeClassifica, giornataScelta)
+            : null;
+
     // Grafico: palette pensata per il fondo notturno del sito
     const chartData = {
-        labels: data?.classifica?.map((d: any) => d.squadra) || [],
+        labels: (storico ? storico.classifica.slice(0, 5) : data?.classifica)?.map((d: any) => d.squadra) || [],
         datasets: [{
             label: 'Punti Totali',
-            data: data?.classifica?.map((d: any) => d.punti) || [],
+            data: (storico ? storico.classifica.slice(0, 5) : data?.classifica)?.map((d: any) => d.punti) || [],
             backgroundColor: [
                 'rgba(250, 204, 21, 0.75)',
                 'rgba(203, 213, 225, 0.65)',
@@ -157,7 +181,8 @@ function VerdettoContent() {
                 displayColors: false,
                 callbacks: {
                     label: (context: any) => {
-                        const dataPoint = data?.classifica[context.dataIndex];
+                        const fonte = storico ? storico.classifica.slice(0, 5) : data?.classifica;
+                        const dataPoint = fonte?.[context.dataIndex];
                         return [
                             `Punti totali: ${context.raw}`,
                             `Media: ${dataPoint?.mediaPunti || 'N/D'}`
@@ -169,6 +194,48 @@ function VerdettoContent() {
     };
 
     /* Riquadro con accento di colore, usato per i tre verdetti in cima. */
+    /* Selettore delle giornate: "Attuale" mostra il foglio del Verdetto cosi'
+       com'e', i numeri sono ricalcolati dallo storico della classifica. */
+    const SelettoreGiornate = () => {
+        if (giornate.length === 0) return null;
+        return (
+            <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 shrink-0">
+                    Giornata
+                </span>
+                <div className="flex-1 flex gap-1.5 overflow-x-auto no-scrollbar py-1 edge-fade-x">
+                    <button
+                        onClick={() => setGiornataScelta(null)}
+                        aria-pressed={giornataScelta === null}
+                        className={cn(
+                            'shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider border transition-all',
+                            giornataScelta === null
+                                ? 'border-cyan-400/50 bg-cyan-400/15 text-white'
+                                : 'border-white/[0.08] bg-white/[0.02] text-white/40 hover:text-white hover:border-white/20'
+                        )}
+                    >
+                        Attuale
+                    </button>
+                    {giornate.map((g) => (
+                        <button
+                            key={g}
+                            onClick={() => setGiornataScelta(g)}
+                            aria-pressed={giornataScelta === g}
+                            className={cn(
+                                'shrink-0 w-9 py-1.5 rounded-xl text-xs font-black tabular-nums border transition-all',
+                                giornataScelta === g
+                                    ? 'border-amber-300/50 bg-amber-400/15 text-amber-200'
+                                    : 'border-white/[0.08] bg-white/[0.02] text-white/40 hover:text-white hover:border-white/20'
+                            )}
+                        >
+                            {g}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     const Highlight = ({ icon: Icon, title, hex, children, delay }: any) => (
         <motion.div
             initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.45 }}
@@ -230,28 +297,49 @@ function VerdettoContent() {
                     </h1>
                     <div className="flex flex-wrap items-center justify-center gap-2">
                         <SeasonPill stagione={stagione} />
-                        <span className="inline-flex items-center rounded-full border border-white/12 bg-white/[0.06] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white/55">
-                            Giornata {data.numeroGiornata}
+                        <span className={cn(
+                            "inline-flex items-center rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.18em]",
+                            storico
+                                ? "border-amber-300/30 bg-amber-400/10 text-amber-200"
+                                : "border-white/12 bg-white/[0.06] text-white/55"
+                        )}>
+                            Giornata {storico ? storico.giornata : data.numeroGiornata}
                         </span>
                     </div>
                 </header>
 
+                <SelettoreGiornate />
+
                 {/* ===== I TRE VERDETTI ===== */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                     <Highlight icon={Trophy} title="Leader attuale" hex="#facc15" delay={0.05}>
-                        <p className="text-2xl md:text-3xl font-black text-white break-words leading-tight">{data.leaderAttuale}</p>
+                        <p className="text-2xl md:text-3xl font-black text-white break-words leading-tight">
+                            {storico ? storico.leader : data.leaderAttuale}
+                        </p>
                     </Highlight>
 
                     <Highlight icon={Flame} title="Record assoluto" hex="#ec4899" delay={0.12}>
-                        <p className="font-score text-4xl font-bold text-white tabular-nums leading-none">{data.recordAssoluto.punteggio}</p>
-                        <p className="text-sm font-bold text-white/70 mt-1.5 truncate">{data.recordAssoluto.squadra}</p>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">{data.recordAssoluto.giornata}</p>
+                        <p className="font-score text-4xl font-bold text-white tabular-nums leading-none">
+                            {storico ? (storico.record?.punteggio ?? '-') : data.recordAssoluto.punteggio}
+                        </p>
+                        <p className="text-sm font-bold text-white/70 mt-1.5 truncate">
+                            {storico ? (storico.record?.squadra ?? 'N/D') : data.recordAssoluto.squadra}
+                        </p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">
+                            {storico ? (storico.record ? `Giornata ${storico.record.giornata}` : '') : data.recordAssoluto.giornata}
+                        </p>
                     </Highlight>
 
                     <Highlight icon={ThumbsDown} title="Cucchiaio di legno" hex="#f87171" delay={0.19}>
-                        <p className="font-score text-4xl font-bold text-white tabular-nums leading-none">{data.cucchiaioDiLegno.punteggio}</p>
-                        <p className="text-sm font-bold text-white/70 mt-1.5 truncate">{data.cucchiaioDiLegno.squadra}</p>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">{data.cucchiaioDiLegno.giornata}</p>
+                        <p className="font-score text-4xl font-bold text-white tabular-nums leading-none">
+                            {storico ? (storico.cucchiaio?.punteggio ?? '-') : data.cucchiaioDiLegno.punteggio}
+                        </p>
+                        <p className="text-sm font-bold text-white/70 mt-1.5 truncate">
+                            {storico ? (storico.cucchiaio?.squadra ?? 'N/D') : data.cucchiaioDiLegno.squadra}
+                        </p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">
+                            {storico ? (storico.cucchiaio ? `Giornata ${storico.cucchiaio.giornata}` : '') : data.cucchiaioDiLegno.giornata}
+                        </p>
                     </Highlight>
                 </div>
 
@@ -271,7 +359,10 @@ function VerdettoContent() {
                     <motion.div initial={{ y: 18, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.32 }}>
                         <Panel title="Podio di giornata" icon={Trophy} hex="#facc15" className="h-full">
                             <div className="space-y-2 flex-1">
-                                {data.podio.map((p: any, i: number) => (
+                                {(storico
+                                    ? storico.podio.slice(0, 3).map((p) => ({ squadra: p.squadra, punteggio: p.punteggio }))
+                                    : data.podio
+                                ).map((p: any, i: number) => (
                                     <div
                                         key={i}
                                         className={`flex items-center gap-3 p-3 rounded-2xl border transition-colors ${
@@ -294,7 +385,27 @@ function VerdettoContent() {
                     </motion.div>
                 </div>
 
-                {/* ===== MONTEPREMI ===== */}
+                {/* ===== MONTEPREMI =====
+                    Dipende dalle regole della lega e nel foglio esiste solo per
+                    la giornata corrente: sulle giornate passate non e'
+                    ricavabile, quindi al suo posto compare una spiegazione. */}
+                {storico ? (
+                    <div className="flex items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5">
+                        <Coins className="w-4 h-4 text-white/25 shrink-0 mt-0.5" />
+                        <p className="text-[11px] leading-relaxed text-white/40">
+                            I numeri qui sopra sono ricalcolati dai punteggi di giornata del foglio classifica.
+                            Il <strong className="text-white/60">montepremi</strong> invece dipende dalle regole
+                            della lega e nel foglio esiste solo per la giornata corrente: torna su
+                            <button
+                                onClick={() => setGiornataScelta(null)}
+                                className="mx-1 underline underline-offset-2 text-cyan-300 hover:text-cyan-200"
+                            >
+                                Attuale
+                            </button>
+                            per vederlo.
+                        </p>
+                    </div>
+                ) : (
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">
                         <Coins className="w-5 h-5 text-amber-300 shrink-0" />
@@ -384,6 +495,7 @@ function VerdettoContent() {
                         )}
                     </div>
                 </section>
+                )}
 
             </div>
         </main>

@@ -3,19 +3,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, AlertTriangle, Users, ListOrdered, BarChart3 } from "lucide-react";
+import { X, Loader2, AlertTriangle, Users, ListOrdered, BarChart3, Activity } from "lucide-react";
 import { TeamLogo } from "./TeamLogo";
 import { Pitch } from "./Pitch";
 import { PlayerSheet } from "./PlayerSheet";
 import type { NormalizedMatch, NormalizedPlayer, NormalizedEvent } from "@/lib/lega-normalize";
 import { cn } from "@/lib/utils";
-
-const HOME_ACCENT = "#22d3ee";
-const AWAY_ACCENT = "#f59e0b";
+import { matchColors } from "@/lib/team-colors";
 
 const TABS = [
     { id: "formazioni", label: "Formazioni", icon: Users },
     { id: "eventi", label: "Eventi", icon: ListOrdered },
+    { id: "momento", label: "Momento", icon: Activity },
     { id: "statistiche", label: "Statistiche", icon: BarChart3 },
 ] as const;
 
@@ -78,72 +77,138 @@ function calcMomentum(events: NormalizedEvent[]): MomentumPoint[] {
     }));
 }
 
-/** Grafico momentum stile LegaSerieA: barre sottili, home↑, away↓, linea centrale, nitido. */
-function MomentumChart({ events }: { events: NormalizedEvent[] }) {
-    const data = calcMomentum(events);
-    if (data.length < 2) return null;
+/**
+ * Grafico del momento della partita.
+ *
+ * La versione precedente disegnava barre larghe 4px dentro un contenitore che
+ * scorreva in orizzontale: su telefono era illeggibile e su desktop restava
+ * schiacciata. Qui il tracciato e' un SVG con viewBox, quindi si adatta a
+ * qualunque larghezza senza scorrimento, e invece di un evento per barra
+ * mostra una curva di pressione: ogni episodio pesa e poi si smorza nei
+ * minuti successivi, che e' come il momento si legge davvero.
+ */
+function MomentumChart({
+    events,
+    colors,
+    homeName,
+    awayName,
+}: {
+    events: NormalizedEvent[];
+    colors: { home: string; away: string };
+    homeName: string;
+    awayName: string;
+}) {
+    const W = 320;
+    const H = 120;
+    const MID = H / 2;
+    const LAST = Math.max(90, ...events.map((e) => e.minute + e.extra));
+
+    const curve = useMemo(() => {
+        // peso di ogni tipo di episodio e quanto a lungo continua a "pesare"
+        const WEIGHT: Record<string, number> = {
+            goal: 10, 'penalty-goal': 10, 'own-goal': -6,
+            'penalty-missed': 4, red: -7, yellow: 2, sub: 1.5, var: 1, other: 0,
+        };
+        const DECAY = 9; // minuti
+
+        const points: { m: number; v: number }[] = [];
+        for (let m = 0; m <= LAST; m += 1) {
+            let v = 0;
+            for (const e of events) {
+                const w = WEIGHT[e.kind] ?? 0;
+                if (!w) continue;
+                const dt = m - (e.minute + e.extra);
+                if (dt < 0 || dt > DECAY * 2) continue;
+                const strength = w * Math.exp(-(dt * dt) / (2 * DECAY * DECAY));
+                v += e.side === 'home' ? strength : -strength;
+            }
+            points.push({ m, v });
+        }
+        const peak = Math.max(1, ...points.map((p) => Math.abs(p.v)));
+        return points.map((p) => ({ ...p, v: p.v / peak }));
+    }, [events, LAST]);
+
+    if (events.length === 0 || curve.length < 3) {
+        return (
+            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
+                Non ci sono abbastanza episodi per leggere il momento
+            </p>
+        );
+    }
+
+    const x = (m: number) => (m / LAST) * W;
+    const y = (v: number) => MID - v * (MID - 8);
+
+    const line = curve.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(p.m).toFixed(2)},${y(p.v).toFixed(2)}`).join(' ');
+    const areaHome = `M0,${MID} ` + curve.map((p) => `L${x(p.m).toFixed(2)},${y(Math.max(0, p.v)).toFixed(2)}`).join(' ') + ` L${W},${MID} Z`;
+    const areaAway = `M0,${MID} ` + curve.map((p) => `L${x(p.m).toFixed(2)},${y(Math.min(0, p.v)).toFixed(2)}`).join(' ') + ` L${W},${MID} Z`;
+
+    const goals = events.filter((e) => e.kind === 'goal' || e.kind === 'penalty-goal' || e.kind === 'own-goal');
+
     return (
-        <section className="mb-6">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">
-                📊 MOMENTUM
-            </h4>
-            <div className="relative h-28 overflow-x-auto pb-2 bg-[#0a0e24]/60 rounded-lg border border-white/[0.04]">
-                {/* Asse centrale */}
-                <div className="sticky left-0 right-0 top-1/2 h-px bg-white/10 z-10" />
-
-                {/* Etichette fisse ai lati */}
-                <span className="sticky left-1 top-2 text-[8px] font-black uppercase tracking-wider z-10 text-cyan-400 drop-shadow-[0_0_6px_#000]">
-                    H
+        <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2 min-w-0">
+                    <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: colors.home }} />
+                    <span className="text-[11px] font-black uppercase tracking-wider truncate" style={{ color: colors.home }}>
+                        {homeName}
+                    </span>
                 </span>
-                <span className="sticky right-1 bottom-2 text-[8px] font-black uppercase tracking-wider z-10 text-amber-400 drop-shadow-[0_0_6px_#000] float-right -mt-4">
-                    A
+                <span className="flex items-center gap-2 min-w-0 justify-end">
+                    <span className="text-[11px] font-black uppercase tracking-wider truncate" style={{ color: colors.away }}>
+                        {awayName}
+                    </span>
+                    <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: colors.away }} />
                 </span>
+            </div>
 
-                <div className="flex items-center h-full gap-0 min-w-fit px-1">
-                    {data.map((d, i) => (
-                        <div key={i} className="flex flex-col items-center flex-shrink-0 w-[4px] mx-[1px] h-full justify-center">
-                            {/* Barra home (su) — spigoli vivi */}
-                            <div
-                                className="w-full transition-all duration-300 ease-out"
-                                style={{
-                                    height: `${d.home}%`,
-                                    backgroundColor: HOME_ACCENT,
-                                    opacity: Math.max(0.3, Math.min(1, 0.4 + d.home / 150)),
-                                }}
-                            />
-                            {/* Spazio per la linea centrale */}
-                            <div className="h-3 w-full" />
-                            {/* Barra away (giù) — spigoli vivi */}
-                            <div
-                                className="w-full transition-all duration-300 ease-out"
-                                style={{
-                                    height: `${d.away}%`,
-                                    backgroundColor: AWAY_ACCENT,
-                                    opacity: Math.max(0.3, Math.min(1, 0.4 + d.away / 150)),
-                                }}
-                            />
-                        </div>
-                    ))}
-                </div>
+            <div className="rounded-2xl border border-white/[0.08] bg-[#080c20] p-3">
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="none" role="img"
+                     aria-label={`Andamento della pressione: ${homeName} sopra, ${awayName} sotto`}>
+                    <defs>
+                        <linearGradient id="momHome" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={colors.home} stopOpacity="0.75" />
+                            <stop offset="100%" stopColor={colors.home} stopOpacity="0.05" />
+                        </linearGradient>
+                        <linearGradient id="momAway" x1="0" y1="1" x2="0" y2="0">
+                            <stop offset="0%" stopColor={colors.away} stopOpacity="0.75" />
+                            <stop offset="100%" stopColor={colors.away} stopOpacity="0.05" />
+                        </linearGradient>
+                    </defs>
 
-                {/* Minuto indicator — fisso sotto */}
-                <div className="flex items-center gap-0 min-w-fit px-1 mt-px">
-                    {data.map((d, i) => (
-                        <div key={i} className="w-[4px] mx-[1px] flex-shrink-0 text-center">
-                            {i % Math.max(1, Math.floor(data.length / 8)) === 0 && (
-                                <span className="text-[6px] font-bold text-white/20 tabular-nums leading-none">
-                                    {d.label}
-                                </span>
-                            )}
-                        </div>
+                    {/* tacche dei quarti d'ora */}
+                    {[15, 30, 45, 60, 75].map((m) => (
+                        <line key={m} x1={x(m)} y1="6" x2={x(m)} y2={H - 6}
+                              stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
                     ))}
+                    <line x1={x(45)} y1="4" x2={x(45)} y2={H - 4} stroke="rgba(255,255,255,0.16)" strokeWidth="1" strokeDasharray="3 3" />
+
+                    <path d={areaHome} fill="url(#momHome)" />
+                    <path d={areaAway} fill="url(#momAway)" />
+                    <path d={line} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
+                    <line x1="0" y1={MID} x2={W} y2={MID} stroke="rgba(255,255,255,0.22)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+
+                    {goals.map((g, i) => (
+                        <circle key={i} cx={x(g.minute + g.extra)} cy={MID} r="3.5"
+                                fill={g.side === 'home' ? colors.home : colors.away}
+                                stroke="#080c20" strokeWidth="1.5" />
+                    ))}
+                </svg>
+
+                <div className="flex justify-between mt-1.5 px-0.5 text-[9px] font-bold tabular-nums text-white/25">
+                    {[0, 15, 30, 45, 60, 75, 90].map((m) => <span key={m}>{m}&apos;</span>)}
                 </div>
             </div>
-        </section>
+
+            <p className="text-[10px] leading-relaxed text-white/30">
+                La curva misura la pressione dopo ogni episodio — gol, cartellini, cambi — e la lascia
+                smorzare nei minuti seguenti. I pallini sulla linea centrale sono le reti.
+            </p>
+        </div>
     );
 }
 
-function Timeline({ events }: { events: NormalizedEvent[] }) {
+function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { home: string; away: string } }) {
     if (events.length === 0) {
         return (
             <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
@@ -154,8 +219,6 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
 
     return (
         <div>
-            <MomentumChart events={events} />
-
             {/* Intestazione colonne */}
             <div className="flex items-center pb-2 mb-2 border-b border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-white/25">
                 <span className="flex-1 text-left">CASA</span>
@@ -171,7 +234,7 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
                     {events.map((e, i) => {
                         const isHome = e.side === "home";
                         const tag = EVENT_TAG[e.kind];
-                        const accent = isHome ? HOME_ACCENT : AWAY_ACCENT;
+                        const accent = isHome ? colors.home : colors.away;
                         const icon = EVENT_ICON[e.kind];
                         const isGoal = e.kind === "goal" || e.kind === "penalty-goal";
                         const isCard = e.kind === "yellow" || e.kind === "red";
@@ -414,7 +477,7 @@ function buildTeamStats(raw: any): TeamStatRow[] {
     return out;
 }
 
-function TeamStats({ rows }: { rows: TeamStatRow[] }) {
+function TeamStats({ rows, colors }: { rows: TeamStatRow[]; colors: { home: string; away: string } }) {
     if (rows.length === 0) {
         return (
             <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
@@ -455,7 +518,7 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                         <div className="flex items-center justify-between gap-3 mb-1.5">
                             <span
                                 className="text-sm font-black tabular-nums w-12"
-                                style={{ color: homeLeads ? HOME_ACCENT : "rgba(255,255,255,0.45)" }}
+                                style={{ color: homeLeads ? colors.home : "rgba(255,255,255,0.45)" }}
                             >
                                 {r.home}
                                 {r.percent ? "%" : ""}
@@ -465,7 +528,7 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                             </span>
                             <span
                                 className="text-sm font-black tabular-nums w-12 text-right"
-                                style={{ color: awayLeads ? AWAY_ACCENT : "rgba(255,255,255,0.45)" }}
+                                style={{ color: awayLeads ? colors.away : "rgba(255,255,255,0.45)" }}
                             >
                                 {r.away}
                                 {r.percent ? "%" : ""}
@@ -474,11 +537,11 @@ function TeamStats({ rows }: { rows: TeamStatRow[] }) {
                         <div className="flex h-1.5 rounded-full overflow-hidden bg-white/[0.07]">
                             <span
                                 className="h-full transition-all duration-500"
-                                style={{ width: `${homePct}%`, backgroundColor: HOME_ACCENT }}
+                                style={{ width: `${homePct}%`, backgroundColor: colors.home }}
                             />
                             <span
                                 className="h-full transition-all duration-500"
-                                style={{ width: `${awayPct}%`, backgroundColor: AWAY_ACCENT }}
+                                style={{ width: `${awayPct}%`, backgroundColor: colors.away }}
                             />
                         </div>
                     </div>
@@ -532,6 +595,10 @@ export function MatchSheet({
     const played = hs !== null && hs !== undefined;
     const isLive = fixture.matchStatus === "Playing" || fixture.matchStatus === "LIVE";
 
+    // Colori presi dagli stemmi, schiariti per il fondo notturno e resi
+    // diversi fra loro quando le due squadre giocano su tinte simili.
+    const colors = matchColors(homeName, awayName);
+
     // Stadio dall'header API
     const stadiumName = fixture?.stadiumName || fixture?.stadium || fixture?.venue || null;
     const stadiumCity = fixture?.cityName || fixture?.city || fixture?.location || null;
@@ -540,7 +607,7 @@ export function MatchSheet({
         setSelected({
             player: p,
             team: side === "home" ? homeName : awayName,
-            accent: side === "home" ? HOME_ACCENT : AWAY_ACCENT,
+            accent: side === "home" ? colors.home : colors.away,
         });
 
     return (
@@ -683,6 +750,7 @@ export function MatchSheet({
                                         <Pitch
                                             home={normalized.home}
                                             away={normalized.away}
+                                            colors={colors}
                                             onSelectPlayer={(p) => {
                                                 const inHome =
                                                     normalized.home.starters.some((x) => x.id === p.id) ||
@@ -691,8 +759,16 @@ export function MatchSheet({
                                             }}
                                         />
                                     )}
-                                    {tab === "eventi" && <Timeline events={normalized.events} />}
-                                    {tab === "statistiche" && <TeamStats rows={teamStats} />}
+                                    {tab === "eventi" && <Timeline events={normalized.events} colors={colors} />}
+                                    {tab === "momento" && (
+                                        <MomentumChart
+                                            events={normalized.events}
+                                            colors={colors}
+                                            homeName={homeName}
+                                            awayName={awayName}
+                                        />
+                                    )}
+                                    {tab === "statistiche" && <TeamStats rows={teamStats} colors={colors} />}
                                 </motion.div>
                             </AnimatePresence>
                         )}
@@ -712,7 +788,7 @@ export function MatchSheet({
             <PlayerSheet
                 player={selected?.player ?? null}
                 teamName={selected?.team ?? ""}
-                accent={selected?.accent ?? HOME_ACCENT}
+                accent={selected?.accent ?? colors.home}
                 stagione={stagione}
                 onClose={() => setSelected(null)}
             />

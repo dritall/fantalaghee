@@ -265,16 +265,19 @@ function TeamPitch({
 export function Pitch({
     home,
     away,
+    colors,
     onSelectPlayer,
 }: {
     home: NormalizedTeam;
     away: NormalizedTeam;
+    /** colori delle due squadre, gia' resi leggibili e distinti fra loro */
+    colors?: { home: string; away: string };
     onSelectPlayer: (p: NormalizedPlayer) => void;
 }) {
     const [side, setSide] = useState<"home" | "away">("home");
 
-    const HOME_ACCENT = "#22d3ee";
-    const AWAY_ACCENT = "#f59e0b";
+    const HOME_ACCENT = colors?.home ?? "#22d3ee";
+    const AWAY_ACCENT = colors?.away ?? "#f59e0b";
 
     if (home.starters.length === 0 && away.starters.length === 0) {
         return (

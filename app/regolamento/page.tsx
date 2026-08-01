@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Download, ChevronDown, Sparkles, ShieldCheck, Trophy, BadgeEuro, Scale,
@@ -154,6 +154,7 @@ function AccordionItem({
 
 export default function RegolamentoPage() {
     const [open, setOpen] = useState<Record<string, boolean>>({ novita: true });
+    const [active, setActive] = useState<SectionId>("novita");
 
     const allOpen = sections.every((s) => open[s.id]);
 
@@ -163,11 +164,34 @@ export default function RegolamentoPage() {
 
     const jumpTo = (id: SectionId) => {
         setOpen((prev) => ({ ...prev, [id]: true }));
-        // il pannello si apre nello stesso frame: lo scroll parte subito dopo
+        // Il pannello si apre con un'animazione: aspettando solo un frame lo
+        // scorrimento partirebbe verso la posizione di prima dell'apertura e
+        // finirebbe fuori bersaglio. Due frame bastano perché il layout sia
+        // aggiornato, e `scroll-mt` sulla sezione tiene conto della navbar.
         requestAnimationFrame(() =>
-            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+            requestAnimationFrame(() =>
+                document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+            )
         );
     };
+
+    // Sezione attualmente in vista: serve a evidenziarla nell'indice che segue.
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries
+                    .filter((e) => e.isIntersecting)
+                    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+                if (visible) setActive(visible.target.id as SectionId);
+            },
+            { rootMargin: "-120px 0px -70% 0px", threshold: 0 }
+        );
+        sections.forEach((sec) => {
+            const el = document.getElementById(sec.id);
+            if (el) observer.observe(el);
+        });
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <main className="min-h-screen pt-28 pb-16 px-4 md:px-8 relative">
@@ -211,7 +235,11 @@ export default function RegolamentoPage() {
                 </header>
 
                 {/* ===== INDICE RAPIDO ===== */}
-                <nav aria-label="Indice del regolamento" className="mb-6">
+                <nav
+                    aria-label="Indice del regolamento"
+                    className="sticky top-[4.25rem] z-30 -mx-4 px-4 py-3 mb-6
+                               bg-[#0b0824]/85 backdrop-blur-xl border-y border-white/[0.07]"
+                >
                     <div className="flex items-center gap-3 mb-3">
                         <span className="text-[10px] font-black uppercase tracking-[0.26em] text-white/35">Salta a</span>
                         <span className="h-px flex-1 bg-white/10" />
@@ -229,11 +257,17 @@ export default function RegolamentoPage() {
                             <button
                                 key={s.id}
                                 onClick={() => jumpTo(s.id)}
-                                className="group shrink-0 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04]
-                                           px-3.5 py-2 text-xs font-bold text-white/60 hover:text-white hover:bg-white/[0.09]
-                                           hover:border-white/20 transition-all"
+                                aria-current={active === s.id ? "true" : undefined}
+                                className={cn(
+                                    "group shrink-0 inline-flex items-center gap-2 rounded-full border px-3.5 py-2",
+                                    "text-xs font-bold transition-all",
+                                    active === s.id
+                                        ? "text-white bg-white/[0.12] border-white/25"
+                                        : "text-white/55 bg-white/[0.04] border-white/10 hover:text-white hover:bg-white/[0.09] hover:border-white/20"
+                                )}
+                                style={active === s.id ? { boxShadow: `0 0 16px ${s.accent}33` } : undefined}
                             >
-                                <s.icon className="w-3.5 h-3.5 transition-colors" style={{ color: s.accent }} />
+                                <s.icon className="w-3.5 h-3.5" style={{ color: s.accent }} />
                                 {s.short}
                             </button>
                         ))}

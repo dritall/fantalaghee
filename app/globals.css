@@ -92,29 +92,6 @@
            shadow-[0_12px_40px_rgba(6,10,30,0.5)];
   }
 
-  .surface-card {
-    @apply surface rounded-3xl transition-all duration-300
-           hover:border-white/20 hover:shadow-[0_18px_50px_rgba(6,10,30,0.65)];
-  }
-
-  /* Bordo a gradiente: un padding di 1px colorato attorno alla card */
-  .ring-gradient {
-    @apply relative p-[1.5px] rounded-[1.75rem] overflow-hidden
-           bg-[linear-gradient(160deg,rgba(56,189,248,0.45),rgba(255,255,255,0.10)_45%,rgba(255,255,255,0.03))];
-  }
-
-  /* Riflesso superiore, come un bordo illuminato */
-  .sheen::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
-    pointer-events: none;
-  }
-
   /* Barre di scorrimento: erano chiare su un sito scuro */
   .no-scrollbar {
     -ms-overflow-style: none;
