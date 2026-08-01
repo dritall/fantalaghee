@@ -266,19 +266,15 @@ export function Pitch({
     home,
     away,
     onSelectPlayer,
-    homeColor,
-    awayColor,
 }: {
     home: NormalizedTeam;
     away: NormalizedTeam;
     onSelectPlayer: (p: NormalizedPlayer) => void;
-    homeColor?: string;
-    awayColor?: string;
 }) {
     const [side, setSide] = useState<"home" | "away">("home");
 
-    const HOME_ACCENT = homeColor || "#22d3ee";
-    const AWAY_ACCENT = awayColor || "#f59e0b";
+    const HOME_ACCENT = "#22d3ee";
+    const AWAY_ACCENT = "#f59e0b";
 
     if (home.starters.length === 0 && away.starters.length === 0) {
         return (
