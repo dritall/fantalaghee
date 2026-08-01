@@ -386,25 +386,69 @@ function VerdettoContent() {
                 </div>
 
                 {/* ===== MONTEPREMI =====
-                    Dipende dalle regole della lega e nel foglio esiste solo per
-                    la giornata corrente: sulle giornate passate non e'
-                    ricavabile, quindi al suo posto compare una spiegazione. */}
+                    Sulle giornate passate i premi di giornata si ricalcolano dai
+                    punteggi: 25 🍆 al miglior punteggio, divisi in caso di
+                    parità. Campionato e coppe dipendono invece dalla classifica
+                    finale e si assegnano solo all'ultima giornata. */}
                 {storico ? (
-                    <div className="flex items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5">
-                        <Coins className="w-4 h-4 text-white/25 shrink-0 mt-0.5" />
-                        <p className="text-[11px] leading-relaxed text-white/40">
-                            I numeri qui sopra sono ricalcolati dai punteggi di giornata del foglio classifica.
-                            Il <strong className="text-white/60">montepremi</strong> invece dipende dalle regole
-                            della lega e nel foglio esiste solo per la giornata corrente: torna su
+                    <section className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <Coins className="w-5 h-5 text-amber-300 shrink-0" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-amber-300">
+                                Premi · Giornata {storico.giornata}
+                            </h2>
+                            <span className="h-px flex-1 bg-white/10" />
+                        </div>
+
+                        {storico.premio && (
+                            <Panel title={`Vincitore di giornata · ${storico.premio.totale} 🍆 in palio`} icon={Medal} hex="#facc15">
+                                <div className="space-y-1">
+                                    {storico.premio.vincitori.map((squadra) => (
+                                        <PrizeRow key={squadra} squadra={squadra} premio={storico.premio!.quota} rank={0} />
+                                    ))}
+                                </div>
+                                {storico.premio.vincitori.length > 1 && (
+                                    <p className="mt-2 text-[11px] text-white/35">
+                                        Pari merito a {storico.premio.punteggio} punti: il premio si divide in{' '}
+                                        {storico.premio.vincitori.length}.
+                                    </p>
+                                )}
+                            </Panel>
+                        )}
+
+                        {storico.melanzaneVinte.length > 0 && (
+                            <Panel title={`Melanzane di giornata · dalla 1ª alla ${storico.giornata}ª`} icon={Trophy} hex="#facc15">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                                    {storico.melanzaneVinte.map((m) => (
+                                        <div
+                                            key={m.squadra}
+                                            className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3"
+                                        >
+                                            <span className="block text-[11px] text-white/55 truncate">{m.squadra}</span>
+                                            <span className="mt-1 block font-score text-lg font-black tabular-nums text-amber-300">
+                                                {m.melanzane} 🍆
+                                            </span>
+                                            <span className="block text-[10px] text-white/30">
+                                                {m.giornateVinte} {m.giornateVinte === 1 ? 'giornata' : 'giornate'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Panel>
+                        )}
+
+                        <p className="text-[11px] leading-relaxed text-white/35">
+                            Premi di campionato e coppe si assegnano sulla classifica finale: compaiono solo
+                            all&apos;ultima giornata. Per il montepremi completo della giornata in corso torna su
                             <button
                                 onClick={() => setGiornataScelta(null)}
                                 className="mx-1 underline underline-offset-2 text-cyan-300 hover:text-cyan-200"
                             >
                                 Attuale
                             </button>
-                            per vederlo.
+                            .
                         </p>
-                    </div>
+                    </section>
                 ) : (
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">

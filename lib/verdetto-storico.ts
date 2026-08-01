@@ -30,6 +30,10 @@ export type VerdettoGiornata = {
     record: (PunteggioGiornata & { giornata: number }) | null;
     /** peggior punteggio singolo nello stesso arco */
     cucchiaio: (PunteggioGiornata & { giornata: number }) | null;
+    /** premio di quella giornata */
+    premio: PremioGiornata | null;
+    /** melanzane vinte in giornata dalla 1ª alla giornata scelta */
+    melanzaneVinte: { squadra: string; melanzane: number; giornateVinte: number }[];
 };
 
 /** Colonne delle giornate presenti nel foglio, in ordine numerico. */
@@ -63,6 +67,31 @@ export function punteggiDiGiornata(righe: SquadraRiga[], g: number): PunteggioGi
         .sort((a, b) => b.punteggio - a.punteggio);
 }
 
+/**
+ * Melanzane in palio ogni giornata per il miglior punteggio. A pari punti il
+ * premio si divide fra tutte le squadre in testa.
+ */
+export const PREMIO_GIORNATA = 25;
+
+export type PremioGiornata = { vincitori: string[]; punteggio: number; quota: number; totale: number };
+
+/**
+ * Premio della giornata: si ricava dai soli punteggi, quindi vale anche per le
+ * giornate passate. Diverso dai premi di campionato e coppe, che dipendono
+ * dalla classifica finale e si assegnano solo all'ultima giornata.
+ */
+export function premioDiGiornata(podio: PunteggioGiornata[], totale = PREMIO_GIORNATA): PremioGiornata | null {
+    if (podio.length === 0) return null;
+    const migliore = podio[0].punteggio;
+    const vincitori = podio.filter((p) => p.punteggio === migliore).map((p) => p.squadra);
+    return {
+        vincitori,
+        punteggio: migliore,
+        quota: Math.round((totale / vincitori.length) * 100) / 100,
+        totale,
+    };
+}
+
 /** Verdetto completo alla giornata indicata, ricalcolato da zero. */
 export function verdettoAllaGiornata(righe: SquadraRiga[], g: number): VerdettoGiornata {
     const podio = punteggiDiGiornata(righe, g);
@@ -89,14 +118,24 @@ export function verdettoAllaGiornata(righe: SquadraRiga[], g: number): VerdettoG
         .filter((x) => x.squadra)
         .sort((a, b) => b.punti - a.punti);
 
-    // record e peggior prestazione nell'arco 1..g
+    // record, peggior prestazione e melanzane di giornata nell'arco 1..g
     let record: (PunteggioGiornata & { giornata: number }) | null = null;
     let cucchiaio: (PunteggioGiornata & { giornata: number }) | null = null;
+    const bottino = new Map<string, { melanzane: number; giornateVinte: number }>();
     for (let i = 1; i <= g; i++) {
-        for (const p of punteggiDiGiornata(righe, i)) {
+        const punteggi = punteggiDiGiornata(righe, i);
+        for (const p of punteggi) {
             if (!record || p.punteggio > record.punteggio) record = { ...p, giornata: i };
             if (!cucchiaio || p.punteggio < cucchiaio.punteggio) cucchiaio = { ...p, giornata: i };
         }
+        const premioI = premioDiGiornata(punteggi);
+        premioI?.vincitori.forEach((squadra) => {
+            const corrente = bottino.get(squadra) ?? { melanzane: 0, giornateVinte: 0 };
+            bottino.set(squadra, {
+                melanzane: Math.round((corrente.melanzane + premioI.quota) * 100) / 100,
+                giornateVinte: corrente.giornateVinte + 1,
+            });
+        });
     }
 
     return {
@@ -106,5 +145,9 @@ export function verdettoAllaGiornata(righe: SquadraRiga[], g: number): VerdettoG
         leader: classifica[0]?.squadra ?? 'N/D',
         record,
         cucchiaio,
+        premio: premioDiGiornata(podio),
+        melanzaneVinte: Array.from(bottino.entries())
+            .map(([squadra, v]) => ({ squadra, ...v }))
+            .sort((a, b) => b.melanzane - a.melanzane),
     };
 }
