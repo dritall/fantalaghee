@@ -68,6 +68,7 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
                         const isGoal = e.kind === "goal" || e.kind === "penalty-goal";
                         const isCard = e.kind === "yellow" || e.kind === "red";
                         const isSub = e.kind === "sub";
+                        const kind = e.kind;
 
                         return (
                             <li
