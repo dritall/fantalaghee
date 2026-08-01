@@ -519,7 +519,7 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Cosa sono le melanzane?',
         risposta:
-            '🍆 è l\'unità di conto della lega: quota d\'iscrizione e premi si contano in melanzane. Una melanzana = un euro.',
+            '🍆 è l\'unità di conto della lega: la quota d\'iscrizione e tutti i premi si contano in melanzane.',
         chiavi: ['melanzane', 'melanzana', 'emoji', 'unita', 'cosa significa', 'valuta', 'euro'],
     },
 
