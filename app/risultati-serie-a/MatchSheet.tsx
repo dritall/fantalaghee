@@ -8,6 +8,7 @@ import { TeamLogo } from "./TeamLogo";
 import { Pitch } from "./Pitch";
 import { PlayerSheet } from "./PlayerSheet";
 import type { NormalizedMatch, NormalizedPlayer, NormalizedEvent } from "@/lib/lega-normalize";
+import { cn } from "@/lib/utils";
 // Mappa colori squadre Serie A (presi da stemmi ufficiali)
 // Formato: [primaryHex, secondaryHex] — secondario usato come fallback se troppo simile
 type AccentPair = [string, string];
