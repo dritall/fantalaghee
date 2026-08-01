@@ -138,29 +138,28 @@ export function playerPhoto(p: any, seasonId?: string, teamId?: string, side: 'h
         }
     }
 
+    }
+
     // Le foto reali arrivano dentro p.imagery (da lineups API):
-        // { playerImage_home_left: "playerImages/.../left.webp",
-        //   playerImage_home_celeb: "playerImages/.../celeb.webp",
-        //   playerImage_home_middle: "playerImages/.../middle.webp" }
-        // Attenzione: _celeb.webp spesso dà 404, preferiamo _left o _middle.
-        if (p.imagery && typeof p.imagery === 'object' && !Array.isArray(p.imagery)) {
-            const variants: { key: string; value: string }[] = [];
-            for (const key of Object.keys(p.imagery)) {
-                const value = p.imagery[key];
-                if (typeof value === 'string' && value.includes('.webp')) {
-                    variants.push({ key: key.toLowerCase(), value });
-                }
+    // { playerImage_home_left: "playerImages/.../left.webp",
+    //   playerImage_home_celeb: "playerImages/.../celeb.webp",
+    //   playerImage_home_middle: "playerImages/.../middle.webp" }
+    // Attenzione: _celeb.webp spesso dà 404, preferiamo _middle o _left.
+    if (p.imagery && typeof p.imagery === 'object' && !Array.isArray(p.imagery)) {
+        const variants: any[] = [];
+        for (const key of Object.keys(p.imagery)) {
+            const value = p.imagery[key];
+            if (typeof value === 'string' && value.includes('.webp')) {
+                variants.push({ key: key.toLowerCase(), value });
             }
-            // Priorità: middle (fronte) > left (profilo) > celeb (404 frequente) > resto
-            const order = ['middle', 'left', 'celeb'];
-            const pick = (sub: string) => variants.find(v => v.key.includes(sub));
-            for (const sub of order) {
-                const found = pick(sub);
-                if (found) return absolutize(found.value);
-            }
-            // nessuna delle varianti preferite, prendi la prima disponibile
-            if (variants.length > 0) return absolutize(variants[0].value);
         }
+        // Priorità: middle (fronte) > left (profilo) > celeb (404 frequente) > resto
+        const order = ['middle', 'left', 'celeb'];
+        for (const sub of order) {
+            const found = variants.find((v: any) => v.key.includes(sub));
+            if (found) return absolutize(found.value);
+        }
+        if (variants.length > 0) return absolutize(variants[0].value);
     }
 
     for (const field of ['image', 'photo', 'pictureUrl', 'imageUrl', 'playerImage']) {
