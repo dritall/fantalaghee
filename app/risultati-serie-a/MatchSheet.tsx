@@ -23,16 +23,16 @@ type TabId = (typeof TABS)[number]["id"];
 
 /* ------------------------------------------------------------------ eventi */
 
-const EVENT_ICON: Record<NormalizedEvent["kind"], string> = {
-    goal: "⚽",
-    "own-goal": "🥅",
-    "penalty-goal": "⚽",
-    "penalty-missed": "❌",
-    yellow: "🟨",
-    red: "🟥",
-    sub: "🔄",
-    var: "🖥️",
-    other: "•",
+const EVENT_ICON: Record<NormalizedEvent["kind"], { icon: string; size?: "lg" }> = {
+    goal: { icon: "⚽", size: "lg" },
+    "own-goal": { icon: "🥅" },
+    "penalty-goal": { icon: "⚽", size: "lg" },
+    "penalty-missed": { icon: "❌" },
+    yellow: { icon: "🟨" },
+    red: { icon: "🟥" },
+    sub: { icon: "🔄" },
+    var: { icon: "🖥️" },
+    other: { icon: "•" },
 };
 
 const EVENT_TAG: Partial<Record<NormalizedEvent["kind"], { text: string; className: string }>> = {
@@ -59,24 +59,35 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
                 const isHome = e.side === "home";
                 const tag = EVENT_TAG[e.kind];
                 const accent = isHome ? HOME_ACCENT : AWAY_ACCENT;
+                const icon = EVENT_ICON[e.kind];
+                const isGoal = e.kind === "goal" || e.kind === "penalty-goal";
+                const isCard = e.kind === "yellow" || e.kind === "red";
 
                 return (
                     <li
                         key={`${e.minute}-${e.player}-${i}`}
                         className={cn(
                             "relative flex items-start gap-3 py-2.5 pl-0 md:gap-5",
-                            // su telefono la colonna è unica a sinistra, su desktop si alterna
                             isHome ? "md:flex-row-reverse md:text-right" : "md:flex-row"
                         )}
                     >
                         <span className="hidden md:block flex-1" />
 
-                        <span className="relative z-10 flex flex-col items-center shrink-0 w-[52px]">
+                        <span className="relative z-10 flex flex-col items-center shrink-0">
                             <span
-                                className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] border border-white/10 bg-[#0d1330]"
-                                style={{ boxShadow: `0 0 12px ${accent}44` }}
+                                className={cn(
+                                    "rounded-full flex items-center justify-center border border-white/10 bg-[#0d1330]",
+                                    isGoal
+                                        ? "w-10 h-10 md:w-12 md:h-12 text-lg md:text-xl shadow-[0_0_20px_rgba(255,200,0,0.3)]"
+                                        : isCard
+                                        ? "w-8 h-8 text-sm"
+                                        : "w-8 h-8 text-xs"
+                                )}
+                                style={isGoal ? { boxShadow: `0 0 24px ${accent}44` } : undefined}
                             >
-                                {EVENT_ICON[e.kind]}
+                                <span className={isGoal ? "animate-pulse drop-shadow-[0_0_6px_rgba(255,200,0,0.6)]" : ""}>
+                                    {icon.icon}
+                                </span>
                             </span>
                             <span className="mt-1 text-[9px] font-black text-white/50 tabular-nums">{e.label}</span>
                         </span>
@@ -97,7 +108,13 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
                                 </>
                             ) : (
                                 <>
-                                    <span className="text-[13px] font-black text-white truncate max-w-full">{e.player}</span>
+                                    <span className={cn(
+                                        isGoal ? "text-base md:text-lg font-black" : "text-[13px] font-bold",
+                                        "text-white truncate max-w-full flex items-center gap-1"
+                                    )}>
+                                        {e.player}
+                                        {isGoal && <span className="drop-shadow-[0_0_8px_rgba(255,200,0,0.5)]">💥</span>}
+                                    </span>
                                     {e.assist && (
                                         <span className="text-[10px] font-bold uppercase tracking-wider text-white/35 mt-0.5">
                                             Assist: <span className="text-white/60">{e.assist}</span>

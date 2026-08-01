@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { NormalizedPlayer, NormalizedTeam } from "@/lib/lega-normalize";
 import { cn } from "@/lib/utils";
 
-/** Cerchietto con la foto del giocatore, con ripiego sul numero di maglia. */
+/** Foto del giocatore con bordo accentato e ombra. */
 function PlayerAvatar({
     player,
     accent,
@@ -15,15 +15,19 @@ function PlayerAvatar({
     size?: "sm" | "md";
 }) {
     const [failed, setFailed] = useState(false);
-    const px = size === "sm" ? "w-9 h-9" : "w-11 h-11 md:w-12 md:h-12";
+    const px = size === "sm" ? "w-9 h-9" : "w-12 h-12 md:w-14 md:h-14";
+    const style = {
+        borderColor: accent,
+        boxShadow: `0 0 16px ${accent}55, 0 0 40px ${accent}22`,
+    };
 
     if (failed || !player.photo) {
         return (
             <span
-                className={cn(px, "rounded-full flex items-center justify-center border-2 bg-[#131a38] shrink-0")}
-                style={{ borderColor: accent, boxShadow: `0 0 12px ${accent}55` }}
+                className={cn(px, "rounded-full flex items-center justify-center border-2 bg-gradient-to-br from-[#1a2050] to-[#0d1330] shrink-0")}
+                style={style}
             >
-                <span className="text-[11px] font-black text-white/80 tabular-nums">{player.number ?? "–"}</span>
+                <span className="text-[13px] font-black text-white/60 tabular-nums">{player.number ?? "–"}</span>
             </span>
         );
     }
@@ -35,46 +39,47 @@ function PlayerAvatar({
             loading="lazy"
             onError={() => setFailed(true)}
             className={cn(px, "rounded-full object-cover object-top border-2 bg-[#131a38] shrink-0")}
-            style={{ borderColor: accent, boxShadow: `0 0 12px ${accent}55` }}
+            style={style}
         />
     );
 }
 
-/** Pallini e cartellini che si accumulano sull'angolo dell'avatar. */
+/** Badge gol/cartellini in sovrimpressione sull'avatar. */
 function PlayerBadges({ player }: { player: NormalizedPlayer }) {
     const marks: React.ReactNode[] = [];
 
     for (let i = 0; i < player.goals; i++) {
         marks.push(
-            <span key={`g${i}`} className="text-[11px] leading-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+            <span key={`g${i}`} className="drop-shadow-[0_2px_6px_rgba(255,200,0,0.7)] animate-pulse">
                 ⚽
             </span>
         );
     }
     if (player.ownGoals > 0) {
         marks.push(
-            <span key="og" className="text-[10px] leading-none" title="Autogol">
+            <span key="og" className="text-[11px] leading-none drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]" title="Autogol">
                 🥅
             </span>
         );
     }
     if (player.red) {
-        marks.push(<span key="r" className="w-[7px] h-[10px] rounded-[2px] bg-red-500 border border-red-700 shadow" />);
+        marks.push(<span key="r" className="w-[8px] h-[12px] rounded-[2px] bg-red-600 border border-red-400 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />);
     } else if (player.yellow) {
-        marks.push(<span key="y" className="w-[7px] h-[10px] rounded-[2px] bg-yellow-400 border border-yellow-600 shadow" />);
+        marks.push(<span key="y" className="w-[8px] h-[12px] rounded-[2px] bg-yellow-400 border border-yellow-500 shadow-[0_0_6px_rgba(250,204,21,0.5)]" />);
     }
     if (player.subbedOut) {
         marks.push(
-            <span key="out" className="text-[9px] font-black text-red-400 leading-none" title={`Uscito al ${player.subbedOut}'`}>
+            <span key="out" className="text-[10px] font-black text-red-400 leading-none drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]" title={`Uscito al ${player.subbedOut}'`}>
                 ↓
             </span>
         );
     }
 
     if (marks.length === 0) return null;
-    return <span className="absolute -top-1 -right-1.5 flex flex-col items-center gap-0.5 z-20">{marks}</span>;
+    return <span className="absolute -top-2 -right-2 flex flex-col items-center gap-px z-20 text-[13px] leading-tight">{marks}</span>;
 }
 
+/** Giocatore singolo posizionato sul campo. */
 function PitchPlayer({
     player,
     accent,
@@ -84,15 +89,8 @@ function PitchPlayer({
     player: NormalizedPlayer;
     accent: string;
     onSelect: (p: NormalizedPlayer) => void;
-    /** abbassa la targhetta del nome: i compagni di reparto vicini non si accavallano */
     stagger: boolean;
 }) {
-    // y = 0 porta propria, 1 porta avversaria → sul campo verticale la porta
-    // propria sta in basso, quindi la percentuale va invertita.
-    //
-    // Le coordinate vengono compresse in un'area di sicurezza: a bordo campo
-    // l'avatar e la targhetta col nome uscirebbero dal riquadro, e il portiere
-    // — che sta a y≈0 — finirebbe tagliato.
     const left = `${8 + (player.x ?? 0.5) * 84}%`;
     const top = `${9 + (1 - (player.y ?? 0.5)) * 78}%`;
 
@@ -102,15 +100,16 @@ function PitchPlayer({
             style={{ left, top }}
             aria-label={`${player.fullName}, ${player.roleLabel}`}
             className="absolute -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-1
-                       transition-transform duration-300 hover:scale-110 hover:z-30 focus-visible:scale-110 focus-visible:z-30"
+                       transition-all duration-300 hover:scale-125 hover:z-30 focus-visible:scale-125 focus-visible:z-30"
         >
             <span className="relative">
                 <PlayerAvatar player={player} accent={accent} />
                 <PlayerBadges player={player} />
                 {player.number != null && (
                     <span
-                        className="absolute -bottom-1 -left-1 min-w-[16px] h-4 px-1 rounded-full bg-[#080b1e] border border-white/25
-                                   flex items-center justify-center text-[9px] font-black text-white/90 tabular-nums z-20"
+                        className="absolute -bottom-1 -left-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#080b1e] border border-white/25
+                                   flex items-center justify-center text-[9px] font-black text-white/90 tabular-nums z-20
+                                   shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
                     >
                         {player.number}
                     </span>
@@ -119,9 +118,9 @@ function PitchPlayer({
 
             <span
                 className={cn(
-                    "max-w-[60px] md:max-w-[72px] truncate rounded px-1 py-0.5 bg-black/75 backdrop-blur-sm",
-                    "text-[9px] font-black uppercase tracking-tight leading-tight text-white",
-                    "drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]",
+                    "max-w-[68px] md:max-w-[80px] truncate rounded px-1.5 py-0.5 bg-black/70 backdrop-blur-sm",
+                    "text-[9px] md:text-[10px] font-black uppercase tracking-tight leading-tight text-white",
+                    "shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
                     stagger && "translate-y-1.5"
                 )}
             >
@@ -129,7 +128,7 @@ function PitchPlayer({
             </span>
             {player.rating != null && (
                 <span
-                    className="rounded px-1.5 font-score text-[10px] font-bold tabular-nums"
+                    className="rounded px-1.5 font-score text-[9px] md:text-[10px] font-bold tabular-nums shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
                     style={{ backgroundColor: `${accent}33`, color: accent }}
                 >
                     {player.rating.toFixed(1)}
@@ -139,24 +138,25 @@ function PitchPlayer({
     );
 }
 
-/** Le linee del campo, disegnate una volta sola. */
+/** Linee del campo. */
 function PitchLines() {
     return (
         <>
-            <span className="absolute inset-[6%] border-2 border-white/10 rounded-lg" />
+            <span className="absolute inset-[6%] border-2 border-white/12 rounded-lg" />
             <span className="absolute left-[6%] right-[6%] top-1/2 h-[2px] bg-white/10 -translate-y-1/2" />
-            <span className="absolute left-1/2 top-1/2 w-[26%] aspect-square border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
-            <span className="absolute left-1/2 top-1/2 w-1.5 h-1.5 bg-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
-            {/* area di rigore in basso (squadra che attacca verso l'alto) */}
-            <span className="absolute left-1/2 bottom-[6%] w-[54%] h-[17%] border-2 border-b-0 border-white/10 -translate-x-1/2" />
-            <span className="absolute left-1/2 bottom-[6%] w-[26%] h-[7%] border-2 border-b-0 border-white/10 -translate-x-1/2" />
+            <span className="absolute left-1/2 top-1/2 w-[28%] aspect-square border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
+            <span className="absolute left-1/2 top-1/2 w-2 h-2 bg-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
+            {/* area di rigore in basso */}
+            <span className="absolute left-1/2 bottom-[6%] w-[54%] h-[17%] border-2 border-b-0 border-white/12 -translate-x-1/2 rounded-t-sm" />
+            <span className="absolute left-1/2 bottom-[6%] w-[26%] h-[7%] border-2 border-b-0 border-white/12 -translate-x-1/2 rounded-t-sm" />
             {/* area in alto */}
-            <span className="absolute left-1/2 top-[6%] w-[54%] h-[17%] border-2 border-t-0 border-white/10 -translate-x-1/2" />
-            <span className="absolute left-1/2 top-[6%] w-[26%] h-[7%] border-2 border-t-0 border-white/10 -translate-x-1/2" />
+            <span className="absolute left-1/2 top-[6%] w-[54%] h-[17%] border-2 border-t-0 border-white/12 -translate-x-1/2 rounded-b-sm" />
+            <span className="absolute left-1/2 top-[6%] w-[26%] h-[7%] border-2 border-t-0 border-white/12 -translate-x-1/2 rounded-b-sm" />
         </>
     );
 }
 
+/** Metà campo di una squadra (formazione + panchina). */
 function TeamPitch({
     team,
     accent,
@@ -179,7 +179,7 @@ function TeamPitch({
                 </span>
                 {team.formation && (
                     <span
-                        className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums"
+                        className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black tabular-nums"
                         style={{ backgroundColor: `${accent}22`, color: accent }}
                     >
                         {team.formation}
@@ -187,21 +187,19 @@ function TeamPitch({
                 )}
             </div>
 
-            <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#0f2a1b] via-[#123322] to-[#0b1f14]">
+            <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#0f2a1b] via-[#123322] to-[#0b1f14] shadow-[0_8px_40px_rgba(0,0,0,0.4)]">
                 {/* righe dell'erba */}
                 <span
-                    className="absolute inset-0 opacity-[0.25]"
+                    className="absolute inset-0 opacity-[0.2]"
                     style={{
                         backgroundImage:
-                            "repeating-linear-gradient(180deg, rgba(255,255,255,0.05) 0 8%, transparent 8% 16%)",
+                            "repeating-linear-gradient(180deg, rgba(255,255,255,0.03) 0 8%, transparent 8% 16%)",
                     }}
                 />
                 <PitchLines />
-                <span className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/45 pointer-events-none" />
+                <span className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50 pointer-events-none" />
 
                 {team.starters.map((p) => {
-                    // posizione del giocatore all'interno del proprio reparto:
-                    // serve solo a decidere quali nomi abbassare di mezza riga
                     const line = team.starters
                         .filter((o) => o.role === p.role)
                         .sort((a, b) => (a.x ?? 0) - (b.x ?? 0));
@@ -218,27 +216,36 @@ function TeamPitch({
                 })}
             </div>
 
+            {/* Panchina stile Lega Serie A — lista orizzontale foto + nome */}
             {team.bench.length > 0 && (
                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/30 mb-2 px-1">Panchina</p>
-                    <div className="flex flex-col gap-1">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/30 mb-2 px-1">
+                        Panchina
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
                         {team.bench.map((p) => (
                             <button
                                 key={p.id || p.name}
                                 onClick={() => onSelect(p)}
-                                className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-white/[0.06]"
+                                className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-white/[0.06]"
                             >
                                 <PlayerAvatar player={p} accent={accent} size="sm" />
                                 <span className="flex-1 min-w-0">
                                     <span className="block text-xs font-bold text-white/75 truncate">{p.name}</span>
-                                    <span className="block text-[10px] text-white/30">{p.roleLabel}</span>
+                                    <span className="block text-[9px] text-white/30 truncate">{p.roleLabel}</span>
                                 </span>
-                                {p.subbedIn && (
-                                    <span className="shrink-0 text-[10px] font-black text-emerald-400 tabular-nums">
-                                        ↑ {p.subbedIn}&apos;
-                                    </span>
-                                )}
-                                {p.goals > 0 && <span className="shrink-0 text-[11px]">⚽</span>}
+                                <span className="shrink-0 flex items-center gap-1">
+                                    {p.subbedIn && (
+                                        <span className="text-[10px] font-black text-emerald-400 tabular-nums">
+                                            ↑{p.subbedIn}&apos;
+                                        </span>
+                                    )}
+                                    {p.goals > 0 && (
+                                        <span className="text-[12px] drop-shadow-[0_0_6px_rgba(255,200,0,0.5)]">
+                                            ⚽
+                                        </span>
+                                    )}
+                                </span>
                             </button>
                         ))}
                     </div>
@@ -249,11 +256,11 @@ function TeamPitch({
 }
 
 /**
- * Formazioni.
- *
- * Su telefono si vede una squadra alla volta a tutta larghezza — è la ragione
- * per cui i giocatori restano leggibili; su schermi larghi le due metà stanno
- * affiancate.
+ * Formazioni stile Lega Serie A:
+ * - Foto grandi con glow
+ * - Badge gol animati
+ * - Panchina compatta
+ * - Mobile: una squadra per volta, Desktop: affiancate
  */
 export function Pitch({
     home,
@@ -279,7 +286,7 @@ export function Pitch({
 
     return (
         <div>
-            {/* selettore squadra: solo su telefono */}
+            {/* selettore squadra mobile */}
             <div className="md:hidden flex p-1 mb-4 rounded-2xl border border-white/10 bg-white/[0.04]">
                 {([
                     { key: "home" as const, team: home, accent: HOME_ACCENT },
