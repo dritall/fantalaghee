@@ -138,8 +138,6 @@ export function playerPhoto(p: any, seasonId?: string, teamId?: string, side: 'h
         }
     }
 
-    }
-
     // Le foto reali arrivano dentro p.imagery (da lineups API):
     // { playerImage_home_left: "playerImages/.../left.webp",
     //   playerImage_home_celeb: "playerImages/.../celeb.webp",
