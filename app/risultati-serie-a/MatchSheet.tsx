@@ -44,6 +44,69 @@ const EVENT_TAG: Partial<Record<NormalizedEvent["kind"], { text: string; classNa
 
 /* --------------------------------------------------------- timeline eventi */
 
+const EVENT_MOMENTUM: Record<string, number> = {
+    goal: 12,
+    "penalty-goal": 14,
+    "own-goal": -8,
+    yellow: -2,
+    red: -5,
+    sub: 1,
+    other: 0,
+};
+
+function calcMomentum(events: NormalizedEvent[]): { label: string; homePct: number }[] {
+    if (events.length === 0) return [];
+    const buckets: { min: number; home: number; away: number }[] = [];
+    let lastMin = 0;
+    for (const e of events) {
+        const w = EVENT_MOMENTUM[e.kind] ?? 0;
+        if (w === 0) continue;
+        if (e.minute > lastMin + 2) {
+            buckets.push({ min: lastMin + Math.ceil((e.minute - lastMin) / 2), home: 0, away: 0 });
+        }
+        if (e.side === "home") buckets.push({ min: e.minute, home: Math.abs(w), away: 0 });
+        else buckets.push({ min: e.minute, home: 0, away: Math.abs(w) });
+        lastMin = e.minute;
+    }
+    const maxVal = Math.max(...buckets.map((b) => Math.max(b.home, b.away)), 1);
+    return buckets.map((b) => ({
+        label: b.min <= 45 ? `${b.min}'` : b.min <= 90 ? `${b.min}'` : `${b.min}+'`,
+        homePct: Math.round((b.home / maxVal) * 100),
+    }));
+}
+
+function MomentumChart({ events }: { events: NormalizedEvent[] }) {
+    const data = calcMomentum(events);
+    if (data.length < 2) return null;
+    return (
+        <section className="mb-5">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2.5">
+                📊 MOMENTUM
+            </h4>
+            <div className="h-16 flex items-end gap-[2px] overflow-x-auto pb-1">
+                {data.map((d, i) => (
+                    <div key={i} className="flex flex-col items-center gap-px flex-shrink-0 min-w-[22px]">
+                        <div className="flex flex-col-reverse items-center w-full" style={{ height: 52 }}>
+                            <div
+                                className="w-full rounded-t-sm transition-all duration-500 ease-out"
+                                style={{
+                                    height: `${d.homePct}%`,
+                                    backgroundColor: HOME_ACCENT,
+                                    opacity: 0.5 + d.homePct / 200,
+                                    minHeight: d.homePct > 0 ? 3 : 0,
+                                }}
+                            />
+                        </div>
+                        <span className="text-[7px] font-bold text-white/25 tabular-nums leading-none mt-0.5">
+                            {d.label}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+}
+
 function Timeline({ events }: { events: NormalizedEvent[] }) {
     if (events.length === 0) {
         return (
@@ -55,6 +118,8 @@ function Timeline({ events }: { events: NormalizedEvent[] }) {
 
     return (
         <div>
+            <MomentumChart events={events} />
+
             <div className="relative">
                 {/* Linea temporale centrale */}
                 <span className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent -translate-x-1/2" />
