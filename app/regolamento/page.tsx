@@ -9,6 +9,12 @@ import {
 import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL } from "@/lib/seasons";
 import { cn } from "@/lib/utils";
 import { Assistente } from "./Assistente";
+import {
+    STAGIONE_RIFERIMENTO, ISCRITTI_RIFERIMENTO, QUOTA, GIORNATE, PREMIO_GIORNATA,
+    CLASSIFICA_GENERALE, SUPER_LEGA, COPPA_UEFA, MIGLIOR_PUNTEGGIO,
+    TOTALE_GIORNATE, TOTALE_DISTRIBUITO, MONTEPREMI_LORDO, GESTIONE_LEGA,
+    type VocePremio,
+} from "@/lib/premi-riferimento";
 
 type SectionId = "novita" | "iscrizione" | "rosa" | "coppe" | "premi" | "bonus" | "casi";
 
@@ -71,6 +77,85 @@ function ScoreRow({ label, value, positive }: { label: string; value: string; po
                 {value}
             </span>
         </li>
+    );
+}
+
+/* --------------------------------------------------------------------------
+   Montepremi di riferimento
+   -------------------------------------------------------------------------- */
+
+function ColonnaPremi({ titolo, voci }: { titolo: string; voci: VocePremio[] }) {
+    return (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300/90 mb-2.5">{titolo}</h4>
+            <ul className="space-y-0.5">
+                {voci.map((v) => (
+                    <li key={v.titolo} className="flex items-baseline justify-between gap-3 py-1.5 border-b border-white/[0.06] last:border-0">
+                        <span className="text-sm text-white/60">
+                            {v.titolo}
+                            {v.nota && <span className="text-white/30 text-xs"> · {v.nota}</span>}
+                        </span>
+                        <span className="font-score text-sm font-black tabular-nums text-amber-300 shrink-0">{v.importo} 🍆</span>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+/**
+ * I premi del 25/26, ricostruiti dal Verdetto dell'ultima giornata. Servono da
+ * riferimento finché non escono quelli nuovi: sono l'unica risposta onesta a
+ * "ma quanto si vince?" prima della 5ª giornata.
+ */
+function MontepremiRiferimento() {
+    return (
+        <div className="space-y-3">
+            <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
+                    Stagione {STAGIONE_RIFERIMENTO} · {ISCRITTI_RIFERIMENTO} squadre
+                </span>
+                <span className="h-px flex-1 bg-white/10" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-amber-400/20 bg-amber-500/[0.06] p-4 sm:col-span-2">
+                    <div className="flex items-baseline justify-between gap-3">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">Ogni giornata</h4>
+                        <span className="font-score text-2xl font-black tabular-nums text-amber-300">{PREMIO_GIORNATA} 🍆</span>
+                    </div>
+                    <p className="text-sm text-white/60 mt-1.5 leading-relaxed">
+                        Al miglior punteggio del turno, diviso in parti uguali a pari merito. Su {GIORNATE} giornate
+                        fanno <strong className="text-white">{TOTALE_GIORNATE} 🍆</strong> distribuiti solo in premi
+                        settimanali.
+                    </p>
+                </div>
+
+                <ColonnaPremi titolo="Classifica generale" voci={CLASSIFICA_GENERALE} />
+                <ColonnaPremi titolo="Coppa Super Lega" voci={SUPER_LEGA} />
+                <ColonnaPremi titolo="Coppa UEFA" voci={COPPA_UEFA} />
+                <ColonnaPremi titolo="Record stagionale" voci={[MIGLIOR_PUNTEGGIO]} />
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="grid grid-cols-3 gap-3 text-center">
+                    {[
+                        { n: `${MONTEPREMI_LORDO}`, l: 'Raccolto' },
+                        { n: `${TOTALE_DISTRIBUITO}`, l: 'In premi' },
+                        { n: `${GESTIONE_LEGA}`, l: 'Gestione lega' },
+                    ].map((x) => (
+                        <div key={x.l}>
+                            <span className="block font-score text-lg font-black tabular-nums text-white leading-none">{x.n} 🍆</span>
+                            <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-white/35 mt-1.5">{x.l}</span>
+                        </div>
+                    ))}
+                </div>
+                <p className="text-xs text-white/40 leading-relaxed mt-3.5 text-center">
+                    {ISCRITTI_RIFERIMENTO} quote da {QUOTA} 🍆. In premi è finito
+                    l&apos;{Math.round((TOTALE_DISTRIBUITO / MONTEPREMI_LORDO) * 100)}% del raccolto.
+                </p>
+            </div>
+        </div>
     );
 }
 
@@ -527,13 +612,24 @@ export default function RegolamentoPage() {
                         isOpen={!!open.premi}
                         onToggle={() => toggle("premi")}
                     >
-                        <dl className="pt-2">
-                            <Rule label="Premi di giornata">
-                                1° e 2° classificato di ogni giornata, più il miglior punteggio stagionale.
-                            </Rule>
-                            <Rule label="Premi classifica generale">Prime posizioni del Campionato.</Rule>
-                            <Rule label="Premi coppe">Vincitori di Super Lega e UEFA.</Rule>
-                        </dl>
+                        <div className="space-y-5 pt-3">
+                            <dl>
+                                <Rule label="Premi di giornata">
+                                    1° e 2° classificato di ogni giornata, più il miglior punteggio stagionale.
+                                    A pari punteggio il premio si divide fra le squadre in testa.
+                                </Rule>
+                                <Rule label="Premi classifica generale">Prime posizioni del Campionato.</Rule>
+                                <Rule label="Premi coppe">Vincitori di Super Lega e UEFA.</Rule>
+                            </dl>
+
+                            <Callout tone="info" title="Importi 26/27: entro la 5ª giornata">
+                                Dipendono dal numero definitivo di iscritti. Qui sotto quelli davvero
+                                assegnati la stagione scorsa: la struttura resta simile, cambia il premio
+                                al secondo di giornata, che prima non c&apos;era.
+                            </Callout>
+
+                            <MontepremiRiferimento />
+                        </div>
                     </AccordionItem>
 
                     <AccordionItem

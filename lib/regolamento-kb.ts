@@ -32,7 +32,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Quanto costa iscriversi?',
         risposta:
-            'La quota è di **110 🍆**. Va saldata **prima dell\'inizio della 1ª giornata**: chi non versa viene escluso senza rimborso.',
+            'La quota è di **110 🍆**. Va saldata **prima dell\'inizio della 1ª giornata**: chi non versa viene escluso senza rimborso.\nContribuisce al montepremi finale e alla gestione della lega: la scorsa stagione, su 50 iscritti, l\'85% del raccolto è tornato in premi.',
         chiavi: ['quanto costa', 'quota', 'prezzo', 'costo iscrizione', 'quanto si paga', 'quanto pago', 'iscrizione costo', '110'],
         inEvidenza: true,
     },
@@ -179,7 +179,7 @@ export const KB: VoceKB[] = [
         id: 'budget',
         sezione: 'rosa',
         domanda: 'Qual è il budget per la rosa?',
-        risposta: '**600 Fantamilioni** per costruire tutti e 24 i giocatori.',
+        risposta: '**600 Fantamilioni** per costruire tutti e 24 i giocatori, salvo cambi nelle quotazioni di Fantaclub.',
         chiavi: ['budget', 'fantamilioni', 'crediti', 'quanto ho da spendere', '600', 'soldi rosa'],
         inEvidenza: true,
     },
@@ -382,7 +382,7 @@ export const KB: VoceKB[] = [
         sezione: 'bonus',
         domanda: 'Come funziona il modificatore di difesa?',
         risposta:
-            'Si applica se schieri **almeno 4 difensori**. Si prende la media voto di **portiere + i 3 migliori difensori**: media ≥ 7 vale **+6**, fra 6.5 e 7 vale **+3**, fra 6 e 6.5 vale **+1**.',
+            'Si applica se schieri **almeno 4 difensori**. Si prende la media voto di **portiere + i 3 migliori difensori**: media **≥ 7 → +6**, da **6.5 a 7 (esclusa) → +3**, da **6 a 6.5 (esclusa) → +1**.',
         chiavi: ['modificatore difesa', 'modificatore', 'come funziona modificatore', 'bonus difesa', 'media difesa'],
         inEvidenza: true,
     },
@@ -399,7 +399,7 @@ export const KB: VoceKB[] = [
         sezione: 'bonus',
         domanda: 'Quali sono le soglie del modificatore?',
         risposta:
-            'Media **≥ 7 → +6** · media **6.5 – 7 → +3** · media **6 – 6.5 → +1**. Sotto 6 non si prende nulla.',
+            'Media **≥ 7 → +6** · **≥ 6.5 e < 7 → +3** · **≥ 6 e < 6.5 → +1**. Sotto 6 non si prende nulla.',
         chiavi: ['soglie modificatore', 'quanto da il modificatore', 'valori modificatore', '+6', 'media 7'],
     },
     {
@@ -468,8 +468,8 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Quanto si vince facendo il miglior punteggio di giornata?',
         risposta:
-            'Il miglior punteggio di giornata vale **25 🍆**. A pari punteggio il premio si **divide** fra tutte le squadre in testa.',
-        chiavi: ['premio giornata', 'quanto si vince', 'miglior punteggio giornata', '25', 'vincitore giornata', 'premio settimanale'],
+            'Il miglior punteggio di giornata vale **25 🍆**. A pari punteggio il premio si **divide** fra tutte le squadre in testa.\nNel 25/26 questo ha distribuito **950 🍆** in tutto, cioè 25 × 38 giornate. Gli importi 26/27 si confermano entro la 5ª giornata, ma la struttura resta simile.',
+        chiavi: ['premio giornata', 'quanto si vince', 'miglior punteggio giornata', '25', 'vincitore giornata', 'vince la giornata', 'premio settimanale', 'primo di giornata'],
         inEvidenza: true,
     },
     {
@@ -494,8 +494,8 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Quali premi ci sono in totale?',
         risposta:
-            'Tre famiglie: **premi di giornata** (1° e 2° classificato di ogni turno, più il miglior punteggio stagionale), **premi di classifica generale** per le prime posizioni del Campionato, e **premi coppe** per i vincitori di Super Lega e UEFA.',
-        chiavi: ['quali premi', 'premi', 'montepremi', 'lista premi', 'cosa si vince', 'distribuzione premi'],
+            'Tre famiglie: **premi di giornata** (1° e 2° classificato di ogni turno, più il miglior punteggio stagionale), **premi di classifica generale** per le prime posizioni del Campionato, e **premi coppe** per Super Lega e UEFA.\nNel 25/26 sono stati distribuiti **4.670 🍆** su 5.500 raccolti: 950 in giornate, 2.570 in classifica, 1.050 nelle coppe, 100 al record.',
+        chiavi: ['quali premi', 'premi', 'montepremi', 'lista premi', 'cosa si vince', 'distribuzione premi', 'melanzane distribuite', 'totale premi', 'totale montepremi', 'quanto si distribuisce'],
         inEvidenza: true,
     },
     {
@@ -503,7 +503,7 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'C\'è un premio per il miglior punteggio della stagione?',
         risposta:
-            'Sì: oltre ai premi di ogni giornata, viene premiato il **miglior punteggio stagionale**, cioè il record assoluto della stagione.',
+            'Sì. Nel 25/26 valeva **100 🍆** ed è andato a Cippalippa1418 con **112,5 punti alla 24ª giornata**.',
         chiavi: ['miglior punteggio stagionale', 'record stagione', 'punteggio piu alto', 'premio record'],
     },
     {
@@ -511,8 +511,8 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Quando si sanno i premi di campionato e coppe?',
         risposta:
-            'Dipendono dalla **classifica finale**, quindi si assegnano **all\'ultima giornata**. I dettagli su importi e struttura arrivano entro l\'inizio della 5ª giornata, in base al numero di iscritti.',
-        chiavi: ['quando premi', 'quando si pagano', 'premi finali', 'fine campionato', 'ultima giornata premi'],
+            'Si assegnano sulla **classifica finale**, quindi all\'ultima giornata. Gli importi 26/27 arrivano entro l\'inizio della 5ª giornata, perché dipendono dagli iscritti.\nRiferimento 25/26: classifica **850 · 650 · 500 · 350 · 220 🍆** alle prime cinque; Super Lega **350 · 250 · 150 · 150**; Coppa UEFA **100 · 50**.',
+        chiavi: ['quando premi', 'quando si pagano', 'premi finali', 'fine campionato', 'ultima giornata premi', 'premi classifica', 'vince in classifica', 'premio campionato', 'premi coppe'],
     },
     {
         id: 'melanzane',
@@ -520,7 +520,7 @@ export const KB: VoceKB[] = [
         domanda: 'Cosa sono le melanzane?',
         risposta:
             '🍆 è l\'unità di conto della lega: la quota d\'iscrizione e tutti i premi si contano in melanzane.',
-        chiavi: ['melanzane', 'melanzana', 'emoji', 'unita', 'cosa significa', 'valuta', 'euro'],
+        chiavi: ['melanzane', 'melanzana', 'cosa sono le melanzane', 'emoji melanzana', 'unita di conto', 'cosa significa', 'valuta'],
     },
 
     /* -------------------------------------------------------- casi speciali */
@@ -683,7 +683,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Quante squadre partecipano?',
         risposta:
-            'Il numero definitivo si conosce a iscrizioni chiuse. Da lì dipendono struttura delle coppe e importi dei premi, comunicati **entro l\'inizio della 5ª giornata**.',
+            'Il numero definitivo si conosce a iscrizioni chiuse: da lì dipendono struttura delle coppe e importi dei premi, comunicati **entro l\'inizio della 5ª giornata**. La stagione scorsa erano **50 squadre**.',
         chiavi: ['quante squadre', 'quanti partecipanti', 'quanti iscritti', 'numero squadre', 'quanti siamo'],
     },
     {
@@ -765,6 +765,48 @@ export const KB: VoceKB[] = [
     },
 
     /* ------------------------------------------------------ formulazioni brevi */
+    /* ------------------------------------------------ dettagli dal regolamento */
+    {
+        id: 'fonte-assist',
+        sezione: 'iscrizione',
+        domanda: 'Chi decide se un assist è valido?',
+        risposta:
+            'La valutazione è di **Fantaclub**, che guarda tre cose: la **volontarietà del passaggio**, il **dribbling prima dell\'assist** e la **palla deviata** che porta al gol.',
+        chiavi: ['fonte assist', 'chi decide assist', 'assist valido', 'come si contano gli assist', 'volontarieta', 'palla deviata'],
+    },
+    {
+        id: 'esempio-blocco',
+        sezione: 'rosa',
+        domanda: 'Se compro un giocatore proprio mentre raggiunge la soglia?',
+        risposta:
+            'Te lo tieni. Il blocco vale **da quando la soglia è superata**, non retroattivamente: se oggi è ancora acquistabile lo prendi, e da domani sarà bloccato per gli altri. Resta bloccato finché il numero di squadre che lo possiedono non scende sotto la soglia.',
+        chiavi: ['compro mentre raggiunge', 'esempio blocco', 'appena prima del blocco', 'patagarro', 'lo tengo', 'retroattivo'],
+    },
+    {
+        id: 'coppe-spostamento',
+        sezione: 'coppe',
+        domanda: 'Le giornate di coppa possono essere spostate?',
+        risposta:
+            'Sì. La direzione può **spostare le giornate di coppa**, soprattutto le fasi finali, quando molte partite di Serie A vengono posticipate: serve a evitare che una finale si giochi con mezza rosa a 6 politico.',
+        chiavi: ['spostare coppa', 'giornate coppa', 'cambiare date coppe', 'fase finale spostata', 'posticipi coppa'],
+    },
+    {
+        id: 'nome-lega',
+        sezione: 'sito',
+        domanda: 'Perché si chiama Fanta Laghèe?',
+        risposta:
+            'È il nome della seconda edizione della lega, che prima si chiamava **FantaBarSport**. "Laghèe" è come si chiamano quelli del lago da queste parti — da lì anche il sottotitolo, il Fantacalcio del Lario.',
+        chiavi: ['perche si chiama', 'nome lega', 'fantabarsport', 'laghee', 'significato nome', 'origine'],
+    },
+    {
+        id: 'leggere-prima',
+        sezione: 'sito',
+        domanda: 'Posso chiedere agli organizzatori?',
+        risposta:
+            'Certo, ma il regolamento chiede espressamente di **leggerlo prima** — soprattutto per le domande la cui risposta è già scritta. Per questo esiste questo assistente: provaci qui prima di scrivere nel gruppo.',
+        chiavi: ['posso chiedere', 'fare domande', 'chiedere agli organizzatori', 'domande stupide', 'gruppo whatsapp domande'],
+    },
+
     {
         id: 'riassunto',
         sezione: 'sito',
