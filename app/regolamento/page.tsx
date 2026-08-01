@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL } from "@/lib/seasons";
 import { cn } from "@/lib/utils";
+import { Assistente } from "./Assistente";
 
 type SectionId = "novita" | "iscrizione" | "rosa" | "coppe" | "premi" | "bonus" | "casi";
 
@@ -268,6 +269,13 @@ export default function RegolamentoPage() {
                 </header>
 
                 {/* ===== INDICE RAPIDO ===== */}
+                {/* ===== ASSISTENTE =====
+                    Prima dell'indice: chi ha una domanda precisa la scrive e
+                    basta, senza dover indovinare in quale sezione sta. */}
+                <div className="mb-6">
+                    <Assistente onVaiAlla={(sezione) => jumpTo(sezione as SectionId)} />
+                </div>
+
                 {/* Su telefono l'indice deve costare poca altezza: la riga
                     "Salta a" sparisce e Apri/Chiudi tutto diventa un tasto
                     tondo accanto alle schede. */}
