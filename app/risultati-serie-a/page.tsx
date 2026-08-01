@@ -7,6 +7,7 @@ import { SEASONS, CURRENT_SEASON } from '@/lib/seasons';
 import { SeasonBanner } from '@/components/ui/SeasonBanner';
 import { TeamLogo, getTeamLogoUrl } from './TeamLogo';
 import { MatchSheet } from './MatchSheet';
+import { matchColors } from '@/lib/team-colors';
 
 const TOTAL_ROUNDS = 38;
 
@@ -345,20 +346,31 @@ function ScoutHubContent() {
                       const isLive = m.matchStatus === 'Playing' || m.matchStatus === 'LIVE';
                       const homeWin = played && hs > as_;
                       const awayWin = played && as_ > hs;
+                      // stessi colori della schedina: la card anticipa chi gioca
+                      const cardColors = matchColors(home.name, away.name);
 
                       return (
                         <button
                           key={m.matchId || m.id || idx}
                           onClick={() => openMatch(m)}
                           className="group relative text-left rounded-[1.5rem] p-[1px] overflow-hidden
-                                     bg-[linear-gradient(150deg,rgba(56,189,248,0.28),rgba(255,255,255,0.07)_45%,rgba(255,255,255,0.02))]
                                      shadow-[0_8px_26px_rgba(6,10,30,0.45)] transition-all duration-300
                                      hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(6,10,30,0.65)]"
+                          style={{
+                            backgroundImage: `linear-gradient(135deg, ${cardColors.home}66, rgba(255,255,255,0.06) 48%, ${cardColors.away}66)`,
+                          }}
                         >
                           <div className="relative rounded-[calc(1.5rem-1px)] bg-gradient-to-b from-[#0c1228] to-[#080b1e] px-4 py-3.5 overflow-hidden">
-                            <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                            <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none
-                                             bg-[radial-gradient(280px_circle_at_50%_-20%,rgba(56,189,248,0.16),transparent_65%)]" />
+                            <span className="absolute left-0 top-0 h-[3px] w-1/2 rounded-tl-[calc(1.5rem-1px)]" style={{ backgroundColor: cardColors.home }} />
+                            <span className="absolute right-0 top-0 h-[3px] w-1/2 rounded-tr-[calc(1.5rem-1px)]" style={{ backgroundColor: cardColors.away }} />
+                            <span
+                              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                              style={{
+                                backgroundImage:
+                                  `radial-gradient(220px circle at 12% -25%, ${cardColors.home}2e, transparent 68%),` +
+                                  `radial-gradient(220px circle at 88% -25%, ${cardColors.away}2e, transparent 68%)`,
+                              }}
+                            />
 
                             <div className="relative flex items-center justify-between mb-2.5">
                               <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/30">
@@ -379,7 +391,10 @@ function ScoutHubContent() {
                             <div className="relative flex items-center gap-3">
                               <div className="flex-1 min-w-0 flex items-center gap-2.5">
                                 <TeamLogo team={home} className="w-8 h-8 transition-transform duration-300 group-hover:scale-110" />
-                                <span className={`text-[13px] font-bold truncate ${homeWin ? 'text-white' : played ? 'text-white/50' : 'text-white/75'}`}>
+                                <span
+                                  className={`text-[13px] truncate ${homeWin ? 'font-black' : played ? 'font-bold text-white/50' : 'font-bold text-white/75'}`}
+                                  style={homeWin ? { color: cardColors.home } : undefined}
+                                >
                                   {home.name}
                                 </span>
                               </div>
@@ -391,7 +406,10 @@ function ScoutHubContent() {
                               </div>
 
                               <div className="flex-1 min-w-0 flex items-center gap-2.5 justify-end">
-                                <span className={`text-[13px] font-bold truncate text-right ${awayWin ? 'text-white' : played ? 'text-white/50' : 'text-white/75'}`}>
+                                <span
+                                  className={`text-[13px] truncate text-right ${awayWin ? 'font-black' : played ? 'font-bold text-white/50' : 'font-bold text-white/75'}`}
+                                  style={awayWin ? { color: cardColors.away } : undefined}
+                                >
                                   {away.name}
                                 </span>
                                 <TeamLogo team={away} className="w-8 h-8 transition-transform duration-300 group-hover:scale-110" />

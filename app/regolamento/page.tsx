@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Download, ChevronDown, Sparkles, ShieldCheck, Trophy, BadgeEuro, Scale,
@@ -95,7 +95,7 @@ function AccordionItem({
     children: React.ReactNode;
 }) {
     return (
-        <section id={id} className="scroll-mt-32">
+        <section id={id} className="scroll-mt-[9.5rem] md:scroll-mt-[11rem]">
             <div
                 className={cn(
                     "surface rounded-3xl overflow-hidden transition-all duration-300",
@@ -106,10 +106,10 @@ function AccordionItem({
                     onClick={onToggle}
                     aria-expanded={isOpen}
                     aria-controls={`${id}-panel`}
-                    className="w-full flex items-center gap-4 p-5 md:p-6 text-left"
+                    className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-6 text-left active:bg-white/[0.04] transition-colors"
                 >
                     <span
-                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300"
+                        className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300"
                         style={{
                             backgroundColor: `${accent}1f`,
                             borderColor: `${accent}44`,
@@ -119,7 +119,9 @@ function AccordionItem({
                         <Icon className="w-[18px] h-[18px]" style={{ color: accent }} strokeWidth={2.2} />
                     </span>
 
-                    <span className="flex-1 min-w-0 text-base md:text-lg font-black text-white tracking-tight">{title}</span>
+                    <span className="flex-1 min-w-0 text-[15px] leading-snug md:text-lg font-black text-white tracking-tight">
+                        {title}
+                    </span>
 
                     <ChevronDown
                         className={cn(
@@ -139,7 +141,7 @@ function AccordionItem({
                             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                             className="overflow-hidden"
                         >
-                            <div className="px-5 md:px-6 pb-6 pt-1 border-t border-white/[0.07]">{children}</div>
+                            <div className="px-4 md:px-6 pb-5 md:pb-6 pt-1 border-t border-white/[0.07]">{children}</div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -155,6 +157,7 @@ function AccordionItem({
 export default function RegolamentoPage() {
     const [open, setOpen] = useState<Record<string, boolean>>({ novita: true });
     const [active, setActive] = useState<SectionId>("novita");
+    const indexRef = useRef<HTMLElement>(null);
 
     const allOpen = sections.every((s) => open[s.id]);
 
@@ -162,16 +165,32 @@ export default function RegolamentoPage() {
     const toggleAll = () =>
         setOpen(allOpen ? {} : Object.fromEntries(sections.map((s) => [s.id, true])));
 
+    /**
+     * Quanto spazio occupano navbar e indice una volta agganciati in alto.
+     * Su telefono la navbar si rimpicciolisce quando si scorre, quindi l'altezza
+     * da scontare è quella "da scrollato": è la posizione in cui l'indice si
+     * troverà davvero a fine animazione.
+     */
+    const ingombroSuperiore = useCallback(() => {
+        const navbar = window.innerWidth >= 768 ? 64 : 56;
+        return navbar + (indexRef.current?.offsetHeight ?? 0) + 12;
+    }, []);
+
     const jumpTo = (id: SectionId) => {
         setOpen((prev) => ({ ...prev, [id]: true }));
         // Il pannello si apre con un'animazione: aspettando solo un frame lo
         // scorrimento partirebbe verso la posizione di prima dell'apertura e
         // finirebbe fuori bersaglio. Due frame bastano perché il layout sia
-        // aggiornato, e `scroll-mt` sulla sezione tiene conto della navbar.
+        // aggiornato.
         requestAnimationFrame(() =>
-            requestAnimationFrame(() =>
-                document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
-            )
+            requestAnimationFrame(() => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                window.scrollTo({
+                    top: el.getBoundingClientRect().top + window.scrollY - ingombroSuperiore(),
+                    behavior: "smooth",
+                });
+            })
         );
     };
 
@@ -184,14 +203,28 @@ export default function RegolamentoPage() {
                     .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
                 if (visible) setActive(visible.target.id as SectionId);
             },
-            { rootMargin: "-120px 0px -70% 0px", threshold: 0 }
+            { rootMargin: `-${ingombroSuperiore()}px 0px -65% 0px`, threshold: 0 }
         );
         sections.forEach((sec) => {
             const el = document.getElementById(sec.id);
             if (el) observer.observe(el);
         });
         return () => observer.disconnect();
-    }, []);
+    }, [ingombroSuperiore]);
+
+    // L'indice scorre in orizzontale: la scheda attiva deve restare in vista
+    // anche quando è la settima e lo schermo è largo quattro chip. Va spostata
+    // solo la striscia, non la pagina: `scrollIntoView` toccherebbe anche lo
+    // scorrimento verticale e interromperebbe il salto alla sezione.
+    useEffect(() => {
+        const chip = indexRef.current?.querySelector<HTMLElement>('[aria-current="true"]');
+        const striscia = chip?.parentElement;
+        if (!chip || !striscia) return;
+        striscia.scrollTo({
+            left: chip.offsetLeft - (striscia.clientWidth - chip.offsetWidth) / 2,
+            behavior: "smooth",
+        });
+    }, [active]);
 
     return (
         <main className="min-h-screen pt-28 pb-16 px-4 md:px-8 relative">
@@ -210,11 +243,11 @@ export default function RegolamentoPage() {
                         le novità sono evidenziate in cima.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-1">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center pt-1">
                         <a
                             href={REGOLAMENTO_PDF_URL}
                             download
-                            className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-secondary to-cyan-500 px-7 py-3
+                            className="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-secondary to-cyan-500 px-7 py-3.5 sm:py-3
                                        text-sm font-black uppercase tracking-wider text-white border border-white/15
                                        shadow-[0_10px_30px_rgba(37,99,235,0.4)] hover:brightness-110 active:scale-95 transition-all"
                         >
@@ -225,8 +258,8 @@ export default function RegolamentoPage() {
                             href={ISCRIZIONE_FORM_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-7 py-3
-                                       text-sm font-bold uppercase tracking-wider text-white/80 hover:text-white hover:bg-white/10 transition-all"
+                            className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-7 py-3.5 sm:py-3
+                                       text-sm font-bold uppercase tracking-wider text-white/80 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
                         >
                             <UserPlus className="w-4 h-4" />
                             Iscriviti alla Lega
@@ -235,12 +268,16 @@ export default function RegolamentoPage() {
                 </header>
 
                 {/* ===== INDICE RAPIDO ===== */}
+                {/* Su telefono l'indice deve costare poca altezza: la riga
+                    "Salta a" sparisce e Apri/Chiudi tutto diventa un tasto
+                    tondo accanto alle schede. */}
                 <nav
+                    ref={indexRef}
                     aria-label="Indice del regolamento"
-                    className="sticky top-[4.25rem] z-30 -mx-4 px-4 py-3 mb-6
-                               bg-[#0b0824]/85 backdrop-blur-xl border-y border-white/[0.07]"
+                    className="sticky top-14 md:top-16 z-30 -mx-4 md:-mx-8 px-4 md:px-8 py-2.5 md:py-3 mb-6
+                               bg-[#0b0824]/90 backdrop-blur-xl border-y border-white/[0.07]"
                 >
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="hidden sm:flex items-center gap-3 mb-3">
                         <span className="text-[10px] font-black uppercase tracking-[0.26em] text-white/35">Salta a</span>
                         <span className="h-px flex-1 bg-white/10" />
                         <button
@@ -252,25 +289,40 @@ export default function RegolamentoPage() {
                         </button>
                     </div>
 
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
-                        {sections.map((s) => (
-                            <button
-                                key={s.id}
-                                onClick={() => jumpTo(s.id)}
-                                aria-current={active === s.id ? "true" : undefined}
-                                className={cn(
-                                    "group shrink-0 inline-flex items-center gap-2 rounded-full border px-3.5 py-2",
-                                    "text-xs font-bold transition-all",
-                                    active === s.id
-                                        ? "text-white bg-white/[0.12] border-white/25"
-                                        : "text-white/55 bg-white/[0.04] border-white/10 hover:text-white hover:bg-white/[0.09] hover:border-white/20"
-                                )}
-                                style={active === s.id ? { boxShadow: `0 0 16px ${s.accent}33` } : undefined}
-                            >
-                                <s.icon className="w-3.5 h-3.5" style={{ color: s.accent }} />
-                                {s.short}
-                            </button>
-                        ))}
+                    <div className="flex items-center gap-2">
+                        <div className="relative min-w-0 flex-1">
+                            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 py-0.5">
+                                {sections.map((s) => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => jumpTo(s.id)}
+                                        aria-current={active === s.id ? "true" : undefined}
+                                        className={cn(
+                                            "group shrink-0 inline-flex items-center gap-2 rounded-full border px-3.5 min-h-[38px]",
+                                            "text-xs font-bold transition-all active:scale-95",
+                                            active === s.id
+                                                ? "text-white bg-white/[0.12] border-white/25"
+                                                : "text-white/55 bg-white/[0.04] border-white/10 hover:text-white hover:bg-white/[0.09] hover:border-white/20"
+                                        )}
+                                        style={active === s.id ? { boxShadow: `0 0 16px ${s.accent}33` } : undefined}
+                                    >
+                                        <s.icon className="w-3.5 h-3.5 shrink-0" style={{ color: s.accent }} />
+                                        {s.short}
+                                    </button>
+                                ))}
+                            </div>
+                            {/* sfumatura a destra: dice che l'elenco continua */}
+                            <span className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[#0b0824]/80 to-transparent sm:hidden" />
+                        </div>
+
+                        <button
+                            onClick={toggleAll}
+                            aria-label={allOpen ? "Chiudi tutte le sezioni" : "Apri tutte le sezioni"}
+                            className="sm:hidden shrink-0 inline-flex items-center justify-center w-[38px] h-[38px] rounded-full
+                                       border border-white/10 bg-white/[0.05] text-white/55 active:scale-95 transition-all"
+                        >
+                            {allOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                        </button>
                     </div>
                 </nav>
 
@@ -350,11 +402,11 @@ export default function RegolamentoPage() {
                                     Dal 1 Agosto 2026 fino a 15 minuti prima della 1ª giornata. Budget:{" "}
                                     <strong className="text-white">600 Fantamilioni</strong>.
                                 </p>
-                                <div className="grid grid-cols-4 gap-2">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     {[
                                         { n: 3, r: "Portieri" },
                                         { n: 8, r: "Difensori" },
-                                        { n: 8, r: "Centrocamp." },
+                                        { n: 8, r: "Centrocampisti" },
                                         { n: 5, r: "Attaccanti" },
                                     ].map((x) => (
                                         <div
@@ -362,7 +414,7 @@ export default function RegolamentoPage() {
                                             className="rounded-2xl border border-white/10 bg-white/[0.04] py-3 text-center"
                                         >
                                             <span className="block text-2xl font-black text-white tabular-nums leading-none">{x.n}</span>
-                                            <span className="block text-[9px] font-bold uppercase tracking-[0.1em] text-white/40 mt-1.5">
+                                            <span className="block text-[10px] font-bold uppercase tracking-[0.08em] text-white/40 mt-1.5 px-1 leading-tight">
                                                 {x.r}
                                             </span>
                                         </div>

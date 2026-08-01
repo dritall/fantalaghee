@@ -133,11 +133,20 @@ function hslToHex(h: number, s: number, l: number): string {
  * Schiarisce un colore finché non stacca abbastanza dal fondo notturno.
  * Alza anche la saturazione dei colori spenti, così restano vivi.
  */
-export function readableOnDark(hex: string, minContrast = 5.5): string {
+export function readableOnDark(hex: string, minContrast = 4.5): string {
     let [h, s, l] = rgbToHsl(hex);
 
-    // un colore quasi grigio resta grigio: schiarirlo basta
-    if (s > 0.12) s = Math.max(s, 0.55);
+    // Un colore quasi neutro deve restare neutro: il bianco della Juventus
+    // saturato diventerebbe azzurro, cioè un'altra squadra. Sopra la soglia
+    // invece conviene ravvivare, perché schiarire spegne sempre un po'.
+    if (s > 0.25) s = Math.max(s, 0.62);
+    // il nero degli stemmi va schiarito: senza azzerare la tinta residua
+    // verrebbe fuori un grigio verdastro invece di un grigio pulito
+    else if (s < 0.12) {
+        s = 0;
+        // e un grigio medio su fondo notturno resta smorto: meglio argento
+        l = Math.max(l, 0.78);
+    }
 
     let out = hslToHex(h, s, l);
     let guard = 0;
@@ -185,6 +194,19 @@ export function paletteOf(name?: string | null): TeamPalette | null {
 }
 
 /**
+ * Colore di ripiego per una squadra fuori elenco (una neopromossa, una
+ * competizione diversa). Deriva dal nome, quindi resta lo stesso a ogni
+ * caricamento: meglio un colore arbitrario ma stabile e personale che la
+ * stessa coppia di riserva su tutte le partite.
+ */
+function coloreDaNome(name?: string | null): string {
+    const key = teamKey(name) || 'squadra';
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+    return hslToHex(hash % 360, 0.72, 0.56);
+}
+
+/**
  * Colori delle due squadre di una partita, leggibili sul fondo scuro e
  * garantiti diversi fra loro.
  *
@@ -196,10 +218,10 @@ export function matchColors(homeName?: string | null, awayName?: string | null):
     const homePal = paletteOf(homeName);
     const awayPal = paletteOf(awayName);
 
-    const home = readableOnDark(homePal?.primary ?? FALLBACKS[1]);
+    const home = readableOnDark(homePal?.primary ?? coloreDaNome(homeName));
 
     const candidates = [
-        awayPal?.primary,
+        awayPal?.primary ?? coloreDaNome(awayName),
         awayPal?.secondary,
         ...FALLBACKS,
     ].filter(Boolean) as string[];

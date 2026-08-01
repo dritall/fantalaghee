@@ -477,7 +477,17 @@ function buildTeamStats(raw: any): TeamStatRow[] {
     return out;
 }
 
-function TeamStats({ rows, colors }: { rows: TeamStatRow[]; colors: { home: string; away: string } }) {
+function TeamStats({
+    rows,
+    colors,
+    homeName,
+    awayName,
+}: {
+    rows: TeamStatRow[];
+    colors: { home: string; away: string };
+    homeName: string;
+    awayName: string;
+}) {
     if (rows.length === 0) {
         return (
             <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
@@ -488,6 +498,22 @@ function TeamStats({ rows, colors }: { rows: TeamStatRow[]; colors: { home: stri
 
     return (
         <div className="space-y-4 py-2">
+            {/* chi è chi: senza questa riga le barre colorate sono un indovinello */}
+            <div className="sticky top-0 z-10 -mx-1 mb-1 flex items-center justify-between gap-3 rounded-xl bg-[#080c20]/95 px-3 py-2 backdrop-blur">
+                <span className="flex min-w-0 items-center gap-2">
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors.home }} />
+                    <span className="truncate text-[10px] font-black uppercase tracking-wider" style={{ color: colors.home }}>
+                        {homeName}
+                    </span>
+                </span>
+                <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate text-[10px] font-black uppercase tracking-wider" style={{ color: colors.away }}>
+                        {awayName}
+                    </span>
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors.away }} />
+                </span>
+            </div>
+
             {rows.map((r) => {
                 // Se la label inizia con __sep__, è un separatore di sezione
                 if (r.label.startsWith("__sep__")) {
@@ -518,7 +544,7 @@ function TeamStats({ rows, colors }: { rows: TeamStatRow[]; colors: { home: stri
                         <div className="flex items-center justify-between gap-3 mb-1.5">
                             <span
                                 className="text-sm font-black tabular-nums w-12"
-                                style={{ color: homeLeads ? colors.home : "rgba(255,255,255,0.45)" }}
+                                style={{ color: colors.home, opacity: homeLeads ? 1 : 0.5 }}
                             >
                                 {r.home}
                                 {r.percent ? "%" : ""}
@@ -528,20 +554,32 @@ function TeamStats({ rows, colors }: { rows: TeamStatRow[]; colors: { home: stri
                             </span>
                             <span
                                 className="text-sm font-black tabular-nums w-12 text-right"
-                                style={{ color: awayLeads ? colors.away : "rgba(255,255,255,0.45)" }}
+                                style={{ color: colors.away, opacity: awayLeads ? 1 : 0.5 }}
                             >
                                 {r.away}
                                 {r.percent ? "%" : ""}
                             </span>
                         </div>
-                        <div className="flex h-1.5 rounded-full overflow-hidden bg-white/[0.07]">
+                        {/* la barra di chi conduce resta piena, l'altra si smorza:
+                            il confronto si legge anche senza guardare i numeri */}
+                        <div className="flex h-2.5 gap-[2px] rounded-full overflow-hidden bg-white/[0.05]">
                             <span
-                                className="h-full transition-all duration-500"
-                                style={{ width: `${homePct}%`, backgroundColor: colors.home }}
+                                className="h-full rounded-l-full transition-all duration-500"
+                                style={{
+                                    width: `${homePct}%`,
+                                    backgroundColor: colors.home,
+                                    opacity: awayLeads ? 0.55 : 1,
+                                    boxShadow: homeLeads ? `0 0 12px ${colors.home}80` : undefined,
+                                }}
                             />
                             <span
-                                className="h-full transition-all duration-500"
-                                style={{ width: `${awayPct}%`, backgroundColor: colors.away }}
+                                className="h-full rounded-r-full transition-all duration-500"
+                                style={{
+                                    width: `${awayPct}%`,
+                                    backgroundColor: colors.away,
+                                    opacity: homeLeads ? 0.55 : 1,
+                                    boxShadow: awayLeads ? `0 0 12px ${colors.away}80` : undefined,
+                                }}
                             />
                         </div>
                     </div>
@@ -633,12 +671,19 @@ export function MatchSheet({
 
                     {/* ---------------- tabellone ---------------- */}
                     <header className="relative shrink-0 px-4 pt-4 pb-4 border-b border-white/[0.07]">
+                        {/* i due aloni sono i colori degli stemmi: si capisce
+                            di chi è la partita ancora prima di leggere i nomi */}
                         <span
-                            className="absolute inset-0 opacity-60 pointer-events-none"
+                            className="absolute inset-0 opacity-70 pointer-events-none"
                             style={{
-                                background:
-                                    "radial-gradient(420px circle at 50% -30%, rgba(56,189,248,0.16), transparent 70%)",
+                                backgroundImage:
+                                    `radial-gradient(360px circle at 8% -35%, ${colors.home}3d, transparent 70%),` +
+                                    `radial-gradient(360px circle at 92% -35%, ${colors.away}3d, transparent 70%)`,
                             }}
+                        />
+                        <span
+                            className="absolute inset-x-0 bottom-0 h-px pointer-events-none"
+                            style={{ backgroundImage: `linear-gradient(90deg, ${colors.home}, ${colors.away})` }}
                         />
 
                         <div className="relative flex items-center justify-center mb-3">
@@ -657,7 +702,10 @@ export function MatchSheet({
                         <div className="relative flex items-center justify-between gap-2">
                             <div className="flex-1 min-w-0 flex flex-col items-center gap-2">
                                 <TeamLogo team={home} className="w-12 h-12 md:w-14 md:h-14" />
-                                <span className="text-[10px] md:text-xs font-black uppercase tracking-wider text-center leading-tight text-white/85 line-clamp-2">
+                                <span
+                                    className="text-[10px] md:text-xs font-black uppercase tracking-wider text-center leading-tight line-clamp-2"
+                                    style={{ color: colors.home }}
+                                >
                                     {homeName}
                                 </span>
                             </div>
@@ -675,7 +723,10 @@ export function MatchSheet({
 
                             <div className="flex-1 min-w-0 flex flex-col items-center gap-2">
                                 <TeamLogo team={away} className="w-12 h-12 md:w-14 md:h-14" />
-                                <span className="text-[10px] md:text-xs font-black uppercase tracking-wider text-center leading-tight text-white/85 line-clamp-2">
+                                <span
+                                    className="text-[10px] md:text-xs font-black uppercase tracking-wider text-center leading-tight line-clamp-2"
+                                    style={{ color: colors.away }}
+                                >
                                     {awayName}
                                 </span>
                             </div>
@@ -768,7 +819,9 @@ export function MatchSheet({
                                             awayName={awayName}
                                         />
                                     )}
-                                    {tab === "statistiche" && <TeamStats rows={teamStats} colors={colors} />}
+                                    {tab === "statistiche" && (
+                                        <TeamStats rows={teamStats} colors={colors} homeName={homeName} awayName={awayName} />
+                                    )}
                                 </motion.div>
                             </AnimatePresence>
                         )}
