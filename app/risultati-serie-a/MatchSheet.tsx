@@ -109,39 +109,6 @@ function MomentumChart({ events }: { events: NormalizedEvent[] }) {
     );
 }
 
-function EventIcon({ kind, accent, isHome }: { kind: NormalizedEvent["kind"]; accent: string; isHome: boolean }) {
-    const icon = EVENT_ICON[kind];
-    const isGoal = kind === "goal" || kind === "penalty-goal";
-    const isCard = kind === "yellow" || kind === "red";
-    return (
-        <span className="relative z-10 flex flex-col items-center shrink-0">
-            <span
-                className={cn(
-                    "rounded-full flex items-center justify-center border bg-[#0d1330]",
-                    isGoal
-                        ? "w-10 h-10 md:w-12 md:h-12 text-lg md:text-xl"
-                        : isCard
-                          ? "w-8 h-8 text-sm"
-                          : "w-8 h-8 text-xs",
-                    isGoal ? "border-yellow-400/40" : "border-white/10"
-                )}
-                style={isGoal ? { boxShadow: `0 0 28px ${accent}55, 0 0 60px ${accent}22` } : undefined}
-            >
-                <span
-                    className={cn(
-                        isGoal && "animate-pulse drop-shadow-[0_0_8px_rgba(255,200,0,0.7)]"
-                    )}
-                >
-                    {icon.icon}
-                </span>
-            </span>
-            <span className="mt-1 text-[9px] font-black text-white/50 tabular-nums">
-                {/* minute label handled by parent */}
-            </span>
-        </span>
-    );
-}
-
 function Timeline({ events }: { events: NormalizedEvent[] }) {
     if (events.length === 0) {
         return (
