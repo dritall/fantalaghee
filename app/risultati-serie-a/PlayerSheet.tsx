@@ -79,11 +79,11 @@ function StatGroup({ title, stats, source }: { title: string; stats: StatDef[]; 
     return (
         <div>
             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)] mb-2">{title}</h4>
-            <dl className="rounded-none border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+            <dl className="rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] overflow-hidden">
                 {rows.map((r) => (
                     <div
                         key={r.label}
-                        className="flex items-center justify-between gap-3 px-3.5 py-2.5 border-b border-white/[0.05] last:border-0"
+                        className="flex items-center justify-between gap-3 px-3.5 py-2.5 border-b border-[color:var(--filo)] last:border-0"
                     >
                         <dt className="text-xs text-[color:var(--fumo)]">{r.label}</dt>
                         <dd className="text-sm font-black text-[color:var(--calce)] tabular-nums">{r.value}</dd>
@@ -96,7 +96,7 @@ function StatGroup({ title, stats, source }: { title: string; stats: StatDef[]; 
 
 function HeroStat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
     return (
-        <div className="flex-1 rounded-none border border-white/[0.08] bg-white/[0.04] py-2.5 text-center">
+        <div className="flex-1 rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] py-2.5 text-center">
             <span
                 className={cn(
                     "block font-score text-2xl font-bold tabular-nums leading-none",
@@ -176,14 +176,14 @@ export function PlayerSheet({
                     aria-describedby={undefined}
                     className="fixed z-[121] inset-x-0 bottom-0 md:inset-0 md:m-auto
                                    w-full md:w-[420px] h-fit max-h-[88vh] md:max-h-[80vh] flex flex-col
-                                   rounded-t-[2rem] md:rounded-none border border-white/12 bg-[#0a0f26]
+                                   rounded-t-[2rem] md:rounded-none border border-[color:var(--filo)] bg-[#0a0f26]
                                    shadow-[0_-20px_60px_rgba(0,0,0,0.6)] md:shadow-[0_30px_80px_rgba(0,0,0,0.7)]
                                    overflow-hidden animate-fade-up focus:outline-none"
                 >
                     <Dialog.Title className="sr-only">{player.fullName}</Dialog.Title>
 
                     {/* maniglia da foglio scorrevole, solo su telefono */}
-                    <span className="md:hidden mx-auto mt-2.5 h-1 w-10 rounded-full bg-white/20 shrink-0" />
+                    <span className="md:hidden mx-auto mt-2.5 h-1 w-10 rounded-full bg-[color:var(--filo-alto)] shrink-0" />
 
                         <header className="relative flex items-center gap-4 p-5 pb-4 shrink-0">
                             <span
@@ -196,12 +196,12 @@ export function PlayerSheet({
                                     src={player.photo}
                                     alt=""
                                     onError={() => setPhotoFailed(true)}
-                                    className="relative w-16 h-16 rounded-none object-cover object-top border-2 bg-[#131a38] shrink-0"
+                                    className="relative w-16 h-16 rounded-none object-cover object-top border-2 bg-[color:var(--secca)] shrink-0"
                                     style={{ borderColor: accent }}
                                 />
                             ) : (
                                 <span
-                                    className="relative w-16 h-16 rounded-none border-2 bg-[#131a38] shrink-0 flex items-center justify-center"
+                                    className="relative w-16 h-16 rounded-none border-2 bg-[color:var(--secca)] shrink-0 flex items-center justify-center"
                                     style={{ borderColor: accent }}
                                 >
                                     <span className="text-xl font-black text-[color:var(--calce)]/80 tabular-nums">
@@ -222,8 +222,8 @@ export function PlayerSheet({
                             <button
                                 onClick={onClose}
                                 aria-label="Chiudi"
-                                className="relative w-9 h-9 rounded-full border border-white/10 bg-white/[0.06] flex items-center justify-center
-                                           text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-white/12 transition-colors shrink-0"
+                                className="relative w-9 h-9 rounded-full border border-[color:var(--filo)] bg-[color:var(--velo-alto)] flex items-center justify-center
+                                           text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-[color:var(--velo-alto)] transition-colors shrink-0"
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -288,11 +288,11 @@ export function PlayerSheet({
                             {seasonStats && Object.keys(seasonStats).length > 0 && (
                                 <div className="pt-1">
                                     <div className="flex items-center gap-2 mb-3">
-                                        <span className="h-px flex-1 bg-white/10" />
+                                        <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                                         <span className="text-[9px] font-black uppercase tracking-[0.22em] text-[color:var(--fumo)]">
                                             In stagione
                                         </span>
-                                        <span className="h-px flex-1 bg-white/10" />
+                                        <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                                     </div>
                                     {GROUPS.map((g) => (
                                         <div key={g.title} className="mb-4 last:mb-0">

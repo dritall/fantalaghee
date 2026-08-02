@@ -27,7 +27,7 @@ function PlayerAvatar({
                 className={cn(px, "rounded-full flex items-center justify-center border-2 bg-[color:var(--secca)] shrink-0")}
                 style={style}
             >
-                <span className="text-[13px] font-black text-white/60 tabular-nums">{player.number ?? "–"}</span>
+                <span className="text-[13px] font-black text-[color:var(--calce)]/80 tabular-nums">{player.number ?? "–"}</span>
             </span>
         );
     }
@@ -107,8 +107,8 @@ function PitchPlayer({
                 <PlayerBadges player={player} />
                 {player.number != null && (
                     <span
-                        className="absolute -bottom-1 -left-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[color:var(--pece)] border border-white/25
-                                   flex items-center justify-center text-[9px] font-black text-white/90 tabular-nums z-20
+                        className="absolute -bottom-1 -left-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[color:var(--pece)] border border-[color:var(--filo-alto)]
+                                   flex items-center justify-center text-[9px] font-black text-[color:var(--calce)]/90 tabular-nums z-20
                                    shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
                     >
                         {player.number}
@@ -119,7 +119,7 @@ function PitchPlayer({
             <span
                 className={cn(
                     "max-w-[68px] md:max-w-[80px] truncate rounded px-1.5 py-0.5 bg-black/70 backdrop-blur-sm",
-                    "text-[9px] md:text-[10px] font-black uppercase tracking-tight leading-tight text-white",
+                    "text-[9px] md:text-[10px] font-black uppercase tracking-tight leading-tight text-[color:var(--calce)]",
                     "shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
                     stagger && "translate-y-1.5"
                 )}
@@ -143,15 +143,15 @@ function PitchLines() {
     return (
         <>
             <span className="absolute inset-[6%] border-2 border-[color:var(--calce)]/15" />
-            <span className="absolute left-[6%] right-[6%] top-1/2 h-[2px] bg-white/10 -translate-y-1/2" />
+            <span className="absolute left-[6%] right-[6%] top-1/2 h-[2px] bg-[color:var(--velo-alto)] -translate-y-1/2" />
             <span className="absolute left-1/2 top-1/2 w-[28%] aspect-square border-2 border-[color:var(--calce)]/12 rounded-full -translate-x-1/2 -translate-y-1/2" />
             <span className="absolute left-1/2 top-1/2 w-2 h-2 bg-[color:var(--calce)]/25 rounded-full -translate-x-1/2 -translate-y-1/2" />
             {/* area di rigore in basso */}
-            <span className="absolute left-1/2 bottom-[6%] w-[54%] h-[17%] border-2 border-b-0 border-white/12 -translate-x-1/2 rounded-t-sm" />
-            <span className="absolute left-1/2 bottom-[6%] w-[26%] h-[7%] border-2 border-b-0 border-white/12 -translate-x-1/2 rounded-t-sm" />
+            <span className="absolute left-1/2 bottom-[6%] w-[54%] h-[17%] border-2 border-b-0 border-[color:var(--filo)] -translate-x-1/2 rounded-t-sm" />
+            <span className="absolute left-1/2 bottom-[6%] w-[26%] h-[7%] border-2 border-b-0 border-[color:var(--filo)] -translate-x-1/2 rounded-t-sm" />
             {/* area in alto */}
-            <span className="absolute left-1/2 top-[6%] w-[54%] h-[17%] border-2 border-t-0 border-white/12 -translate-x-1/2 rounded-b-sm" />
-            <span className="absolute left-1/2 top-[6%] w-[26%] h-[7%] border-2 border-t-0 border-white/12 -translate-x-1/2 rounded-b-sm" />
+            <span className="absolute left-1/2 top-[6%] w-[54%] h-[17%] border-2 border-t-0 border-[color:var(--filo)] -translate-x-1/2 rounded-b-sm" />
+            <span className="absolute left-1/2 top-[6%] w-[26%] h-[7%] border-2 border-t-0 border-[color:var(--filo)] -translate-x-1/2 rounded-b-sm" />
         </>
     );
 }
@@ -170,11 +170,11 @@ function TeamPitch({
         <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2 px-1">
                 <span className="min-w-0 flex flex-col">
-                    <span className="text-[11px] font-black uppercase tracking-[0.14em] text-white truncate">
+                    <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--calce)] truncate">
                         {team.name}
                     </span>
                     {team.coach && (
-                        <span className="text-[10px] text-white/35 truncate">All. {team.coach}</span>
+                        <span className="text-[10px] text-[color:var(--fumo)] truncate">All. {team.coach}</span>
                     )}
                 </span>
                 {team.formation && (
@@ -219,7 +219,7 @@ function TeamPitch({
             {/* Panchina stile Lega Serie A — lista orizzontale foto + nome */}
             {(team.bench?.length ?? 0) > 0 && (
                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/30 mb-2 px-1">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)] mb-2 px-1">
                         Panchina
                     </p>
                     <div className="grid grid-cols-2 gap-1.5">
@@ -231,8 +231,8 @@ function TeamPitch({
                             >
                                 <PlayerAvatar player={p} accent={accent} size="sm" />
                                 <span className="flex-1 min-w-0">
-                                    <span className="block text-xs font-bold text-white/75 truncate">{p.name}</span>
-                                    <span className="block text-[9px] text-white/30 truncate">{p.roleLabel}</span>
+                                    <span className="block text-xs font-bold text-[color:var(--calce)]/80 truncate">{p.name}</span>
+                                    <span className="block text-[9px] text-[color:var(--fumo)] truncate">{p.roleLabel}</span>
                                 </span>
                                 <span className="shrink-0 flex items-center gap-1">
                                     {p.subbedIn && (
@@ -283,7 +283,7 @@ export function Pitch({
 
     if ((home.starters?.length ?? 0) === 0 && (away.starters?.length ?? 0) === 0) {
         return (
-            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/30">
+            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
                 Formazioni non ancora disponibili
             </p>
         );
@@ -303,7 +303,7 @@ export function Pitch({
                         aria-pressed={side === key}
                         className={cn(
                             "flex-1 py-2 text-[11px] font-black uppercase tracking-wider truncate transition-colors",
-                            side === key ? "text-[#08102a]" : "text-white/45"
+                            side === key ? "text-[#08102a]" : "text-[color:var(--fumo)]"
                         )}
                         style={side === key ? { backgroundColor: accent } : undefined}
                     >

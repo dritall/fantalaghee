@@ -8,6 +8,7 @@ import { SeasonBanner } from '@/components/ui/SeasonBanner';
 import { TeamLogo, getTeamLogoUrl } from './TeamLogo';
 import { MatchSheet } from './MatchSheet';
 import { matchColors } from '@/lib/team-colors';
+import { usaTema } from '@/lib/usa-tema';
 
 const TOTAL_ROUNDS = 38;
 
@@ -25,13 +26,13 @@ const formatKickoff = (m: any): string => {
 const FormDot = ({ type }: { type: string }) => {
   const colors: Record<string, string> = {
     W: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.55)]',
-    D: 'bg-white/35',
+    D: 'bg-[color:var(--fumo)]',
     L: 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.5)]',
   };
   return (
     <span
       title={type === 'W' ? 'Vittoria' : type === 'L' ? 'Sconfitta' : 'Pareggio'}
-      className={`w-2 h-2 rounded-full inline-block ${colors[type] || 'bg-white/15'}`}
+      className={`w-2 h-2 rounded-full inline-block ${colors[type] || 'bg-[color:var(--velo-alto)]'}`}
     />
   );
 };
@@ -43,6 +44,7 @@ function ScoutHubContent() {
   const seasonLabel = seasonConfig.label;
   const isArchiveSeason = seasonConfig.archived;
 
+  const tema = usaTema();
   const [activeTab, setActiveTab] = useState('calendario');
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
   const [initializingRound, setInitializingRound] = useState(true);
@@ -231,7 +233,7 @@ function ScoutHubContent() {
         </header>
 
         {/* ===== SELETTORE VISTA ===== */}
-        <div className="relative flex p-1 rounded-none mb-8 max-w-xs mx-auto border border-white/10 bg-white/[0.04] backdrop-blur-md">
+        <div className="relative flex p-1 rounded-none mb-8 max-w-xs mx-auto border border-[color:var(--filo)] bg-[color:var(--velo)] backdrop-blur-md">
           {[
             { id: 'calendario', label: 'Calendario', icon: CalendarDays },
             { id: 'classifica', label: 'Classifica', icon: ListOrdered },
@@ -279,8 +281,8 @@ function ScoutHubContent() {
                     onClick={() => selectedRound > 1 && handleRoundChange(selectedRound - 1)}
                     disabled={selectedRound <= 1}
                     aria-label="Giornata precedente"
-                    className="shrink-0 w-9 h-9 rounded-none border border-white/10 bg-white/[0.05] flex items-center justify-center
-                               text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all"
+                    className="shrink-0 w-9 h-9 rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] flex items-center justify-center
+                               text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-[color:var(--velo-alto)] disabled:opacity-25 disabled:pointer-events-none transition-all"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -292,7 +294,7 @@ function ScoutHubContent() {
                         className={`px-4 py-2 rounded-none shrink-0 font-black text-xs tabular-nums border transition-all duration-300
                           ${selectedRound === r
                             ? 'active-round-btn border-[color:var(--calce)] bg-[color:var(--calce)] text-[color:var(--pece)]'
-                            : 'border-white/[0.08] bg-white/[0.02] text-[color:var(--fumo)] hover:text-[color:var(--calce)] hover:border-white/20 hover:bg-white/[0.06]'}`}>
+                            : 'border-[color:var(--filo)] bg-[color:var(--velo)] text-[color:var(--fumo)] hover:text-[color:var(--calce)] hover:border-[color:var(--filo-alto)] hover:bg-[color:var(--velo-alto)]'}`}>
                         {r}
                       </button>
                     ))}
@@ -302,8 +304,8 @@ function ScoutHubContent() {
                     onClick={() => selectedRound < TOTAL_ROUNDS && handleRoundChange(selectedRound + 1)}
                     disabled={selectedRound >= TOTAL_ROUNDS}
                     aria-label="Giornata successiva"
-                    className="shrink-0 w-9 h-9 rounded-none border border-white/10 bg-white/[0.05] flex items-center justify-center
-                               text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all"
+                    className="shrink-0 w-9 h-9 rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] flex items-center justify-center
+                               text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-[color:var(--velo-alto)] disabled:opacity-25 disabled:pointer-events-none transition-all"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -313,13 +315,13 @@ function ScoutHubContent() {
                   <h2 className="text-[10px] font-black uppercase tracking-[0.28em] text-[color:var(--fumo)]">
                     Giornata {selectedRound}
                   </h2>
-                  <span className="h-px flex-1 bg-white/10" />
+                  <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                 </div>
 
                 {loadingMatches ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="h-[92px] rounded-none border border-white/[0.07] bg-white/[0.03] overflow-hidden relative">
+                      <div key={i} className="h-[92px] rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] overflow-hidden relative">
                         <div className="absolute inset-0 animate-shimmer bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)] bg-[length:200%_100%]" />
                       </div>
                     ))}
@@ -347,7 +349,7 @@ function ScoutHubContent() {
                       const homeWin = played && hs > as_;
                       const awayWin = played && as_ > hs;
                       // stessi colori della schedina: la card anticipa chi gioca
-                      const cardColors = matchColors(home.name, away.name);
+                      const cardColors = matchColors(home.name, away.name, tema);
 
                       return (
                         <button
@@ -425,7 +427,7 @@ function ScoutHubContent() {
               <div className="space-y-4">
                 <div className="surface rounded-none p-3 md:p-5 overflow-x-auto custom-scrollbar">
                   <div className="min-w-[620px]">
-                    <div className="grid grid-cols-12 items-center py-2.5 px-3 text-[9px] font-black uppercase text-[color:var(--fumo)] border-b border-white/10 tracking-[0.16em]">
+                    <div className="grid grid-cols-12 items-center py-2.5 px-3 text-[9px] font-black uppercase text-[color:var(--fumo)] border-b border-[color:var(--filo)] tracking-[0.16em]">
                       <span className="col-span-1 text-center">#</span>
                       <span className="col-span-4">Squadra</span>
                       <span className="col-span-1 text-center text-[color:var(--lario)]/80">Pt</span>
@@ -452,8 +454,8 @@ function ScoutHubContent() {
                       return (
                         <div
                           key={t.id}
-                          className="relative grid grid-cols-12 items-center py-2.5 px-3 border-b border-white/[0.05] last:border-0
-                                     hover:bg-white/[0.04] rounded-none transition-colors group"
+                          className="relative grid grid-cols-12 items-center py-2.5 px-3 border-b border-[color:var(--filo)] last:border-0
+                                     hover:bg-[color:var(--velo)] rounded-none transition-colors group"
                         >
                           <span className={`absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full ${zone}`} />
 

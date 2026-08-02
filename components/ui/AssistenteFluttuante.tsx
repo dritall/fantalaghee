@@ -243,7 +243,7 @@ export function AssistenteFluttuante() {
                 aria-modal="false"
                 aria-label="Assistente del regolamento"
                 className={cn(
-                    "fixed z-[72] flex flex-col overflow-hidden text-white",
+                    "fixed z-[72] flex flex-col overflow-hidden text-[color:var(--calce)]",
                     // telefono: foglio dal basso
                     "inset-x-0 bottom-0 h-[85vh]",
                     // desktop: riquadro ancorato all'angolo del pulsante

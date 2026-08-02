@@ -10,6 +10,7 @@ import { PlayerSheet } from "./PlayerSheet";
 import type { NormalizedMatch, NormalizedPlayer, NormalizedEvent } from "@/lib/lega-normalize";
 import { cn } from "@/lib/utils";
 import { matchColors } from "@/lib/team-colors";
+import { usaTema } from "@/lib/usa-tema";
 
 const TABS = [
     { id: "formazioni", label: "Formazioni", icon: Users },
@@ -162,7 +163,7 @@ function MomentumChart({
                 </span>
             </div>
 
-            <div className="rounded-none border border-white/[0.08] bg-[color:var(--fondale)] p-3">
+            <div className="rounded-none border border-[color:var(--filo)] bg-[color:var(--fondale)] p-3">
                 <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="none" role="img"
                      aria-label={`Andamento della pressione: ${homeName} sopra, ${awayName} sotto`}>
                     <defs>
@@ -251,7 +252,7 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
                                             : isCard
                                               ? "w-7 h-7 text-xs md:text-sm"
                                               : "w-7 h-7 text-xs",
-                                        isGoal ? "border-yellow-400/40" : "border-white/10"
+                                        isGoal ? "border-yellow-400/40" : "border-[color:var(--filo)]"
                                     )}
                                     style={
                                         isGoal
@@ -520,15 +521,15 @@ function TeamStats({
                     const sectionName = r.label.slice(7);
                     if (!sectionName) {
                         // Separatore vuoto
-                        return <div key={r.label} className="h-px bg-white/6 my-1" />;
+                        return <div key={r.label} className="h-px bg-[color:var(--velo)] my-1" />;
                     }
                     return (
                         <div key={r.label} className="flex items-center gap-2 pt-1">
-                            <span className="h-px flex-1 bg-white/10" />
+                            <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                             <span className="text-[9px] font-black uppercase tracking-[0.22em] text-[color:var(--fumo)] shrink-0">
                                 {sectionName}
                             </span>
-                            <span className="h-px flex-1 bg-white/10" />
+                            <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                         </div>
                     );
                 }
@@ -562,7 +563,7 @@ function TeamStats({
                         </div>
                         {/* la barra di chi conduce resta piena, l'altra si smorza:
                             il confronto si legge anche senza guardare i numeri */}
-                        <div className="flex h-2.5 gap-[2px] rounded-full overflow-hidden bg-white/[0.05]">
+                        <div className="flex h-2.5 gap-[2px] rounded-full overflow-hidden bg-[color:var(--velo)]">
                             <span
                                 className="h-full rounded-l-full transition-all duration-500"
                                 style={{
@@ -606,6 +607,7 @@ export function MatchSheet({
     stagione: string;
     onClose: () => void;
 }) {
+    const tema = usaTema();
     const [tab, setTab] = useState<TabId>("formazioni");
     const [selected, setSelected] = useState<{ player: NormalizedPlayer; team: string; accent: string } | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -635,7 +637,7 @@ export function MatchSheet({
 
     // Colori presi dagli stemmi, schiariti per il fondo notturno e resi
     // diversi fra loro quando le due squadre giocano su tinte simili.
-    const colors = matchColors(homeName, awayName);
+    const colors = matchColors(homeName, awayName, tema);
 
     // Stadio dall'header API
     const stadiumName = fixture?.stadiumName || fixture?.stadium || fixture?.venue || null;
@@ -657,7 +659,7 @@ export function MatchSheet({
                     className="fixed z-[101] inset-x-0 bottom-0 md:inset-0 md:m-auto
                                h-[92vh] md:h-fit md:max-h-[88vh] w-full md:max-w-3xl
                                flex flex-col overflow-hidden
-                               rounded-t-[2rem] md:rounded-none border border-white/12 bg-[color:var(--fondale)] text-[color:var(--calce)]
+                               rounded-t-[2rem] md:rounded-none border border-[color:var(--filo)] bg-[color:var(--fondale)] text-[color:var(--calce)]
                                shadow-[0_-24px_70px_rgba(0,0,0,0.7)] md:shadow-[0_40px_100px_rgba(0,0,0,0.75)]
                                focus:outline-none"
                     aria-describedby={undefined}
@@ -667,10 +669,10 @@ export function MatchSheet({
                     </Dialog.Title>
 
                     {/* maniglia del foglio, solo su telefono */}
-                    <span className="md:hidden mx-auto mt-2.5 h-1 w-10 rounded-full bg-white/20 shrink-0" />
+                    <span className="md:hidden mx-auto mt-2.5 h-1 w-10 rounded-full bg-[color:var(--filo-alto)] shrink-0" />
 
                     {/* ---------------- tabellone ---------------- */}
-                    <header className="relative shrink-0 px-4 pt-4 pb-4 border-b border-white/[0.07]">
+                    <header className="relative shrink-0 px-4 pt-4 pb-4 border-b border-[color:var(--filo)]">
                         {/* i due aloni sono i colori degli stemmi: si capisce
                             di chi è la partita ancora prima di leggere i nomi */}
                         <span
@@ -693,7 +695,7 @@ export function MatchSheet({
                                     Live
                                 </span>
                             ) : (
-                                <span className="rounded-full bg-white/[0.06] border border-white/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)]">
+                                <span className="rounded-full bg-[color:var(--velo-alto)] border border-[color:var(--filo)] px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)]">
                                     {played ? "Terminata" : "Da giocare"}
                                 </span>
                             )}
@@ -740,7 +742,7 @@ export function MatchSheet({
                     </header>
 
                     {/* ---------------- schede ---------------- */}
-                    <nav className="relative shrink-0 flex px-3 py-2 gap-1 border-b border-white/[0.07]">
+                    <nav className="relative shrink-0 flex px-3 py-2 gap-1 border-b border-[color:var(--filo)]">
                         {TABS.map((t) => (
                             <button
                                 key={t.id}
@@ -755,7 +757,7 @@ export function MatchSheet({
                                 {tab === t.id && (
                                     <motion.span
                                         layoutId="match-tab"
-                                        className="absolute inset-0 rounded-none bg-white/[0.09] border border-white/12"
+                                        className="absolute inset-0 rounded-none bg-[color:var(--velo-alto)] border border-[color:var(--filo)]"
                                         transition={{ type: "spring", stiffness: 500, damping: 36 }}
                                     />
                                 )}
@@ -829,7 +831,7 @@ export function MatchSheet({
 
                     <Dialog.Close
                         aria-label="Chiudi"
-                        className="absolute top-4 right-4 w-9 h-9 rounded-full border border-white/10 bg-black/40 backdrop-blur
+                        className="absolute top-4 right-4 w-9 h-9 rounded-full border border-[color:var(--filo)] bg-black/40 backdrop-blur
                                    flex items-center justify-center text-[color:var(--calce)]/80
                                    hover:text-[color:var(--calce)] hover:bg-red-500 hover:border-red-500 transition-colors"
                     >

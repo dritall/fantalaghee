@@ -28,6 +28,9 @@ type Fascia = {
     fumo: string;
     filo: string;
     filoAlto: string;
+    velo: string;
+    veloAlto: string;
+    ombra: string;
     /** accenti, tarati sul fondo della fascia */
     lario: string;
     vermiglio: string;
@@ -41,32 +44,36 @@ type Fascia = {
 const FASCE: Fascia[] = [
     {
         id: "alba", nome: "alba", chiara: true,
-        pece: "#EAF1F3", calce: "#0A2430", fondale: "#FFFFFF", secca: "#DCE9ED",
+        pece: "#DDE7EA", calce: "#08202B", fondale: "#F3F8F9", secca: "#CBDDE3",
         fumo: "#5A7683", filo: "rgba(10,36,48,0.14)", filoAlto: "rgba(10,36,48,0.30)",
+        velo: "rgba(10,36,48,0.05)", veloAlto: "rgba(10,36,48,0.09)", ombra: "rgba(10,36,48,0.14)",
         lario: "#0E6E86", vermiglio: "#D33A22", oro: "#A9750B",
         acqua: ["#BBD6DE", "#9CC4D2", "#7FB0C4"],
-        cielo: ["#F3EDE4", "#E2EDF0"],
+        cielo: ["#E9E1D6", "#D4E3E8"],
     },
     {
         id: "giorno", nome: "giorno", chiara: true,
-        pece: "#F1F5F4", calce: "#08222D", fondale: "#FFFFFF", secca: "#E0EDEF",
+        pece: "#E4EBEA", calce: "#061D27", fondale: "#F5FAF9", secca: "#D2E4E7",
         fumo: "#557381", filo: "rgba(8,34,45,0.14)", filoAlto: "rgba(8,34,45,0.30)",
+        velo: "rgba(8,34,45,0.05)", veloAlto: "rgba(8,34,45,0.09)", ombra: "rgba(8,34,45,0.14)",
         lario: "#0B6C8C", vermiglio: "#D6391F", oro: "#9E6E08",
         acqua: ["#C3DFE4", "#9FCCD8", "#6FB4C8"],
-        cielo: ["#FBFDFC", "#E6F2F3"],
+        cielo: ["#EFF5F4", "#D9E9EB"],
     },
     {
         id: "tramonto", nome: "tramonto", chiara: true,
-        pece: "#F3EBE1", calce: "#221410", fondale: "#FFF9F2", secca: "#E8D9C8",
+        pece: "#E9DFD2", calce: "#1E1210", fondale: "#F8F1E8", secca: "#DCC9B4",
         fumo: "#7A6353", filo: "rgba(34,20,16,0.15)", filoAlto: "rgba(34,20,16,0.32)",
+        velo: "rgba(34,20,16,0.05)", veloAlto: "rgba(34,20,16,0.09)", ombra: "rgba(34,20,16,0.15)",
         lario: "#186273", vermiglio: "#C63A1B", oro: "#96650A",
         acqua: ["#DCC6AE", "#C8A98F", "#A98670"],
-        cielo: ["#FBEEDD", "#F0D9C0"],
+        cielo: ["#F2E4D2", "#E4CDB4"],
     },
     {
         id: "sera", nome: "sera", chiara: false,
         pece: "#0A2230", calce: "#EDF2F1", fondale: "#0E2E3D", secca: "#154356",
         fumo: "#83A7B4", filo: "rgba(237,242,241,0.18)", filoAlto: "rgba(237,242,241,0.36)",
+        velo: "rgba(237,242,241,0.05)", veloAlto: "rgba(237,242,241,0.10)", ombra: "rgba(2,12,18,0.5)",
         lario: "#4FC3CE", vermiglio: "#F2543D", oro: "#F0B429",
         acqua: ["#123A4B", "#17495D", "#1D5A70"],
         cielo: ["#08202C", "#0D3040"],
@@ -75,6 +82,7 @@ const FASCE: Fascia[] = [
         id: "notte", nome: "notte", chiara: false,
         pece: "#04141C", calce: "#E7EEEE", fondale: "#071F2A", secca: "#0C3140",
         fumo: "#6F94A2", filo: "rgba(231,238,238,0.16)", filoAlto: "rgba(231,238,238,0.32)",
+        velo: "rgba(231,238,238,0.05)", veloAlto: "rgba(231,238,238,0.10)", ombra: "rgba(0,6,10,0.6)",
         lario: "#3FB8C4", vermiglio: "#F2543D", oro: "#E8A72B",
         acqua: ["#08222E", "#0A2C3B", "#0D3849"],
         cielo: ["#020D13", "#061C26"],
@@ -139,6 +147,9 @@ export function SfondoLario() {
         r.setProperty("--fumo", fascia.fumo);
         r.setProperty("--filo", fascia.filo);
         r.setProperty("--filo-alto", fascia.filoAlto);
+        r.setProperty("--velo", fascia.velo);
+        r.setProperty("--velo-alto", fascia.veloAlto);
+        r.setProperty("--ombra", fascia.ombra);
         r.setProperty("--lario", fascia.lario);
         r.setProperty("--vermiglio", fascia.vermiglio);
         r.setProperty("--oro", fascia.oro);

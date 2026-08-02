@@ -23,13 +23,13 @@ function ComingSoon({ className }: { className?: string }) {
     return (
         <div
             className={cn(
-                "group relative rounded-[1.75rem] border border-dashed border-white/15 bg-[#0d1330]/70 backdrop-blur-xl overflow-hidden",
+                "group relative rounded-[1.75rem] border border-dashed border-[color:var(--filo-alto)] bg-[#0d1330]/70 backdrop-blur-xl overflow-hidden",
                 className
             )}
         >
             <span className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-cyan-500/5 to-indigo-500/10" />
             <div className="relative h-full flex flex-col items-center justify-center gap-3 text-center px-6 py-16">
-                <span className="relative w-16 h-16 rounded-2xl flex items-center justify-center bg-white/10 border border-white/15">
+                <span className="relative w-16 h-16 rounded-2xl flex items-center justify-center bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)]">
                     <Newspaper className="w-7 h-7 text-cyan-300" />
                     <Sparkles className="w-4 h-4 text-amber-300 absolute -top-1.5 -right-1.5 animate-pulse" />
                 </span>
@@ -55,9 +55,9 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
         >
             <SeasonLink
                 href={`/gazzetta/${article.id}`}
-                className="group relative flex flex-col h-full rounded-[1.5rem] overflow-hidden border border-white/10 bg-[#0a0a1e]
+                className="group relative flex flex-col h-full rounded-[1.5rem] overflow-hidden border border-[color:var(--filo)] bg-[#0a0a1e]
                            shadow-[0_10px_34px_rgba(6,10,30,0.5)] transition-all duration-300
-                           hover:shadow-[0_18px_46px_rgba(6,10,30,0.7)] hover:border-white/20"
+                           hover:shadow-[0_18px_46px_rgba(6,10,30,0.7)] hover:border-[color:var(--filo-alto)]"
             >
                 {/* la copertina è il contenuto: prende tutto lo spazio che può */}
                 <div className="relative aspect-[4/3] overflow-hidden shrink-0">
@@ -118,9 +118,9 @@ export default function GazzettaPage() {
                     <h1 className="sr-only">La Gazzetta del Laghèe</h1>
                     <div className="testata-mark text-pink-200 w-full max-w-3xl mx-auto" aria-hidden="true" />
                     <div className="flex items-center gap-4 justify-center max-w-2xl mx-auto font-testata text-[10px] md:text-xs uppercase tracking-[0.34em] text-white/45">
-                        <span className="h-px flex-1 bg-white/20" />
+                        <span className="h-px flex-1 bg-[color:var(--filo-alto)]" />
                         Tutto il Lario per la Vita
-                        <span className="h-px flex-1 bg-white/20" />
+                        <span className="h-px flex-1 bg-[color:var(--filo-alto)]" />
                     </div>
                     <p className="text-lg text-white/55 font-lora italic">
                         &ldquo;L&apos;unica testata che non ha paura di prendere 65.5&rdquo;
@@ -148,14 +148,14 @@ export default function GazzettaPage() {
                                         <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
                                         In edicola
                                     </span>
-                                    <span className="h-px flex-1 bg-white/10" />
+                                    <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                                 </div>
 
                                 <SeasonLink
                                     href={`/gazzetta/${latest.id}`}
-                                    className="group relative grid md:grid-cols-2 rounded-[2rem] overflow-hidden border border-white/12 bg-[#0a0a1e]
+                                    className="group relative grid md:grid-cols-2 rounded-[2rem] overflow-hidden border border-[color:var(--filo)] bg-[#0a0a1e]
                                                shadow-[0_18px_56px_rgba(6,10,30,0.6)] transition-all duration-300
-                                               hover:border-white/25 hover:shadow-[0_26px_70px_rgba(6,10,30,0.75)]"
+                                               hover:border-[color:var(--filo-alto)] hover:shadow-[0_26px_70px_rgba(6,10,30,0.75)]"
                                 >
                                     <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[380px] overflow-hidden">
                                         <div
@@ -195,7 +195,7 @@ export default function GazzettaPage() {
                                     <h2 className="text-[10px] font-black uppercase tracking-[0.26em] text-white/35">
                                         Numeri precedenti
                                     </h2>
-                                    <span className="h-px flex-1 bg-white/10" />
+                                    <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
@@ -213,11 +213,11 @@ export default function GazzettaPage() {
                                             <Fragment key={article.id || index}>
                                                 {isFirstArchived && (
                                                     <div className="col-span-full flex items-center gap-4 mt-4 mb-1">
-                                                        <span className="h-px flex-1 bg-white/12" />
+                                                        <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                                                         <span className="text-white/40 text-[10px] uppercase tracking-[0.22em] font-black whitespace-nowrap">
                                                             Archivio {SEASONS[ARCHIVED_SEASON].label}
                                                         </span>
-                                                        <span className="h-px flex-1 bg-white/12" />
+                                                        <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                                                     </div>
                                                 )}
 

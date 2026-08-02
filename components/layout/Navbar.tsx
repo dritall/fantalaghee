@@ -34,14 +34,14 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         aria-current={isActive ? "page" : undefined}
                         className={cn(
                             "group relative px-3.5 py-2 text-[12px] font-black uppercase tracking-[0.08em] whitespace-nowrap transition-colors duration-200",
-                            isActive ? "text-white" : "text-white/55 hover:text-white"
+                            isActive ? "text-[color:var(--calce)]" : "text-[color:var(--fumo)] hover:text-[color:var(--calce)]"
                         )}
                     >
                         <span className="relative z-10 flex items-center gap-1.5">
                             <item.icon
                                 className={cn(
                                     "w-[15px] h-[15px] transition-all duration-300",
-                                    isActive ? "text-cyan-300" : "text-white/35 group-hover:text-cyan-300/80"
+                                    isActive ? "text-[color:var(--lario)]" : "text-[color:var(--fumo)] group-hover:text-[color:var(--lario)]/80"
                                 )}
                                 strokeWidth={2.2}
                             />
@@ -52,14 +52,14 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         {isActive && (
                             <motion.span
                                 layoutId="navbar-indicator"
-                                className="absolute inset-0 rounded-full bg-white/[0.09] border border-white/15 shadow-[0_0_22px_rgba(34,211,238,0.22)]"
+                                className="absolute inset-0 rounded-full bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)] shadow-[0_0_22px_rgba(34,211,238,0.22)]"
                                 initial={false}
                                 transition={{ type: "spring", stiffness: 500, damping: 34 }}
                             />
                         )}
                         {/* alone soffuso in hover, solo sulle voci non attive */}
                         {!isActive && (
-                            <span className="absolute inset-0 rounded-full bg-white/0 group-hover:bg-white/[0.06] transition-colors duration-200" />
+                            <span className="absolute inset-0 rounded-full bg-white/0 group-hover:bg-[color:var(--velo-alto)] transition-colors duration-200" />
                         )}
                     </SeasonLink>
                 );
@@ -160,11 +160,11 @@ export function Navbar() {
                             />
                         </span>
 
-                        <span className="hidden sm:flex flex-col leading-none pl-3 border-l border-white/10">
-                            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/70">
+                        <span className="hidden sm:flex flex-col leading-none pl-3 border-l border-[color:var(--filo)]">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[color:var(--calce)]/80">
                                 {LEAGUE_TAGLINE}
                             </span>
-                            <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.22em] text-white/30">
+                            <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.22em] text-[color:var(--fumo)]">
                                 Lega privata · dal 2025
                             </span>
                         </span>
@@ -216,7 +216,7 @@ export function Navbar() {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                        className="lg:hidden bg-[#0b0824]/97 backdrop-blur-2xl border-t border-white/10 overflow-hidden"
+                        className="lg:hidden bg-[#0b0824]/97 backdrop-blur-2xl border-t border-[color:var(--filo)] overflow-hidden"
                     >
                         <div className="px-4 pt-4 pb-8 space-y-1.5 max-h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
                             <SeasonLink
@@ -225,8 +225,8 @@ export function Navbar() {
                                 className={cn(
                                     "flex items-center gap-3 px-3 py-3 rounded-2xl text-base font-semibold transition-colors",
                                     pathname === "/"
-                                        ? "bg-white/10 text-white border border-white/10"
-                                        : "text-white/60 hover:text-white hover:bg-white/5"
+                                        ? "bg-[color:var(--velo-alto)] text-[color:var(--calce)] border border-[color:var(--filo)]"
+                                        : "text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-[color:var(--velo)]"
                                 )}
                             >
                                 <Home className="w-5 h-5" />
@@ -244,7 +244,7 @@ export function Navbar() {
                                     rel="noopener noreferrer"
                                     onClick={() => setIsOpen(false)}
                                     className="flex items-center justify-center gap-2 px-3 py-3.5 rounded-2xl text-base font-black uppercase tracking-wider
-                                               bg-gradient-to-r from-secondary to-cyan-500 text-white shadow-[0_8px_24px_rgba(37,99,235,0.4)] border border-white/20"
+                                               bg-gradient-to-r from-[color:var(--vermiglio)] to-[color:var(--vermiglio)] text-[color:var(--calce)] shadow-[0_8px_24px_rgba(37,99,235,0.4)] border border-[color:var(--filo-alto)]"
                                 >
                                     <UserPlus className="w-5 h-5" />
                                     Iscriviti alla Lega
@@ -254,7 +254,7 @@ export function Navbar() {
                                     download
                                     onClick={() => setIsOpen(false)}
                                     className="flex items-center justify-center gap-2 px-3 py-3.5 rounded-2xl text-base font-bold uppercase tracking-wider
-                                               bg-white/5 text-white border border-white/15 hover:bg-white/10 transition-colors"
+                                               bg-[color:var(--velo)] text-[color:var(--calce)] border border-[color:var(--filo-alto)] hover:bg-[color:var(--velo-alto)] transition-colors"
                                 >
                                     <Download className="w-5 h-5" />
                                     Scarica Regolamento

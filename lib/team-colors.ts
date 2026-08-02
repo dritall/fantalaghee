@@ -214,11 +214,42 @@ function coloreDaNome(name?: string | null): string {
  * casa, e in ultimo pesca dai colori di riserva. Il colore della squadra di
  * casa non viene mai cambiato: è il riferimento.
  */
-export function matchColors(homeName?: string | null, awayName?: string | null): { home: string; away: string } {
+/**
+ * Scurisce un colore finché non stacca abbastanza dal fondo chiaro.
+ * È il gemello di `readableOnDark`: serve da quando il sito diventa chiaro di
+ * giorno, perché lì un colore schiarito sparisce invece di risaltare.
+ */
+export function readableOnLight(hex: string, minContrast = 4.2): string {
+    let [h, s, l] = rgbToHsl(hex);
+    if (s > 0.25) s = Math.max(s, 0.6);
+
+    const fondo = 0.86; // luminanza del fondo chiaro tipico del sito
+    let out = hslToHex(h, s, l);
+    let guard = 0;
+    while ((fondo + 0.05) / (luminance(out) + 0.05) < minContrast && l > 0.08 && guard < 40) {
+        l -= 0.03;
+        out = hslToHex(h, s, l);
+        guard++;
+    }
+    return out;
+}
+
+export type Tema = 'chiaro' | 'scuro';
+
+/** Rende leggibile un colore sul fondo del tema in corso. */
+export function leggibile(hex: string, tema: Tema): string {
+    return tema === 'chiaro' ? readableOnLight(hex) : readableOnDark(hex);
+}
+
+export function matchColors(
+    homeName?: string | null,
+    awayName?: string | null,
+    tema: Tema = 'scuro'
+): { home: string; away: string } {
     const homePal = paletteOf(homeName);
     const awayPal = paletteOf(awayName);
 
-    const home = readableOnDark(homePal?.primary ?? coloreDaNome(homeName));
+    const home = leggibile(homePal?.primary ?? coloreDaNome(homeName), tema);
 
     const candidates = [
         awayPal?.primary ?? coloreDaNome(awayName),
@@ -227,10 +258,9 @@ export function matchColors(homeName?: string | null, awayName?: string | null):
     ].filter(Boolean) as string[];
 
     for (const candidate of candidates) {
-        const away = readableOnDark(candidate);
+        const away = leggibile(candidate, tema);
         if (areDistinct(home, away)) return { home, away };
     }
 
-    // non dovrebbe accadere: l'ultimo di riserva è sempre lontano dagli altri
-    return { home, away: readableOnDark(FALLBACKS[FALLBACKS.length - 1]) };
+    return { home, away: leggibile(FALLBACKS[FALLBACKS.length - 1], tema) };
 }

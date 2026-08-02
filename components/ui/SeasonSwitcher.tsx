@@ -83,9 +83,9 @@ export function SeasonSwitcher() {
                 <div
                     role="listbox"
                     aria-label="Stagioni"
-                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-[#0f1230]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_60px_rgba(4,6,20,0.7)] overflow-hidden z-50 animate-fade-up"
+                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-[#0f1230]/95 backdrop-blur-xl border border-[color:var(--filo)] shadow-[0_20px_60px_rgba(4,6,20,0.7)] overflow-hidden z-50 animate-fade-up"
                 >
-                    <p className="px-4 pt-3 pb-2 text-[9px] font-black uppercase tracking-[0.22em] text-white/35">
+                    <p className="px-4 pt-3 pb-2 text-[9px] font-black uppercase tracking-[0.22em] text-[color:var(--fumo)]">
                         Stagione
                     </p>
                     {Object.values(SEASONS)
@@ -101,7 +101,7 @@ export function SeasonSwitcher() {
                                     onClick={() => handleChange(s.slug)}
                                     className={cn(
                                         "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
-                                        selected ? "bg-white/[0.07]" : "hover:bg-white/[0.04]"
+                                        selected ? "bg-[color:var(--velo-alto)]" : "hover:bg-[color:var(--velo)]"
                                     )}
                                 >
                                     <span
@@ -118,12 +118,12 @@ export function SeasonSwitcher() {
                                         <span
                                             className={cn(
                                                 "block text-xs font-bold tabular-nums",
-                                                selected ? "text-white" : "text-white/70"
+                                                selected ? "text-[color:var(--calce)]" : "text-[color:var(--calce)]/80"
                                             )}
                                         >
                                             {s.label}
                                         </span>
-                                        <span className="block text-[10px] uppercase tracking-[0.14em] text-white/35">
+                                        <span className="block text-[10px] uppercase tracking-[0.14em] text-[color:var(--fumo)]">
                                             {s.archived ? "Archivio" : "In corso"}
                                         </span>
                                     </span>
@@ -131,7 +131,7 @@ export function SeasonSwitcher() {
                                 </button>
                             );
                         })}
-                    <p className="px-4 py-2.5 text-[10px] leading-snug text-white/30 border-t border-white/5">
+                    <p className="px-4 py-2.5 text-[10px] leading-snug text-[color:var(--fumo)] border-t border-white/5">
                         La stagione scelta ti segue in tutte le sezioni del sito.
                     </p>
                 </div>

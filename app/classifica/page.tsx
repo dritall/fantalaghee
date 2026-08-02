@@ -250,10 +250,10 @@ function ClassificaContent() {
                         <table className="w-full text-left text-sm whitespace-nowrap border-collapse">
                             <thead className="sticky top-0 z-40">
                                 <tr>
-                                    <th className="sticky left-0 z-50 bg-[color:var(--pece)] p-3 w-14 text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/30 border-b border-r border-white/[0.08]">
+                                    <th className="sticky left-0 z-50 bg-[color:var(--pece)] p-3 w-14 text-center text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--fumo)] border-b border-r border-[color:var(--filo)]">
                                         #
                                     </th>
-                                    <th className="sticky left-14 z-50 bg-[color:var(--pece)] p-3 min-w-[190px] text-[10px] font-black uppercase tracking-[0.14em] text-white/50 border-b border-r border-white/[0.08]">
+                                    <th className="sticky left-14 z-50 bg-[color:var(--pece)] p-3 min-w-[190px] text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--fumo)] border-b border-r border-[color:var(--filo)]">
                                         Squadra
                                     </th>
                                     <th className="sticky left-[calc(3.5rem+190px)] z-50 bg-[color:var(--secca)] p-3 text-center text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--lario)] border-b border-r border-[color:var(--filo-alto)]">
@@ -264,7 +264,7 @@ function ClassificaContent() {
                                             key={g}
                                             data-giornata={parseInt(g.replace(/\D/g, ""), 10)}
                                             className={cn(
-                                                "p-3 min-w-[58px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-white/[0.05]",
+                                                "p-3 min-w-[58px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-[color:var(--filo)]",
                                                 g === colonnaGiornata && giornataScelta !== null
                                                     ? "bg-[color:var(--secca)] text-[color:var(--lario)]"
                                                     : "bg-[color:var(--pece)] text-[color:var(--fumo)]/70"

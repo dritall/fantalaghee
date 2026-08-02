@@ -109,9 +109,9 @@ export function TeamLogo({ team, className }: { team: any; className: string }) 
     if (!src) {
         return (
             <div
-                className={`${className} bg-[#131a38] rounded-full flex items-center justify-center border border-white/10 shrink-0 overflow-hidden`}
+                className={`${className} bg-[color:var(--secca)] rounded-full flex items-center justify-center border border-[color:var(--filo)] shrink-0 overflow-hidden`}
             >
-                <span className="text-[10px] font-black tracking-widest text-cyan-400/80 leading-none">
+                <span className="text-[10px] font-black tracking-widest text-[color:var(--lario)]/80 leading-none">
                     {teamName.substring(0, 3).toUpperCase()}
                 </span>
             </div>

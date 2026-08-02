@@ -82,7 +82,7 @@ export default function ArticlePage() {
         <div className="min-h-screen pt-24 px-4 flex flex-col justify-center items-center text-center">
             <h1 className="text-2xl font-bold text-white mb-3">Articolo non disponibile</h1>
             <p className="text-white/55 mb-8">{error}</p>
-            <Link href="/gazzetta" className="inline-flex items-center gap-2 text-sm font-semibold bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-full border border-white/15 transition-colors">
+            <Link href="/gazzetta" className="inline-flex items-center gap-2 text-sm font-semibold bg-[color:var(--velo-alto)] hover:bg-[color:var(--velo-alto)] text-white px-4 py-2 rounded-full border border-[color:var(--filo-alto)] transition-colors">
                 <ArrowLeft className="w-4 h-4" /> Torna alla Gazzetta
             </Link>
         </div>
@@ -100,7 +100,7 @@ export default function ArticlePage() {
 
             {/* Tasto Back */}
             <div className="max-w-[52rem] mx-auto mb-5">
-                <Link href="/gazzetta" aria-label="Torna agli articoli" className="inline-flex items-center text-white/70 hover:text-white transition-colors text-sm font-semibold bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/15">
+                <Link href="/gazzetta" aria-label="Torna agli articoli" className="inline-flex items-center text-white/70 hover:text-white transition-colors text-sm font-semibold bg-[color:var(--velo-alto)] backdrop-blur-md px-4 py-2 rounded-full border border-[color:var(--filo-alto)]">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Torna alla Gazzetta
                 </Link>
             </div>
