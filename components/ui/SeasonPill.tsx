@@ -17,8 +17,8 @@ export function SeasonPill({ stagione, className }: { stagione: string; classNam
             className={cn(
                 "timbro",
                 archived
-                    ? "bg-[color:var(--oro)] text-[color:var(--pece)]"
-                    : "bg-[color:var(--lario)] text-[color:var(--pece)]",
+                    ? "bg-[color:var(--oro)] text-[color:var(--su-chiaro)]"
+                    : "bg-[color:var(--lario)] text-[color:var(--su-chiaro)]",
                 className
             )}
         >

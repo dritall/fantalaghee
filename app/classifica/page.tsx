@@ -167,7 +167,7 @@ function ClassificaContent() {
                             etichettaGenerale={`Ultima giocata · ${lastPlayedMatchday}`}
                         />
                         <p className="text-[color:var(--fumo)] text-[11px] hidden sm:block">
-                            <span className="bg-[color:var(--oro)] text-[color:var(--pece)] px-1.5 py-0.5 font-black">Oro</span> il primo di giornata, <span className="bg-[color:var(--calce)]/70 text-[color:var(--pece)] px-1.5 py-0.5 font-black">argento</span> il secondo
+                            <span className="bg-[color:var(--oro)] text-[color:var(--su-chiaro)] px-1.5 py-0.5 font-black">Oro</span> il primo di giornata, <span className="bg-[color:var(--calce)]/70 text-[color:var(--pece)] px-1.5 py-0.5 font-black">argento</span> il secondo
                         </p>
                     </div>
                 </div>
@@ -219,7 +219,7 @@ function ClassificaContent() {
                                         className={cn(
                                             "numerone w-9 h-9 shrink-0 flex items-center justify-center text-sm",
                                             index === 0
-                                                ? "bg-[color:var(--vermiglio)] text-[color:var(--calce)]"
+                                                ? "bg-[color:var(--vermiglio)] text-[color:var(--su-colore)]"
                                                 : index < 3
                                                   ? "bg-[color:var(--calce)] text-[color:var(--pece)]"
                                                   : "border-2 border-[color:var(--filo)] text-[color:var(--fumo)]"
@@ -288,7 +288,7 @@ function ClassificaContent() {
                                                 className={cn(
                                                     "numerone w-7 h-7 flex items-center justify-center text-[12px] mx-auto",
                                                     index === 0
-                                                        ? "bg-[color:var(--vermiglio)] text-[color:var(--calce)]"
+                                                        ? "bg-[color:var(--vermiglio)] text-[color:var(--su-colore)]"
                                                         : index < 3
                                                           ? "bg-[color:var(--calce)] text-[color:var(--pece)]"
                                                           : "text-[color:var(--fumo)]"
@@ -325,12 +325,12 @@ function ClassificaContent() {
                                                         "p-2.5 text-center border-b border-r border-[color:var(--filo)] tabular-nums transition-colors",
                                                         "group-hover:bg-[color:var(--calce)]/[0.04]",
                                                         isBest
-                                                            ? "bg-[color:var(--oro)] text-[color:var(--pece)] font-black"
+                                                            ? "bg-[color:var(--oro)] text-[color:var(--su-chiaro)] font-black"
                                                             : isSecond
                                                               ? "bg-[color:var(--calce)]/70 text-[color:var(--pece)] font-black"
                                                               : "text-[color:var(--fumo)]",
                                                         g === colonnaGiornata && giornataScelta !== null && !isBest && !isSecond &&
-                                                            "bg-[color:var(--lario)]/10 text-[color:var(--calce)]"
+                                                            "bg-[color:var(--lario)]/10 text-[color:var(--su-colore)]"
                                                     )}
                                                 >
                                                     {raw || "-"}

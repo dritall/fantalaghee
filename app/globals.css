@@ -54,14 +54,15 @@
   html {
     /* il colore sta sull'html, non sul body: così lo strato dello stadio può
        stare a z-index negativo senza finire dietro al fondo del body */
-    background-color: #060F1B;
+    background-color: var(--pece);
     scroll-behavior: smooth;
     /* le ancore non finiscono sotto la navbar fissa */
     scroll-padding-top: 6.5rem;
   }
 
   body {
-    @apply text-[#10241a] antialiased;
+    color: var(--calce);
+    @apply antialiased;
   }
 
   /* Anello di focus visibile solo da tastiera, coerente su tutto il sito */
@@ -504,32 +505,42 @@
 }
 
 /* =====================================================================
-   CURVA — il linguaggio grafico della Fanta Laghèe
+   LA GIORNATA SUL LAGO — il sistema di colori
    ---------------------------------------------------------------------
-   Nasce dagli striscioni: calce e nero, due colori urlati, nessun
-   angolo morbido, nessun alone. Il colore lo portano il lago e il
-   vermiglio; tutto il resto è inchiostro. Le due pagine dove si legge
-   davvero — regolamento e Gazzetta — restano su carta, e sono l'unica
-   eccezione voluta a queste regole.
+   I colori vengono dall'acqua: cobalto, turchese, verde di fondale,
+   schiuma. Gli accenti sono i pochi tocchi caldi che si vedono fra le
+   onde — un rosso, un giallo — usati come li usa il quadro: pochissimo,
+   e solo dove deve saltare all'occhio.
+
+   Il sito cambia con l'ora. Chiaro dalla mattina al tramonto, scuro la
+   sera e la notte. Le variabili qui sotto sono i valori di sera: quelli
+   delle altre fasce li scrive SfondoLario sull'elemento <html>.
+
+   `--pece` e `--calce` sono la coppia fondo/testo e si invertono; per
+   questo tutto il sito le usa invece di colori fissi. `--su-colore`
+   invece non si inverte mai: è il testo che va sopra il rosso o il blu
+   pieni, e lì serve sempre chiaro.
    ===================================================================== */
 
 :root {
-  /* fondali */
-  --pece:      #060F1B;   /* il fondo, lago di notte */
-  --fondale:   #0B1826;   /* le superfici */
-  --secca:     #12283C;   /* ciò che è sollevato o attivo */
+  /* fondo e testo: si scambiano fra giorno e sera */
+  --pece:      #071A24;
+  --calce:     #EDF2F1;
+  --fondale:   #0C2531;
+  --secca:     #12384A;
+  --fumo:      #7FA3B0;
 
-  /* inchiostri */
-  --calce:     #EDE8DC;   /* il bianco della vernice, mai #fff */
-  --fumo:      #7C93AB;   /* testo secondario, grigio col lago dentro */
+  /* accenti: dal quadro dell'acqua */
+  --lario:     #3FB8C4;
+  --vermiglio: #F2543D;
+  --oro:       #F0B429;
 
-  /* i due che urlano */
-  --lario:     #23A6E0;   /* l'acqua: collegamenti, dati, stato attivo */
-  --vermiglio: #E5322A;   /* lo stacco: vincitori, live, chiamate all'azione */
-  --oro:       #E8A72B;   /* premi e melanzane, e nient'altro */
+  /* testo sopra un fondo pieno di colore: non si invertono mai */
+  --su-colore: #F6F9F8;   /* chiaro, per il rosso */
+  --su-chiaro: #071A24;   /* scuro, per turchese e oro */
 
-  --filo:      rgba(237, 232, 220, 0.16);
-  --filo-alto: rgba(237, 232, 220, 0.34);
+  --filo:      rgba(237, 242, 241, 0.18);
+  --filo-alto: rgba(237, 242, 241, 0.36);
 }
 
 @layer utilities {

@@ -8,6 +8,7 @@ import { NavTile, type NavTileData } from "@/components/ui/NavTile";
 import { SeasonBanner } from "@/components/ui/SeasonBanner";
 import { SeasonLink } from "@/components/ui/SeasonLink";
 import { FasciaScorre } from "@/components/ui/FasciaScorre";
+import { Tabellone } from "@/components/layout/Tabellone";
 
 const navItems: NavTileData[] = [
   { href: "/classifica", icon: Trophy, title: "Classifica", desc: "Chi comanda la lega, giornata per giornata", hex: "var(--lario)" },
@@ -68,14 +69,14 @@ export default function Home() {
           className="striscione grana scatto scatto-lario block px-6 py-8 md:px-10 md:py-10 mt-2"
         >
           <span className="relative z-[3] block text-center">
-            <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--calce)]/70">
+            <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--su-colore)]/70">
               Stagione 2026/27 · iscrizioni aperte
             </span>
-            <span className="stampino mt-3 block text-[2.1rem] leading-[0.9] sm:text-5xl md:text-6xl text-[color:var(--calce)]">
+            <span className="stampino mt-3 block text-[2.1rem] leading-[0.9] sm:text-5xl md:text-6xl text-[color:var(--su-colore)]">
               Metti la<br />squadra in campo
             </span>
-            <span className="mt-5 inline-flex items-center gap-2 border-2 border-[color:var(--calce)] px-5 py-2.5
-                             text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--calce)]">
+            <span className="mt-5 inline-flex items-center gap-2 border-2 border-[color:var(--su-colore)] px-5 py-2.5
+                             text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--su-colore)]">
               <UserPlus className="w-4 h-4" />
               Compila il form
               <ArrowRight className="w-4 h-4" />
@@ -100,7 +101,7 @@ export default function Home() {
         {latestArticle && (
           <section aria-label="Ultimo articolo della Gazzetta">
             <div className="flex items-center gap-3 mb-4">
-              <span className="timbro bg-[color:var(--oro)] text-[color:var(--pece)]">Ultima uscita</span>
+              <span className="timbro bg-[color:var(--oro)] text-[color:var(--su-chiaro)]">Ultima uscita</span>
               <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
             </div>
 
@@ -114,7 +115,7 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--pece)] via-[color:var(--pece)]/92 to-[color:var(--pece)]/45" />
               <div className="relative z-10 flex min-h-[300px] flex-col justify-end p-6 md:p-9">
-                <span className="timbro w-fit bg-[color:var(--vermiglio)] text-[color:var(--calce)]">
+                <span className="timbro w-fit bg-[color:var(--vermiglio)] text-[color:var(--su-colore)]">
                   <Newspaper className="w-3 h-3" />
                   La Gazzetta
                 </span>
@@ -134,6 +135,15 @@ export default function Home() {
             </SeasonLink>
           </section>
         )}
+
+        {/* ================= IL PUNTO ================= */}
+        <section aria-label="Il punto sulla lega">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="timbro bg-[color:var(--lario)] text-[color:var(--su-chiaro)]">Il punto</span>
+            <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
+          </div>
+          <Tabellone />
+        </section>
 
         {/* ================= REGOLAMENTO ================= */}
         <a

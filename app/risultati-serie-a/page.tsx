@@ -213,8 +213,8 @@ function ScoutHubContent() {
         <header className="text-center space-y-4 mb-8 mt-4">
           <span className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.24em] px-4 py-1.5 rounded-full border
             ${isArchiveSeason
-              ? 'text-[color:var(--pece)] bg-[color:var(--oro)] border-[color:var(--oro)]'
-              : 'text-[color:var(--pece)] bg-[color:var(--lario)] border-[color:var(--lario)]'}`}>
+              ? 'text-[color:var(--su-chiaro)] bg-[color:var(--oro)] border-[color:var(--oro)]'
+              : 'text-[color:var(--su-chiaro)] bg-[color:var(--lario)] border-[color:var(--lario)]'}`}>
             <span className="relative flex h-1.5 w-1.5">
               {!isArchiveSeason && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[color:var(--lario)] opacity-70" />}
               <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${isArchiveSeason ? 'bg-amber-300' : 'bg-[color:var(--lario)]'}`} />

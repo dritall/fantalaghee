@@ -62,7 +62,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} ${lora.variable} ${oswald.variable} font-sans antialiased text-[#10241a] relative overflow-x-hidden min-h-screen flex flex-col`}>
+      <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} ${lora.variable} ${oswald.variable} font-sans antialiased relative overflow-x-hidden min-h-screen flex flex-col`}>
         <SfondoLario />
         <a
           href="#contenuto"

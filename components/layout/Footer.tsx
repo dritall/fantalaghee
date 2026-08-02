@@ -13,7 +13,6 @@ import Image from "next/image";
 import { Download, UserPlus, ArrowUp } from "lucide-react";
 import { SeasonLink } from "@/components/ui/SeasonLink";
 import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE, SEASONS } from "@/lib/seasons";
-import { QUOTA, PREMIO_GIORNATA, GIORNATE } from "@/lib/premi-riferimento";
 
 const sezioni = [
     { titolo: "La lega", voci: [
@@ -35,27 +34,7 @@ export function Footer() {
         <footer className="relative z-10 mt-auto border-t-2 border-[color:var(--calce)]/25 bg-[color:var(--pece)]/92 backdrop-blur-xl">
             <div className="h-[6px] w-full bg-[color:var(--vermiglio)]" />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
-                {/* ===== TRE NUMERI =====
-                    Il piede è l'ultima cosa che si guarda: che dica qualcosa
-                    invece di ripetere il menu. */}
-                <div className="grid grid-cols-3 gap-3 pb-8 mb-8 border-b-2 border-[color:var(--filo)]">
-                    {[
-                        { n: `${QUOTA} 🍆`, l: "Quota stagione" },
-                        { n: `${PREMIO_GIORNATA} 🍆`, l: "Ogni giornata" },
-                        { n: `${GIORNATE}`, l: "Giornate di gioco" },
-                    ].map((x) => (
-                        <div key={x.l} className="text-center sm:text-left">
-                            <span className="numerone block text-2xl sm:text-3xl text-[color:var(--calce)]">
-                                {x.n}
-                            </span>
-                            <span className="block mt-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--fumo)]">
-                                {x.l}
-                            </span>
-                        </div>
-                    ))}
-                </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24 sm:pb-10">
 
                 <div className="grid gap-9 md:grid-cols-[1.4fr_1fr_1fr_auto]">
 
@@ -99,7 +78,7 @@ export function Footer() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="scatto scatto-lario inline-flex items-center justify-center gap-2 border-2 border-[color:var(--vermiglio)] bg-[color:var(--vermiglio)]
-                                       px-5 min-h-[44px] text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--calce)]"
+                                       px-5 min-h-[44px] text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--su-colore)]"
                         >
                             <UserPlus className="w-3.5 h-3.5" />
                             Iscriviti alla Lega

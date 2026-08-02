@@ -295,7 +295,7 @@ export function AssistenteFluttuante() {
                             <p
                                 key={i}
                                 className="ml-auto max-w-[85%] w-fit border-2 border-[color:var(--lario)] bg-[color:var(--lario)]/15
-                                           px-3.5 py-2 text-sm text-[color:var(--calce)]"
+                                           px-3.5 py-2 text-sm text-[color:var(--su-colore)]"
                             >
                                 {m.testo}
                             </p>
@@ -312,7 +312,7 @@ export function AssistenteFluttuante() {
                                                 key={sez}
                                                 onClick={() => apriArgomento(sez)}
                                                 className="border-2 border-[color:var(--lario)]/50 bg-[color:var(--lario)]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.08em]
-                                                           text-[color:var(--lario)] hover:bg-[color:var(--lario)] hover:text-[color:var(--pece)] active:scale-95 transition-all text-left"
+                                                           text-[color:var(--lario)] hover:bg-[color:var(--lario)] hover:text-[color:var(--su-chiaro)] active:scale-95 transition-all text-left"
                                             >
                                                 {ARGOMENTI.find((a) => a.sezione === sez)?.titolo}
                                             </button>
@@ -380,7 +380,7 @@ export function AssistenteFluttuante() {
                         className={cn(
                             "shrink-0 inline-flex items-center justify-center w-[42px] h-[42px] border-2 transition-all",
                             bozza.trim()
-                                ? "bg-[color:var(--vermiglio)] border-[color:var(--vermiglio)] text-[color:var(--calce)] active:scale-95"
+                                ? "bg-[color:var(--vermiglio)] border-[color:var(--vermiglio)] text-[color:var(--su-colore)] active:scale-95"
                                 : "bg-transparent border-[color:var(--filo)] text-[color:var(--fumo)]/50 cursor-not-allowed"
                         )}
                     >
