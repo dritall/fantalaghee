@@ -33,7 +33,7 @@ function ComingSoon({ className }: { className?: string }) {
                     <Newspaper className="w-7 h-7 text-cyan-300" />
                     <Sparkles className="w-4 h-4 text-amber-300 absolute -top-1.5 -right-1.5 animate-pulse" />
                 </span>
-                <span className="font-oswald text-xl text-white tracking-wide uppercase">In preparazione</span>
+                <span className="font-oswald text-xl text-[#16100F] tracking-wide uppercase">In preparazione</span>
                 <span className="text-sm text-white/45 font-serif italic max-w-[240px]">
                     La Redazione sta scaldando i motori per la prima uscita di stagione 🏆
                 </span>
@@ -72,7 +72,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
                     <span className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300/80">
                         {formatDateToItalian(article.date)}
                     </span>
-                    <h3 className="mt-2 font-oswald text-lg font-black uppercase leading-tight text-white group-hover:text-cyan-200 transition-colors line-clamp-3">
+                    <h3 className="mt-2 font-oswald text-lg font-black uppercase leading-tight text-[#16100F] group-hover:text-cyan-200 transition-colors line-clamp-3">
                         {article.title}
                     </h3>
                     <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/35 group-hover:text-cyan-300 transition-colors">
@@ -171,7 +171,7 @@ export default function GazzettaPage() {
                                         <span className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-300">
                                             {formatDateToItalian(latest.date)}
                                         </span>
-                                        <h2 className="mt-3 font-oswald text-3xl md:text-4xl font-black uppercase leading-[1.05] tracking-tight text-white">
+                                        <h2 className="mt-3 font-oswald text-3xl md:text-4xl font-black uppercase leading-[1.05] tracking-tight text-[#16100F]">
                                             {latest.title}
                                         </h2>
                                         {latest.description && (
@@ -214,7 +214,7 @@ export default function GazzettaPage() {
                                                 {isFirstArchived && (
                                                     <div className="col-span-full flex items-center gap-4 mt-4 mb-1">
                                                         <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
-                                                        <span className="text-white/40 text-[10px] uppercase tracking-[0.22em] font-black whitespace-nowrap">
+                                                        <span className="text-[#16100F]/55 text-[10px] uppercase tracking-[0.22em] font-black whitespace-nowrap">
                                                             Archivio {SEASONS[ARCHIVED_SEASON].label}
                                                         </span>
                                                         <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />

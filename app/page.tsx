@@ -33,19 +33,19 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen pt-20 md:pt-24 font-sans relative z-10">
+    <main className="min-h-screen pt-16 md:pt-20 font-sans relative z-10">
 
       {/* La banda dei numeri passa subito sotto la testata: è la prima cosa
           che si muove, e dice cos'è questo posto senza spiegarlo. */}
       <FasciaScorre />
 
-      <div className="max-w-5xl mx-auto px-4 pt-8 pb-32 space-y-10">
+      <div className="max-w-5xl mx-auto px-4 pt-5 pb-32 space-y-8">
 
         <SeasonBanner />
 
         {/* ================= INSEGNA ================= */}
-        <header className="flex flex-col items-center text-center gap-5">
-          <Marchio priority className="w-[230px] md:w-[310px] h-auto" />
+        <header className="flex flex-col items-center text-center gap-3">
+          <Marchio priority className="w-[180px] md:w-[240px] h-auto" />
 
           <h1 className="border-y-2 border-[color:var(--calce)]/70 bg-[color:var(--pece)]/70 px-5 py-2
                          text-[10px] md:text-[11px] font-black uppercase tracking-[0.32em] text-[color:var(--calce)] backdrop-blur-sm">

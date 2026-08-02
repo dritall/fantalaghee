@@ -19,7 +19,12 @@ export type TeamPalette = { primary: string; secondary: string };
 const DARK_BG_LUMINANCE = 0.045;
 
 /** Colori di riserva, scelti perché ben distinti fra loro e dal fondo. */
-const FALLBACKS = ['#E8A72B', '#23A6E0', '#a78bfa', '#34d399', '#fb7185', '#EDE8DC'];
+/** Neutri di appoggio: grafite e argento, mai una tinta che compete. */
+// Grigi veri, senza traccia di blu: una punta di tinta li farebbe competere
+// con le sei squadre che giocano sull'azzurro. Tre gradini, perche' il neutro
+// deve insieme staccare dalla squadra di casa e restare leggibile sul fondo:
+// contro il bianco della Juventus su fondo notturno serve il grigio di mezzo.
+const NEUTRI = ['#CACACA', '#8A8A8A', '#4E4E4E'];
 
 /**
  * Squadre di Serie A. `primary` è il colore dominante dello stemma,
@@ -251,16 +256,24 @@ export function matchColors(
 
     const home = leggibile(homePal?.primary ?? coloreDaNome(homeName), tema);
 
-    const candidates = [
-        awayPal?.primary ?? coloreDaNome(awayName),
-        awayPal?.secondary,
-        ...FALLBACKS,
-    ].filter(Boolean) as string[];
+    // Il neutro si sceglie in opposizione alla squadra di casa, non al tema:
+    // fra i tre grigi vince quello piu' lontano di luminosita' che resta
+    // comunque leggibile sul fondo.
+    const [, , lHome] = rgbToHsl(home);
+    const fondo = tema === 'chiaro' ? '#DEEAF2' : '#08121A';
+    const neutro =
+        NEUTRI.filter((g) => contrast(g, fondo) >= 3.2)
+            .sort((a, b) => Math.abs(rgbToHsl(b)[2] - lHome) - Math.abs(rgbToHsl(a)[2] - lHome))[0]
+        ?? NEUTRI[1];
 
-    for (const candidate of candidates) {
-        const away = leggibile(candidate, tema);
-        if (areDistinct(home, away)) return { home, away };
+    // All'ospite serve una tinta lontana, non solo diversa: sotto i 90 gradi
+    // di distanza le due barre si somigliano ancora troppo per essere lette
+    // al volo, ed e' li' che nascevano le coppie blu/arancio.
+    for (const candidato of [awayPal?.primary ?? coloreDaNome(awayName), awayPal?.secondary]) {
+        if (!candidato) continue;
+        const away = leggibile(candidato, tema);
+        if (areDistinct(home, away, 90)) return { home, away };
     }
 
-    return { home, away: leggibile(FALLBACKS[FALLBACKS.length - 1], tema) };
+    return { home, away: neutro };
 }

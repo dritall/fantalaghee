@@ -57,8 +57,8 @@ export function SeasonSwitcher() {
                     "group flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.1em] whitespace-nowrap",
                     "border backdrop-blur-md transition-colors duration-300",
                     isArchive
-                        ? "bg-[color:var(--oro)] border-[color:var(--calce)]/30 text-[color:var(--su-chiaro)]"
-                        : "bg-[color:var(--calce)] border-[color:var(--calce)] text-[color:var(--pece)]"
+                        ? "bg-[color:var(--oro)] border-[color:var(--oro)] text-[color:var(--su-chiaro)]"
+                        : "bg-[color:var(--fondale)] border-[color:var(--calce)]/35 text-[color:var(--calce)] hover:border-[color:var(--vermiglio)]"
                 )}
             >
                 {/* pallino di stato: pieno e pulsante sulla stagione in corso */}

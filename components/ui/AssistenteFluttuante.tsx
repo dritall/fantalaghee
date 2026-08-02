@@ -326,8 +326,8 @@ export function AssistenteFluttuante() {
                                             <button
                                                 key={v.id}
                                                 onClick={() => chiediVoce(v)}
-                                                className="border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] px-3 py-1.5 text-[11px] font-semibold
-                                                           text-[color:var(--fumo)] hover:text-[color:var(--pece)] hover:bg-[color:var(--calce)] hover:border-[color:var(--calce)] active:scale-95 transition-all text-left"
+                                                className="border-2 border-[color:var(--filo-alto)] bg-[color:var(--secca)] px-3 py-1.5 text-[11px] font-semibold
+                                                           text-[color:var(--calce)] hover:bg-[color:var(--vermiglio)] hover:text-[color:var(--su-colore)] hover:border-[color:var(--vermiglio)] active:scale-95 transition-all text-left"
                                             >
                                                 {v.domanda}
                                             </button>

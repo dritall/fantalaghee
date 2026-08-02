@@ -60,7 +60,7 @@ function VerdettoContent() {
         const x = (rect.left + rect.width / 2) / window.innerWidth;
         const y = (rect.top + rect.height / 2) / window.innerHeight;
         import('canvas-confetti').then(({ default: confetti }) => {
-            confetti({ particleCount: 60, spread: 70, origin: { x, y }, colors: ['#FFD700', '#a855f7', '#38bdf8', '#4ade80', '#f97316'] });
+            confetti({ particleCount: 60, spread: 70, origin: { x, y }, colors: ['#D9A441', '#2E7AA6', '#1776A9', '#A9B4BC', '#AF2233'] });
         });
     }, []);
     const [loading, setLoading] = useState(true);
@@ -141,16 +141,11 @@ function VerdettoContent() {
         datasets: [{
             label: 'Punti Totali',
             data: (storico ? storico.classifica.slice(0, 5) : data?.classifica)?.map((d: any) => d.punti) || [],
-            backgroundColor: [
-                'rgba(250, 204, 21, 0.75)',
-                'rgba(203, 213, 225, 0.65)',
-                'rgba(217, 119, 6, 0.65)',
-                'rgba(34, 211, 238, 0.45)',
-                'rgba(34, 211, 238, 0.45)',
-            ],
-            borderColor: ['#facc15', '#cbd5e1', '#d97706', '#22d3ee', '#22d3ee'],
-            borderWidth: 1.5,
-            borderRadius: 8,
+            // podio in ottone e argento, il resto nel blu del lago
+            backgroundColor: ['#C29A46', '#A9B4BC', '#8A6A2F', '#2E7AA6', '#2E7AA6'],
+            borderColor: ['#C29A46', '#A9B4BC', '#8A6A2F', '#2E7AA6', '#2E7AA6'],
+            borderWidth: 0,
+            borderRadius: 0,
         }]
     };
 
@@ -160,20 +155,20 @@ function VerdettoContent() {
         indexAxis: 'y' as const,
         scales: {
             x: {
-                grid: { display: true, color: 'rgba(255, 255, 255, 0.06)' },
+                grid: { display: true, color: 'rgba(127,127,127,0.18)' },
                 border: { display: false },
-                ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 } }
+                ticks: { color: 'currentColor', font: { size: 11 } }
             },
             y: {
                 grid: { display: false },
                 border: { display: false },
-                ticks: { color: 'rgba(255,255,255,0.8)', font: { weight: 'bold' as const, size: 12 } }
+                ticks: { color: 'currentColor', font: { weight: 'bold' as const, size: 12 } }
             }
         },
         plugins: {
             legend: { display: false },
             tooltip: {
-                backgroundColor: 'rgba(10, 15, 38, 0.97)',
+                backgroundColor: '#0A2028',
                 titleColor: '#ffffff',
                 bodyColor: 'rgba(255,255,255,0.7)',
                 padding: 14,
