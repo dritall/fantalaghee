@@ -130,7 +130,7 @@ function MomentumChart({
 
     if (events.length === 0 || curve.length < 3) {
         return (
-            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
+            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
                 Non ci sono abbastanza episodi per leggere il momento
             </p>
         );
@@ -162,7 +162,7 @@ function MomentumChart({
                 </span>
             </div>
 
-            <div className="rounded-2xl border border-white/[0.08] bg-[#080c20] p-3">
+            <div className="rounded-none border border-white/[0.08] bg-[color:var(--fondale)] p-3">
                 <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="none" role="img"
                      aria-label={`Andamento della pressione: ${homeName} sopra, ${awayName} sotto`}>
                     <defs>
@@ -195,12 +195,12 @@ function MomentumChart({
                     ))}
                 </svg>
 
-                <div className="flex justify-between mt-1.5 px-0.5 text-[9px] font-bold tabular-nums text-white/25">
+                <div className="flex justify-between mt-1.5 px-0.5 text-[9px] font-bold tabular-nums text-[color:var(--fumo)]">
                     {[0, 15, 30, 45, 60, 75, 90].map((m) => <span key={m}>{m}&apos;</span>)}
                 </div>
             </div>
 
-            <p className="text-[10px] leading-relaxed text-white/30">
+            <p className="text-[10px] leading-relaxed text-[color:var(--fumo)]">
                 La curva misura la pressione dopo ogni episodio — gol, cartellini, cambi — e la lascia
                 smorzare nei minuti seguenti. I pallini sulla linea centrale sono le reti.
             </p>
@@ -211,7 +211,7 @@ function MomentumChart({
 function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { home: string; away: string } }) {
     if (events.length === 0) {
         return (
-            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
+            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
                 Nessun evento registrato
             </p>
         );
@@ -220,7 +220,7 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
     return (
         <div>
             {/* Intestazione colonne */}
-            <div className="flex items-center pb-2 mb-2 border-b border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-white/25">
+            <div className="flex items-center pb-2 mb-2 border-b border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
                 <span className="flex-1 text-left">CASA</span>
                 <span className="w-12 text-center shrink-0">MIN</span>
                 <span className="flex-1 text-right">TRASFERTA</span>
@@ -245,7 +245,7 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
                             <span className="relative z-10 flex flex-col items-center shrink-0">
                                 <span
                                     className={cn(
-                                        "rounded-full flex items-center justify-center border bg-[#0d1330]",
+                                        "rounded-full flex items-center justify-center border bg-[color:var(--fondale)]",
                                         isGoal
                                             ? "w-9 h-9 md:w-10 md:h-10 text-base md:text-lg"
                                             : isCard
@@ -273,12 +273,12 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
                             <span className="min-w-0 flex flex-col">
                                 {isSub ? (
                                     <>
-                                        <span className="text-[12px] md:text-[13px] font-black text-white flex items-center gap-1 leading-tight">
+                                        <span className="text-[12px] md:text-[13px] font-black text-[color:var(--calce)] flex items-center gap-1 leading-tight">
                                             <span className="text-emerald-400 text-xs">↑</span>
                                             <span className="truncate">{e.player}</span>
                                         </span>
                                         {e.playerOut && (
-                                            <span className="text-[10px] font-bold text-white/40 flex items-center gap-1 mt-0.5">
+                                            <span className="text-[10px] font-bold text-[color:var(--fumo)] flex items-center gap-1 mt-0.5">
                                                 <span className="text-red-400 text-[10px]">↓</span>
                                                 <span className="truncate">{e.playerOut}</span>
                                             </span>
@@ -288,7 +288,7 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
                                     <>
                                         <span
                                             className={cn(
-                                                "text-white truncate max-w-full flex items-center gap-1 leading-tight",
+                                                "text-[color:var(--calce)] truncate max-w-full flex items-center gap-1 leading-tight",
                                                 isGoal ? "text-sm md:text-base font-black" : "text-[12px] font-bold"
                                             )}
                                         >
@@ -300,12 +300,12 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
                                             )}
                                         </span>
                                         {e.assist && (
-                                            <span className="text-[9px] font-bold uppercase tracking-wider text-white/35 mt-0.5">
+                                            <span className="text-[9px] font-bold uppercase tracking-wider text-[color:var(--fumo)] mt-0.5">
                                                 {e.assist}
                                             </span>
                                         )}
                                         {e.description && (
-                                            <span className="text-[9px] italic text-white/30 mt-0.5 leading-snug max-w-[180px]">
+                                            <span className="text-[9px] italic text-[color:var(--fumo)] mt-0.5 leading-snug max-w-[180px]">
                                                 {e.description}
                                             </span>
                                         )}
@@ -341,7 +341,7 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
 
                                 {/* Minuto centrale */}
                                 <span className="relative z-10 w-12 shrink-0 flex justify-center">
-                                    <span className="text-[9px] font-black text-white/40 tabular-nums bg-[#0d1330] px-1.5 py-0.5 rounded-full border border-white/5">
+                                    <span className="text-[9px] font-black text-[color:var(--fumo)] tabular-nums bg-[color:var(--fondale)] px-1.5 py-0.5 rounded-full border border-white/5">
                                         {e.label}
                                     </span>
                                 </span>
@@ -490,7 +490,7 @@ function TeamStats({
 }) {
     if (rows.length === 0) {
         return (
-            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/25">
+            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
                 Statistiche non disponibili
             </p>
         );
@@ -499,7 +499,7 @@ function TeamStats({
     return (
         <div className="space-y-4 py-2">
             {/* chi è chi: senza questa riga le barre colorate sono un indovinello */}
-            <div className="sticky top-0 z-10 -mx-1 mb-1 flex items-center justify-between gap-3 rounded-xl bg-[#080c20]/95 px-3 py-2 backdrop-blur">
+            <div className="sticky top-0 z-10 -mx-1 mb-1 flex items-center justify-between gap-3 rounded-none bg-[color:var(--fondale)]/95 px-3 py-2 backdrop-blur">
                 <span className="flex min-w-0 items-center gap-2">
                     <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors.home }} />
                     <span className="truncate text-[10px] font-black uppercase tracking-wider" style={{ color: colors.home }}>
@@ -525,7 +525,7 @@ function TeamStats({
                     return (
                         <div key={r.label} className="flex items-center gap-2 pt-1">
                             <span className="h-px flex-1 bg-white/10" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.22em] text-white/25 shrink-0">
+                            <span className="text-[9px] font-black uppercase tracking-[0.22em] text-[color:var(--fumo)] shrink-0">
                                 {sectionName}
                             </span>
                             <span className="h-px flex-1 bg-white/10" />
@@ -549,7 +549,7 @@ function TeamStats({
                                 {r.home}
                                 {r.percent ? "%" : ""}
                             </span>
-                            <span className="flex-1 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">
+                            <span className="flex-1 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--fumo)]">
                                 {r.label}
                             </span>
                             <span
@@ -651,13 +651,13 @@ export function MatchSheet({
     return (
         <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
             <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 z-[100] bg-[#04060f]/90 backdrop-blur-md data-[state=open]:animate-fade-up" />
+                <Dialog.Overlay className="fixed inset-0 z-[100] bg-[color:var(--pece)]/90 backdrop-blur-md data-[state=open]:animate-fade-up" />
 
                 <Dialog.Content
                     className="fixed z-[101] inset-x-0 bottom-0 md:inset-0 md:m-auto
                                h-[92vh] md:h-fit md:max-h-[88vh] w-full md:max-w-3xl
                                flex flex-col overflow-hidden
-                               rounded-t-[2rem] md:rounded-[2rem] border border-white/12 bg-[#080c20] text-white
+                               rounded-t-[2rem] md:rounded-none border border-white/12 bg-[color:var(--fondale)] text-[color:var(--calce)]
                                shadow-[0_-24px_70px_rgba(0,0,0,0.7)] md:shadow-[0_40px_100px_rgba(0,0,0,0.75)]
                                focus:outline-none"
                     aria-describedby={undefined}
@@ -693,7 +693,7 @@ export function MatchSheet({
                                     Live
                                 </span>
                             ) : (
-                                <span className="rounded-full bg-white/[0.06] border border-white/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-white/40">
+                                <span className="rounded-full bg-white/[0.06] border border-white/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)]">
                                     {played ? "Terminata" : "Da giocare"}
                                 </span>
                             )}
@@ -715,7 +715,7 @@ export function MatchSheet({
                                     {played ? `${hs}–${as_}` : "VS"}
                                 </span>
                                 {normalized?.home.formation && normalized?.away.formation && (
-                                    <span className="mt-1 block text-[9px] font-bold tabular-nums text-white/25">
+                                    <span className="mt-1 block text-[9px] font-bold tabular-nums text-[color:var(--fumo)]">
                                         {normalized.home.formation} · {normalized.away.formation}
                                     </span>
                                 )}
@@ -732,7 +732,7 @@ export function MatchSheet({
                             </div>
                         </div>
                         {stadiumName && (
-                            <div className="relative mt-2 flex items-center justify-center gap-1.5 text-[9px] font-bold tracking-wider text-white/35">
+                            <div className="relative mt-2 flex items-center justify-center gap-1.5 text-[9px] font-bold tracking-wider text-[color:var(--fumo)]">
                                 <span>🏟️</span>
                                 <span>{stadiumName}{stadiumCity ? ` · ${stadiumCity}` : ""}</span>
                             </div>
@@ -747,15 +747,15 @@ export function MatchSheet({
                                 onClick={() => setTab(t.id)}
                                 aria-pressed={tab === t.id}
                                 className={cn(
-                                    "relative flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl",
+                                    "relative flex-1 flex items-center justify-center gap-1.5 py-2 rounded-none",
                                     "text-[10px] font-black uppercase tracking-[0.12em] transition-colors",
-                                    tab === t.id ? "text-white" : "text-white/35 hover:text-white/70"
+                                    tab === t.id ? "text-[color:var(--calce)]" : "text-[color:var(--fumo)] hover:text-[color:var(--calce)]/80"
                                 )}
                             >
                                 {tab === t.id && (
                                     <motion.span
                                         layoutId="match-tab"
-                                        className="absolute inset-0 rounded-xl bg-white/[0.09] border border-white/12"
+                                        className="absolute inset-0 rounded-none bg-white/[0.09] border border-white/12"
                                         transition={{ type: "spring", stiffness: 500, damping: 36 }}
                                     />
                                 )}
@@ -770,20 +770,20 @@ export function MatchSheet({
                         {loading ? (
                             <div className="flex flex-col items-center justify-center gap-4 py-24">
                                 <div className="relative">
-                                    <Loader2 className="w-9 h-9 text-cyan-400 animate-spin" />
-                                    <span className="absolute inset-0 bg-cyan-400/25 blur-xl rounded-full animate-pulse" />
+                                    <Loader2 className="w-9 h-9 text-[color:var(--lario)] animate-spin" />
+                                    <span className="absolute inset-0 bg-[color:var(--lario)]/25 blur-xl rounded-full animate-pulse" />
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/35">
+                                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[color:var(--fumo)]">
                                     Carico il tabellino…
                                 </p>
                             </div>
                         ) : error || !normalized ? (
                             <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-                                <AlertTriangle className="w-9 h-9 text-white/20" />
-                                <p className="text-xs font-black uppercase tracking-[0.2em] text-white/50">
+                                <AlertTriangle className="w-9 h-9 text-[color:var(--fumo)]" />
+                                <p className="text-xs font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
                                     {error ? "Dati non raggiungibili" : "Tabellino non disponibile"}
                                 </p>
-                                <p className="max-w-xs text-[11px] leading-relaxed text-white/30">
+                                <p className="max-w-xs text-[11px] leading-relaxed text-[color:var(--fumo)]">
                                     {error ||
                                         "Lega Serie A non ha ancora pubblicato formazioni e statistiche per questa partita."}
                                 </p>
@@ -830,8 +830,8 @@ export function MatchSheet({
                     <Dialog.Close
                         aria-label="Chiudi"
                         className="absolute top-4 right-4 w-9 h-9 rounded-full border border-white/10 bg-black/40 backdrop-blur
-                                   flex items-center justify-center text-white/60
-                                   hover:text-white hover:bg-red-500 hover:border-red-500 transition-colors"
+                                   flex items-center justify-center text-[color:var(--calce)]/80
+                                   hover:text-[color:var(--calce)] hover:bg-red-500 hover:border-red-500 transition-colors"
                     >
                         <X className="w-4 h-4" />
                     </Dialog.Close>

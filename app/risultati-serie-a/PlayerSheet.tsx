@@ -78,15 +78,15 @@ function StatGroup({ title, stats, source }: { title: string; stats: StatDef[]; 
 
     return (
         <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">{title}</h4>
-            <dl className="rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)] mb-2">{title}</h4>
+            <dl className="rounded-none border border-white/[0.08] bg-white/[0.03] overflow-hidden">
                 {rows.map((r) => (
                     <div
                         key={r.label}
                         className="flex items-center justify-between gap-3 px-3.5 py-2.5 border-b border-white/[0.05] last:border-0"
                     >
-                        <dt className="text-xs text-white/55">{r.label}</dt>
-                        <dd className="text-sm font-black text-white tabular-nums">{r.value}</dd>
+                        <dt className="text-xs text-[color:var(--fumo)]">{r.label}</dt>
+                        <dd className="text-sm font-black text-[color:var(--calce)] tabular-nums">{r.value}</dd>
                     </div>
                 ))}
             </dl>
@@ -96,16 +96,16 @@ function StatGroup({ title, stats, source }: { title: string; stats: StatDef[]; 
 
 function HeroStat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
     return (
-        <div className="flex-1 rounded-2xl border border-white/[0.08] bg-white/[0.04] py-2.5 text-center">
+        <div className="flex-1 rounded-none border border-white/[0.08] bg-white/[0.04] py-2.5 text-center">
             <span
                 className={cn(
                     "block font-score text-2xl font-bold tabular-nums leading-none",
-                    accent ? "text-cyan-300" : "text-white"
+                    accent ? "text-[color:var(--lario)]" : "text-[color:var(--calce)]"
                 )}
             >
                 {value}
             </span>
-            <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/35 mt-1.5">{label}</span>
+            <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--fumo)] mt-1.5">{label}</span>
         </div>
     );
 }
@@ -171,12 +171,12 @@ export function PlayerSheet({
         // intrappolerebbe nel proprio stacking context.
         <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
             <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 z-[120] bg-[#04060f]/85 backdrop-blur-md" />
+                <Dialog.Overlay className="fixed inset-0 z-[120] bg-[color:var(--pece)]/85 backdrop-blur-md" />
                 <Dialog.Content
                     aria-describedby={undefined}
                     className="fixed z-[121] inset-x-0 bottom-0 md:inset-0 md:m-auto
                                    w-full md:w-[420px] h-fit max-h-[88vh] md:max-h-[80vh] flex flex-col
-                                   rounded-t-[2rem] md:rounded-[1.75rem] border border-white/12 bg-[#0a0f26]
+                                   rounded-t-[2rem] md:rounded-none border border-white/12 bg-[#0a0f26]
                                    shadow-[0_-20px_60px_rgba(0,0,0,0.6)] md:shadow-[0_30px_80px_rgba(0,0,0,0.7)]
                                    overflow-hidden animate-fade-up focus:outline-none"
                 >
@@ -196,34 +196,34 @@ export function PlayerSheet({
                                     src={player.photo}
                                     alt=""
                                     onError={() => setPhotoFailed(true)}
-                                    className="relative w-16 h-16 rounded-2xl object-cover object-top border-2 bg-[#131a38] shrink-0"
+                                    className="relative w-16 h-16 rounded-none object-cover object-top border-2 bg-[#131a38] shrink-0"
                                     style={{ borderColor: accent }}
                                 />
                             ) : (
                                 <span
-                                    className="relative w-16 h-16 rounded-2xl border-2 bg-[#131a38] shrink-0 flex items-center justify-center"
+                                    className="relative w-16 h-16 rounded-none border-2 bg-[#131a38] shrink-0 flex items-center justify-center"
                                     style={{ borderColor: accent }}
                                 >
-                                    <span className="text-xl font-black text-white/70 tabular-nums">
+                                    <span className="text-xl font-black text-[color:var(--calce)]/80 tabular-nums">
                                         {player.number ?? "–"}
                                     </span>
                                 </span>
                             )}
 
                             <div className="relative flex-1 min-w-0">
-                                <p className="text-base font-black text-white leading-tight truncate">{player.fullName}</p>
-                                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/40 mt-1 truncate">
+                                <p className="text-base font-black text-[color:var(--calce)] leading-tight truncate">{player.fullName}</p>
+                                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--fumo)] mt-1 truncate">
                                     {player.number != null && `#${player.number} · `}
                                     {player.roleLabel}
                                 </p>
-                                <p className="text-[11px] text-white/30 truncate">{teamName}</p>
+                                <p className="text-[11px] text-[color:var(--fumo)] truncate">{teamName}</p>
                             </div>
 
                             <button
                                 onClick={onClose}
                                 aria-label="Chiudi"
                                 className="relative w-9 h-9 rounded-full border border-white/10 bg-white/[0.06] flex items-center justify-center
-                                           text-white/60 hover:text-white hover:bg-white/12 transition-colors shrink-0"
+                                           text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-white/12 transition-colors shrink-0"
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -244,22 +244,22 @@ export function PlayerSheet({
                             {(player.subbedIn || player.subbedOut || player.yellow || player.red) && (
                                 <div className="flex flex-wrap gap-1.5">
                                     {player.subbedIn && (
-                                        <span className="rounded-lg bg-emerald-500/12 border border-emerald-400/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-300">
+                                        <span className="rounded-none bg-emerald-500/12 border border-emerald-400/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-300">
                                             Entrato {player.subbedIn}&apos;
                                         </span>
                                     )}
                                     {player.subbedOut && (
-                                        <span className="rounded-lg bg-red-500/12 border border-red-400/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-300">
+                                        <span className="rounded-none bg-red-500/12 border border-red-400/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-300">
                                             Uscito {player.subbedOut}&apos;
                                         </span>
                                     )}
                                     {player.yellow && (
-                                        <span className="rounded-lg bg-yellow-400/12 border border-yellow-300/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-yellow-300">
+                                        <span className="rounded-none bg-yellow-400/12 border border-yellow-300/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-yellow-300">
                                             Ammonito
                                         </span>
                                     )}
                                     {player.red && (
-                                        <span className="rounded-lg bg-red-500/15 border border-red-400/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-300">
+                                        <span className="rounded-none bg-red-500/15 border border-red-400/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-300">
                                             Espulso
                                         </span>
                                     )}
@@ -271,13 +271,13 @@ export function PlayerSheet({
                             ))}
 
                             {Object.keys(player.stats).length === 0 && (
-                                <p className="py-6 text-center text-[11px] font-black uppercase tracking-[0.18em] text-white/25">
+                                <p className="py-6 text-center text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)]">
                                     Statistiche individuali non disponibili
                                 </p>
                             )}
 
                             {loadingSeason && (
-                                <div className="flex items-center justify-center gap-2 py-3 text-white/30">
+                                <div className="flex items-center justify-center gap-2 py-3 text-[color:var(--fumo)]">
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                     <span className="text-[10px] font-bold uppercase tracking-[0.16em]">
                                         Cerco i dati di stagione…
@@ -289,7 +289,7 @@ export function PlayerSheet({
                                 <div className="pt-1">
                                     <div className="flex items-center gap-2 mb-3">
                                         <span className="h-px flex-1 bg-white/10" />
-                                        <span className="text-[9px] font-black uppercase tracking-[0.22em] text-white/25">
+                                        <span className="text-[9px] font-black uppercase tracking-[0.22em] text-[color:var(--fumo)]">
                                             In stagione
                                         </span>
                                         <span className="h-px flex-1 bg-white/10" />

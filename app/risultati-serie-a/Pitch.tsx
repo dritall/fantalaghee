@@ -107,7 +107,7 @@ function PitchPlayer({
                 <PlayerBadges player={player} />
                 {player.number != null && (
                     <span
-                        className="absolute -bottom-1 -left-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#080b1e] border border-white/25
+                        className="absolute -bottom-1 -left-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[color:var(--pece)] border border-white/25
                                    flex items-center justify-center text-[9px] font-black text-white/90 tabular-nums z-20
                                    shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
                     >
@@ -142,7 +142,7 @@ function PitchPlayer({
 function PitchLines() {
     return (
         <>
-            <span className="absolute inset-[6%] border-2 border-white/12 rounded-lg" />
+            <span className="absolute inset-[6%] border-2 border-white/12 rounded-full" />
             <span className="absolute left-[6%] right-[6%] top-1/2 h-[2px] bg-white/10 -translate-y-1/2" />
             <span className="absolute left-1/2 top-1/2 w-[28%] aspect-square border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
             <span className="absolute left-1/2 top-1/2 w-2 h-2 bg-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
@@ -187,7 +187,7 @@ function TeamPitch({
                 )}
             </div>
 
-            <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#0f2a1b] via-[#123322] to-[#0b1f14] shadow-[0_8px_40px_rgba(0,0,0,0.4)]">
+            <div className="relative w-full aspect-[3/4] rounded-full overflow-hidden border border-white/10 bg-gradient-to-b from-[#0f2a1b] via-[#123322] to-[#0b1f14] shadow-[0_8px_40px_rgba(0,0,0,0.4)]">
                 {/* righe dell'erba */}
                 <span
                     className="absolute inset-0 opacity-[0.2]"
@@ -227,7 +227,7 @@ function TeamPitch({
                             <button
                                 key={p.id || p.name}
                                 onClick={() => onSelect(p)}
-                                className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-white/[0.06]"
+                                className="flex items-center gap-2 rounded-full px-2 py-1.5 text-left transition-colors hover:bg-white/[0.06]"
                             >
                                 <PlayerAvatar player={p} accent={accent} size="sm" />
                                 <span className="flex-1 min-w-0">
@@ -290,7 +290,7 @@ export function Pitch({
     return (
         <div>
             {/* selettore squadra mobile */}
-            <div className="md:hidden flex p-1 mb-4 rounded-2xl border border-white/10 bg-white/[0.04]">
+            <div className="md:hidden flex p-1 mb-4 rounded-full border border-white/10 bg-white/[0.04]">
                 {([
                     { key: "home" as const, team: home, accent: HOME_ACCENT },
                     { key: "away" as const, team: away, accent: AWAY_ACCENT },
@@ -300,7 +300,7 @@ export function Pitch({
                         onClick={() => setSide(key)}
                         aria-pressed={side === key}
                         className={cn(
-                            "flex-1 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider truncate transition-colors",
+                            "flex-1 py-2 rounded-full text-[11px] font-black uppercase tracking-wider truncate transition-colors",
                             side === key ? "text-[#08102a]" : "text-white/45"
                         )}
                         style={side === key ? { backgroundColor: accent } : undefined}

@@ -12,10 +12,10 @@ export function WaitingFirstMatchday({ subtitle }: { subtitle?: string }) {
                     <CalendarClock className="w-9 h-9 text-cyan-300" />
                     <Sparkles className="w-5 h-5 text-amber-300 absolute -top-2 -right-2 animate-pulse" />
                 </div>
-                <h3 className="relative z-10 font-oswald text-2xl md:text-3xl uppercase tracking-wide text-white">
+                <h3 className="relative z-10 font-oswald text-2xl md:text-3xl uppercase tracking-wide text-[color:var(--calce)]">
                     In attesa della prima giornata
                 </h3>
-                <p className="relative z-10 text-sm text-white/55 font-serif italic max-w-md">
+                <p className="relative z-10 text-sm text-[color:var(--fumo)] font-serif italic max-w-md">
                     {subtitle || "Il campionato sta per iniziare: i dati appariranno qui dopo la prima giornata."}
                 </p>
                 <a
@@ -23,7 +23,7 @@ export function WaitingFirstMatchday({ subtitle }: { subtitle?: string }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="relative z-10 mt-2 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-black uppercase tracking-wider
-                               bg-gradient-to-r from-secondary to-cyan-500 text-white border border-white/20
+                               bg-gradient-to-r from-secondary to-cyan-500 text-[color:var(--calce)] border border-white/20
                                shadow-[0_8px_24px_rgba(37,99,235,0.4)] hover:scale-105 transition-transform"
                 >
                     Iscriviti alla Lega →

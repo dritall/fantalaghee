@@ -213,35 +213,35 @@ function ScoutHubContent() {
         <header className="text-center space-y-4 mb-8 mt-4">
           <span className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.24em] px-4 py-1.5 rounded-full border
             ${isArchiveSeason
-              ? 'text-amber-200 bg-amber-400/10 border-amber-300/25'
-              : 'text-cyan-200 bg-cyan-400/10 border-cyan-300/25'}`}>
+              ? 'text-[color:var(--pece)] bg-[color:var(--oro)] border-[color:var(--oro)]'
+              : 'text-[color:var(--pece)] bg-[color:var(--lario)] border-[color:var(--lario)]'}`}>
             <span className="relative flex h-1.5 w-1.5">
-              {!isArchiveSeason && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-70" />}
-              <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${isArchiveSeason ? 'bg-amber-300' : 'bg-cyan-300'}`} />
+              {!isArchiveSeason && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[color:var(--lario)] opacity-70" />}
+              <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${isArchiveSeason ? 'bg-amber-300' : 'bg-[color:var(--lario)]'}`} />
             </span>
             Serie A {seasonLabel}
           </span>
           <h1 className="text-4xl md:text-6xl font-black font-oswald uppercase tracking-tight text-3d-metallic">
             Risultati Serie A
           </h1>
-          <p className="text-white/45 text-sm max-w-xl mx-auto">
+          <p className="text-[color:var(--fumo)] text-sm max-w-xl mx-auto">
             Calendario, tabellini e classifica ufficiale. Tocca una partita per formazioni, eventi e statistiche —
             e un giocatore per la sua scheda.
           </p>
         </header>
 
         {/* ===== SELETTORE VISTA ===== */}
-        <div className="relative flex p-1 rounded-2xl mb-8 max-w-xs mx-auto border border-white/10 bg-white/[0.04] backdrop-blur-md">
+        <div className="relative flex p-1 rounded-none mb-8 max-w-xs mx-auto border border-white/10 bg-white/[0.04] backdrop-blur-md">
           {[
             { id: 'calendario', label: 'Calendario', icon: CalendarDays },
             { id: 'classifica', label: 'Classifica', icon: ListOrdered },
           ].map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               aria-pressed={activeTab === t.id}
-              className={`relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.16em] transition-colors duration-300
-                ${activeTab === t.id ? 'text-white' : 'text-white/40 hover:text-white/75'}`}>
+              className={`relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-none text-[10px] font-black uppercase tracking-[0.16em] transition-colors duration-300
+                ${activeTab === t.id ? 'text-[color:var(--calce)]' : 'text-[color:var(--fumo)] hover:text-[color:var(--calce)]/80'}`}>
               {activeTab === t.id && (
-                <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary to-cyan-500 shadow-[0_6px_18px_rgba(37,99,235,0.45)]" />
+                <span className="absolute inset-0 rounded-none bg-gradient-to-r from-[color:var(--vermiglio)] to-[color:var(--vermiglio)] shadow-[0_6px_18px_rgba(37,99,235,0.45)]" />
               )}
               <t.icon className="relative w-3.5 h-3.5" />
               <span className="relative">{t.label}</span>
@@ -250,24 +250,24 @@ function ScoutHubContent() {
         </div>
 
         {seasonUnavailable ? (
-          <div className="surface rounded-[2rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
-            <AlertTriangle className="w-10 h-10 text-white/25" />
-            <p className="text-white/70 text-sm font-black uppercase tracking-widest">Calendario non ancora disponibile</p>
-            <p className="text-white/40 text-xs max-w-md leading-relaxed">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
+          <div className="surface rounded-none p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-[color:var(--fumo)]" />
+            <p className="text-[color:var(--calce)]/80 text-sm font-black uppercase tracking-widest">Calendario non ancora disponibile</p>
+            <p className="text-[color:var(--fumo)] text-xs max-w-md leading-relaxed">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
           </div>
         ) : initializingRound ? (
           <div className="flex flex-col items-center justify-center gap-4 py-24">
             <div className="relative">
-              <Loader2 className="w-9 h-9 text-cyan-400 animate-spin" />
-              <div className="absolute inset-0 bg-cyan-400/25 blur-xl rounded-full animate-pulse" />
+              <Loader2 className="w-9 h-9 text-[color:var(--lario)] animate-spin" />
+              <div className="absolute inset-0 bg-[color:var(--lario)]/25 blur-xl rounded-full animate-pulse" />
             </div>
-            <p className="text-white/40 text-[11px] font-black uppercase tracking-[0.28em]">Cerco la giornata in corso…</p>
+            <p className="text-[color:var(--fumo)] text-[11px] font-black uppercase tracking-[0.28em]">Cerco la giornata in corso…</p>
           </div>
         ) : selectedRound === null ? (
-          <div className="surface rounded-[2rem] p-12 flex flex-col items-center justify-center gap-4 text-center">
-            <AlertTriangle className="w-10 h-10 text-white/25" />
-            <p className="text-white/70 text-sm font-black uppercase tracking-widest">Dati non disponibili</p>
-            <p className="text-white/40 text-xs max-w-md leading-relaxed">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
+          <div className="surface rounded-none p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-[color:var(--fumo)]" />
+            <p className="text-[color:var(--calce)]/80 text-sm font-black uppercase tracking-widest">Dati non disponibili</p>
+            <p className="text-[color:var(--fumo)] text-xs max-w-md leading-relaxed break-all">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
           </div>
         ) : (
           <>
@@ -279,8 +279,8 @@ function ScoutHubContent() {
                     onClick={() => selectedRound > 1 && handleRoundChange(selectedRound - 1)}
                     disabled={selectedRound <= 1}
                     aria-label="Giornata precedente"
-                    className="shrink-0 w-9 h-9 rounded-xl border border-white/10 bg-white/[0.05] flex items-center justify-center
-                               text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all"
+                    className="shrink-0 w-9 h-9 rounded-none border border-white/10 bg-white/[0.05] flex items-center justify-center
+                               text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -289,10 +289,10 @@ function ScoutHubContent() {
                     {Array.from({ length: TOTAL_ROUNDS }, (_, i) => i + 1).map(r => (
                       <button key={r} onClick={() => handleRoundChange(r)}
                         aria-current={selectedRound === r ? 'true' : undefined}
-                        className={`px-4 py-2 rounded-xl shrink-0 font-black text-xs tabular-nums border transition-all duration-300
+                        className={`px-4 py-2 rounded-none shrink-0 font-black text-xs tabular-nums border transition-all duration-300
                           ${selectedRound === r
-                            ? 'active-round-btn border-cyan-400/50 bg-gradient-to-b from-cyan-400/20 to-secondary/15 text-white shadow-[0_0_18px_rgba(34,211,238,0.28)]'
-                            : 'border-white/[0.08] bg-white/[0.02] text-white/40 hover:text-white hover:border-white/20 hover:bg-white/[0.06]'}`}>
+                            ? 'active-round-btn border-[color:var(--calce)] bg-[color:var(--calce)] text-[color:var(--pece)]'
+                            : 'border-white/[0.08] bg-white/[0.02] text-[color:var(--fumo)] hover:text-[color:var(--calce)] hover:border-white/20 hover:bg-white/[0.06]'}`}>
                         {r}
                       </button>
                     ))}
@@ -302,15 +302,15 @@ function ScoutHubContent() {
                     onClick={() => selectedRound < TOTAL_ROUNDS && handleRoundChange(selectedRound + 1)}
                     disabled={selectedRound >= TOTAL_ROUNDS}
                     aria-label="Giornata successiva"
-                    className="shrink-0 w-9 h-9 rounded-xl border border-white/10 bg-white/[0.05] flex items-center justify-center
-                               text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all"
+                    className="shrink-0 w-9 h-9 rounded-none border border-white/10 bg-white/[0.05] flex items-center justify-center
+                               text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <h2 className="text-[10px] font-black uppercase tracking-[0.28em] text-white/40">
+                  <h2 className="text-[10px] font-black uppercase tracking-[0.28em] text-[color:var(--fumo)]">
                     Giornata {selectedRound}
                   </h2>
                   <span className="h-px flex-1 bg-white/10" />
@@ -319,21 +319,21 @@ function ScoutHubContent() {
                 {loadingMatches ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="h-[92px] rounded-[1.5rem] border border-white/[0.07] bg-white/[0.03] overflow-hidden relative">
+                      <div key={i} className="h-[92px] rounded-none border border-white/[0.07] bg-white/[0.03] overflow-hidden relative">
                         <div className="absolute inset-0 animate-shimmer bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)] bg-[length:200%_100%]" />
                       </div>
                     ))}
                   </div>
                 ) : matchError ? (
-                  <div className="rounded-[1.5rem] border border-red-400/25 bg-red-500/[0.08] p-6">
+                  <div className="rounded-none border border-red-400/25 bg-red-500/[0.08] p-6">
                     <div className="flex items-center gap-2 text-red-300 font-black mb-2 text-xs uppercase tracking-widest">
                       <AlertTriangle className="w-4 h-4" /> Errore caricamento
                     </div>
-                    <p className="text-white/45 text-xs font-mono break-words">{matchError}</p>
+                    <p className="text-[color:var(--fumo)] text-xs font-mono break-all">{matchError}</p>
                   </div>
                 ) : matches.length === 0 ? (
-                  <div className="surface rounded-[1.5rem] p-10 text-center">
-                    <p className="text-white/40 text-xs font-black uppercase tracking-[0.2em]">Nessuna partita per questa giornata</p>
+                  <div className="surface rounded-none p-10 text-center">
+                    <p className="text-[color:var(--fumo)] text-xs font-black uppercase tracking-[0.2em]">Nessuna partita per questa giornata</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -353,14 +353,10 @@ function ScoutHubContent() {
                         <button
                           key={m.matchId || m.id || idx}
                           onClick={() => openMatch(m)}
-                          className="group relative text-left rounded-[1.5rem] p-[1px] overflow-hidden
-                                     shadow-[0_8px_26px_rgba(6,10,30,0.45)] transition-all duration-300
-                                     hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(6,10,30,0.65)]"
-                          style={{
-                            backgroundImage: `linear-gradient(135deg, ${cardColors.home}66, rgba(255,255,255,0.06) 48%, ${cardColors.away}66)`,
-                          }}
+                          className="group scatto relative text-left border-2 overflow-hidden bg-[color:var(--fondale)]"
+                          style={{ borderColor: 'var(--filo)' }}
                         >
-                          <div className="relative rounded-[calc(1.5rem-1px)] bg-gradient-to-b from-[#0c1228] to-[#080b1e] px-4 py-3.5 overflow-hidden">
+                          <div className="relative px-4 py-3.5 overflow-hidden">
                             <span className="absolute left-0 top-0 h-[3px] w-1/2 rounded-tl-[calc(1.5rem-1px)]" style={{ backgroundColor: cardColors.home }} />
                             <span className="absolute right-0 top-0 h-[3px] w-1/2 rounded-tr-[calc(1.5rem-1px)]" style={{ backgroundColor: cardColors.away }} />
                             <span
@@ -373,7 +369,7 @@ function ScoutHubContent() {
                             />
 
                             <div className="relative flex items-center justify-between mb-2.5">
-                              <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/30">
+                              <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-[color:var(--fumo)]">
                                 {formatKickoff(m)}
                               </span>
                               {isLive ? (
@@ -384,7 +380,7 @@ function ScoutHubContent() {
                               ) : played ? (
                                 <span className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-300/70">Finita</span>
                               ) : (
-                                <span className="text-[9px] font-black uppercase tracking-[0.16em] text-white/25">Da giocare</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.16em] text-[color:var(--fumo)]">Da giocare</span>
                               )}
                             </div>
 
@@ -392,22 +388,22 @@ function ScoutHubContent() {
                               <div className="flex-1 min-w-0 flex items-center gap-2.5">
                                 <TeamLogo team={home} className="w-8 h-8 transition-transform duration-300 group-hover:scale-110" />
                                 <span
-                                  className={`text-[13px] truncate ${homeWin ? 'font-black' : played ? 'font-bold text-white/50' : 'font-bold text-white/75'}`}
+                                  className={`text-[13px] truncate ${homeWin ? 'font-black' : played ? 'font-bold text-[color:var(--fumo)]' : 'font-bold text-[color:var(--calce)]/80'}`}
                                   style={homeWin ? { color: cardColors.home } : undefined}
                                 >
                                   {home.name}
                                 </span>
                               </div>
 
-                              <div className="shrink-0 px-2.5 py-1 rounded-lg border border-white/10 bg-white/[0.05] min-w-[62px] text-center">
-                                <span className={`font-score font-bold tabular-nums tracking-tight ${played ? 'text-lg text-white' : 'text-[11px] text-cyan-300/80'}`}>
-                                  {played ? `${hs} – ${as_}` : 'VS'}
+                              <div className="shrink-0 px-2.5 min-w-[62px] text-center">
+                                <span className={`numerone ${played ? 'text-[22px] text-[color:var(--calce)]' : 'text-[11px] text-[color:var(--fumo)]'}`}>
+                                  {played ? `${hs}\u00b7${as_}` : 'VS'}
                                 </span>
                               </div>
 
                               <div className="flex-1 min-w-0 flex items-center gap-2.5 justify-end">
                                 <span
-                                  className={`text-[13px] truncate text-right ${awayWin ? 'font-black' : played ? 'font-bold text-white/50' : 'font-bold text-white/75'}`}
+                                  className={`text-[13px] truncate text-right ${awayWin ? 'font-black' : played ? 'font-bold text-[color:var(--fumo)]' : 'font-bold text-[color:var(--calce)]/80'}`}
                                   style={awayWin ? { color: cardColors.away } : undefined}
                                 >
                                   {away.name}
@@ -427,12 +423,12 @@ function ScoutHubContent() {
             {/* ===== CLASSIFICA ===== */}
             {activeTab === 'classifica' && (
               <div className="space-y-4">
-                <div className="surface rounded-[1.75rem] p-3 md:p-5 overflow-x-auto custom-scrollbar">
+                <div className="surface rounded-none p-3 md:p-5 overflow-x-auto custom-scrollbar">
                   <div className="min-w-[620px]">
-                    <div className="grid grid-cols-12 items-center py-2.5 px-3 text-[9px] font-black uppercase text-white/30 border-b border-white/10 tracking-[0.16em]">
+                    <div className="grid grid-cols-12 items-center py-2.5 px-3 text-[9px] font-black uppercase text-[color:var(--fumo)] border-b border-white/10 tracking-[0.16em]">
                       <span className="col-span-1 text-center">#</span>
                       <span className="col-span-4">Squadra</span>
-                      <span className="col-span-1 text-center text-cyan-300/80">Pt</span>
+                      <span className="col-span-1 text-center text-[color:var(--lario)]/80">Pt</span>
                       <span className="col-span-1 text-center">G</span>
                       <span className="col-span-1 text-center text-emerald-300/70">V</span>
                       <span className="col-span-1 text-center">N</span>
@@ -442,42 +438,42 @@ function ScoutHubContent() {
                     </div>
 
                     {loadingStandings ? (
-                      <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-cyan-400 animate-spin" /></div>
+                      <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-[color:var(--lario)] animate-spin" /></div>
                     ) : standings.length === 0 ? (
-                      <p className="py-12 text-center text-white/35 text-xs font-black uppercase tracking-[0.2em]">
+                      <p className="py-12 text-center text-[color:var(--fumo)] text-xs font-black uppercase tracking-[0.2em]">
                         Classifica non ancora disponibile
                       </p>
                     ) : standings.map((t: any, i: number) => {
                       const zone =
-                        i < 4 ? 'bg-cyan-400'
-                          : i < 6 ? 'bg-amber-400'
+                        i < 4 ? 'bg-[color:var(--lario)]'
+                          : i < 6 ? 'bg-[color:var(--oro)]'
                             : i >= standings.length - 3 ? 'bg-red-500'
                               : 'bg-transparent';
                       return (
                         <div
                           key={t.id}
                           className="relative grid grid-cols-12 items-center py-2.5 px-3 border-b border-white/[0.05] last:border-0
-                                     hover:bg-white/[0.04] rounded-xl transition-colors group"
+                                     hover:bg-white/[0.04] rounded-none transition-colors group"
                         >
                           <span className={`absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full ${zone}`} />
 
-                          <span className="col-span-1 text-center text-[11px] font-black text-white/35 tabular-nums group-hover:text-cyan-300 transition-colors">
+                          <span className="col-span-1 text-center text-[11px] font-black text-[color:var(--fumo)] tabular-nums group-hover:text-[color:var(--lario)] transition-colors">
                             {i + 1}
                           </span>
 
                           <div className="col-span-4 flex items-center gap-3 min-w-0">
                             <TeamLogo team={t} className="w-7 h-7 shrink-0" />
-                            <span className="text-xs font-black uppercase tracking-tight truncate text-white/85 group-hover:text-white transition-colors">
+                            <span className="text-xs font-black uppercase tracking-tight truncate text-[color:var(--calce)]/80 group-hover:text-[color:var(--calce)] transition-colors">
                               {t.name}
                             </span>
                           </div>
 
-                          <span className="col-span-1 text-center font-score font-bold text-cyan-300 text-base tabular-nums">{t.points}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums text-white/45">{t.played}</span>
+                          <span className="col-span-1 text-center font-score font-bold text-[color:var(--lario)] text-base tabular-nums">{t.points}</span>
+                          <span className="col-span-1 text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.played}</span>
                           <span className="col-span-1 text-center text-xs tabular-nums text-emerald-300/80">{t.win}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums text-white/35">{t.draw}</span>
+                          <span className="col-span-1 text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.draw}</span>
                           <span className="col-span-1 text-center text-xs tabular-nums text-red-300/80">{t.lose}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums font-bold text-white/50">
+                          <span className="col-span-1 text-center text-xs tabular-nums font-bold text-[color:var(--fumo)]">
                             {t.gd > 0 ? `+${t.gd}` : t.gd}
                           </span>
 
@@ -492,9 +488,9 @@ function ScoutHubContent() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] font-bold uppercase tracking-[0.14em] text-white/35">
-                  <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-cyan-400" /> Champions</span>
-                  <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-amber-400" /> Europa</span>
+                <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--fumo)]">
+                  <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-[color:var(--lario)]" /> Champions</span>
+                  <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-[color:var(--oro)]" /> Europa</span>
                   <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-red-500" /> Retrocessione</span>
                 </div>
               </div>
@@ -521,7 +517,7 @@ export default function ScoutHub() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex justify-center items-center pt-24">
-        <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
+        <Loader2 className="w-10 h-10 text-[color:var(--lario)] animate-spin" />
       </div>
     }>
       <ScoutHubContent />

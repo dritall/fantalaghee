@@ -35,7 +35,7 @@ const Bar = dynamic(
         ssr: false,
         loading: () => (
             <div className="h-full min-h-[260px] flex items-center justify-center">
-                <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+                <Loader2 className="w-6 h-6 text-[color:var(--lario)] animate-spin" />
             </div>
         ),
     }
@@ -101,7 +101,7 @@ function VerdettoContent() {
 
     if (error) return (
         <div className="min-h-screen pt-24 px-4 flex justify-center items-center">
-            <div className="glass p-6 rounded-lg text-red-500 border border-red-500/30">
+            <div className="glass p-6 rounded-none text-red-500 border border-red-500/30">
                 Errore: {error}
             </div>
         </div>
@@ -208,7 +208,7 @@ function VerdettoContent() {
                     etichettaGenerale={`Attuale · giornata ${data?.numeroGiornata ?? giornate[giornate.length - 1]}`}
                 />
                 {giornataScelta !== null && (
-                    <span className="text-[11px] text-white/35">
+                    <span className="text-[11px] text-[color:var(--fumo)]">
                         Ricalcolata dai punteggi di classifica
                     </span>
                 )}
@@ -219,10 +219,10 @@ function VerdettoContent() {
     const Highlight = ({ icon: Icon, title, hex, children, delay }: any) => (
         <motion.div
             initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.45 }}
-            className="relative h-full rounded-[1.5rem] p-[1.5px] overflow-hidden shadow-[0_10px_34px_rgba(6,10,30,0.5)]"
+            className="relative h-full rounded-none p-[1.5px] overflow-hidden shadow-[0_10px_34px_rgba(6,10,30,0.5)]"
             style={{ background: `linear-gradient(155deg, ${hex}66, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.02))` }}
         >
-            <div className="relative h-full rounded-[calc(1.5rem-1.5px)] bg-gradient-to-b from-[#0c1228] to-[#080b1e] p-5 overflow-hidden">
+            <div className="relative h-full rounded-none bg-gradient-to-b from-[#0c1228] to-[#080b1e] p-5 overflow-hidden">
                 <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                 <span className="absolute -right-4 -top-4 opacity-[0.07] pointer-events-none">
                     <Icon className="w-28 h-28" style={{ color: hex }} />
@@ -244,18 +244,18 @@ function VerdettoContent() {
         <div
             onMouseEnter={fireConfetti}
             onTouchStart={fireConfetti}
-            className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl cursor-pointer transition-colors hover:bg-white/[0.06]"
+            className="flex items-center justify-between gap-3 px-3 py-2 rounded-none cursor-pointer transition-colors hover:bg-white/[0.06]"
         >
             <span className="flex items-center gap-2 min-w-0">
                 {rank !== undefined && <span className="text-sm shrink-0">{['🥇', '🥈', '🥉', '4️⃣'][rank] || `${rank + 1}.`}</span>}
-                <span className="text-xs text-white/60 truncate">{squadra}</span>
+                <span className="text-xs text-[color:var(--calce)]/80 truncate">{squadra}</span>
             </span>
-            <span className="text-xs font-black text-amber-300 tabular-nums shrink-0">{premio} 🍆</span>
+            <span className="text-xs font-black text-[color:var(--oro)] tabular-nums shrink-0">{premio} 🍆</span>
         </div>
     );
 
     const Panel = ({ title, icon: Icon, hex, children, className = "" }: any) => (
-        <div className={`surface rounded-[1.5rem] p-5 flex flex-col ${className}`}>
+        <div className={`surface rounded-none p-5 flex flex-col ${className}`}>
             <div className="flex items-center gap-2 mb-4">
                 {Icon && <Icon className="w-4 h-4 shrink-0" style={{ color: hex }} />}
                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: hex }}>{title}</h4>
@@ -280,8 +280,8 @@ function VerdettoContent() {
                         <span className={cn(
                             "inline-flex items-center rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.18em]",
                             storico
-                                ? "border-amber-300/30 bg-amber-400/10 text-amber-200"
-                                : "border-white/12 bg-white/[0.06] text-white/55"
+                                ? "border-amber-300/30 bg-[color:var(--oro)]/10 text-[color:var(--oro)]"
+                                : "border-white/12 bg-white/[0.06] text-[color:var(--fumo)]"
                         )}>
                             Giornata {storico ? storico.giornata : data.numeroGiornata}
                         </span>
@@ -293,31 +293,31 @@ function VerdettoContent() {
                 {/* ===== I TRE VERDETTI ===== */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                     <Highlight icon={Trophy} title="Leader attuale" hex="#facc15" delay={0.05}>
-                        <p className="text-2xl md:text-3xl font-black text-white break-words leading-tight">
+                        <p className="text-2xl md:text-3xl font-black text-[color:var(--calce)] break-words leading-tight">
                             {storico ? storico.leader : data.leaderAttuale}
                         </p>
                     </Highlight>
 
                     <Highlight icon={Flame} title="Record assoluto" hex="#ec4899" delay={0.12}>
-                        <p className="font-score text-4xl font-bold text-white tabular-nums leading-none">
+                        <p className="font-score text-4xl font-bold text-[color:var(--calce)] tabular-nums leading-none">
                             {storico ? (storico.record?.punteggio ?? '-') : data.recordAssoluto.punteggio}
                         </p>
-                        <p className="text-sm font-bold text-white/70 mt-1.5 truncate">
+                        <p className="text-sm font-bold text-[color:var(--calce)]/80 mt-1.5 truncate">
                             {storico ? (storico.record?.squadra ?? 'N/D') : data.recordAssoluto.squadra}
                         </p>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--fumo)] mt-1">
                             {storico ? (storico.record ? `Giornata ${storico.record.giornata}` : '') : data.recordAssoluto.giornata}
                         </p>
                     </Highlight>
 
                     <Highlight icon={ThumbsDown} title="Cucchiaio di legno" hex="#f87171" delay={0.19}>
-                        <p className="font-score text-4xl font-bold text-white tabular-nums leading-none">
+                        <p className="font-score text-4xl font-bold text-[color:var(--calce)] tabular-nums leading-none">
                             {storico ? (storico.cucchiaio?.punteggio ?? '-') : data.cucchiaioDiLegno.punteggio}
                         </p>
-                        <p className="text-sm font-bold text-white/70 mt-1.5 truncate">
+                        <p className="text-sm font-bold text-[color:var(--calce)]/80 mt-1.5 truncate">
                             {storico ? (storico.cucchiaio?.squadra ?? 'N/D') : data.cucchiaioDiLegno.squadra}
                         </p>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/30 mt-1">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--fumo)] mt-1">
                             {storico ? (storico.cucchiaio ? `Giornata ${storico.cucchiaio.giornata}` : '') : data.cucchiaioDiLegno.giornata}
                         </p>
                     </Highlight>
@@ -345,9 +345,9 @@ function VerdettoContent() {
                                 ).map((p: any, i: number) => (
                                     <div
                                         key={i}
-                                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-colors ${
+                                        className={`flex items-center gap-3 p-3 rounded-none border transition-colors ${
                                             i === 0
-                                                ? 'border-amber-300/30 bg-amber-400/[0.08]'
+                                                ? 'border-amber-300/30 bg-[color:var(--oro)]/[0.08]'
                                                 : i === 1
                                                   ? 'border-white/15 bg-white/[0.05]'
                                                   : 'border-orange-400/20 bg-orange-500/[0.06]'
@@ -355,8 +355,8 @@ function VerdettoContent() {
                                     >
                                         <span className="text-2xl shrink-0">{['🥇', '🥈', '🥉'][i]}</span>
                                         <span className="min-w-0 flex-1">
-                                            <span className="block font-black text-white text-sm truncate">{p.squadra}</span>
-                                            <span className="block font-score text-sm font-bold text-cyan-300 tabular-nums mt-0.5">{p.punteggio} pt</span>
+                                            <span className="block font-black text-[color:var(--calce)] text-sm truncate">{p.squadra}</span>
+                                            <span className="block font-score text-sm font-bold text-[color:var(--lario)] tabular-nums mt-0.5">{p.punteggio} pt</span>
                                         </span>
                                     </div>
                                 ))}
@@ -373,8 +373,8 @@ function VerdettoContent() {
                 {storico ? (
                     <section className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <Coins className="w-5 h-5 text-amber-300 shrink-0" />
-                            <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-amber-300">
+                            <Coins className="w-5 h-5 text-[color:var(--oro)] shrink-0" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro)]">
                                 Premi · Giornata {storico.giornata}
                             </h2>
                             <span className="h-px flex-1 bg-white/10" />
@@ -388,7 +388,7 @@ function VerdettoContent() {
                                     ))}
                                 </div>
                                 {storico.premio.vincitori.length > 1 && (
-                                    <p className="mt-2 text-[11px] text-white/35">
+                                    <p className="mt-2 text-[11px] text-[color:var(--fumo)]">
                                         Pari merito a {storico.premio.punteggio} punti: il premio si divide in{' '}
                                         {storico.premio.vincitori.length}.
                                     </p>
@@ -402,13 +402,13 @@ function VerdettoContent() {
                                     {storico.melanzaneVinte.map((m) => (
                                         <div
                                             key={m.squadra}
-                                            className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3"
+                                            className="rounded-none border border-white/10 bg-white/[0.04] px-3 py-3"
                                         >
-                                            <span className="block text-[11px] text-white/55 truncate">{m.squadra}</span>
-                                            <span className="mt-1 block font-score text-lg font-black tabular-nums text-amber-300">
+                                            <span className="block text-[11px] text-[color:var(--fumo)] truncate">{m.squadra}</span>
+                                            <span className="mt-1 block font-score text-lg font-black tabular-nums text-[color:var(--oro)]">
                                                 {m.melanzane} 🍆
                                             </span>
-                                            <span className="block text-[10px] text-white/30">
+                                            <span className="block text-[10px] text-[color:var(--fumo)]">
                                                 {m.giornateVinte} {m.giornateVinte === 1 ? 'giornata' : 'giornate'}
                                             </span>
                                         </div>
@@ -417,12 +417,12 @@ function VerdettoContent() {
                             </Panel>
                         )}
 
-                        <p className="text-[11px] leading-relaxed text-white/35">
+                        <p className="text-[11px] leading-relaxed text-[color:var(--fumo)]">
                             Premi di campionato e coppe si assegnano sulla classifica finale: compaiono solo
                             all&apos;ultima giornata. Per il montepremi completo della giornata in corso torna su
                             <button
                                 onClick={() => setGiornataScelta(null)}
-                                className="mx-1 underline underline-offset-2 text-cyan-300 hover:text-cyan-200"
+                                className="mx-1 underline underline-offset-2 text-[color:var(--lario)] hover:text-[color:var(--lario)]"
                             >
                                 Attuale
                             </button>
@@ -432,8 +432,8 @@ function VerdettoContent() {
                 ) : (
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">
-                        <Coins className="w-5 h-5 text-amber-300 shrink-0" />
-                        <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-amber-300">Montepremi</h2>
+                        <Coins className="w-5 h-5 text-[color:var(--oro)] shrink-0" />
+                        <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro)]">Montepremi</h2>
                         <span className="h-px flex-1 bg-white/10" />
                     </div>
 
@@ -447,9 +447,9 @@ function VerdettoContent() {
                                             key={i}
                                             onMouseEnter={fireConfetti}
                                             onTouchStart={fireConfetti}
-                                            className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border cursor-pointer transition-all hover:-translate-y-1 ${
+                                            className={`flex flex-col items-center justify-center p-3.5 rounded-none border cursor-pointer transition-all hover:-translate-y-1 ${
                                                 i === 0
-                                                    ? 'border-amber-300/40 bg-amber-400/[0.10]'
+                                                    ? 'border-amber-300/40 bg-[color:var(--oro)]/[0.10]'
                                                     : i === 1
                                                       ? 'border-white/20 bg-white/[0.06]'
                                                       : i === 2
@@ -458,8 +458,8 @@ function VerdettoContent() {
                                             }`}
                                         >
                                             {i < 3 && <span className="text-xl mb-1">{['🥇', '🥈', '🥉'][i]}</span>}
-                                            <p className="text-white font-bold text-xs text-center leading-tight line-clamp-2">{p.squadra}</p>
-                                            <p className="text-amber-300 font-score font-bold text-2xl tabular-nums mt-1.5">{p.totale}</p>
+                                            <p className="text-[color:var(--calce)] font-bold text-xs text-center leading-tight line-clamp-2">{p.squadra}</p>
+                                            <p className="text-[color:var(--oro)] font-score font-bold text-2xl tabular-nums mt-1.5">{p.totale}</p>
                                             <span className="text-sm">🍆</span>
                                         </div>
                                     ))}
@@ -491,8 +491,8 @@ function VerdettoContent() {
                                 onTouchStart={fireConfetti}
                                 className="flex-1 flex flex-col items-center justify-center text-center py-4 cursor-pointer"
                             >
-                                <p className="text-white/70 font-semibold text-sm">{data.premi.migliorPunteggio.info}</p>
-                                <p className="font-score text-4xl font-bold text-amber-300 tabular-nums mt-2">
+                                <p className="text-[color:var(--calce)]/80 font-semibold text-sm">{data.premi.migliorPunteggio.info}</p>
+                                <p className="font-score text-4xl font-bold text-[color:var(--oro)] tabular-nums mt-2">
                                     {data.premi.migliorPunteggio.premio} 🍆
                                 </p>
                             </div>
