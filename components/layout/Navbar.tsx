@@ -34,14 +34,14 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         aria-current={isActive ? "page" : undefined}
                         className={cn(
                             "group relative px-3.5 py-2 text-[12px] font-black uppercase tracking-[0.08em] whitespace-nowrap transition-colors duration-200",
-                            isActive ? "text-[color:var(--calce)]" : "text-[color:var(--fumo)] hover:text-[color:var(--calce)]"
+                            isActive ? "text-[color:var(--calce)]" : "text-[color:var(--calce)]/60 hover:text-[color:var(--calce)]"
                         )}
                     >
                         <span className="relative z-10 flex items-center gap-1.5">
                             <item.icon
                                 className={cn(
                                     "w-[15px] h-[15px] transition-all duration-300",
-                                    isActive ? "text-[color:var(--lario)]" : "text-[color:var(--fumo)] group-hover:text-[color:var(--lario)]/80"
+                                    isActive ? "text-[color:var(--vermiglio)]" : "text-[color:var(--fumo)] group-hover:text-[color:var(--vermiglio)]"
                                 )}
                                 strokeWidth={2.2}
                             />
@@ -52,7 +52,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         {isActive && (
                             <motion.span
                                 layoutId="navbar-indicator"
-                                className="absolute inset-0 rounded-full bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)] shadow-[0_0_22px_rgba(34,211,238,0.22)]"
+                                className="absolute inset-0 bg-[color:var(--velo-alto)] border-2 border-[color:var(--filo-alto)]"
                                 initial={false}
                                 transition={{ type: "spring", stiffness: 500, damping: 34 }}
                             />
@@ -124,8 +124,8 @@ export function Navbar() {
             className={cn(
                 "fixed top-0 w-full z-50 transition-all duration-300",
                 scrolled
-                    ? "bg-[color:var(--pece)]/92 backdrop-blur-xl border-b-2 border-[color:var(--calce)]/25"
-                    : "bg-gradient-to-b from-[color:var(--pece)]/85 to-transparent backdrop-blur-md border-b-2 border-transparent"
+                    ? "bg-[color:var(--fondale)]/95 backdrop-blur-xl border-b-2 border-[color:var(--calce)]/30 shadow-[0_6px_24px_var(--ombra)]"
+                    : "bg-[color:var(--fondale)]/85 backdrop-blur-xl border-b-2 border-[color:var(--filo-alto)]"
             )}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

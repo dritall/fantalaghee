@@ -74,7 +74,7 @@ export default function ArticlePage() {
 
     if (loading) return (
         <div className="min-h-screen pt-24 flex justify-center items-center">
-            <Loader2 className="w-10 h-10 text-pink-500 animate-spin" />
+            <Loader2 className="w-10 h-10 text-[#C2185B] animate-spin" />
         </div>
     );
 

@@ -34,7 +34,7 @@ export function SelettoreGiornata({
     return (
         <label
             className={cn(
-                "group relative inline-flex items-center gap-2 rounded-full border border-[color:var(--filo)]",
+                "group relative inline-flex items-center gap-2 border-2 border-[color:var(--filo-alto)]",
                 "bg-[color:var(--velo-alto)] pl-3.5 pr-9 min-h-[42px] cursor-pointer",
                 "hover:bg-[color:var(--velo-alto)] focus-within:border-[color:var(--lario)] transition-colors",
                 className

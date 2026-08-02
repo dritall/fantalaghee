@@ -19,28 +19,52 @@
 import { useEffect, useState } from "react";
 import { CalendarDays, Newspaper, ScrollText, ArrowRight } from "lucide-react";
 import { SeasonLink } from "@/components/ui/SeasonLink";
+import { cn } from "@/lib/utils";
 import { toNumber, stripDecorations } from "@/lib/numbers";
 import { PREMIO_GIORNATA } from "@/lib/premi-riferimento";
 
 type Giornata = { numero: string; vincitore: string; punteggio: string } | null;
-type Uscita = { id: string; title: string; date?: string } | null;
+type Uscita = { id: string; title: string; date?: string; imageUrl?: string } | null;
 
 function Colonna({
     icona: Icona,
     titolo,
+    sfondo,
     children,
 }: {
     icona: typeof CalendarDays;
     titolo: string;
+    /** copertina da mettere dietro: la colonna passa in modalità scura */
+    sfondo?: string;
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex flex-col gap-3 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] p-4">
-            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
+        <div
+            className={cn(
+                "relative flex flex-col gap-3 overflow-hidden border-2 border-[color:var(--filo)] p-4",
+                sfondo ? "bg-[#071A24]" : "bg-[color:var(--fondale)]"
+            )}
+        >
+            {sfondo && (
+                <>
+                    <span
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${sfondo})` }}
+                    />
+                    {/* il velo tiene il titolo leggibile qualunque sia la copertina */}
+                    <span className="absolute inset-0 bg-gradient-to-t from-[#071A24] via-[#071A24]/88 to-[#071A24]/55" />
+                </>
+            )}
+            <span
+                className={cn(
+                    "relative flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em]",
+                    sfondo ? "text-[#8FB6C2]" : "text-[color:var(--fumo)]"
+                )}
+            >
                 <Icona className="h-3.5 w-3.5" strokeWidth={2.4} />
                 {titolo}
             </span>
-            {children}
+            <div className="relative">{children}</div>
         </div>
     );
 }
@@ -94,7 +118,7 @@ export function Tabellone() {
             .then((j) => {
                 if (!vivo || !Array.isArray(j)) return;
                 const primo = j.find((a: any) => !a.placeholder);
-                if (primo) setUscita({ id: primo.id, title: primo.title, date: primo.date });
+                if (primo) setUscita({ id: primo.id, title: primo.title, date: primo.date, imageUrl: primo.imageUrl });
             })
             .catch(() => null);
 
@@ -128,13 +152,13 @@ export function Tabellone() {
             </Colonna>
 
             {/* -------------------------------------------------- ultima uscita */}
-            <Colonna icona={Newspaper} titolo="Ultima uscita">
+            <Colonna icona={Newspaper} titolo="Ultima uscita" sfondo={uscita?.imageUrl}>
                 {uscita ? (
                     <SeasonLink href={`/gazzetta/${uscita.id}`} className="group flex flex-col gap-1.5">
-                        <span className="stampino text-[15px] leading-[1.05] text-[color:var(--calce)] line-clamp-3">
+                        <span className="stampino text-[15px] leading-[1.05] text-[#EDF2F1] line-clamp-3">
                             {uscita.title}
                         </span>
-                        <span className="mt-1 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--lario)]">
+                        <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[#F2543D]">
                             Leggi la Gazzetta
                             <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
                         </span>

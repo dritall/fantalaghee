@@ -57,19 +57,19 @@ export function SeasonSwitcher() {
                     "group flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.1em] whitespace-nowrap",
                     "border backdrop-blur-md transition-colors duration-300",
                     isArchive
-                        ? "bg-[color:var(--oro)] border-[color:var(--oro)] text-[color:var(--su-chiaro)] animate-season-pulse-archive"
-                        : "bg-[color:var(--lario)] border-[color:var(--lario)] text-[color:var(--su-chiaro)] animate-season-pulse"
+                        ? "bg-[color:var(--oro)] border-[color:var(--calce)]/30 text-[color:var(--su-chiaro)]"
+                        : "bg-[color:var(--calce)] border-[color:var(--calce)] text-[color:var(--pece)]"
                 )}
             >
                 {/* pallino di stato: pieno e pulsante sulla stagione in corso */}
                 <span className="relative flex h-1.5 w-1.5 shrink-0">
                     {!isArchive && (
-                        <span className="absolute inline-flex h-full w-full animate-ping bg-[color:var(--pece)] opacity-50" />
+                        <span className="absolute inline-flex h-full w-full animate-ping bg-[color:var(--vermiglio)] opacity-60" />
                     )}
                     <span
                         className={cn(
                             "relative inline-flex h-1.5 w-1.5 rotate-45",
-                            "bg-[color:var(--pece)]"
+                            "bg-[color:var(--vermiglio)]"
                         )}
                     />
                 </span>

@@ -116,7 +116,7 @@ export default function GazzettaPage() {
                 {/* ===== TESTATA ===== */}
                 <header className="text-center space-y-4">
                     <h1 className="sr-only">La Gazzetta del Laghèe</h1>
-                    <div className="testata-mark text-pink-200 w-full max-w-3xl mx-auto" aria-hidden="true" />
+                    <div className="testata-mark text-[#8E1147] w-full max-w-3xl mx-auto" aria-hidden="true" />
                     <div className="flex items-center gap-4 justify-center max-w-2xl mx-auto font-testata text-[10px] md:text-xs uppercase tracking-[0.34em] text-white/45">
                         <span className="h-px flex-1 bg-[color:var(--filo-alto)]" />
                         Tutto il Lario per la Vita
@@ -129,7 +129,7 @@ export default function GazzettaPage() {
 
                 {loading ? (
                     <div className="flex justify-center py-20">
-                        <Loader2 className="w-10 h-10 text-pink-400 animate-spin" />
+                        <Loader2 className="w-10 h-10 text-[#C2185B] animate-spin" />
                     </div>
                 ) : onlyPlaceholders ? (
                     <ComingSoon />
@@ -144,7 +144,7 @@ export default function GazzettaPage() {
                                 aria-label="Ultimo numero"
                             >
                                 <div className="flex items-center gap-3 mb-4">
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-pink-500/15 border border-pink-400/30 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-pink-200">
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C2185B] border-2 border-[#8E1147] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#FDF3F7]">
                                         <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
                                         In edicola
                                     </span>

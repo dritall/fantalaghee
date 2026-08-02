@@ -967,7 +967,12 @@ export const COPERTURA_MINIMA = 0.4;
 export const abbastanzaSicuro = (r?: Risultato): boolean =>
     !!r && r.punteggio >= SOGLIA_CERTEZZA && r.copertura >= COPERTURA_MINIMA;
 
-export const SUGGERIMENTI = KB.filter((v) => v.inEvidenza);
+/**
+ * Le piste da mostrare all'apertura. Poche: una lista lunga si legge come un
+ * elenco di cose che l'assistente sa fare, e scoraggia dallo scrivere. Quattro
+ * bastano a far capire il registro, poi si chiede a parole proprie.
+ */
+export const SUGGERIMENTI = KB.filter((v) => v.inEvidenza).slice(0, 4);
 
 export const ARGOMENTI: { sezione: Sezione; titolo: string }[] = [
     { sezione: 'novita', titolo: 'Novità' },

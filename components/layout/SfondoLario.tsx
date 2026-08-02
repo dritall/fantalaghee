@@ -31,6 +31,9 @@ type Fascia = {
     velo: string;
     veloAlto: string;
     ombra: string;
+    prato: string;
+    pratoOmbra: string;
+    rigaCampo: string;
     /** accenti, tarati sul fondo della fascia */
     lario: string;
     vermiglio: string;
@@ -44,36 +47,40 @@ type Fascia = {
 const FASCE: Fascia[] = [
     {
         id: "alba", nome: "alba", chiara: true,
-        pece: "#DDE7EA", calce: "#08202B", fondale: "#F3F8F9", secca: "#CBDDE3",
+        pece: "#C9DCE2", calce: "#06202C", fondale: "#EAF3F4", secca: "#B6CFD8",
         fumo: "#5A7683", filo: "rgba(10,36,48,0.14)", filoAlto: "rgba(10,36,48,0.30)",
         velo: "rgba(10,36,48,0.05)", veloAlto: "rgba(10,36,48,0.09)", ombra: "rgba(10,36,48,0.14)",
+        prato: "#2C6B4E", pratoOmbra: "rgba(0,0,0,0.14)", rigaCampo: "rgba(255,255,255,0.55)",
         lario: "#0E6E86", vermiglio: "#D33A22", oro: "#A9750B",
-        acqua: ["#BBD6DE", "#9CC4D2", "#7FB0C4"],
-        cielo: ["#E9E1D6", "#D4E3E8"],
+        acqua: ["#96BECD", "#77A9BE", "#5A93AD"],
+        cielo: ["#DCD3C6", "#BCD6DE"],
     },
     {
         id: "giorno", nome: "giorno", chiara: true,
-        pece: "#E4EBEA", calce: "#061D27", fondale: "#F5FAF9", secca: "#D2E4E7",
+        pece: "#CFE0E1", calce: "#051A24", fondale: "#EDF5F5", secca: "#B9D4D8",
         fumo: "#557381", filo: "rgba(8,34,45,0.14)", filoAlto: "rgba(8,34,45,0.30)",
         velo: "rgba(8,34,45,0.05)", veloAlto: "rgba(8,34,45,0.09)", ombra: "rgba(8,34,45,0.14)",
+        prato: "#2F7452", pratoOmbra: "rgba(0,0,0,0.12)", rigaCampo: "rgba(255,255,255,0.62)",
         lario: "#0B6C8C", vermiglio: "#D6391F", oro: "#9E6E08",
-        acqua: ["#C3DFE4", "#9FCCD8", "#6FB4C8"],
-        cielo: ["#EFF5F4", "#D9E9EB"],
+        acqua: ["#9CC6CE", "#79AEBE", "#5595AC"],
+        cielo: ["#E3EDEC", "#C2DCDF"],
     },
     {
         id: "tramonto", nome: "tramonto", chiara: true,
-        pece: "#E9DFD2", calce: "#1E1210", fondale: "#F8F1E8", secca: "#DCC9B4",
+        pece: "#DCCDBB", calce: "#1B100E", fondale: "#F0E6D9", secca: "#C9B296",
         fumo: "#7A6353", filo: "rgba(34,20,16,0.15)", filoAlto: "rgba(34,20,16,0.32)",
         velo: "rgba(34,20,16,0.05)", veloAlto: "rgba(34,20,16,0.09)", ombra: "rgba(34,20,16,0.15)",
+        prato: "#356B4B", pratoOmbra: "rgba(0,0,0,0.16)", rigaCampo: "rgba(255,255,255,0.5)",
         lario: "#186273", vermiglio: "#C63A1B", oro: "#96650A",
-        acqua: ["#DCC6AE", "#C8A98F", "#A98670"],
-        cielo: ["#F2E4D2", "#E4CDB4"],
+        acqua: ["#C2A88", "#A98670", "#8A6A58"],
+        cielo: ["#E7D5BE", "#D2B392"],
     },
     {
         id: "sera", nome: "sera", chiara: false,
         pece: "#0A2230", calce: "#EDF2F1", fondale: "#0E2E3D", secca: "#154356",
         fumo: "#83A7B4", filo: "rgba(237,242,241,0.18)", filoAlto: "rgba(237,242,241,0.36)",
         velo: "rgba(237,242,241,0.05)", veloAlto: "rgba(237,242,241,0.10)", ombra: "rgba(2,12,18,0.5)",
+        prato: "#123526", pratoOmbra: "rgba(0,0,0,0.3)", rigaCampo: "rgba(237,242,241,0.18)",
         lario: "#4FC3CE", vermiglio: "#F2543D", oro: "#F0B429",
         acqua: ["#123A4B", "#17495D", "#1D5A70"],
         cielo: ["#08202C", "#0D3040"],
@@ -83,6 +90,7 @@ const FASCE: Fascia[] = [
         pece: "#04141C", calce: "#E7EEEE", fondale: "#071F2A", secca: "#0C3140",
         fumo: "#6F94A2", filo: "rgba(231,238,238,0.16)", filoAlto: "rgba(231,238,238,0.32)",
         velo: "rgba(231,238,238,0.05)", veloAlto: "rgba(231,238,238,0.10)", ombra: "rgba(0,6,10,0.6)",
+        prato: "#0C2A1D", pratoOmbra: "rgba(0,0,0,0.36)", rigaCampo: "rgba(231,238,238,0.16)",
         lario: "#3FB8C4", vermiglio: "#F2543D", oro: "#E8A72B",
         acqua: ["#08222E", "#0A2C3B", "#0D3849"],
         cielo: ["#020D13", "#061C26"],
@@ -150,6 +158,9 @@ export function SfondoLario() {
         r.setProperty("--velo", fascia.velo);
         r.setProperty("--velo-alto", fascia.veloAlto);
         r.setProperty("--ombra", fascia.ombra);
+        r.setProperty("--prato", fascia.prato);
+        r.setProperty("--prato-ombra", fascia.pratoOmbra);
+        r.setProperty("--riga-campo", fascia.rigaCampo);
         r.setProperty("--lario", fascia.lario);
         r.setProperty("--vermiglio", fascia.vermiglio);
         r.setProperty("--oro", fascia.oro);

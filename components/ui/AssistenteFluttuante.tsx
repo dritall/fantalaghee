@@ -339,7 +339,11 @@ export function AssistenteFluttuante() {
                     )}
 
                     {!conversazioneIniziata && (
-                        <div className="flex flex-wrap gap-1.5 pt-1">
+                        <div className="flex flex-col gap-2 pt-1">
+                            <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)]">
+                                Per esempio
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
                             {SUGGERIMENTI.map((v) => (
                                 <button
                                     key={v.id}
@@ -350,6 +354,10 @@ export function AssistenteFluttuante() {
                                     {v.domanda}
                                 </button>
                             ))}
+                            </div>
+                            <span className="text-[11px] leading-relaxed text-[color:var(--fumo)]">
+                                Oppure scrivimi la tua: se non capisco ti chiedo io.
+                            </span>
                         </div>
                     )}
                 </div>

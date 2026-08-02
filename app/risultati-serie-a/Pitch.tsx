@@ -107,8 +107,8 @@ function PitchPlayer({
                 <PlayerBadges player={player} />
                 {player.number != null && (
                     <span
-                        className="absolute -bottom-1 -left-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[color:var(--pece)] border border-[color:var(--filo-alto)]
-                                   flex items-center justify-center text-[9px] font-black text-[color:var(--calce)]/90 tabular-nums z-20
+                        className="absolute -bottom-1 -left-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#061118] border border-[#EDF2F1]/40
+                                   flex items-center justify-center text-[9px] font-black text-[#EDF2F1] tabular-nums z-20
                                    shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
                     >
                         {player.number}
@@ -118,8 +118,8 @@ function PitchPlayer({
 
             <span
                 className={cn(
-                    "max-w-[68px] md:max-w-[80px] truncate rounded px-1.5 py-0.5 bg-black/70 backdrop-blur-sm",
-                    "text-[9px] md:text-[10px] font-black uppercase tracking-tight leading-tight text-[color:var(--calce)]",
+                    "max-w-[68px] md:max-w-[80px] truncate px-1.5 py-0.5 bg-[#061118]/85 backdrop-blur-sm",
+                    "text-[9px] md:text-[10px] font-black uppercase tracking-tight leading-tight text-[#EDF2F1]",
                     "shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
                     stagger && "translate-y-1.5"
                 )}
@@ -128,8 +128,8 @@ function PitchPlayer({
             </span>
             {player.rating != null && (
                 <span
-                    className="rounded px-1.5 font-score text-[9px] md:text-[10px] font-bold tabular-nums shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
-                    style={{ backgroundColor: `${accent}33`, color: accent }}
+                    className="px-1.5 font-score text-[9px] md:text-[10px] font-bold tabular-nums shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+                    style={{ backgroundColor: accent, color: "#061118" }}
                 >
                     {player.rating.toFixed(1)}
                 </span>
@@ -142,10 +142,10 @@ function PitchPlayer({
 function PitchLines() {
     return (
         <>
-            <span className="absolute inset-[6%] border-2 border-[color:var(--calce)]/15" />
+            <span className="absolute inset-[6%] border-2 border-[color:var(--riga-campo)]" />
             <span className="absolute left-[6%] right-[6%] top-1/2 h-[2px] bg-[color:var(--velo-alto)] -translate-y-1/2" />
-            <span className="absolute left-1/2 top-1/2 w-[28%] aspect-square border-2 border-[color:var(--calce)]/12 rounded-full -translate-x-1/2 -translate-y-1/2" />
-            <span className="absolute left-1/2 top-1/2 w-2 h-2 bg-[color:var(--calce)]/25 rounded-full -translate-x-1/2 -translate-y-1/2" />
+            <span className="absolute left-1/2 top-1/2 w-[28%] aspect-square border-2 border-[color:var(--riga-campo)] rounded-full -translate-x-1/2 -translate-y-1/2" />
+            <span className="absolute left-1/2 top-1/2 w-2 h-2 bg-[color:var(--riga-campo)] rounded-full -translate-x-1/2 -translate-y-1/2" />
             {/* area di rigore in basso */}
             <span className="absolute left-1/2 bottom-[6%] w-[54%] h-[17%] border-2 border-b-0 border-[color:var(--filo)] -translate-x-1/2 rounded-t-sm" />
             <span className="absolute left-1/2 bottom-[6%] w-[26%] h-[7%] border-2 border-b-0 border-[color:var(--filo)] -translate-x-1/2 rounded-t-sm" />
@@ -187,7 +187,7 @@ function TeamPitch({
                 )}
             </div>
 
-            <div className="relative w-full aspect-[3/4] overflow-hidden border-2 border-[color:var(--filo)] bg-[#0C2418]">
+            <div className="relative w-full aspect-[3/4] overflow-hidden border-2 border-[color:var(--filo-alto)] bg-[color:var(--prato)]">
                 {/* righe dell'erba */}
                 <span
                     className="absolute inset-0 opacity-[0.2]"
@@ -197,7 +197,7 @@ function TeamPitch({
                     }}
                 />
                 <PitchLines />
-                <span className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/45 pointer-events-none" />
+                <span className="absolute inset-0 bg-gradient-to-b from-[color:var(--prato-ombra)] via-transparent to-[color:var(--prato-ombra)] pointer-events-none" />
 
                 {(team.starters ?? []).map((p) => {
                     const line = team.starters

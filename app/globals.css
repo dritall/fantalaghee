@@ -546,6 +546,11 @@
   --velo:      rgba(237, 242, 241, 0.05);
   --velo-alto: rgba(237, 242, 241, 0.10);
   --ombra:     rgba(2, 10, 16, 0.55);
+
+  /* il campo da gioco: prato e righe, anche loro seguono l'ora */
+  --prato:        #0E2E22;
+  --prato-ombra:  rgba(0, 0, 0, 0.32);
+  --riga-campo:   rgba(237, 242, 241, 0.18);
 }
 
 @layer utilities {
