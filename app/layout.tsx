@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { IscrivitiFab } from "@/components/ui/IscrivitiFab";
+import { AssistenteFluttuante } from "@/components/ui/AssistenteFluttuante";
 import { LEAGUE_TAGLINE } from "@/lib/seasons";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -89,6 +90,7 @@ export default function RootLayout({
           {children}
         </div>
         <IscrivitiFab />
+        <AssistenteFluttuante />
         <Footer />
       </body>
     </html>
