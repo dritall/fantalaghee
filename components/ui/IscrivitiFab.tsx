@@ -40,16 +40,14 @@ export function IscrivitiFab() {
             rel="noopener noreferrer"
             aria-label="Iscriviti alla Lega"
             className={cn(
-                "group fixed bottom-5 right-5 z-[60] flex items-center gap-2 rounded-full pl-4 pr-5 py-3",
-                "bg-gradient-to-r from-secondary to-cyan-500 text-white font-black uppercase tracking-wider text-xs",
-                "shadow-[0_8px_30px_rgba(37,99,235,0.45)] border border-white/20",
-                "hover:shadow-[0_10px_40px_rgba(34,211,238,0.55)] hover:scale-105",
+                "group scatto scatto-lario fixed bottom-5 right-5 z-[60] flex items-center gap-2 px-4 h-[50px]",
+                "border-2 border-[color:var(--pece)] bg-[color:var(--vermiglio)]",
+                "text-[color:var(--calce)] font-black uppercase tracking-[0.16em] text-[11px]",
                 "transition-all duration-300 ease-out",
                 hidden && "translate-y-24 opacity-0 pointer-events-none"
             )}
         >
-            <span className="absolute inset-0 rounded-full bg-cyan-400/40 blur-md -z-10 animate-pulse" />
-            <UserPlus className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+            <UserPlus className="w-4 h-4" strokeWidth={2.4} />
             <span className="hidden sm:inline">Iscriviti alla Lega</span>
             <span className="sm:hidden">Iscriviti</span>
         </a>

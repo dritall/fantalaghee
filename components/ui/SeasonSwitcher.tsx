@@ -54,22 +54,22 @@ export function SeasonSwitcher() {
                 aria-expanded={open}
                 aria-label={`Stagione ${currentConfig.label}${isArchive ? " (archivio)" : ""}. Cambia stagione`}
                 className={cn(
-                    "group flex items-center gap-1.5 rounded-full pl-2.5 pr-2 py-1.5 text-xs font-bold whitespace-nowrap",
+                    "group flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.1em] whitespace-nowrap",
                     "border backdrop-blur-md transition-colors duration-300",
                     isArchive
-                        ? "bg-amber-400/15 border-amber-300/40 text-amber-200 hover:bg-amber-400/25 animate-season-pulse-archive"
-                        : "bg-cyan-400/15 border-cyan-300/40 text-cyan-100 hover:bg-cyan-400/25 animate-season-pulse"
+                        ? "bg-[color:var(--oro)] border-[color:var(--oro)] text-[color:var(--pece)] animate-season-pulse-archive"
+                        : "bg-[color:var(--lario)] border-[color:var(--lario)] text-[color:var(--pece)] animate-season-pulse"
                 )}
             >
                 {/* pallino di stato: pieno e pulsante sulla stagione in corso */}
                 <span className="relative flex h-1.5 w-1.5 shrink-0">
                     {!isArchive && (
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-70" />
+                        <span className="absolute inline-flex h-full w-full animate-ping bg-[color:var(--pece)] opacity-50" />
                     )}
                     <span
                         className={cn(
-                            "relative inline-flex h-1.5 w-1.5 rounded-full",
-                            isArchive ? "bg-amber-300" : "bg-cyan-300"
+                            "relative inline-flex h-1.5 w-1.5 rotate-45",
+                            "bg-[color:var(--pece)]"
                         )}
                     />
                 </span>
@@ -108,8 +108,8 @@ export function SeasonSwitcher() {
                                         className={cn(
                                             "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border",
                                             s.archived
-                                                ? "bg-amber-400/10 border-amber-300/25 text-amber-300"
-                                                : "bg-cyan-400/10 border-cyan-300/25 text-cyan-300"
+                                                ? "bg-[color:var(--oro)]/15 border-[color:var(--oro)]/40 text-[color:var(--oro)]"
+                                                : "bg-[color:var(--lario)]/15 border-[color:var(--lario)]/40 text-[color:var(--lario)]"
                                         )}
                                     >
                                         {s.archived ? <History className="w-3.5 h-3.5" /> : <Radio className="w-3.5 h-3.5" />}
@@ -127,7 +127,7 @@ export function SeasonSwitcher() {
                                             {s.archived ? "Archivio" : "In corso"}
                                         </span>
                                     </span>
-                                    {selected && <Check className="w-4 h-4 text-cyan-300 shrink-0" />}
+                                    {selected && <Check className="w-4 h-4 text-[color:var(--lario)] shrink-0" />}
                                 </button>
                             );
                         })}

@@ -1,0 +1,59 @@
+"use client";
+
+/**
+ * La fascia che scorre sotto la testata.
+ *
+ * È lo striscione portato a spalla lungo la curva: una banda di dati della
+ * lega che passa in orizzontale. Serve a due cose — dare il tono al sito nel
+ * primo mezzo secondo, e mettere in vista numeri che altrimenti stanno
+ * sepolti in tre pagine diverse.
+ *
+ * Il contenuto è duplicato perché lo scorrimento è un `translateX(-50%)`:
+ * quando la prima copia esce a sinistra la seconda è già al suo posto, e il
+ * ciclo non ha giunte visibili.
+ */
+
+import { QUOTA, PREMIO_GIORNATA, GIORNATE, ISCRITTI_RIFERIMENTO } from "@/lib/premi-riferimento";
+import { LEAGUE_TAGLINE } from "@/lib/seasons";
+
+const VOCI: { forte: string; debole: string }[] = [
+    { forte: `${PREMIO_GIORNATA} 🍆`, debole: "a chi vince la giornata" },
+    { forte: "24", debole: "giocatori in rosa" },
+    { forte: "600", debole: "fantamilioni di budget" },
+    { forte: `${QUOTA} 🍆`, debole: "quota di stagione" },
+    { forte: `${GIORNATE}`, debole: "giornate di campionato" },
+    { forte: "112,5", debole: "il record da battere" },
+    { forte: `${ISCRITTI_RIFERIMENTO}`, debole: "squadre l'anno scorso" },
+    { forte: LEAGUE_TAGLINE, debole: "dal 2025" },
+];
+
+function Serie({ ariaHidden }: { ariaHidden?: boolean }) {
+    return (
+        <div className="flex shrink-0 items-center" aria-hidden={ariaHidden || undefined}>
+            {VOCI.map((v, i) => (
+                <span key={i} className="flex items-center gap-2.5 px-5 whitespace-nowrap">
+                    <span className="numerone text-[13px] text-[color:var(--calce)]">{v.forte}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--pece)]/55">
+                        {v.debole}
+                    </span>
+                    <span className="ml-3 h-1.5 w-1.5 rotate-45 bg-[color:var(--pece)]/35" />
+                </span>
+            ))}
+        </div>
+    );
+}
+
+export function FasciaScorre() {
+    return (
+        <div
+            className="relative z-40 overflow-hidden border-y-2 border-[color:var(--pece)] bg-[color:var(--vermiglio)] py-1.5"
+            role="complementary"
+            aria-label="I numeri della lega"
+        >
+            <div className="fascia-scorre">
+                <Serie />
+                <Serie ariaHidden />
+            </div>
+        </div>
+    );
+}

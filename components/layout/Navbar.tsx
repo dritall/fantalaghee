@@ -33,7 +33,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         onClick={onNavigate}
                         aria-current={isActive ? "page" : undefined}
                         className={cn(
-                            "group relative px-3.5 py-2 rounded-full text-[13px] font-semibold transition-colors duration-200",
+                            "group relative px-3.5 py-2 text-[12px] font-black uppercase tracking-[0.08em] transition-colors duration-200",
                             isActive ? "text-white" : "text-white/55 hover:text-white"
                         )}
                     >
@@ -124,8 +124,8 @@ export function Navbar() {
             className={cn(
                 "fixed top-0 w-full z-50 transition-all duration-300",
                 scrolled
-                    ? "bg-[#0b0824]/85 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
-                    : "bg-gradient-to-b from-[#0b0824]/80 via-[#0b0824]/45 to-transparent backdrop-blur-md border-b border-transparent"
+                    ? "bg-[color:var(--pece)]/92 backdrop-blur-xl border-b-2 border-[color:var(--calce)]/25"
+                    : "bg-gradient-to-b from-[color:var(--pece)]/85 to-transparent backdrop-blur-md border-b-2 border-transparent"
             )}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -171,7 +171,7 @@ export function Navbar() {
                     </SeasonLink>
 
                     {/* ============ MENU DESKTOP ============ */}
-                    <div className="hidden lg:flex items-center gap-0.5 rounded-full border border-white/[0.07] bg-white/[0.03] px-1 py-1 backdrop-blur-sm">
+                    <div className="hidden lg:flex items-center gap-0.5 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)]/70 p-1 backdrop-blur-sm">
                         <NavLinks />
                     </div>
 
@@ -180,12 +180,12 @@ export function Navbar() {
                         <a
                             href={REGOLAMENTO_PDF_URL}
                             download
-                            className="group hidden md:inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] pl-3 pr-3.5 py-1.5
-                                       text-[12px] font-bold text-white/80 backdrop-blur-md transition-all duration-300
-                                       hover:bg-white/[0.12] hover:text-white hover:border-white/25"
+                            className="group hidden md:inline-flex items-center gap-2 border-2 border-[color:var(--calce)]/30 bg-[color:var(--fondale)]/70 px-3 py-1.5
+                                       text-[11px] font-black uppercase tracking-[0.1em] text-[color:var(--calce)]/85 backdrop-blur-md transition-all duration-200
+                                       hover:bg-[color:var(--calce)] hover:text-[color:var(--pece)] hover:border-[color:var(--calce)]"
                             title="Scarica il regolamento in PDF"
                         >
-                            <Download className="w-3.5 h-3.5 text-cyan-300 transition-transform duration-300 group-hover:translate-y-0.5" />
+                            <Download className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
                             <span className="hidden xl:inline">Scarica Regolamento</span>
                             <span className="xl:hidden">Regolamento</span>
                         </a>
@@ -196,7 +196,7 @@ export function Navbar() {
 
                         <button
                             onClick={() => setIsOpen((v) => !v)}
-                            className="lg:hidden p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                            className="lg:hidden p-2 border-2 border-[color:var(--filo)] text-[color:var(--calce)]/80 hover:text-[color:var(--pece)] hover:bg-[color:var(--calce)] hover:border-[color:var(--calce)] transition-colors"
                             aria-label={isOpen ? "Chiudi il menu" : "Apri il menu"}
                             aria-expanded={isOpen}
                         >

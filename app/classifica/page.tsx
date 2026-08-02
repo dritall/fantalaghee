@@ -157,15 +157,15 @@ function ClassificaContent() {
                             }}
                             etichettaGenerale={`Ultima giocata · ${lastPlayedMatchday}`}
                         />
-                        <p className="text-white/30 text-[11px] hidden sm:block">
-                            <span className="text-amber-300">In oro</span> il miglior punteggio di giornata
+                        <p className="text-[color:var(--fumo)] text-[11px] hidden sm:block">
+                            <span className="bg-[color:var(--oro)] text-[color:var(--pece)] px-1.5 py-0.5 font-black">In oro</span> il miglior punteggio di giornata
                         </p>
                     </div>
                 </div>
 
                 {/* ===== TELEFONO: card per squadra ===== */}
                 <div className="sm:hidden">
-                    <div className="flex gap-1 mb-4 p-1 rounded-2xl border border-white/10 bg-white/[0.04] w-fit">
+                    <div className="flex gap-1 mb-4 p-1 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] w-fit">
                         {([
                             { key: "totale" as const, label: "Totale", icon: Trophy },
                             { key: "giornata" as const, label: colonnaGiornata, icon: CalendarDays },
@@ -175,12 +175,12 @@ function ClassificaContent() {
                                 onClick={() => setMobileView(v.key)}
                                 aria-pressed={mobileView === v.key}
                                 className={cn(
-                                    "relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-colors",
-                                    mobileView === v.key ? "text-white" : "text-white/40"
+                                    "relative flex items-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors",
+                                    mobileView === v.key ? "text-[color:var(--pece)]" : "text-[color:var(--fumo)]"
                                 )}
                             >
                                 {mobileView === v.key && (
-                                    <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary to-cyan-500" />
+                                    <span className="absolute inset-0 bg-[color:var(--calce)]" />
                                 )}
                                 <v.icon className="relative w-3.5 h-3.5" />
                                 <span className="relative">{v.label}</span>
@@ -197,39 +197,35 @@ function ClassificaContent() {
                                     className={cn(
                                         // fondo pieno e sfocatura: sotto c'è la foto dello stadio,
                                         // con una card troppo trasparente i numeri si perdono
-                                        "relative flex items-center gap-3 p-3.5 rounded-2xl border backdrop-blur-xl transition-colors",
-                                        "bg-[#0d1330]/85",
+                                        "relative flex items-center gap-3 p-3.5 border-2 transition-colors",
+                                        "bg-[color:var(--fondale)]",
                                         index === 0
-                                            ? "border-amber-300/40 shadow-[0_0_24px_rgba(250,204,21,0.10)]"
-                                            : index === 1
-                                              ? "border-white/20"
-                                              : index === 2
-                                                ? "border-orange-400/30"
-                                                : "border-white/[0.09]"
+                                            ? "border-[color:var(--vermiglio)]"
+                                            : index < 3
+                                              ? "border-[color:var(--calce)]/40"
+                                              : "border-[color:var(--filo)]"
                                     )}
                                 >
                                     <span
                                         className={cn(
-                                            "w-8 h-8 shrink-0 flex items-center justify-center rounded-xl font-black text-xs tabular-nums",
+                                            "numerone w-9 h-9 shrink-0 flex items-center justify-center text-sm",
                                             index === 0
-                                                ? "bg-amber-400 text-[#231a02]"
-                                                : index === 1
-                                                  ? "bg-slate-300 text-[#12172e]"
-                                                  : index === 2
-                                                    ? "bg-orange-500 text-[#2a1405]"
-                                                    : "bg-white/[0.07] text-white/40"
+                                                ? "bg-[color:var(--vermiglio)] text-[color:var(--calce)]"
+                                                : index < 3
+                                                  ? "bg-[color:var(--calce)] text-[color:var(--pece)]"
+                                                  : "border-2 border-[color:var(--filo)] text-[color:var(--fumo)]"
                                         )}
                                     >
                                         {mobileView === "totale" ? team.rank : index + 1}
                                     </span>
 
-                                    <span className="flex-1 min-w-0 font-bold text-[15px] text-white truncate">{team.Team}</span>
+                                    <span className="stampino flex-1 min-w-0 text-[15px] text-[color:var(--calce)] truncate">{team.Team}</span>
 
                                     <span className="text-right shrink-0">
-                                        <span className="block font-score font-bold text-cyan-300 text-2xl leading-none tabular-nums">
+                                        <span className="numerone block text-[color:var(--lario)] text-[26px]">
                                             {value}
                                         </span>
-                                        <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/30 mt-1">
+                                        <span className="block text-[9px] font-bold uppercase tracking-[0.16em] text-[color:var(--fumo)] mt-1.5">
                                             {mobileView === "totale" ? "Totale" : colonnaGiornata}
                                         </span>
                                     </span>
@@ -240,18 +236,18 @@ function ClassificaContent() {
                 </div>
 
                 {/* ===== DESKTOP: tabella con tutte le giornate ===== */}
-                <div className="hidden sm:flex flex-1 w-full flex-col surface rounded-[1.75rem] overflow-hidden">
+                <div className="hidden sm:flex flex-1 w-full flex-col border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] overflow-hidden">
                     <div ref={tabellaRef} className="overflow-auto w-full max-h-[76vh] custom-scrollbar">
                         <table className="w-full text-left text-sm whitespace-nowrap border-collapse">
                             <thead className="sticky top-0 z-40">
                                 <tr>
-                                    <th className="sticky left-0 z-50 bg-[#0b1026] p-3 w-14 text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/30 border-b border-r border-white/[0.08]">
+                                    <th className="sticky left-0 z-50 bg-[color:var(--pece)] p-3 w-14 text-center text-[10px] font-black uppercase tracking-[0.14em] text-white/30 border-b border-r border-white/[0.08]">
                                         #
                                     </th>
-                                    <th className="sticky left-14 z-50 bg-[#0b1026] p-3 min-w-[190px] text-[10px] font-black uppercase tracking-[0.14em] text-white/50 border-b border-r border-white/[0.08]">
+                                    <th className="sticky left-14 z-50 bg-[color:var(--pece)] p-3 min-w-[190px] text-[10px] font-black uppercase tracking-[0.14em] text-white/50 border-b border-r border-white/[0.08]">
                                         Squadra
                                     </th>
-                                    <th className="sticky left-[calc(3.5rem+190px)] z-50 bg-[#0d1330] p-3 text-center text-[10px] font-black uppercase tracking-[0.14em] text-cyan-300 border-b border-r border-white/[0.12]">
+                                    <th className="sticky left-[calc(3.5rem+190px)] z-50 bg-[color:var(--secca)] p-3 text-center text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--lario)] border-b border-r border-[color:var(--filo-alto)]">
                                         Totale
                                     </th>
                                     {matchdays.map((g) => (
@@ -261,8 +257,8 @@ function ClassificaContent() {
                                             className={cn(
                                                 "p-3 min-w-[58px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-white/[0.05]",
                                                 g === colonnaGiornata && giornataScelta !== null
-                                                    ? "bg-[#14204a] text-cyan-300"
-                                                    : "bg-[#0b1026] text-white/25"
+                                                    ? "bg-[color:var(--secca)] text-[color:var(--lario)]"
+                                                    : "bg-[color:var(--pece)] text-[color:var(--fumo)]/70"
                                             )}
                                         >
                                             {g}
@@ -275,34 +271,32 @@ function ClassificaContent() {
                                     <tr key={index} className="group">
                                         <td
                                             className={cn(
-                                                "sticky left-0 z-30 bg-[#0b1026] p-2.5 text-center border-b border-r border-white/[0.05]",
-                                                "group-hover:bg-[#111838]"
+                                                "sticky left-0 z-30 bg-[color:var(--pece)] p-2.5 text-center border-b border-r border-[color:var(--filo)]",
+                                                "group-hover:bg-[color:var(--secca)]"
                                             )}
                                         >
                                             <span
                                                 className={cn(
-                                                    "w-6 h-6 flex items-center justify-center rounded-lg font-black text-[11px] tabular-nums mx-auto",
+                                                    "numerone w-7 h-7 flex items-center justify-center text-[12px] mx-auto",
                                                     index === 0
-                                                        ? "bg-amber-400 text-[#231a02]"
-                                                        : index === 1
-                                                          ? "bg-slate-300 text-[#12172e]"
-                                                          : index === 2
-                                                            ? "bg-orange-500 text-[#2a1405]"
-                                                            : "text-white/35"
+                                                        ? "bg-[color:var(--vermiglio)] text-[color:var(--calce)]"
+                                                        : index < 3
+                                                          ? "bg-[color:var(--calce)] text-[color:var(--pece)]"
+                                                          : "text-[color:var(--fumo)]"
                                                 )}
                                             >
                                                 {team.rank}
                                             </span>
                                         </td>
 
-                                        <td className="sticky left-14 z-30 bg-[#0b1026] py-2.5 px-3 border-b border-r border-white/[0.05] group-hover:bg-[#111838]">
-                                            <span className="font-bold text-[15px] text-white/90 group-hover:text-white transition-colors">
+                                        <td className="sticky left-14 z-30 bg-[color:var(--pece)] py-2.5 px-3 border-b border-r border-[color:var(--filo)] group-hover:bg-[color:var(--secca)]">
+                                            <span className="stampino text-[15px] text-[color:var(--calce)]/90 group-hover:text-[color:var(--calce)] transition-colors">
                                                 {team.Team}
                                             </span>
                                         </td>
 
-                                        <td className="sticky left-[calc(3.5rem+190px)] z-30 bg-[#0d1330] py-2.5 px-3 text-center border-b border-r border-white/[0.12] group-hover:bg-[#131b40]">
-                                            <span className="font-score font-bold text-cyan-300 text-xl tabular-nums">
+                                        <td className="sticky left-[calc(3.5rem+190px)] z-30 bg-[color:var(--secca)] py-2.5 px-3 text-center border-b border-r border-[color:var(--filo-alto)] group-hover:bg-[color:var(--secca)]">
+                                            <span className="numerone text-[color:var(--lario)] text-[22px]">
                                                 {stripDecorations(team.Generale)}
                                             </span>
                                         </td>
@@ -317,11 +311,11 @@ function ClassificaContent() {
                                                 <td
                                                     key={g}
                                                     className={cn(
-                                                        "p-2.5 text-center border-b border-r border-white/[0.05] tabular-nums transition-colors",
-                                                        "group-hover:bg-white/[0.04]",
-                                                        isBest ? "text-amber-300 font-black bg-amber-400/[0.10]" : "text-white/45",
-                                                        g === colonnaGiornata && giornataScelta !== null &&
-                                                            "bg-cyan-400/[0.07] text-white/80 border-r-white/15"
+                                                        "p-2.5 text-center border-b border-r border-[color:var(--filo)] tabular-nums transition-colors",
+                                                        "group-hover:bg-[color:var(--calce)]/[0.04]",
+                                                        isBest ? "bg-[color:var(--oro)] text-[color:var(--pece)] font-black" : "text-[color:var(--fumo)]",
+                                                        g === colonnaGiornata && giornataScelta !== null && !isBest &&
+                                                            "bg-[color:var(--lario)]/10 text-[color:var(--calce)]"
                                                     )}
                                                 >
                                                     {raw || "-"}

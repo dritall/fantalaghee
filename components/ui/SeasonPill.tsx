@@ -15,24 +15,14 @@ export function SeasonPill({ stagione, className }: { stagione: string; classNam
     return (
         <span
             className={cn(
-                "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.22em]",
+                "timbro",
                 archived
-                    ? "bg-amber-400/10 border-amber-300/25 text-amber-200"
-                    : "bg-cyan-400/10 border-cyan-300/25 text-cyan-200",
+                    ? "bg-[color:var(--oro)] text-[color:var(--pece)]"
+                    : "bg-[color:var(--lario)] text-[color:var(--pece)]",
                 className
             )}
         >
-            <span className="relative flex h-1.5 w-1.5">
-                {!archived && (
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-70" />
-                )}
-                <span
-                    className={cn(
-                        "relative inline-flex h-1.5 w-1.5 rounded-full",
-                        archived ? "bg-amber-300" : "bg-cyan-300"
-                    )}
-                />
-            </span>
+            <span className="h-1.5 w-1.5 rotate-45 bg-[color:var(--pece)]" />
             Stagione {season.label}
             {archived && <span className="opacity-60">· Archivio</span>}
         </span>
