@@ -133,70 +133,6 @@
     mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
   }
 
-  /* Sfondo stadio: uno strato fisso dietro al contenuto.
-     `background-attachment: fixed` costa un ridisegno a ogni frame di scroll
-     su Safari e su diversi browser mobile; un livello in position:fixed dà lo
-     stesso effetto senza quel prezzo. */
-  .stadium-layer {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      linear-gradient(180deg, rgba(6,15,27,0.82) 0%, rgba(8,20,34,0.62) 35%, rgba(8,20,34,0.70) 70%, rgba(4,11,20,0.92) 100%),
-      url('/image/bg-mobile-2627.webp');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: #060F1B;
-  }
-
-  @media (min-width: 768px) {
-    .stadium-layer {
-      background-image:
-        linear-gradient(180deg, rgba(6,15,27,0.82) 0%, rgba(8,20,34,0.60) 35%, rgba(8,20,34,0.68) 70%, rgba(4,11,20,0.92) 100%),
-        url('/image/bg-desktop-2627.webp');
-    }
-  }
-
-  /* Macchie di colore ambientali, leggerissime (puro CSS, no immagini) */
-  .ambient-blobs {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  .ambient-blobs::before,
-  .ambient-blobs::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.35;
-    will-change: transform;
-    animation: blob-float 22s ease-in-out infinite;
-  }
-
-  .ambient-blobs::before {
-    top: -10%;
-    left: -10%;
-    width: 38vw;
-    height: 38vw;
-    background: radial-gradient(circle, #23A6E0 0%, transparent 70%);
-    opacity: 0.20;
-  }
-
-  .ambient-blobs::after {
-    bottom: -10%;
-    right: -10%;
-    width: 42vw;
-    height: 42vw;
-    background: radial-gradient(circle, #E5322A 0%, transparent 70%);
-    animation-delay: -11s;
-    opacity: 0.13;
-  }
 }
 
 /* =====================================================================
@@ -520,8 +456,6 @@
     scroll-behavior: auto;
   }
 
-  .ambient-blobs::before,
-  .ambient-blobs::after,
   .gradient-bar,
   .animate-season-pulse,
   .animate-season-pulse-archive,

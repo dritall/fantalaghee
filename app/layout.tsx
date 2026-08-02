@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { IscrivitiFab } from "@/components/ui/IscrivitiFab";
+import { SfondoLario } from "@/components/layout/SfondoLario";
 import { AssistenteFluttuante } from "@/components/ui/AssistenteFluttuante";
 import { LEAGUE_TAGLINE } from "@/lib/seasons";
 
@@ -61,22 +62,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <head>
-        <link
-          rel="preload"
-          as="image"
-          href="/image/bg-desktop-2627.webp"
-          media="(min-width: 768px)"
-        />
-        <link
-          rel="preload"
-          as="image"
-          href="/image/bg-mobile-2627.webp"
-          media="(max-width: 767px)"
-        />
-      </head>
       <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} ${lora.variable} ${oswald.variable} font-sans antialiased text-[#10241a] relative overflow-x-hidden min-h-screen flex flex-col`}>
-        <div className="stadium-layer" aria-hidden="true" />
+        <SfondoLario />
         <a
           href="#contenuto"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100]
@@ -84,7 +71,7 @@ export default function RootLayout({
         >
           Vai al contenuto
         </a>
-        <div className="ambient-blobs" aria-hidden="true" />
+        
         <Navbar />
         <div id="contenuto" className="flex-1 flex flex-col">
           {children}

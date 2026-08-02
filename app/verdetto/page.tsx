@@ -375,13 +375,13 @@ function VerdettoContent() {
                         <div className="flex items-center gap-3">
                             <Coins className="w-5 h-5 text-[color:var(--oro)] shrink-0" />
                             <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro)]">
-                                Premi · Giornata {storico.giornata}
+                                Premi
                             </h2>
                             <span className="h-px flex-1 bg-white/10" />
                         </div>
 
                         {storico.premio && (
-                            <Panel title={`Vincitore di giornata · ${storico.premio.totale} 🍆 in palio`} icon={Medal} hex="#facc15">
+                            <Panel title="Vincitore di giornata" icon={Medal} hex="var(--oro)">
                                 <div className="space-y-1">
                                     {storico.premio.vincitori.map((squadra) => (
                                         <PrizeRow key={squadra} squadra={squadra} premio={storico.premio!.quota} rank={0} />
@@ -397,7 +397,7 @@ function VerdettoContent() {
                         )}
 
                         {storico.melanzaneVinte.length > 0 && (
-                            <Panel title={`Melanzane di giornata · dalla 1ª alla ${storico.giornata}ª`} icon={Trophy} hex="#facc15">
+                            <Panel title={`🍆 vinte · dalla 1ª alla ${storico.giornata}ª`} icon={Trophy} hex="var(--oro)">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                                     {storico.melanzaneVinte.map((m) => (
                                         <div

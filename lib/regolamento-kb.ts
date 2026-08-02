@@ -979,3 +979,42 @@ export const ARGOMENTI: { sezione: Sezione; titolo: string }[] = [
     { sezione: 'casi', titolo: 'Rinvii' },
     { sezione: 'sito', titolo: 'Il sito' },
 ];
+
+/* ========================================================================== */
+/*  Quando non capisce                                                        */
+/* ========================================================================== */
+
+/**
+ * La sezione più vicina alla domanda.
+ *
+ * Serve al passo successivo del "non ho capito": una domanda può essere troppo
+ * vaga per una risposta precisa ma abbastanza chiara da capire *di cosa parla*
+ * — "una cosa sulla formazione" non individua una voce, ma individua benissimo
+ * l'argomento. Da lì l'assistente può chiedere invece di arrendersi.
+ */
+export function sezionePiuVicina(domanda: string): Sezione | null {
+    const punteggi = new Map<Sezione, number>();
+    for (const r of cerca(domanda, KB.length)) {
+        punteggi.set(r.voce.sezione, (punteggi.get(r.voce.sezione) ?? 0) + r.punteggio);
+    }
+    const migliore = Array.from(punteggi.entries()).sort((a, b) => b[1] - a[1])[0];
+    return migliore && migliore[1] >= 1.6 ? migliore[0] : null;
+}
+
+/** Le domande di una sezione, per proporle come piste da seguire. */
+export function domandeDi(sezione: Sezione, quante = 4): VoceKB[] {
+    const voci = KB.filter((v) => v.sezione === sezione);
+    // prima quelle in evidenza: sono le più chieste
+    return [...voci].sort((a, b) => Number(!!b.inEvidenza) - Number(!!a.inEvidenza)).slice(0, quante);
+}
+
+export const TITOLO_SEZIONE: Record<Sezione, string> = {
+    novita: 'le novità di quest\'anno',
+    iscrizione: 'iscrizione, quota e voti',
+    rosa: 'rosa, formazione e mercato',
+    bonus: 'bonus, malus e modificatore',
+    coppe: 'coppe e soglie gol',
+    premi: 'premi e melanzane',
+    casi: 'rinvii e 6 politico',
+    sito: 'il sito e la lega',
+};

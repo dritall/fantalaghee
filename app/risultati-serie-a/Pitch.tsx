@@ -24,7 +24,7 @@ function PlayerAvatar({
     if (failed || !player.photo) {
         return (
             <span
-                className={cn(px, "rounded-full flex items-center justify-center border-2 bg-gradient-to-br from-[#1a2050] to-[#0d1330] shrink-0")}
+                className={cn(px, "rounded-full flex items-center justify-center border-2 bg-[color:var(--secca)] shrink-0")}
                 style={style}
             >
                 <span className="text-[13px] font-black text-white/60 tabular-nums">{player.number ?? "–"}</span>
@@ -38,7 +38,7 @@ function PlayerAvatar({
             alt=""
             loading="lazy"
             onError={() => setFailed(true)}
-            className={cn(px, "rounded-full object-cover object-top border-2 bg-[#131a38] shrink-0")}
+            className={cn(px, "rounded-full object-cover object-top border-2 bg-[color:var(--secca)] shrink-0")}
             style={style}
         />
     );
@@ -142,10 +142,10 @@ function PitchPlayer({
 function PitchLines() {
     return (
         <>
-            <span className="absolute inset-[6%] border-2 border-white/12 rounded-full" />
+            <span className="absolute inset-[6%] border-2 border-[color:var(--calce)]/15" />
             <span className="absolute left-[6%] right-[6%] top-1/2 h-[2px] bg-white/10 -translate-y-1/2" />
-            <span className="absolute left-1/2 top-1/2 w-[28%] aspect-square border-2 border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
-            <span className="absolute left-1/2 top-1/2 w-2 h-2 bg-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
+            <span className="absolute left-1/2 top-1/2 w-[28%] aspect-square border-2 border-[color:var(--calce)]/12 rounded-full -translate-x-1/2 -translate-y-1/2" />
+            <span className="absolute left-1/2 top-1/2 w-2 h-2 bg-[color:var(--calce)]/25 rounded-full -translate-x-1/2 -translate-y-1/2" />
             {/* area di rigore in basso */}
             <span className="absolute left-1/2 bottom-[6%] w-[54%] h-[17%] border-2 border-b-0 border-white/12 -translate-x-1/2 rounded-t-sm" />
             <span className="absolute left-1/2 bottom-[6%] w-[26%] h-[7%] border-2 border-b-0 border-white/12 -translate-x-1/2 rounded-t-sm" />
@@ -179,7 +179,7 @@ function TeamPitch({
                 </span>
                 {team.formation && (
                     <span
-                        className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black tabular-nums"
+                        className="shrink-0 px-2 py-0.5 text-[10px] font-black tabular-nums"
                         style={{ backgroundColor: `${accent}22`, color: accent }}
                     >
                         {team.formation}
@@ -187,7 +187,7 @@ function TeamPitch({
                 )}
             </div>
 
-            <div className="relative w-full aspect-[3/4] rounded-full overflow-hidden border border-white/10 bg-gradient-to-b from-[#0f2a1b] via-[#123322] to-[#0b1f14] shadow-[0_8px_40px_rgba(0,0,0,0.4)]">
+            <div className="relative w-full aspect-[3/4] overflow-hidden border-2 border-[color:var(--filo)] bg-[#0C2418]">
                 {/* righe dell'erba */}
                 <span
                     className="absolute inset-0 opacity-[0.2]"
@@ -197,9 +197,9 @@ function TeamPitch({
                     }}
                 />
                 <PitchLines />
-                <span className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50 pointer-events-none" />
+                <span className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/45 pointer-events-none" />
 
-                {team.starters.map((p) => {
+                {(team.starters ?? []).map((p) => {
                     const line = team.starters
                         .filter((o) => o.role === p.role)
                         .sort((a, b) => (a.x ?? 0) - (b.x ?? 0));
@@ -217,17 +217,17 @@ function TeamPitch({
             </div>
 
             {/* Panchina stile Lega Serie A — lista orizzontale foto + nome */}
-            {team.bench.length > 0 && (
+            {(team.bench?.length ?? 0) > 0 && (
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/30 mb-2 px-1">
                         Panchina
                     </p>
                     <div className="grid grid-cols-2 gap-1.5">
-                        {team.bench.map((p) => (
+                        {(team.bench ?? []).map((p) => (
                             <button
                                 key={p.id || p.name}
                                 onClick={() => onSelect(p)}
-                                className="flex items-center gap-2 rounded-full px-2 py-1.5 text-left transition-colors hover:bg-white/[0.06]"
+                                className="flex items-center gap-2 px-2 py-1.5 text-left transition-colors hover:bg-[color:var(--calce)]/[0.06]"
                             >
                                 <PlayerAvatar player={p} accent={accent} size="sm" />
                                 <span className="flex-1 min-w-0">
@@ -276,10 +276,12 @@ export function Pitch({
 }) {
     const [side, setSide] = useState<"home" | "away">("home");
 
-    const HOME_ACCENT = colors?.home ?? "#22d3ee";
-    const AWAY_ACCENT = colors?.away ?? "#f59e0b";
+    // Nessun ripiego ciano/arancio: se i colori non arrivano si usa la
+    // calce per entrambe, che è neutra e si nota subito come anomalia.
+    const HOME_ACCENT = colors?.home ?? "#EDE8DC";
+    const AWAY_ACCENT = colors?.away ?? "#7C93AB";
 
-    if (home.starters.length === 0 && away.starters.length === 0) {
+    if ((home.starters?.length ?? 0) === 0 && (away.starters?.length ?? 0) === 0) {
         return (
             <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white/30">
                 Formazioni non ancora disponibili
@@ -290,7 +292,7 @@ export function Pitch({
     return (
         <div>
             {/* selettore squadra mobile */}
-            <div className="md:hidden flex p-1 mb-4 rounded-full border border-white/10 bg-white/[0.04]">
+            <div className="md:hidden flex p-1 mb-4 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)]">
                 {([
                     { key: "home" as const, team: home, accent: HOME_ACCENT },
                     { key: "away" as const, team: away, accent: AWAY_ACCENT },
@@ -300,7 +302,7 @@ export function Pitch({
                         onClick={() => setSide(key)}
                         aria-pressed={side === key}
                         className={cn(
-                            "flex-1 py-2 rounded-full text-[11px] font-black uppercase tracking-wider truncate transition-colors",
+                            "flex-1 py-2 text-[11px] font-black uppercase tracking-wider truncate transition-colors",
                             side === key ? "text-[#08102a]" : "text-white/45"
                         )}
                         style={side === key ? { backgroundColor: accent } : undefined}

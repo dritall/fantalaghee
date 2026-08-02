@@ -75,12 +75,21 @@ function ClassificaContent() {
         return played ? g : acc;
     }, matchdays[0]);
 
-    // Miglior punteggio di ogni giornata: serve a evidenziare la casella vincente
+    // Miglior punteggio di ogni giornata, e il secondo: dal 26/27 anche chi
+    // arriva secondo nel turno prende un premio, quindi va evidenziato.
     const bestPerMatchday = matchdays.reduce((acc, g) => {
         const values = leaderboard
             .map((team) => toNumber(team[g]))
             .filter((v): v is number => v !== null);
         if (values.length > 0) acc[g] = Math.max(...values);
+        return acc;
+    }, {} as Record<string, number>);
+
+    const secondPerMatchday = matchdays.reduce((acc, g) => {
+        const distinti = Array.from(
+            new Set(leaderboard.map((team) => toNumber(team[g])).filter((v): v is number => v !== null))
+        ).sort((a, b) => b - a);
+        if (distinti.length > 1) acc[g] = distinti[1];
         return acc;
     }, {} as Record<string, number>);
 
@@ -158,7 +167,7 @@ function ClassificaContent() {
                             etichettaGenerale={`Ultima giocata · ${lastPlayedMatchday}`}
                         />
                         <p className="text-[color:var(--fumo)] text-[11px] hidden sm:block">
-                            <span className="bg-[color:var(--oro)] text-[color:var(--pece)] px-1.5 py-0.5 font-black">In oro</span> il miglior punteggio di giornata
+                            <span className="bg-[color:var(--oro)] text-[color:var(--pece)] px-1.5 py-0.5 font-black">Oro</span> il primo di giornata, <span className="bg-[color:var(--calce)]/70 text-[color:var(--pece)] px-1.5 py-0.5 font-black">argento</span> il secondo
                         </p>
                     </div>
                 </div>
@@ -307,14 +316,20 @@ function ClassificaContent() {
                                             // il miglior punteggio della giornata si riconosce a colpo d'occhio
                                             const isBest =
                                                 value !== null && bestPerMatchday[g] != null && value === bestPerMatchday[g];
+                                            const isSecond =
+                                                value !== null && secondPerMatchday[g] != null && value === secondPerMatchday[g];
                                             return (
                                                 <td
                                                     key={g}
                                                     className={cn(
                                                         "p-2.5 text-center border-b border-r border-[color:var(--filo)] tabular-nums transition-colors",
                                                         "group-hover:bg-[color:var(--calce)]/[0.04]",
-                                                        isBest ? "bg-[color:var(--oro)] text-[color:var(--pece)] font-black" : "text-[color:var(--fumo)]",
-                                                        g === colonnaGiornata && giornataScelta !== null && !isBest &&
+                                                        isBest
+                                                            ? "bg-[color:var(--oro)] text-[color:var(--pece)] font-black"
+                                                            : isSecond
+                                                              ? "bg-[color:var(--calce)]/70 text-[color:var(--pece)] font-black"
+                                                              : "text-[color:var(--fumo)]",
+                                                        g === colonnaGiornata && giornataScelta !== null && !isBest && !isSecond &&
                                                             "bg-[color:var(--lario)]/10 text-[color:var(--calce)]"
                                                     )}
                                                 >

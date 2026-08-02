@@ -20,13 +20,25 @@ import {
     cerca,
     abbastanzaSicuro,
     SUGGERIMENTI,
+    sezionePiuVicina,
+    domandeDi,
+    ARGOMENTI,
+    TITOLO_SEZIONE,
     type Risultato,
+    type Sezione,
     type VoceKB,
 } from "@/lib/regolamento-kb";
 
 type Messaggio =
     | { ruolo: "utente"; testo: string }
-    | { ruolo: "assistente"; testo: string; voce?: VoceKB; alternative: VoceKB[] };
+    | {
+          ruolo: "assistente";
+          testo: string;
+          voce?: VoceKB;
+          alternative: VoceKB[];
+          /** quando non ha capito proprio niente, offre gli argomenti */
+          argomenti?: Sezione[];
+      };
 
 /** Rende il **grassetto** senza tirare dentro un parser markdown. */
 function Testo({ contenuto }: { contenuto: string }) {
@@ -118,21 +130,41 @@ export function AssistenteFluttuante() {
         const trovate: Risultato[] = cerca(testo, 3);
         const migliore = trovate[0];
 
-        const risposta: Messaggio = abbastanzaSicuro(migliore)
-            ? {
-                  ruolo: "assistente",
-                  testo: migliore.voce.risposta,
-                  voce: migliore.voce,
-                  alternative: trovate.slice(1).map((r) => r.voce),
-              }
-            : {
-                  ruolo: "assistente",
-                  testo:
-                      trovate.length > 0
-                          ? "Non ho una risposta sicura per questa. Forse cercavi una di queste:"
-                          : "Questa non la so: rispondo solo su quello che c'è nel regolamento. Prova con quota, rosa, formazione, bonus, coppe o premi.",
-                  alternative: trovate.map((r) => r.voce),
-              };
+        let risposta: Messaggio;
+
+        if (abbastanzaSicuro(migliore)) {
+            risposta = {
+                ruolo: "assistente",
+                testo: migliore.voce.risposta,
+                voce: migliore.voce,
+                alternative: trovate.slice(1).map((r) => r.voce),
+            };
+        } else {
+            // Non ha capito la domanda, ma può aver capito l'argomento: in quel
+            // caso chiede, invece di rimandare al gruppo. È la differenza fra
+            // un assistente e un muro.
+            const sezione = sezionePiuVicina(testo);
+            if (sezione) {
+                risposta = {
+                    ruolo: "assistente",
+                    testo: `Non sono sicuro di aver capito. Stiamo parlando di **${TITOLO_SEZIONE[sezione]}**?\nDimmi quale di queste ti serve, o riscrivimela con parole diverse.`,
+                    alternative: domandeDi(sezione, 4),
+                };
+            } else if (trovate.length > 0) {
+                risposta = {
+                    ruolo: "assistente",
+                    testo: "Non ho una risposta sicura per questa. Forse cercavi una di queste:",
+                    alternative: trovate.map((r) => r.voce),
+                };
+            } else {
+                risposta = {
+                    ruolo: "assistente",
+                    testo: "Questa non l'ho afferrata. Su cosa ti serve una mano?",
+                    alternative: [],
+                    argomenti: ARGOMENTI.map((a) => a.sezione),
+                };
+            }
+        }
 
         setMessaggi((prev) => [...prev, { ruolo: "utente", testo }, risposta]);
         setBozza("");
@@ -143,6 +175,20 @@ export function AssistenteFluttuante() {
             ...prev,
             { ruolo: "utente", testo: voce.domanda },
             { ruolo: "assistente", testo: voce.risposta, voce, alternative: [] },
+        ]);
+        campoRef.current?.focus();
+    };
+
+    /** Scelto un argomento, l'assistente propone le domande di quella parte. */
+    const apriArgomento = (sezione: Sezione) => {
+        setMessaggi((prev) => [
+            ...prev,
+            { ruolo: "utente", testo: ARGOMENTI.find((a) => a.sezione === sezione)?.titolo ?? "" },
+            {
+                ruolo: "assistente",
+                testo: `Su **${TITOLO_SEZIONE[sezione]}** le domande più frequenti sono queste:`,
+                alternative: domandeDi(sezione, 5),
+            },
         ]);
         campoRef.current?.focus();
     };
@@ -168,15 +214,14 @@ export function AssistenteFluttuante() {
                 aria-controls="assistente-chat"
                 aria-label={aperto ? "Chiudi l'assistente" : "Chiedi al regolamento"}
                 className={cn(
-                    "fixed bottom-5 left-5 z-[70] inline-flex items-center gap-2 scatto",
-                    "h-[50px] pl-4 pr-5 border-2 border-[color:var(--pece)]",
+                    "fixed bottom-5 left-5 z-[70] inline-flex items-center justify-center scatto",
+                    "h-11 w-11 border-2 border-[color:var(--pece)]",
                     "bg-[color:var(--calce)] text-[color:var(--pece)]",
                     aperto && "md:opacity-0 md:pointer-events-none"
                 )}
             >
-                <MessagesSquare className="w-[18px] h-[18px] shrink-0" strokeWidth={2.4} />
-                <span className="text-[11px] font-black uppercase tracking-[0.16em]">Chiedi</span>
-                {daLeggere && <span className="w-2 h-2 bg-[color:var(--vermiglio)]" />}
+                <MessagesSquare className="w-5 h-5" strokeWidth={2.4} />
+                {daLeggere && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[color:var(--vermiglio)]" />}
             </button>
 
             {/* velo: solo su telefono, dove il foglio copre tutto */}
@@ -259,6 +304,21 @@ export function AssistenteFluttuante() {
                                 <div className="w-fit border-2 border-[color:var(--filo)] bg-[color:var(--secca)] px-3.5 py-2.5 text-sm leading-relaxed text-[color:var(--calce)]/80">
                                     <Testo contenuto={m.testo} />
                                 </div>
+
+                                {m.argomenti && m.argomenti.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                                        {m.argomenti.map((sez) => (
+                                            <button
+                                                key={sez}
+                                                onClick={() => apriArgomento(sez)}
+                                                className="border-2 border-[color:var(--lario)]/50 bg-[color:var(--lario)]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.08em]
+                                                           text-[color:var(--lario)] hover:bg-[color:var(--lario)] hover:text-[color:var(--pece)] active:scale-95 transition-all text-left"
+                                            >
+                                                {ARGOMENTI.find((a) => a.sezione === sez)?.titolo}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
 
                                 {m.alternative.length > 0 && (
                                     <div className="flex flex-wrap gap-1.5 pt-0.5">

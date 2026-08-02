@@ -19,7 +19,7 @@ export type TeamPalette = { primary: string; secondary: string };
 const DARK_BG_LUMINANCE = 0.045;
 
 /** Colori di riserva, scelti perché ben distinti fra loro e dal fondo. */
-const FALLBACKS = ['#f59e0b', '#22d3ee', '#a78bfa', '#34d399', '#fb7185', '#e5e7eb'];
+const FALLBACKS = ['#E8A72B', '#23A6E0', '#a78bfa', '#34d399', '#fb7185', '#EDE8DC'];
 
 /**
  * Squadre di Serie A. `primary` è il colore dominante dello stemma,

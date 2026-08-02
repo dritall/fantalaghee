@@ -33,7 +33,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         onClick={onNavigate}
                         aria-current={isActive ? "page" : undefined}
                         className={cn(
-                            "group relative px-3.5 py-2 text-[12px] font-black uppercase tracking-[0.08em] transition-colors duration-200",
+                            "group relative px-3.5 py-2 text-[12px] font-black uppercase tracking-[0.08em] whitespace-nowrap transition-colors duration-200",
                             isActive ? "text-white" : "text-white/55 hover:text-white"
                         )}
                     >
