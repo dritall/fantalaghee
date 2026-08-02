@@ -180,7 +180,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Qual è il budget per la rosa?',
         risposta: '**600 Fantamilioni** per costruire tutti e 24 i giocatori, salvo cambi nelle quotazioni di Fantaclub.',
-        chiavi: ['budget', 'fantamilioni', 'crediti', 'quanto ho da spendere', '600', 'soldi rosa'],
+        chiavi: ['budget', 'crediti', 'quanto ho da spendere', '600', 'soldi rosa', 'budget rosa'],
         inEvidenza: true,
     },
     {
@@ -227,10 +227,10 @@ export const KB: VoceKB[] = [
     {
         id: 'mercato-riparazione',
         sezione: 'rosa',
-        domanda: 'C\'è un mercato di riparazione?',
+        domanda: 'Quando si può fare mercato a campionato iniziato?',
         risposta:
-            'Il regolamento pubblicato descrive il mercato pre-campionato e la regola dei giocatori bloccati dopo la 1ª giornata. Per date e formato di eventuali sessioni di riparazione, chiedi nel gruppo WhatsApp: non sono fissate qui.',
-        chiavi: ['mercato di riparazione', 'riparazione', 'mercato invernale', 'gennaio', 'seconda sessione mercato'],
+            'Il mercato si muove **fra una giornata e l\'altra**: a giornata in corso è chiuso. Valgono comunque le due regole di sempre — niente plusvalenze e i **giocatori bloccati** restano non acquistabili finché sono posseduti da almeno un sesto degli iscritti.',
+        chiavi: ['mercato di riparazione', 'riparazione', 'mercato invernale', 'gennaio', 'seconda sessione mercato', 'mercato durante il campionato', 'quando fare mercato', 'mercato aperto', 'scambi', 'svincolati'],
     },
 
     /* ------------------------------------------------------------- formazione */
@@ -647,10 +647,18 @@ export const KB: VoceKB[] = [
     {
         id: 'capitano',
         sezione: 'rosa',
-        domanda: 'C\'è il capitano o il fantamilione?',
+        domanda: 'Si usa il capitano?',
         risposta:
-            'Il regolamento della lega **non prevede capitano né fantamilione**: nella lista dei bonus non compaiono. Se Fantaclub li mostra come opzione, chiedi conferma nel gruppo prima di usarli.',
-        chiavi: ['capitano', 'fantamilione', 'jolly', 'raddoppio', 'moltiplicatore'],
+            'No, **il capitano non si usa** in questa lega: nella lista dei bonus non compare, e non ci sono moltiplicatori di alcun tipo. Ogni giocatore vale il suo voto più i suoi bonus, punto.',
+        chiavi: ['capitano', 'jolly', 'raddoppio', 'moltiplicatore', 'fascia'],
+    },
+    {
+        id: 'fantamilioni',
+        sezione: 'rosa',
+        domanda: 'Cosa sono i Fantamilioni?',
+        risposta:
+            'Sono la moneta con cui si compra la rosa: ne hai **600** per i tuoi 24 giocatori. Non c\'entrano con le melanzane 🍆, che sono invece la quota e i premi veri.',
+        chiavi: ['fantamilioni', 'fantamilione', 'crediti rosa', 'moneta', 'con cosa compro', 'fm'],
     },
     {
         id: 'porta-inviolata',
@@ -832,6 +840,7 @@ const STOPWORDS = new Set([
     'posso', 'puo', 'possiamo', 'devo', 'deve', 'fare', 'faccio', 'fa', 'vorrei', 'voglio',
     'ciao', 'grazie', 'per favore', 'scusa', 'salve',
     'quanto', 'quanta', 'quanti', 'quante', 'qual', 'piu', 'meno', 'anche', 'solo', 'poi', 'gia',
+    'usa', 'usare', 'usano', 'usato', 'usiamo',
 ]);
 
 /** minuscolo, senza accenti e senza punteggiatura */

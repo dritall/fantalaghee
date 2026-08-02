@@ -42,6 +42,8 @@ const PROVE = [
     ['partita rinviata cosa succede', 'partita-rinviata'],
     ['sei politico chi lo prende', 'sei-politico'],
     ['ce il capitano', 'capitano'],
+    ['cosa sono i fantamilioni', 'fantamilioni'],
+    ['posso fare mercato durante il campionato', 'mercato-riparazione'],
     ['quante squadre siamo', 'quante-squadre'],
     ['chi contatto', 'contatti'],
     ['cosa cambia questanno', 'cosa-cambia'],
