@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle, Trophy, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { CURRENT_SEASON } from "@/lib/seasons";
 import { toNumber, stripDecorations } from "@/lib/numbers";
 import { SeasonBanner } from "@/components/ui/SeasonBanner";
 import { SeasonPill } from "@/components/ui/SeasonPill";
+import { SelettoreGiornata } from "@/components/ui/SelettoreGiornata";
 
 function ClassificaContent() {
     const searchParams = useSearchParams();
@@ -18,6 +19,9 @@ function ClassificaContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [mobileView, setMobileView] = useState<"totale" | "giornata">("totale");
+    /** giornata scelta nel selettore; null finché non si sceglie, e allora vale l'ultima giocata */
+    const [giornataScelta, setGiornataScelta] = useState<number | null>(null);
+    const tabellaRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         async function fetchData() {
@@ -35,6 +39,15 @@ function ClassificaContent() {
         }
         fetchData();
     }, [stagione]);
+
+    // Scegliere una giornata sul desktop non serve a niente se la colonna resta
+    // fuori schermo: la tabella ci scorre sopra da sola.
+    useEffect(() => {
+        if (giornataScelta === null) return;
+        tabellaRef.current
+            ?.querySelector(`[data-giornata="${giornataScelta}"]`)
+            ?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }, [giornataScelta]);
 
     // Le giornate si ricavano dalle colonne che il foglio espone davvero: se
     // una intestazione cambia o ne manca una, la tabella segue il dato invece
@@ -71,9 +84,23 @@ function ClassificaContent() {
         return acc;
     }, {} as Record<string, number>);
 
-    // Classifica della sola ultima giornata, ordinata per punteggio della giornata
+    // Numeri delle giornate giocate, per il selettore
+    const numeriGiocati = matchdays
+        .filter((g) => leaderboard.some((team) => {
+            const n = toNumber(team[g]);
+            return n !== null && n > 0;
+        }))
+        .map((g) => parseInt(g.replace(/\D/g, ""), 10));
+
+    // Colonna mostrata: quella scelta nel menu, altrimenti l'ultima giocata
+    const colonnaGiornata =
+        giornataScelta !== null
+            ? matchdays.find((g) => parseInt(g.replace(/\D/g, ""), 10) === giornataScelta) ?? lastPlayedMatchday
+            : lastPlayedMatchday;
+
+    // Classifica della sola giornata scelta, ordinata per punteggio della giornata
     const giornataBoard = [...leaderboard]
-        .map((team) => ({ ...team, _giornataScore: toNumber(team[lastPlayedMatchday]) ?? 0 }))
+        .map((team) => ({ ...team, _giornataScore: toNumber(team[colonnaGiornata]) ?? 0 }))
         .sort((a, b) => b._giornataScore - a._giornataScore);
 
     if (loading) return (
@@ -120,9 +147,20 @@ function ClassificaContent() {
                         </h1>
                         <SeasonPill stagione={stagione} />
                     </div>
-                    <p className="text-white/30 text-[11px] hidden sm:block">
-                        Scorri in orizzontale per le altre giornate · <span className="text-amber-300">in oro</span> il miglior punteggio di giornata
-                    </p>
+                    <div className="flex flex-col items-start sm:items-end gap-2">
+                        <SelettoreGiornata
+                            giornate={numeriGiocati}
+                            valore={giornataScelta}
+                            onChange={(g) => {
+                                setGiornataScelta(g);
+                                if (g !== null) setMobileView("giornata");
+                            }}
+                            etichettaGenerale={`Ultima giocata · ${lastPlayedMatchday}`}
+                        />
+                        <p className="text-white/30 text-[11px] hidden sm:block">
+                            <span className="text-amber-300">In oro</span> il miglior punteggio di giornata
+                        </p>
+                    </div>
                 </div>
 
                 {/* ===== TELEFONO: card per squadra ===== */}
@@ -130,7 +168,7 @@ function ClassificaContent() {
                     <div className="flex gap-1 mb-4 p-1 rounded-2xl border border-white/10 bg-white/[0.04] w-fit">
                         {([
                             { key: "totale" as const, label: "Totale", icon: Trophy },
-                            { key: "giornata" as const, label: lastPlayedMatchday, icon: CalendarDays },
+                            { key: "giornata" as const, label: colonnaGiornata, icon: CalendarDays },
                         ]).map((v) => (
                             <button
                                 key={v.key}
@@ -152,7 +190,7 @@ function ClassificaContent() {
 
                     <div className="flex flex-col gap-2">
                         {(mobileView === "totale" ? leaderboard : giornataBoard)?.map((team, index) => {
-                            const value = stripDecorations(mobileView === "totale" ? team.Generale : team[lastPlayedMatchday]) || "-";
+                            const value = stripDecorations(mobileView === "totale" ? team.Generale : team[colonnaGiornata]) || "-";
                             return (
                                 <div
                                     key={team.Team || index}
@@ -192,7 +230,7 @@ function ClassificaContent() {
                                             {value}
                                         </span>
                                         <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-white/30 mt-1">
-                                            {mobileView === "totale" ? "Totale" : lastPlayedMatchday}
+                                            {mobileView === "totale" ? "Totale" : colonnaGiornata}
                                         </span>
                                     </span>
                                 </div>
@@ -203,7 +241,7 @@ function ClassificaContent() {
 
                 {/* ===== DESKTOP: tabella con tutte le giornate ===== */}
                 <div className="hidden sm:flex flex-1 w-full flex-col surface rounded-[1.75rem] overflow-hidden">
-                    <div className="overflow-auto w-full max-h-[76vh] custom-scrollbar">
+                    <div ref={tabellaRef} className="overflow-auto w-full max-h-[76vh] custom-scrollbar">
                         <table className="w-full text-left text-sm whitespace-nowrap border-collapse">
                             <thead className="sticky top-0 z-40">
                                 <tr>
@@ -219,7 +257,13 @@ function ClassificaContent() {
                                     {matchdays.map((g) => (
                                         <th
                                             key={g}
-                                            className="bg-[#0b1026] p-3 min-w-[58px] text-center text-[10px] font-black uppercase tracking-wider text-white/25 border-b border-r border-white/[0.05]"
+                                            data-giornata={parseInt(g.replace(/\D/g, ""), 10)}
+                                            className={cn(
+                                                "p-3 min-w-[58px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-white/[0.05]",
+                                                g === colonnaGiornata && giornataScelta !== null
+                                                    ? "bg-[#14204a] text-cyan-300"
+                                                    : "bg-[#0b1026] text-white/25"
+                                            )}
                                         >
                                             {g}
                                         </th>
@@ -275,7 +319,9 @@ function ClassificaContent() {
                                                     className={cn(
                                                         "p-2.5 text-center border-b border-r border-white/[0.05] tabular-nums transition-colors",
                                                         "group-hover:bg-white/[0.04]",
-                                                        isBest ? "text-amber-300 font-black bg-amber-400/[0.10]" : "text-white/45"
+                                                        isBest ? "text-amber-300 font-black bg-amber-400/[0.10]" : "text-white/45",
+                                                        g === colonnaGiornata && giornataScelta !== null &&
+                                                            "bg-cyan-400/[0.07] text-white/80 border-r-white/15"
                                                     )}
                                                 >
                                                     {raw || "-"}

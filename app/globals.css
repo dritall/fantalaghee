@@ -54,7 +54,7 @@
   html {
     /* il colore sta sull'html, non sul body: così lo strato dello stadio può
        stare a z-index negativo senza finire dietro al fondo del body */
-    background-color: #0d0a2a;
+    background-color: #101a33;
     scroll-behavior: smooth;
     /* le ancore non finiscono sotto la navbar fissa */
     scroll-padding-top: 6.5rem;
@@ -88,8 +88,8 @@
      stonavano sopra lo sfondo dello stadio.
      --------------------------------------------------------------- */
   .surface {
-    @apply bg-gradient-to-b from-[#0d1330]/90 to-[#080b1e]/90 backdrop-blur-xl border border-white/10
-           shadow-[0_12px_40px_rgba(6,10,30,0.5)];
+    @apply backdrop-blur-xl border border-white/[0.13] shadow-[0_12px_40px_rgba(6,10,30,0.45)];
+    background-image: linear-gradient(to bottom, rgba(24, 36, 74, 0.88), rgba(17, 26, 54, 0.88));
   }
 
   /* Barre di scorrimento: erano chiare su un sito scuro */
@@ -141,18 +141,18 @@
     z-index: -1;
     pointer-events: none;
     background-image:
-      linear-gradient(180deg, rgba(10,8,30,0.78) 0%, rgba(13,10,42,0.62) 35%, rgba(13,10,42,0.68) 70%, rgba(8,6,28,0.88) 100%),
+      linear-gradient(180deg, rgba(12,20,44,0.70) 0%, rgba(14,24,52,0.50) 35%, rgba(14,24,52,0.58) 70%, rgba(10,16,36,0.82) 100%),
       url('/image/bg-mobile-2627.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-color: #0d0a2a;
+    background-color: #101a33;
   }
 
   @media (min-width: 768px) {
     .stadium-layer {
       background-image:
-        linear-gradient(180deg, rgba(10,8,30,0.78) 0%, rgba(13,10,42,0.60) 35%, rgba(13,10,42,0.66) 70%, rgba(8,6,28,0.88) 100%),
+        linear-gradient(180deg, rgba(12,20,44,0.70) 0%, rgba(14,24,52,0.48) 35%, rgba(14,24,52,0.56) 70%, rgba(10,16,36,0.82) 100%),
         url('/image/bg-desktop-2627.webp');
     }
   }
@@ -530,4 +530,36 @@
   *::after {
     transition-duration: 0.01ms !important;
   }
+}
+
+/* =====================================================================
+   CARTA — il regolamento
+   La terza via fra il notturno e il giornale: il sito resta di sera, ma
+   i due posti dove si legge davvero un testo lungo (il regolamento e la
+   Gazzetta) passano su carta. Stessa texture della Gazzetta, tono un po'
+   più neutro perché qui il testo è fitto e tecnico.
+   ===================================================================== */
+.carta {
+  background-color: #F3EADE;
+  background-image: url('/image/gazzetta/carta.jpg');
+  background-size: 450px 450px;
+  background-repeat: repeat;
+  background-blend-mode: multiply;
+  color: #241E1A;
+
+  --carta-forte: #241E1A;   /* titoli e numeri */
+  --carta-corpo: #473D36;   /* testo corrente */
+  --carta-tenue: #7B6C62;   /* didascalie */
+  --carta-filo: rgba(36, 30, 26, 0.14);
+  --carta-velo: rgba(36, 30, 26, 0.045);
+  --carta-lario: #0E5C69;   /* collegamenti e occhielli */
+  --carta-oro: #8A5E12;     /* premi e melanzane */
+  --carta-rosso: #A32620;   /* avvertenze */
+  --carta-verde: #2F6B44;   /* bonus */
+}
+
+/* Sulla carta il testo lungo va in graziato: venti righe di bastoni su
+   fondo chiaro stancano, ed è proprio dove si legge di più. */
+.carta-testo {
+  font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
 }

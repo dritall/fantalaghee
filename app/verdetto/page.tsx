@@ -11,6 +11,7 @@ import { CURRENT_SEASON } from '@/lib/seasons';
 import { SeasonBanner } from '@/components/ui/SeasonBanner';
 import { SeasonPill } from '@/components/ui/SeasonPill';
 import { giornateDisponibili, verdettoAllaGiornata, type VerdettoGiornata } from '@/lib/verdetto-storico';
+import { SelettoreGiornata } from '@/components/ui/SelettoreGiornata';
 import dynamic from 'next/dynamic';
 /**
  * Il grafico Top 5 e' l'unica cosa che tira dentro Chart.js: una libreria da
@@ -199,39 +200,18 @@ function VerdettoContent() {
     const SelettoreGiornate = () => {
         if (giornate.length === 0) return null;
         return (
-            <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 shrink-0">
-                    Giornata
-                </span>
-                <div className="flex-1 flex gap-1.5 overflow-x-auto no-scrollbar py-1 edge-fade-x">
-                    <button
-                        onClick={() => setGiornataScelta(null)}
-                        aria-pressed={giornataScelta === null}
-                        className={cn(
-                            'shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider border transition-all',
-                            giornataScelta === null
-                                ? 'border-cyan-400/50 bg-cyan-400/15 text-white'
-                                : 'border-white/[0.08] bg-white/[0.02] text-white/40 hover:text-white hover:border-white/20'
-                        )}
-                    >
-                        Attuale
-                    </button>
-                    {giornate.map((g) => (
-                        <button
-                            key={g}
-                            onClick={() => setGiornataScelta(g)}
-                            aria-pressed={giornataScelta === g}
-                            className={cn(
-                                'shrink-0 w-9 py-1.5 rounded-xl text-xs font-black tabular-nums border transition-all',
-                                giornataScelta === g
-                                    ? 'border-amber-300/50 bg-amber-400/15 text-amber-200'
-                                    : 'border-white/[0.08] bg-white/[0.02] text-white/40 hover:text-white hover:border-white/20'
-                            )}
-                        >
-                            {g}
-                        </button>
-                    ))}
-                </div>
+            <div className="flex flex-wrap items-center gap-2.5">
+                <SelettoreGiornata
+                    giornate={giornate}
+                    valore={giornataScelta}
+                    onChange={setGiornataScelta}
+                    etichettaGenerale={`Attuale · giornata ${data?.numeroGiornata ?? giornate[giornate.length - 1]}`}
+                />
+                {giornataScelta !== null && (
+                    <span className="text-[11px] text-white/35">
+                        Ricalcolata dai punteggi di classifica
+                    </span>
+                )}
             </div>
         );
     };

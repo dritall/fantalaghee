@@ -255,7 +255,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Quante riserve e sostituzioni ci sono?',
         risposta:
-            '**11 riserve** in panchina e **5 sostituzioni**, che scattano secondo l\'ordine in cui hai messo la panchina.',
+            '**11 riserve** in panchina e **5 sostituzioni**, che scattano secondo l\'ordine in cui hai messo la panchina. Il cambio avviene **solo fra giocatori dello stesso ruolo**.',
         chiavi: ['riserve', 'panchina', 'sostituzioni', 'quante sostituzioni', 'cambi', '5 sostituzioni'],
         inEvidenza: true,
     },
@@ -264,7 +264,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Come funziona l\'ordine della panchina?',
         risposta:
-            'Le sostituzioni seguono **la priorità che hai dato in panchina**: entra prima chi hai messo più in alto, se il titolare non ha preso voto.',
+            'Le sostituzioni seguono **la priorità che hai dato in panchina**: fra le riserve dello stesso ruolo del titolare senza voto, entra quella che hai messo più in alto.',
         chiavi: ['ordine panchina', 'priorita panchina', 'come entrano riserve', 'chi entra prima'],
     },
     {
@@ -624,7 +624,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Cosa succede se un mio giocatore non prende voto?',
         risposta:
-            'Entra una riserva al suo posto, secondo l\'ordine della panchina, se ne hai disponibili. Le sostituzioni automatiche sono **5**.',
+            'Entra una riserva **dello stesso ruolo**, seguendo l\'ordine che hai dato in panchina. Le sostituzioni automatiche sono **5**: un portiere entra solo per un portiere, un difensore solo per un difensore.',
         chiavi: ['senza voto', 'non prende voto', 'non gioca', 'sv', 'giocatore in panchina', 'non convocato'],
         inEvidenza: true,
     },
@@ -633,7 +633,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Se schiero un infortunato cosa succede?',
         risposta:
-            'Non prende voto, quindi viene sostituito da una riserva se ce n\'è una disponibile nel suo ruolo. Se le sostituzioni sono esaurite resti in dieci.',
+            'Non prende voto, quindi entra una riserva **dello stesso ruolo**, se ne hai una disponibile in panchina. Se non ce l\'hai o hai finito i 5 cambi, resti in dieci.',
         chiavi: ['infortunato', 'infortunio', 'squalificato', 'squalifica', 'schiero infortunato'],
     },
     {
@@ -641,7 +641,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Cosa succede se finisco le sostituzioni?',
         risposta:
-            'I giocatori senza voto restano tali e non portano punti. Le sostituzioni automatiche disponibili sono **5**, non di più.',
+            'I giocatori senza voto restano tali e non portano punti. Le sostituzioni disponibili sono **5**, non di più — e ognuna vale solo fra giocatori dello stesso ruolo.',
         chiavi: ['sostituzioni finite', 'esaurite sostituzioni', 'piu di 5', 'sesta sostituzione'],
     },
     {
@@ -815,6 +815,14 @@ export const KB: VoceKB[] = [
         chiavi: ['posso chiedere', 'fare domande', 'chiedere agli organizzatori', 'domande stupide', 'gruppo whatsapp domande'],
     },
 
+    {
+        id: 'gazzetta',
+        sezione: 'sito',
+        domanda: 'Cos\'è la Gazzetta del Laghèe?',
+        risposta:
+            'Il giornale della lega: **esce ogni giornata**, con il racconto del turno appena chiuso. Lo trovi nella sezione Gazzetta.',
+        chiavi: ['gazzetta', 'giornale', 'articoli', 'gazzetta del laghee', 'ogni quanto esce', 'notizie'],
+    },
     {
         id: 'riassunto',
         sezione: 'sito',
