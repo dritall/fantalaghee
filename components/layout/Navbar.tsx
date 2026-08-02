@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import Image from "next/image";
+import { Marchio } from "@/components/ui/Marchio";
 import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, UserPlus, Download, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -146,18 +146,11 @@ export function Navbar() {
                     >
                         <span className="relative flex items-center">
                             <span className="absolute -inset-2 rounded-2xl opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-500 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.35),transparent_70%)]" />
-                            <Image
-                                src="/image/logo-mark.png"
-                                alt="Fanta Laghèe"
-                                width={319}
-                                height={246}
-                                priority
-                                className={cn(
+                            <Marchio priority className={cn(
                                     "relative w-auto object-contain transition-all duration-300",
                                     "drop-shadow-[0_0_16px_rgba(99,102,241,0.45)] group-hover:drop-shadow-[0_0_22px_rgba(56,189,248,0.6)]",
                                     scrolled ? "h-9 md:h-10" : "h-10 md:h-12"
-                                )}
-                            />
+                                )} />
                         </span>
 
                         <span className="hidden sm:flex flex-col leading-none pl-3 border-l border-[color:var(--filo)]">

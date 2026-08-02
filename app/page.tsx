@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import { Marchio } from "@/components/ui/Marchio";
 import { Activity, Trophy, ShieldCheck, BookOpen, UserPlus, ArrowRight, Download, Newspaper } from "lucide-react";
 import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE } from "@/lib/seasons";
 import { NavTile, type NavTileData } from "@/components/ui/NavTile";
@@ -45,14 +45,7 @@ export default function Home() {
 
         {/* ================= INSEGNA ================= */}
         <header className="flex flex-col items-center text-center gap-5">
-          <Image
-            src="/image/logo-mark.png"
-            alt="Fanta Laghèe"
-            width={319}
-            height={246}
-            priority
-            className="w-[230px] md:w-[310px] h-auto"
-          />
+          <Marchio priority className="w-[230px] md:w-[310px] h-auto" />
 
           <h1 className="border-y-2 border-[color:var(--calce)]/70 bg-[color:var(--pece)]/70 px-5 py-2
                          text-[10px] md:text-[11px] font-black uppercase tracking-[0.32em] text-[color:var(--calce)] backdrop-blur-sm">

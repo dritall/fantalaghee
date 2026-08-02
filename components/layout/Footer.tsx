@@ -9,7 +9,7 @@
  * e tiene una sola chiamata all'azione, quella che conta.
  */
 
-import Image from "next/image";
+import { Marchio } from "@/components/ui/Marchio";
 import { Download, UserPlus, ArrowUp } from "lucide-react";
 import { SeasonLink } from "@/components/ui/SeasonLink";
 import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE, SEASONS } from "@/lib/seasons";
@@ -41,13 +41,7 @@ export function Footer() {
                     {/* Marchio e mezza riga su cosa è questo posto */}
                     <div className="flex flex-col gap-3.5">
                         <SeasonLink href="/" aria-label="Fanta Laghèe — home" className="w-fit">
-                            <Image
-                                src="/image/logo-mark.png"
-                                alt="Fanta Laghèe"
-                                width={319}
-                                height={246}
-                                className="object-contain h-11 w-auto opacity-90 hover:opacity-100 transition-opacity"
-                            />
+                            <Marchio className="object-contain h-11 w-auto opacity-90 hover:opacity-100 transition-opacity" />
                         </SeasonLink>
                         <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[color:var(--calce)]/75">{LEAGUE_TAGLINE}</p>
                         <p className="text-xs leading-relaxed text-[color:var(--fumo)] max-w-[34ch]">
