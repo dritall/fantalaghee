@@ -83,7 +83,7 @@ export function SeasonSwitcher() {
                 <div
                     role="listbox"
                     aria-label="Stagioni"
-                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-[#0f1230]/95 backdrop-blur-xl border border-[color:var(--filo)] shadow-[0_20px_60px_rgba(4,6,20,0.7)] overflow-hidden z-50 animate-fade-up"
+                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-[color:var(--fondale)]/98 backdrop-blur-xl border border-[color:var(--filo)] shadow-[0_20px_60px_var(--ombra)] overflow-hidden z-50 animate-fade-up"
                 >
                     <p className="px-4 pt-3 pb-2 text-[9px] font-black uppercase tracking-[0.22em] text-[color:var(--fumo)]">
                         Stagione
@@ -131,7 +131,7 @@ export function SeasonSwitcher() {
                                 </button>
                             );
                         })}
-                    <p className="px-4 py-2.5 text-[10px] leading-snug text-[color:var(--fumo)] border-t border-white/5">
+                    <p className="px-4 py-2.5 text-[10px] leading-snug text-[color:var(--fumo)] border-t border-[color:var(--filo)]">
                         La stagione scelta ti segue in tutte le sezioni del sito.
                     </p>
                 </div>

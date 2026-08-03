@@ -16,8 +16,8 @@ function SeasonBannerInner() {
 
     return (
         <div
-            className="flex items-center gap-3 rounded-2xl border border-amber-300/25 bg-[color:var(--oro)]/[0.07] px-4 py-3
-                       text-amber-100 backdrop-blur-md animate-fade-up"
+            className="flex items-center gap-3 rounded-2xl border border-[color:var(--oro)]/30 bg-[color:var(--oro)]/[0.10] px-4 py-3
+                       text-[color:var(--calce)] backdrop-blur-md animate-fade-up"
             role="status"
         >
             <span className="w-8 h-8 rounded-xl bg-[color:var(--oro)]/15 border border-amber-300/30 flex items-center justify-center shrink-0">
@@ -29,8 +29,8 @@ function SeasonBannerInner() {
             </p>
             <Link
                 href={pathname}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--oro)]/15 border border-amber-300/30
-                           px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-amber-100
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--oro)]/15 border border-[color:var(--oro)]/35
+                           px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-[color:var(--calce)]
                            hover:bg-[color:var(--oro)]/25 transition-colors"
             >
                 Torna al {SEASONS[CURRENT_SEASON].label}

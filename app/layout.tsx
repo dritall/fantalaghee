@@ -52,7 +52,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d0a2a",
+  themeColor: "#E7F1F7",
 };
 
 export default function RootLayout({
@@ -67,7 +67,7 @@ export default function RootLayout({
         <a
           href="#contenuto"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100]
-                     focus:rounded-full focus:bg-secondary focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-[color:var(--calce)]"
+                     focus:rounded-full focus:bg-[color:var(--vermiglio)] focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-[color:var(--su-colore)]"
         >
           Vai al contenuto
         </a>

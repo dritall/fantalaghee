@@ -1,24 +1,18 @@
-"use client";
-
 /**
- * Il marchio, in due versioni.
+ * Il marchio.
  *
- * Il neon è nato per il buio: su fondo chiaro la luce non si vede, e infatti
- * di giorno spariva. Il lettering nuovo è l'opposto — cobalto e turchese
- * pieni, che sul chiaro tengono e sul buio si spengono. Quindi si scambiano
- * con la fascia oraria, che è già quello che fa il resto del sito.
+ * È il lettering nuovo, piatto — cobalto, turchese e l'accento arancione —
+ * pensato per il fondo chiaro del sito. Prima ne esistevano due versioni che
+ * si scambiavano con l'ora (il neon per il buio); ora che il sito è sempre di
+ * giorno ne basta uno.
  */
 
 import Image from "next/image";
-import { usaTema } from "@/lib/usa-tema";
 
 export function Marchio({ className, priority }: { className?: string; priority?: boolean }) {
-    const tema = usaTema();
-    const chiaro = tema === "chiaro";
-
     return (
         <Image
-            src={chiaro ? "/images/logo-lettering.png" : "/image/logo-mark.png"}
+            src="/images/logo-lettering.png"
             alt="Fanta Laghèe"
             width={319}
             height={246}

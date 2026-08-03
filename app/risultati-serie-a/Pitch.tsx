@@ -236,7 +236,7 @@ function TeamPitch({
                                 </span>
                                 <span className="shrink-0 flex items-center gap-1">
                                     {p.subbedIn && (
-                                        <span className="text-[10px] font-black text-emerald-400 tabular-nums">
+                                        <span className="text-[10px] font-black text-emerald-600 tabular-nums">
                                             ↑{p.subbedIn}&apos;
                                         </span>
                                     )}

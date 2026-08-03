@@ -158,7 +158,7 @@ export function Tabellone() {
                         <span className="stampino text-[15px] leading-[1.05] text-[#EDF2F1] line-clamp-3">
                             {uscita.title}
                         </span>
-                        <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[#F2543D]">
+                        <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--vermiglio)]">
                             Leggi la Gazzetta
                             <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
                         </span>

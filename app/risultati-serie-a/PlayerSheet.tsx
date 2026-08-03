@@ -176,8 +176,8 @@ export function PlayerSheet({
                     aria-describedby={undefined}
                     className="fixed z-[121] inset-x-0 bottom-0 md:inset-0 md:m-auto
                                    w-full md:w-[420px] h-fit max-h-[88vh] md:max-h-[80vh] flex flex-col
-                                   rounded-t-[2rem] md:rounded-none border border-[color:var(--filo)] bg-[#0a0f26]
-                                   shadow-[0_-20px_60px_rgba(0,0,0,0.6)] md:shadow-[0_30px_80px_rgba(0,0,0,0.7)]
+                                   rounded-t-[2rem] md:rounded-none border border-[color:var(--filo)] bg-[color:var(--fondale)]
+                                   shadow-[0_-20px_60px_var(--ombra)] md:shadow-[0_30px_80px_var(--ombra)]
                                    overflow-hidden animate-fade-up focus:outline-none"
                 >
                     <Dialog.Title className="sr-only">{player.fullName}</Dialog.Title>
@@ -244,22 +244,22 @@ export function PlayerSheet({
                             {(player.subbedIn || player.subbedOut || player.yellow || player.red) && (
                                 <div className="flex flex-wrap gap-1.5">
                                     {player.subbedIn && (
-                                        <span className="rounded-none bg-emerald-500/12 border border-emerald-400/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-300">
+                                        <span className="rounded-none bg-emerald-500/12 border border-emerald-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
                                             Entrato {player.subbedIn}&apos;
                                         </span>
                                     )}
                                     {player.subbedOut && (
-                                        <span className="rounded-none bg-red-500/12 border border-red-400/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-300">
+                                        <span className="rounded-none bg-red-500/12 border border-red-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-600">
                                             Uscito {player.subbedOut}&apos;
                                         </span>
                                     )}
                                     {player.yellow && (
-                                        <span className="rounded-none bg-yellow-400/12 border border-yellow-300/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-yellow-300">
+                                        <span className="rounded-none bg-yellow-400/15 border border-yellow-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-yellow-700">
                                             Ammonito
                                         </span>
                                     )}
                                     {player.red && (
-                                        <span className="rounded-none bg-red-500/15 border border-red-400/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-300">
+                                        <span className="rounded-none bg-red-500/15 border border-red-500/35 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-600">
                                             Espulso
                                         </span>
                                     )}

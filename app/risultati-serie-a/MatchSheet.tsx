@@ -36,8 +36,8 @@ const EVENT_ICON: Record<NormalizedEvent["kind"], { icon: string; size?: "lg" }>
 };
 
 const EVENT_TAG: Partial<Record<NormalizedEvent["kind"], { text: string; className: string }>> = {
-    "penalty-goal": { text: "Rig.", className: "text-emerald-300 bg-emerald-500/10 border-emerald-400/25" },
-    "own-goal": { text: "Aut.", className: "text-red-300 bg-red-500/10 border-red-400/25" },
+    "penalty-goal": { text: "Rig.", className: "text-emerald-700 bg-emerald-500/12 border-emerald-500/30" },
+    "own-goal": { text: "Aut.", className: "text-red-600 bg-red-500/12 border-red-500/30" },
     "penalty-missed": { text: "Rigore sbagliato", className: "text-orange-300 bg-orange-500/10 border-orange-400/25" },
     var: { text: "VAR", className: "text-violet-300 bg-violet-500/10 border-violet-400/25" },
 };
@@ -275,7 +275,7 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
                                 {isSub ? (
                                     <>
                                         <span className="text-[12px] md:text-[13px] font-black text-[color:var(--calce)] flex items-center gap-1 leading-tight">
-                                            <span className="text-emerald-400 text-xs">↑</span>
+                                            <span className="text-emerald-600 text-xs">↑</span>
                                             <span className="truncate">{e.player}</span>
                                         </span>
                                         {e.playerOut && (
@@ -342,7 +342,7 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
 
                                 {/* Minuto centrale */}
                                 <span className="relative z-10 w-12 shrink-0 flex justify-center">
-                                    <span className="text-[9px] font-black text-[color:var(--fumo)] tabular-nums bg-[color:var(--fondale)] px-1.5 py-0.5 rounded-full border border-white/5">
+                                    <span className="text-[9px] font-black text-[color:var(--fumo)] tabular-nums bg-[color:var(--fondale)] px-1.5 py-0.5 rounded-full border border-[color:var(--filo)]">
                                         {e.label}
                                     </span>
                                 </span>
@@ -690,7 +690,7 @@ export function MatchSheet({
 
                         <div className="relative flex items-center justify-center mb-3">
                             {isLive ? (
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/15 border border-red-400/30 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-red-300">
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/15 border border-red-500/35 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-red-600">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
                                     Live
                                 </span>

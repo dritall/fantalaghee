@@ -67,14 +67,14 @@
 
   /* Anello di focus visibile solo da tastiera, coerente su tutto il sito */
   :focus-visible {
-    outline: 2px solid #E5322A;
+    outline: 2px solid #EE5124;
     outline-offset: 2px;
     border-radius: 6px;
   }
 
   ::selection {
-    background: rgba(229, 50, 42, 0.40);
-    color: #fff;
+    background: rgba(238, 81, 36, 0.32);
+    color: #072033;
   }
 }
 
@@ -395,11 +395,11 @@
   100% { background-position: 200% 50%; }
 }
 
-/* Scrollbar della pagina, intonata al fondo notturno */
+/* Scrollbar della pagina, intonata al fondo chiaro del lago */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #0a0820; }
-::-webkit-scrollbar-thumb { background: #2b3566; border-radius: 10px; border: 2px solid #0a0820; }
-::-webkit-scrollbar-thumb:hover { background: #3d4a8a; }
+::-webkit-scrollbar-track { background: #D3E3ED; }
+::-webkit-scrollbar-thumb { background: #9FBACB; border-radius: 10px; border: 2px solid #D3E3ED; }
+::-webkit-scrollbar-thumb:hover { background: #7E9FB4; }
 
 @keyframes chrome-sweep {
   0% { transform: rotate(0deg); opacity: 1; }
@@ -523,34 +523,41 @@
    ===================================================================== */
 
 :root {
-  /* fondo e testo: si scambiano fra giorno e sera */
-  --pece:      #071A24;
-  --calce:     #EDF2F1;
-  --fondale:   #0C2531;
-  --secca:     #12384A;
-  --fumo:      #7FA3B0;
+  /* -------------------------------------------------------------------
+     UNA SOLA GIORNATA — palette fissa, giorno sul lago.
+     Niente più cambio con l'ora: un solo fondo chiaro, un solo inchiostro
+     scuro. I nomi restano quelli di prima (--pece / --calce ecc.) perché
+     tutto il sito già li usa; qui semplicemente non si invertono più.
+     ------------------------------------------------------------------- */
 
-  /* accenti: dal quadro dell'acqua */
-  --lario:     #3FB8C4;
-  --vermiglio: #F2543D;
-  --oro:       #F0B429;
+  /* fondo e testo */
+  --pece:      #E7F1F7;   /* cielo chiaro sul lago: il fondo della pagina */
+  --calce:     #0B2233;   /* blu notte: l'inchiostro */
+  --fondale:   #FFFFFF;   /* le superfici / card, bianche e pulite */
+  --secca:     #DBE9F1;   /* superficie appena più profonda del fondale */
+  --fumo:      #557687;   /* testo secondario, leggibile su chiaro */
+
+  /* accenti: dal logo nuovo */
+  --lario:     #157C97;   /* turchese lago: l'accento freddo, strutturale */
+  --vermiglio: #EE5124;   /* ARANCIONE del logo: il caldo, lo stacco */
+  --oro:       #B8791A;   /* oro premi, scurito quanto basta per il chiaro */
 
   /* testo sopra un fondo pieno di colore: non si invertono mai */
-  --su-colore: #F6F9F8;   /* chiaro, per il rosso */
-  --su-chiaro: #071A24;   /* scuro, per turchese e oro */
+  --su-colore: #FFFFFF;   /* chiaro, sopra l'arancione e il blu pieni */
+  --su-chiaro: #072033;   /* scuro, sopra il turchese e l'oro */
 
-  --filo:      rgba(237, 242, 241, 0.18);
-  --filo-alto: rgba(237, 242, 241, 0.36);
+  --filo:      rgba(11, 34, 51, 0.14);
+  --filo-alto: rgba(11, 34, 51, 0.30);
 
-  /* veli: quello che prima era "bianco al 4%" e su fondo chiaro spariva */
-  --velo:      rgba(237, 242, 241, 0.05);
-  --velo-alto: rgba(237, 242, 241, 0.10);
-  --ombra:     rgba(2, 10, 16, 0.55);
+  /* veli: leggerissimi tocchi scuri sul chiaro */
+  --velo:      rgba(11, 34, 51, 0.045);
+  --velo-alto: rgba(11, 34, 51, 0.09);
+  --ombra:     rgba(11, 34, 51, 0.16);
 
-  /* il campo da gioco: prato e righe, anche loro seguono l'ora */
-  --prato:        #0E2E22;
-  --prato-ombra:  rgba(0, 0, 0, 0.32);
-  --riga-campo:   rgba(237, 242, 241, 0.18);
+  /* il campo da gioco: prato verde e righe bianche */
+  --prato:        #2C7150;
+  --prato-ombra:  rgba(0, 0, 0, 0.14);
+  --riga-campo:   rgba(255, 255, 255, 0.85);
 }
 
 @layer utilities {

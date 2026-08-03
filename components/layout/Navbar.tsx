@@ -145,10 +145,8 @@ export function Navbar() {
                         aria-label="Fanta Laghèe — home"
                     >
                         <span className="relative flex items-center">
-                            <span className="absolute -inset-2 rounded-2xl opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-500 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.35),transparent_70%)]" />
                             <Marchio priority className={cn(
-                                    "relative w-auto object-contain transition-all duration-300",
-                                    "drop-shadow-[0_0_16px_rgba(99,102,241,0.45)] group-hover:drop-shadow-[0_0_22px_rgba(56,189,248,0.6)]",
+                                    "relative w-auto object-contain transition-all duration-300 group-hover:scale-[1.03]",
                                     scrolled ? "h-9 md:h-10" : "h-10 md:h-12"
                                 )} />
                         </span>
@@ -209,7 +207,7 @@ export function Navbar() {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                        className="lg:hidden bg-[#0b0824]/97 backdrop-blur-2xl border-t border-[color:var(--filo)] overflow-hidden"
+                        className="lg:hidden bg-[color:var(--fondale)]/97 backdrop-blur-2xl border-t border-[color:var(--filo)] overflow-hidden"
                     >
                         <div className="px-4 pt-4 pb-8 space-y-1.5 max-h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
                             <SeasonLink
@@ -237,7 +235,7 @@ export function Navbar() {
                                     rel="noopener noreferrer"
                                     onClick={() => setIsOpen(false)}
                                     className="flex items-center justify-center gap-2 px-3 py-3.5 rounded-2xl text-base font-black uppercase tracking-wider
-                                               bg-gradient-to-r from-[color:var(--vermiglio)] to-[color:var(--vermiglio)] text-[color:var(--calce)] shadow-[0_8px_24px_rgba(37,99,235,0.4)] border border-[color:var(--filo-alto)]"
+                                               bg-[color:var(--vermiglio)] text-[color:var(--su-colore)] shadow-[0_8px_24px_var(--ombra)] border border-[color:var(--filo-alto)]"
                                 >
                                     <UserPlus className="w-5 h-5" />
                                     Iscriviti alla Lega

@@ -80,8 +80,8 @@ export default function ArticlePage() {
 
     if (error || !metadata) return (
         <div className="min-h-screen pt-24 px-4 flex flex-col justify-center items-center text-center">
-            <h1 className="text-2xl font-bold text-[#16100F] mb-3">Articolo non disponibile</h1>
-            <p className="text-white/55 mb-8">{error}</p>
+            <h1 className="text-2xl font-bold text-[color:var(--calce)] mb-3">Articolo non disponibile</h1>
+            <p className="text-[color:var(--fumo)] mb-8">{error}</p>
             <Link href="/gazzetta" className="inline-flex items-center gap-2 text-sm font-semibold bg-[color:var(--velo-alto)] hover:bg-[color:var(--velo-alto)] text-[#16100F] px-4 py-2 rounded-full border border-[color:var(--filo-alto)] transition-colors">
                 <ArrowLeft className="w-4 h-4" /> Torna alla Gazzetta
             </Link>

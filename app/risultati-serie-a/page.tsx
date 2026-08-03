@@ -327,8 +327,8 @@ function ScoutHubContent() {
                     ))}
                   </div>
                 ) : matchError ? (
-                  <div className="rounded-none border border-red-400/25 bg-red-500/[0.08] p-6">
-                    <div className="flex items-center gap-2 text-red-300 font-black mb-2 text-xs uppercase tracking-widest">
+                  <div className="rounded-none border border-red-500/30 bg-red-500/[0.08] p-6">
+                    <div className="flex items-center gap-2 text-red-600 font-black mb-2 text-xs uppercase tracking-widest">
                       <AlertTriangle className="w-4 h-4" /> Errore caricamento
                     </div>
                     <p className="text-[color:var(--fumo)] text-xs font-mono break-all">{matchError}</p>
@@ -375,12 +375,12 @@ function ScoutHubContent() {
                                 {formatKickoff(m)}
                               </span>
                               {isLive ? (
-                                <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.16em] text-red-300">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                                <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.16em] text-red-600">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                                   Live
                                 </span>
                               ) : played ? (
-                                <span className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-300/70">Finita</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-600">Finita</span>
                               ) : (
                                 <span className="text-[9px] font-black uppercase tracking-[0.16em] text-[color:var(--fumo)]">Da giocare</span>
                               )}
@@ -432,9 +432,9 @@ function ScoutHubContent() {
                       <span className="col-span-4">Squadra</span>
                       <span className="col-span-1 text-center text-[color:var(--lario)]/80">Pt</span>
                       <span className="col-span-1 text-center">G</span>
-                      <span className="col-span-1 text-center text-emerald-300/70">V</span>
+                      <span className="col-span-1 text-center text-emerald-600/80">V</span>
                       <span className="col-span-1 text-center">N</span>
-                      <span className="col-span-1 text-center text-red-300/70">P</span>
+                      <span className="col-span-1 text-center text-red-500/80">P</span>
                       <span className="col-span-1 text-center">DR</span>
                       <span className="col-span-1 text-center">Forma</span>
                     </div>
@@ -472,9 +472,9 @@ function ScoutHubContent() {
 
                           <span className="col-span-1 text-center font-score font-bold text-[color:var(--lario)] text-base tabular-nums">{t.points}</span>
                           <span className="col-span-1 text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.played}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums text-emerald-300/80">{t.win}</span>
+                          <span className="col-span-1 text-center text-xs tabular-nums text-emerald-600/90">{t.win}</span>
                           <span className="col-span-1 text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.draw}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums text-red-300/80">{t.lose}</span>
+                          <span className="col-span-1 text-center text-xs tabular-nums text-red-500/90">{t.lose}</span>
                           <span className="col-span-1 text-center text-xs tabular-nums font-bold text-[color:var(--fumo)]">
                             {t.gd > 0 ? `+${t.gd}` : t.gd}
                           </span>

@@ -23,18 +23,18 @@ function ComingSoon({ className }: { className?: string }) {
     return (
         <div
             className={cn(
-                "group relative rounded-[1.75rem] border border-dashed border-[color:var(--filo-alto)] bg-[#0d1330]/70 backdrop-blur-xl overflow-hidden",
+                "group relative rounded-[1.75rem] border border-dashed border-[color:var(--filo-alto)] bg-[color:var(--fondale)]/70 backdrop-blur-xl overflow-hidden",
                 className
             )}
         >
-            <span className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-cyan-500/5 to-indigo-500/10" />
+            <span className="absolute inset-0 bg-gradient-to-br from-[color:var(--lario)]/10 via-transparent to-[color:var(--vermiglio)]/10" />
             <div className="relative h-full flex flex-col items-center justify-center gap-3 text-center px-6 py-16">
                 <span className="relative w-16 h-16 rounded-2xl flex items-center justify-center bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)]">
-                    <Newspaper className="w-7 h-7 text-cyan-300" />
-                    <Sparkles className="w-4 h-4 text-amber-300 absolute -top-1.5 -right-1.5 animate-pulse" />
+                    <Newspaper className="w-7 h-7 text-[color:var(--lario)]" />
+                    <Sparkles className="w-4 h-4 text-[color:var(--oro)] absolute -top-1.5 -right-1.5 animate-pulse" />
                 </span>
-                <span className="font-oswald text-xl text-[#16100F] tracking-wide uppercase">In preparazione</span>
-                <span className="text-sm text-white/45 font-serif italic max-w-[240px]">
+                <span className="font-oswald text-xl text-[color:var(--calce)] tracking-wide uppercase">In preparazione</span>
+                <span className="text-sm text-[color:var(--fumo)] font-serif italic max-w-[240px]">
                     La Redazione sta scaldando i motori per la prima uscita di stagione 🏆
                 </span>
             </div>
@@ -55,9 +55,9 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
         >
             <SeasonLink
                 href={`/gazzetta/${article.id}`}
-                className="group relative flex flex-col h-full rounded-[1.5rem] overflow-hidden border border-[color:var(--filo)] bg-[#0a0a1e]
-                           shadow-[0_10px_34px_rgba(6,10,30,0.5)] transition-all duration-300
-                           hover:shadow-[0_18px_46px_rgba(6,10,30,0.7)] hover:border-[color:var(--filo-alto)]"
+                className="group relative flex flex-col h-full rounded-[1.5rem] overflow-hidden border border-[color:var(--filo)] bg-[color:var(--fondale)]
+                           shadow-[0_10px_34px_var(--ombra)] transition-all duration-300
+                           hover:shadow-[0_18px_46px_var(--ombra)] hover:border-[color:var(--filo-alto)]"
             >
                 {/* la copertina è il contenuto: prende tutto lo spazio che può */}
                 <div className="relative aspect-[4/3] overflow-hidden shrink-0">
@@ -65,17 +65,17 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
                         className="absolute inset-0 bg-cover bg-top transition-transform duration-700 group-hover:scale-105"
                         style={{ backgroundImage: `url(${article.imageUrl})` }}
                     />
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0a0a1e] to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[color:var(--fondale)] to-transparent" />
                 </div>
 
                 <div className="relative flex flex-col flex-1 p-5 pt-3">
-                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300/80">
+                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--lario)]">
                         {formatDateToItalian(article.date)}
                     </span>
-                    <h3 className="mt-2 font-oswald text-lg font-black uppercase leading-tight text-[#16100F] group-hover:text-cyan-200 transition-colors line-clamp-3">
+                    <h3 className="mt-2 font-oswald text-lg font-black uppercase leading-tight text-[color:var(--calce)] group-hover:text-[color:var(--vermiglio)] transition-colors line-clamp-3">
                         {article.title}
                     </h3>
-                    <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/35 group-hover:text-cyan-300 transition-colors">
+                    <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--fumo)] group-hover:text-[color:var(--vermiglio)] transition-colors">
                         Leggi
                         <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
@@ -117,12 +117,12 @@ export default function GazzettaPage() {
                 <header className="text-center space-y-4">
                     <h1 className="sr-only">La Gazzetta del Laghèe</h1>
                     <div className="testata-mark text-[#8E1147] w-full max-w-3xl mx-auto" aria-hidden="true" />
-                    <div className="flex items-center gap-4 justify-center max-w-2xl mx-auto font-testata text-[10px] md:text-xs uppercase tracking-[0.34em] text-white/45">
+                    <div className="flex items-center gap-4 justify-center max-w-2xl mx-auto font-testata text-[10px] md:text-xs uppercase tracking-[0.34em] text-[color:var(--fumo)]">
                         <span className="h-px flex-1 bg-[color:var(--filo-alto)]" />
                         Tutto il Lario per la Vita
                         <span className="h-px flex-1 bg-[color:var(--filo-alto)]" />
                     </div>
-                    <p className="text-lg text-white/55 font-lora italic">
+                    <p className="text-lg text-[color:var(--fumo)] font-lora italic">
                         &ldquo;L&apos;unica testata che non ha paura di prendere 65.5&rdquo;
                     </p>
                 </header>
@@ -153,9 +153,9 @@ export default function GazzettaPage() {
 
                                 <SeasonLink
                                     href={`/gazzetta/${latest.id}`}
-                                    className="group relative grid md:grid-cols-2 rounded-[2rem] overflow-hidden border border-[color:var(--filo)] bg-[#0a0a1e]
-                                               shadow-[0_18px_56px_rgba(6,10,30,0.6)] transition-all duration-300
-                                               hover:border-[color:var(--filo-alto)] hover:shadow-[0_26px_70px_rgba(6,10,30,0.75)]"
+                                    className="group relative grid md:grid-cols-2 rounded-[2rem] overflow-hidden border border-[color:var(--filo)] bg-[color:var(--fondale)]
+                                               shadow-[0_18px_56px_var(--ombra)] transition-all duration-300
+                                               hover:border-[color:var(--filo-alto)] hover:shadow-[0_26px_70px_var(--ombra)]"
                                 >
                                     <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[380px] overflow-hidden">
                                         <div
@@ -163,23 +163,23 @@ export default function GazzettaPage() {
                                             style={{ backgroundImage: `url(${latest.imageUrl})` }}
                                         />
                                         {/* sfumatura verso il testo: in basso su telefono, a destra su desktop */}
-                                        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0a0a1e] to-transparent md:hidden" />
-                                        <div className="hidden md:block absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-[#0a0a1e] to-transparent" />
+                                        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[color:var(--fondale)] to-transparent md:hidden" />
+                                        <div className="hidden md:block absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-[color:var(--fondale)] to-transparent" />
                                     </div>
 
                                     <div className="relative flex flex-col justify-center p-6 md:p-9">
-                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-300">
+                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--lario)]">
                                             {formatDateToItalian(latest.date)}
                                         </span>
-                                        <h2 className="mt-3 font-oswald text-3xl md:text-4xl font-black uppercase leading-[1.05] tracking-tight text-[#16100F]">
+                                        <h2 className="mt-3 font-oswald text-3xl md:text-4xl font-black uppercase leading-[1.05] tracking-tight text-[color:var(--calce)]">
                                             {latest.title}
                                         </h2>
                                         {latest.description && (
-                                            <p className="mt-4 text-sm md:text-base text-white/55 font-lora italic leading-relaxed line-clamp-4">
+                                            <p className="mt-4 text-sm md:text-base text-[color:var(--fumo)] font-lora italic leading-relaxed line-clamp-4">
                                                 {latest.description}
                                             </p>
                                         )}
-                                        <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-300">
+                                        <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[color:var(--vermiglio)]">
                                             Leggi il numero
                                             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
                                         </span>
@@ -192,7 +192,7 @@ export default function GazzettaPage() {
                         {rest.length > 0 && (
                             <section aria-label="Numeri precedenti">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <h2 className="text-[10px] font-black uppercase tracking-[0.26em] text-white/35">
+                                    <h2 className="text-[10px] font-black uppercase tracking-[0.26em] text-[color:var(--fumo)]">
                                         Numeri precedenti
                                     </h2>
                                     <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
