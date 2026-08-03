@@ -245,7 +245,7 @@ function VerdettoContent() {
                 {rank !== undefined && <span className="text-sm shrink-0">{['🥇', '🥈', '🥉', '4️⃣'][rank] || `${rank + 1}.`}</span>}
                 <span className="text-xs text-[color:var(--calce)]/80 truncate">{squadra}</span>
             </span>
-            <span className="text-xs font-black text-[color:var(--oro)] tabular-nums shrink-0">{premio} 🍆</span>
+            <span className="text-xs font-black text-[color:var(--oro-testo)] tabular-nums shrink-0">{premio} 🍆</span>
         </div>
     );
 
@@ -275,7 +275,7 @@ function VerdettoContent() {
                         <span className={cn(
                             "inline-flex items-center rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.18em]",
                             storico
-                                ? "border-amber-300/30 bg-[color:var(--oro)]/10 text-[color:var(--oro)]"
+                                ? "border-[color:var(--oro)]/40 bg-[color:var(--oro)]/10 text-[color:var(--oro-testo)]"
                                 : "border-[color:var(--filo)] bg-[color:var(--velo-alto)] text-[color:var(--fumo)]"
                         )}>
                             Giornata {storico ? storico.giornata : data.numeroGiornata}
@@ -369,7 +369,7 @@ function VerdettoContent() {
                     <section className="space-y-4">
                         <div className="flex items-center gap-3">
                             <Coins className="w-5 h-5 text-[color:var(--oro)] shrink-0" />
-                            <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro)]">
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro-testo)]">
                                 Premi
                             </h2>
                             <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
@@ -400,7 +400,7 @@ function VerdettoContent() {
                                             className="rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] px-3 py-3"
                                         >
                                             <span className="block text-[11px] text-[color:var(--fumo)] truncate">{m.squadra}</span>
-                                            <span className="mt-1 block font-score text-lg font-black tabular-nums text-[color:var(--oro)]">
+                                            <span className="mt-1 block font-score text-lg font-black tabular-nums text-[color:var(--oro-testo)]">
                                                 {m.melanzane} 🍆
                                             </span>
                                             <span className="block text-[10px] text-[color:var(--fumo)]">
@@ -428,7 +428,7 @@ function VerdettoContent() {
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">
                         <Coins className="w-5 h-5 text-[color:var(--oro)] shrink-0" />
-                        <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro)]">Montepremi</h2>
+                        <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro-testo)]">Montepremi</h2>
                         <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                     </div>
 

@@ -535,12 +535,19 @@
   --calce:     #0B2233;   /* blu notte: l'inchiostro */
   --fondale:   #FFFFFF;   /* le superfici / card, bianche e pulite */
   --secca:     #DBE9F1;   /* superficie appena più profonda del fondale */
-  --fumo:      #557687;   /* testo secondario, leggibile su chiaro */
+  --fumo:      #496879;   /* testo secondario, ≥4.5:1 su chiaro (AA) */
 
   /* accenti: dal logo nuovo */
   --lario:     #157C97;   /* turchese lago: l'accento freddo, strutturale */
-  --vermiglio: #EE5124;   /* ARANCIONE del logo: il caldo, lo stacco */
-  --oro:       #B8791A;   /* oro premi, scurito quanto basta per il chiaro */
+  --vermiglio: #EE5124;   /* ARANCIONE del logo: il caldo, lo stacco.
+                             Va sempre con inchiostro scuro sopra (o testo
+                             grande), mai testo piccolo bianco: così tiene
+                             l'AA restando l'arancione pieno del marchio. */
+  --vermiglio-testo: #C33A12; /* la versione per ARANCIONE come testo piccolo
+                                 su fondo chiaro: ≥4.5:1 su bianco e su --pece */
+  --oro:       #B8791A;   /* oro premi: per riempimenti (con testo scuro),
+                             icone e numeri grandi */
+  --oro-testo: #8F5D11;   /* oro come testo piccolo su chiaro: ≥4.5:1 (AA) */
 
   /* testo sopra un fondo pieno di colore: non si invertono mai */
   --su-colore: #FFFFFF;   /* chiaro, sopra l'arancione e il blu pieni */

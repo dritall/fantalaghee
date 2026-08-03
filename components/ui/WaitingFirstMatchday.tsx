@@ -23,7 +23,7 @@ export function WaitingFirstMatchday({ subtitle }: { subtitle?: string }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="relative z-10 mt-2 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-black uppercase tracking-wider
-                               bg-[color:var(--vermiglio)] text-[color:var(--su-colore)] border border-[color:var(--filo-alto)]
+                               bg-[color:var(--vermiglio)] text-[color:var(--su-chiaro)] border border-[color:var(--filo-alto)]
                                shadow-[0_8px_24px_var(--ombra)] hover:scale-105 transition-transform"
                 >
                     Iscriviti alla Lega →

@@ -57,7 +57,7 @@ export function Footer() {
                                 <SeasonLink
                                     key={l.href}
                                     href={l.href}
-                                    className="text-[13px] font-bold text-[color:var(--calce)]/70 hover:text-[color:var(--vermiglio)] transition-colors w-fit"
+                                    className="text-[13px] font-bold text-[color:var(--calce)]/70 hover:text-[color:var(--vermiglio-testo)] transition-colors w-fit"
                                 >
                                     {l.name}
                                 </SeasonLink>
@@ -72,7 +72,7 @@ export function Footer() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="scatto scatto-lario inline-flex items-center justify-center gap-2 border-2 border-[color:var(--vermiglio)] bg-[color:var(--vermiglio)]
-                                       px-5 min-h-[44px] text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--su-colore)]"
+                                       px-5 min-h-[44px] text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--su-chiaro)]"
                         >
                             <UserPlus className="w-3.5 h-3.5" />
                             Iscriviti alla Lega
@@ -91,13 +91,13 @@ export function Footer() {
                 </div>
 
                 <div className="mt-9 pt-5 border-t-2 border-[color:var(--filo)] flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-                    <p className="text-[11px] text-[color:var(--fumo)]/70 font-mono">
+                    <p className="text-[11px] text-[color:var(--fumo)] font-mono">
                         © {anno} drbb · stagioni {stagioni.join(" · ")}
                     </p>
                     <button
                         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                         className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)]
-                                   hover:text-[color:var(--vermiglio)] transition-colors"
+                                   hover:text-[color:var(--vermiglio-testo)] transition-colors"
                     >
                         Torna su
                         <ArrowUp className="w-3.5 h-3.5" />

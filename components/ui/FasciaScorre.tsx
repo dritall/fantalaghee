@@ -32,11 +32,11 @@ function Serie({ ariaHidden }: { ariaHidden?: boolean }) {
         <div className="flex shrink-0 items-center" aria-hidden={ariaHidden || undefined}>
             {VOCI.map((v, i) => (
                 <span key={i} className="flex items-center gap-2.5 px-5 whitespace-nowrap">
-                    <span className="numerone text-[13px] text-[color:var(--calce)]">{v.forte}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--pece)]/55">
+                    <span className="numerone text-[13px] text-[color:var(--su-chiaro)]">{v.forte}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--su-chiaro)]/80">
                         {v.debole}
                     </span>
-                    <span className="ml-3 h-1.5 w-1.5 rotate-45 bg-[color:var(--pece)]/35" />
+                    <span className="ml-3 h-1.5 w-1.5 rotate-45 bg-[color:var(--su-chiaro)]/40" />
                 </span>
             ))}
         </div>

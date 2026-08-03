@@ -18,11 +18,11 @@ export function SeasonPill({ stagione, className }: { stagione: string; classNam
                 "timbro",
                 archived
                     ? "bg-[color:var(--oro)] text-[color:var(--su-chiaro)]"
-                    : "bg-[color:var(--lario)] text-[color:var(--su-chiaro)]",
+                    : "bg-[color:var(--lario)] text-[color:var(--su-colore)]",
                 className
             )}
         >
-            <span className="h-1.5 w-1.5 rotate-45 bg-[color:var(--pece)]" />
+            <span className={cn("h-1.5 w-1.5 rotate-45", archived ? "bg-[color:var(--su-chiaro)]" : "bg-[color:var(--su-colore)]")} />
             Stagione {season.label}
             {archived && <span className="opacity-60">· Archivio</span>}
         </span>

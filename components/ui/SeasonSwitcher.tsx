@@ -108,7 +108,7 @@ export function SeasonSwitcher() {
                                         className={cn(
                                             "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border",
                                             s.archived
-                                                ? "bg-[color:var(--oro)]/15 border-[color:var(--oro)]/40 text-[color:var(--oro)]"
+                                                ? "bg-[color:var(--oro)]/15 border-[color:var(--oro)]/40 text-[color:var(--oro-testo)]"
                                                 : "bg-[color:var(--lario)]/15 border-[color:var(--lario)]/40 text-[color:var(--lario)]"
                                         )}
                                     >

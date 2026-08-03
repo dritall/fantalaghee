@@ -267,7 +267,7 @@ function ClassificaContent() {
                                                 "p-3 min-w-[58px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-[color:var(--filo)]",
                                                 g === colonnaGiornata && giornataScelta !== null
                                                     ? "bg-[color:var(--secca)] text-[color:var(--lario)]"
-                                                    : "bg-[color:var(--pece)] text-[color:var(--fumo)]/70"
+                                                    : "bg-[color:var(--pece)] text-[color:var(--fumo)]"
                                             )}
                                         >
                                             {g}

@@ -34,7 +34,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         aria-current={isActive ? "page" : undefined}
                         className={cn(
                             "group relative px-3.5 py-2 text-[12px] font-black uppercase tracking-[0.08em] whitespace-nowrap transition-colors duration-200",
-                            isActive ? "text-[color:var(--calce)]" : "text-[color:var(--calce)]/60 hover:text-[color:var(--calce)]"
+                            isActive ? "text-[color:var(--calce)]" : "text-[color:var(--calce)]/70 hover:text-[color:var(--calce)]"
                         )}
                     >
                         <span className="relative z-10 flex items-center gap-1.5">
@@ -235,7 +235,7 @@ export function Navbar() {
                                     rel="noopener noreferrer"
                                     onClick={() => setIsOpen(false)}
                                     className="flex items-center justify-center gap-2 px-3 py-3.5 rounded-2xl text-base font-black uppercase tracking-wider
-                                               bg-[color:var(--vermiglio)] text-[color:var(--su-colore)] shadow-[0_8px_24px_var(--ombra)] border border-[color:var(--filo-alto)]"
+                                               bg-[color:var(--vermiglio)] text-[color:var(--su-chiaro)] shadow-[0_8px_24px_var(--ombra)] border border-[color:var(--filo-alto)]"
                                 >
                                     <UserPlus className="w-5 h-5" />
                                     Iscriviti alla Lega

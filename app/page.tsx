@@ -62,14 +62,14 @@ export default function Home() {
           className="striscione grana scatto scatto-lario block px-6 py-8 md:px-10 md:py-10 mt-2"
         >
           <span className="relative z-[3] block text-center">
-            <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--su-colore)]/70">
+            <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--su-chiaro)]/80">
               Stagione 2026/27 · iscrizioni aperte
             </span>
-            <span className="stampino mt-3 block text-[2.1rem] leading-[0.9] sm:text-5xl md:text-6xl text-[color:var(--su-colore)]">
+            <span className="stampino mt-3 block text-[2.1rem] leading-[0.9] sm:text-5xl md:text-6xl text-[color:var(--su-chiaro)]">
               Metti la<br />squadra in campo
             </span>
-            <span className="mt-5 inline-flex items-center gap-2 border-2 border-[color:var(--su-colore)] px-5 py-2.5
-                             text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--su-colore)]">
+            <span className="mt-5 inline-flex items-center gap-2 border-2 border-[color:var(--su-chiaro)] px-5 py-2.5
+                             text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--su-chiaro)]">
               <UserPlus className="w-4 h-4" />
               Compila il form
               <ArrowRight className="w-4 h-4" />
@@ -116,11 +116,11 @@ export default function Home() {
                   {latestArticle.title}
                 </h3>
                 {latestArticle.description && (
-                  <p className="mt-3 line-clamp-2 font-serif italic text-sm text-[color:var(--calce)]/60 md:max-w-2xl">
+                  <p className="mt-3 line-clamp-2 font-serif italic text-sm text-[color:var(--calce)]/80 md:max-w-2xl">
                     {latestArticle.description}
                   </p>
                 )}
-                <span className="mt-5 inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--lario)]">
+                <span className="mt-5 inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--vermiglio-testo)]">
                   Leggi l&apos;articolo
                   <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
                 </span>
@@ -132,7 +132,7 @@ export default function Home() {
         {/* ================= IL PUNTO ================= */}
         <section aria-label="Il punto sulla lega">
           <div className="flex items-center gap-3 mb-4">
-            <span className="timbro bg-[color:var(--lario)] text-[color:var(--su-chiaro)]">Il punto</span>
+            <span className="timbro bg-[color:var(--lario)] text-[color:var(--su-colore)]">Il punto</span>
             <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
           </div>
           <Tabellone />

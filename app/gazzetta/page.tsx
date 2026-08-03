@@ -72,10 +72,10 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
                     <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--lario)]">
                         {formatDateToItalian(article.date)}
                     </span>
-                    <h3 className="mt-2 font-oswald text-lg font-black uppercase leading-tight text-[color:var(--calce)] group-hover:text-[color:var(--vermiglio)] transition-colors line-clamp-3">
+                    <h3 className="mt-2 font-oswald text-lg font-black uppercase leading-tight text-[color:var(--calce)] group-hover:text-[color:var(--vermiglio-testo)] transition-colors line-clamp-3">
                         {article.title}
                     </h3>
-                    <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--fumo)] group-hover:text-[color:var(--vermiglio)] transition-colors">
+                    <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--fumo)] group-hover:text-[color:var(--vermiglio-testo)] transition-colors">
                         Leggi
                         <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
@@ -179,7 +179,7 @@ export default function GazzettaPage() {
                                                 {latest.description}
                                             </p>
                                         )}
-                                        <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[color:var(--vermiglio)]">
+                                        <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[color:var(--vermiglio-testo)]">
                                             Leggi il numero
                                             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
                                         </span>
