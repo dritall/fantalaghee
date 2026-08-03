@@ -39,7 +39,7 @@ export default function Home() {
           che si muove, e dice cos'è questo posto senza spiegarlo. */}
       <FasciaScorre />
 
-      <div className="max-w-5xl mx-auto px-4 pt-5 pb-32 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 pt-4 pb-14 md:pb-24 space-y-5 md:space-y-8">
 
         <SeasonBanner />
 
@@ -62,7 +62,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
           data-rivela
-          className="glass scatto group relative block overflow-hidden rounded-[1.6rem] px-6 py-9 md:px-12 md:py-12 mt-2"
+          className="glass scatto group relative block overflow-hidden rounded-[1.6rem] px-6 py-7 md:px-12 md:py-12 mt-1"
         >
           {/* il filetto arancio a sinistra: l'accento del marchio */}
           <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-[color:var(--vermiglio)]" />
@@ -116,7 +116,7 @@ export default function Home() {
                 style={{ backgroundImage: `url(${latestArticle.imageUrl})` }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--pece)] via-[color:var(--pece)]/92 to-[color:var(--pece)]/45" />
-              <div className="relative z-10 flex min-h-[300px] flex-col justify-end p-6 md:p-9">
+              <div className="relative z-10 flex min-h-[230px] md:min-h-[300px] flex-col justify-end p-6 md:p-9">
                 <span className="timbro w-fit bg-[color:var(--vermiglio)] text-[color:var(--su-chiaro)]">
                   <Newspaper className="w-3 h-3" />
                   La Gazzetta

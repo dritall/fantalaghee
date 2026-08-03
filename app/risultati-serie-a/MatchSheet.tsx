@@ -742,27 +742,32 @@ export function MatchSheet({
                     </header>
 
                     {/* ---------------- schede ---------------- */}
+                    {/* Le schede: su telefono solo l'icona (la scheda si stringe),
+                        icona + testo da sm in su. L'etichetta resta accessibile
+                        via aria-label anche quando è nascosta. */}
                     <nav className="relative shrink-0 flex px-3 py-2 gap-1 border-b border-[color:var(--filo)]">
                         {TABS.map((t) => (
                             <button
                                 key={t.id}
                                 onClick={() => setTab(t.id)}
                                 aria-pressed={tab === t.id}
+                                aria-label={t.label}
+                                title={t.label}
                                 className={cn(
-                                    "relative flex-1 flex items-center justify-center gap-1.5 py-2 rounded-none",
-                                    "text-[10px] font-black uppercase tracking-[0.12em] transition-colors",
+                                    "relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full",
+                                    "text-[11px] font-black uppercase tracking-[0.12em] transition-colors",
                                     tab === t.id ? "text-[color:var(--calce)]" : "text-[color:var(--fumo)] hover:text-[color:var(--calce)]/80"
                                 )}
                             >
                                 {tab === t.id && (
                                     <motion.span
                                         layoutId="match-tab"
-                                        className="absolute inset-0 rounded-none bg-[color:var(--velo-alto)] border border-[color:var(--filo)]"
+                                        className="absolute inset-0 rounded-full bg-[color:var(--velo-alto)] border border-[color:var(--filo)]"
                                         transition={{ type: "spring", stiffness: 500, damping: 36 }}
                                     />
                                 )}
-                                <t.icon className="relative w-3.5 h-3.5" />
-                                <span className="relative">{t.label}</span>
+                                <t.icon className="relative w-[18px] h-[18px] sm:w-4 sm:h-4" />
+                                <span className="relative hidden sm:inline">{t.label}</span>
                             </button>
                         ))}
                     </nav>
@@ -772,8 +777,8 @@ export function MatchSheet({
                         {loading ? (
                             <div className="flex flex-col items-center justify-center gap-4 py-24">
                                 <div className="relative">
-                                    <Loader2 className="w-9 h-9 text-[color:var(--lario)] animate-spin" />
-                                    <span className="absolute inset-0 bg-[color:var(--lario)]/25 blur-xl rounded-full animate-pulse" />
+                                    <Loader2 className="w-9 h-9 animate-spin" style={{ color: colors.home }} />
+                                    <span className="absolute inset-0 blur-xl rounded-full animate-pulse" style={{ backgroundColor: `${colors.home}40` }} />
                                 </div>
                                 <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[color:var(--fumo)]">
                                     Carico il tabellino…
@@ -831,9 +836,9 @@ export function MatchSheet({
 
                     <Dialog.Close
                         aria-label="Chiudi"
-                        className="absolute top-4 right-4 w-9 h-9 rounded-full border border-[color:var(--filo)] bg-black/40 backdrop-blur
+                        className="glass-forte absolute top-4 right-4 w-9 h-9 rounded-full
                                    flex items-center justify-center text-[color:var(--calce)]/80
-                                   hover:text-[color:var(--calce)] hover:bg-red-500 hover:border-red-500 transition-colors"
+                                   hover:text-[color:var(--su-colore)] hover:bg-[color:var(--vermiglio)] transition-colors"
                     >
                         <X className="w-4 h-4" />
                     </Dialog.Close>

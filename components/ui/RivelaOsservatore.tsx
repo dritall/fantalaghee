@@ -43,21 +43,51 @@ export function RivelaOsservatore() {
                     }
                 }
             },
-            // parte un filo prima che il blocco sia del tutto in vista
-            { rootMargin: "0px 0px -8% 0px", threshold: 0.06 }
+            // Trigghera PRIMA che il blocco entri (bordo inferiore esteso del
+            // 18%): così il contenuto è già comparso quando lo scroll lo
+            // raggiunge, e non resta un vuoto invisibile-ma-ingombrante.
+            { rootMargin: "0px 0px 18% 0px", threshold: 0 }
         );
 
-        // il contenuto della nuova pagina può montare un tick dopo di noi.
-        // L'observer, appena aggancia, fa scattare subito gli elementi già in
-        // vista: quelli sotto la piega restano in attesa dello scroll.
-        const id = window.setTimeout(() => {
+        // Il contenuto della pagina (client component) può montare un frame
+        // dopo di noi: aspettiamo il paint con due rAF, poi:
+        //  1) chi è già dentro o appena sotto la piega lo mostriamo SUBITO,
+        //     senza dipendere dal timing dell'observer (era la causa di
+        //     testate che restavano invisibili all'apertura);
+        //  2) il resto lo affidiamo all'observer, che lo rivela allo scroll.
+        const aggancia = () => {
+            const vh = window.innerHeight;
             document
                 .querySelectorAll<HTMLElement>("[data-rivela]:not(.visibile)")
-                .forEach((el) => osservatore.observe(el));
-        }, 0);
+                .forEach((el) => {
+                    if (el.getBoundingClientRect().top < vh * 1.05) {
+                        el.classList.add("visibile");
+                    } else {
+                        osservatore.observe(el);
+                    }
+                });
+        };
+
+        // Il contenuto (client component) può montare qualche frame dopo di
+        // noi: ci riproviamo su più giri, così le testate in cima non restano
+        // mai invisibili per una questione di timing.
+        let raf2 = 0;
+        const raf1 = requestAnimationFrame(() => { raf2 = requestAnimationFrame(aggancia); });
+        const t1 = window.setTimeout(aggancia, 250);
+        // Rete di sicurezza: qualunque cosa sia ancora nascosta dopo 1.6s si
+        // mostra comunque. Chi scrolla prima vede l'animazione (l'observer
+        // scatta subito); il resto non resta mai bloccato.
+        const t2 = window.setTimeout(() => {
+            document
+                .querySelectorAll<HTMLElement>("[data-rivela]:not(.visibile)")
+                .forEach((el) => el.classList.add("visibile"));
+        }, 1600);
 
         return () => {
-            window.clearTimeout(id);
+            cancelAnimationFrame(raf1);
+            if (raf2) cancelAnimationFrame(raf2);
+            window.clearTimeout(t1);
+            window.clearTimeout(t2);
             osservatore.disconnect();
         };
     }, [pathname]);

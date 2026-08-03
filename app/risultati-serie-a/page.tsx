@@ -233,17 +233,17 @@ function ScoutHubContent() {
         </header>
 
         {/* ===== SELETTORE VISTA ===== */}
-        <div className="relative flex p-1 rounded-none mb-8 max-w-xs mx-auto border border-[color:var(--filo)] bg-[color:var(--velo)] backdrop-blur-md">
+        <div className="relative flex p-1 rounded-full mb-8 max-w-xs mx-auto glass-forte">
           {[
             { id: 'calendario', label: 'Calendario', icon: CalendarDays },
             { id: 'classifica', label: 'Classifica', icon: ListOrdered },
           ].map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               aria-pressed={activeTab === t.id}
-              className={`relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-none text-[10px] font-black uppercase tracking-[0.16em] transition-colors duration-300
+              className={`relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.16em] transition-colors duration-300
                 ${activeTab === t.id ? 'text-[color:var(--calce)]' : 'text-[color:var(--fumo)] hover:text-[color:var(--calce)]/80'}`}>
               {activeTab === t.id && (
-                <span className="absolute inset-0 rounded-none bg-[color:var(--vermiglio)] shadow-[0_6px_18px_var(--ombra)]" />
+                <span className="absolute inset-0 rounded-full bg-[color:var(--fondale)] shadow-[0_4px_14px_var(--ombra)] border-b-2 border-[color:var(--vermiglio)]" />
               )}
               <t.icon className="relative w-3.5 h-3.5" />
               <span className="relative">{t.label}</span>
