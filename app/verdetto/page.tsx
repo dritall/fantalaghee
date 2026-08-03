@@ -60,7 +60,7 @@ function VerdettoContent() {
         const x = (rect.left + rect.width / 2) / window.innerWidth;
         const y = (rect.top + rect.height / 2) / window.innerHeight;
         import('canvas-confetti').then(({ default: confetti }) => {
-            confetti({ particleCount: 60, spread: 70, origin: { x, y }, colors: ['#D9A441', '#2E7AA6', '#1776A9', '#A9B4BC', '#AF2233'] });
+            confetti({ particleCount: 60, spread: 70, origin: { x, y }, colors: ['#6D28D9', '#157C97', '#2E7AA6', '#A9B4BC', '#EE5124'] });
         });
     }, []);
     const [loading, setLoading] = useState(true);
@@ -141,9 +141,10 @@ function VerdettoContent() {
         datasets: [{
             label: 'Punti Totali',
             data: (storico ? storico.classifica.slice(0, 5) : data?.classifica)?.map((d: any) => d.punti) || [],
-            // podio in ottone e argento, il resto nel blu del lago
-            backgroundColor: ['#C29A46', '#A9B4BC', '#8A6A2F', '#2E7AA6', '#2E7AA6'],
-            borderColor: ['#C29A46', '#A9B4BC', '#8A6A2F', '#2E7AA6', '#2E7AA6'],
+            // podio: melanzana per il primo, argento per il secondo, turchese
+            // per il terzo, il resto nel blu del lago
+            backgroundColor: ['#6D28D9', '#94A3B8', '#157C97', '#2E7AA6', '#2E7AA6'],
+            borderColor: ['#6D28D9', '#94A3B8', '#157C97', '#2E7AA6', '#2E7AA6'],
             borderWidth: 0,
             borderRadius: 0,
         }]
@@ -245,7 +246,7 @@ function VerdettoContent() {
                 {rank !== undefined && <span className="text-sm shrink-0">{['🥇', '🥈', '🥉', '4️⃣'][rank] || `${rank + 1}.`}</span>}
                 <span className="text-xs text-[color:var(--calce)]/80 truncate">{squadra}</span>
             </span>
-            <span className="text-xs font-black text-[color:var(--oro-testo)] tabular-nums shrink-0">{premio} 🍆</span>
+            <span className="text-xs font-black text-[color:var(--viola)] tabular-nums shrink-0">{premio} 🍆</span>
         </div>
     );
 
@@ -275,7 +276,7 @@ function VerdettoContent() {
                         <span className={cn(
                             "inline-flex items-center rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.18em]",
                             storico
-                                ? "border-[color:var(--oro)]/40 bg-[color:var(--oro)]/10 text-[color:var(--oro-testo)]"
+                                ? "border-[color:var(--viola)]/40 bg-[color:var(--viola)]/10 text-[color:var(--viola)]"
                                 : "border-[color:var(--filo)] bg-[color:var(--velo-alto)] text-[color:var(--fumo)]"
                         )}>
                             Giornata {storico ? storico.giornata : data.numeroGiornata}
@@ -342,7 +343,7 @@ function VerdettoContent() {
                                         key={i}
                                         className={`flex items-center gap-3 p-3 rounded-none border transition-colors ${
                                             i === 0
-                                                ? 'border-amber-300/30 bg-[color:var(--oro)]/[0.08]'
+                                                ? 'border-[color:var(--viola)]/30 bg-[color:var(--viola)]/[0.08]'
                                                 : i === 1
                                                   ? 'border-[color:var(--filo-alto)] bg-[color:var(--velo)]'
                                                   : 'border-orange-400/20 bg-orange-500/[0.06]'
@@ -368,15 +369,15 @@ function VerdettoContent() {
                 {storico ? (
                     <section className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <Coins className="w-5 h-5 text-[color:var(--oro)] shrink-0" />
-                            <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro-testo)]">
+                            <Coins className="w-5 h-5 text-[color:var(--viola)] shrink-0" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--viola)]">
                                 Premi
                             </h2>
                             <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                         </div>
 
                         {storico.premio && (
-                            <Panel title="Vincitore di giornata" icon={Medal} hex="var(--oro)">
+                            <Panel title="Vincitore di giornata" icon={Medal} hex="var(--viola)">
                                 <div className="space-y-1">
                                     {storico.premio.vincitori.map((squadra) => (
                                         <PrizeRow key={squadra} squadra={squadra} premio={storico.premio!.quota} rank={0} />
@@ -392,7 +393,7 @@ function VerdettoContent() {
                         )}
 
                         {storico.melanzaneVinte.length > 0 && (
-                            <Panel title={`🍆 vinte · dalla 1ª alla ${storico.giornata}ª`} icon={Trophy} hex="var(--oro)">
+                            <Panel title={`🍆 vinte · dalla 1ª alla ${storico.giornata}ª`} icon={Trophy} hex="var(--viola)">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                                     {storico.melanzaneVinte.map((m) => (
                                         <div
@@ -400,7 +401,7 @@ function VerdettoContent() {
                                             className="rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] px-3 py-3"
                                         >
                                             <span className="block text-[11px] text-[color:var(--fumo)] truncate">{m.squadra}</span>
-                                            <span className="mt-1 block font-score text-lg font-black tabular-nums text-[color:var(--oro-testo)]">
+                                            <span className="mt-1 block font-score text-lg font-black tabular-nums text-[color:var(--viola)]">
                                                 {m.melanzane} 🍆
                                             </span>
                                             <span className="block text-[10px] text-[color:var(--fumo)]">
@@ -427,8 +428,8 @@ function VerdettoContent() {
                 ) : (
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">
-                        <Coins className="w-5 h-5 text-[color:var(--oro)] shrink-0" />
-                        <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--oro-testo)]">Montepremi</h2>
+                        <Coins className="w-5 h-5 text-[color:var(--viola)] shrink-0" />
+                        <h2 className="text-[11px] font-black uppercase tracking-[0.26em] text-[color:var(--viola)]">Montepremi</h2>
                         <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                     </div>
 
@@ -444,7 +445,7 @@ function VerdettoContent() {
                                             onTouchStart={fireConfetti}
                                             className={`flex flex-col items-center justify-center p-3.5 rounded-none border cursor-pointer transition-all hover:-translate-y-1 ${
                                                 i === 0
-                                                    ? 'border-amber-300/40 bg-[color:var(--oro)]/[0.10]'
+                                                    ? 'border-[color:var(--viola)]/40 bg-[color:var(--viola)]/[0.10]'
                                                     : i === 1
                                                       ? 'border-[color:var(--filo-alto)] bg-[color:var(--velo-alto)]'
                                                       : i === 2
@@ -454,7 +455,7 @@ function VerdettoContent() {
                                         >
                                             {i < 3 && <span className="text-xl mb-1">{['🥇', '🥈', '🥉'][i]}</span>}
                                             <p className="text-[color:var(--calce)] font-bold text-xs text-center leading-tight line-clamp-2">{p.squadra}</p>
-                                            <p className="text-[color:var(--oro)] font-score font-bold text-2xl tabular-nums mt-1.5">{p.totale}</p>
+                                            <p className="text-[color:var(--viola)] font-score font-bold text-2xl tabular-nums mt-1.5">{p.totale}</p>
                                             <span className="text-sm">🍆</span>
                                         </div>
                                     ))}
@@ -487,7 +488,7 @@ function VerdettoContent() {
                                 className="flex-1 flex flex-col items-center justify-center text-center py-4 cursor-pointer"
                             >
                                 <p className="text-[color:var(--calce)]/80 font-semibold text-sm">{data.premi.migliorPunteggio.info}</p>
-                                <p className="font-score text-4xl font-bold text-[color:var(--oro)] tabular-nums mt-2">
+                                <p className="font-score text-4xl font-bold text-[color:var(--viola)] tabular-nums mt-2">
                                     {data.premi.migliorPunteggio.premio} 🍆
                                 </p>
                             </div>

@@ -163,6 +163,16 @@ export function readableOnDark(hex: string, minContrast = 4.5): string {
     return out;
 }
 
+/**
+ * Un colore "oro/giallo": tinta fra il giallo caldo e l'ambra, ben saturo.
+ * Serve a non fabbricarlo mai come colore d'appoggio dell'avversaria — è da
+ * lì che nascevano le eterne coppie blu/oro delle statistiche.
+ */
+function isGoldish(hex: string): boolean {
+    const [h, s] = rgbToHsl(hex);
+    return s > 0.35 && h >= 38 && h <= 66;
+}
+
 /** Due colori si distinguono se cambia la tinta o, in mancanza, la luminosità. */
 export function areDistinct(a: string, b: string, minHue = 38): boolean {
     const [ha, sa, la] = rgbToHsl(a);
@@ -268,11 +278,16 @@ export function matchColors(
 
     // All'ospite serve una tinta lontana, non solo diversa: sotto i 90 gradi
     // di distanza le due barre si somigliano ancora troppo per essere lette
-    // al volo, ed e' li' che nascevano le coppie blu/arancio.
-    for (const candidato of [awayPal?.primary ?? coloreDaNome(awayName), awayPal?.secondary]) {
-        if (!candidato) continue;
-        const away = leggibile(candidato, tema);
-        if (areDistinct(home, away, 90)) return { home, away };
+    // al volo. Il colore vero dell'ospite viene sempre provato per primo — se
+    // l'ospite È giallo (Lecce, Parma) quel giallo è legittimo. Ma il
+    // secondario d'appoggio non deve mai essere un oro fabbricato: è così che
+    // nascevano le coppie blu/oro. Se il primario cozza, si passa al grafite.
+    const awayPrimario = leggibile(awayPal?.primary ?? coloreDaNome(awayName), tema);
+    if (areDistinct(home, awayPrimario, 90)) return { home, away: awayPrimario };
+
+    if (awayPal?.secondary && !isGoldish(awayPal.secondary)) {
+        const sec = leggibile(awayPal.secondary, tema);
+        if (areDistinct(home, sec, 90)) return { home, away: sec };
     }
 
     return { home, away: neutro };

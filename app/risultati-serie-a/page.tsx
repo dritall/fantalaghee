@@ -212,10 +212,10 @@ function ScoutHubContent() {
         <SeasonBanner />
 
         {/* ===== TESTATA ===== */}
-        <header className="text-center space-y-4 mb-8 mt-4">
+        <header className="text-center space-y-4 mb-8 mt-4" data-rivela>
           <span className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.24em] px-4 py-1.5 rounded-full border
             ${isArchiveSeason
-              ? 'text-[color:var(--su-chiaro)] bg-[color:var(--oro)] border-[color:var(--oro)]'
+              ? 'text-[color:var(--su-colore)] bg-[color:var(--archivio)] border-[color:var(--archivio)]'
               : 'text-[color:var(--su-colore)] bg-[color:var(--lario)] border-[color:var(--lario)]'}`}>
             <span className="relative flex h-1.5 w-1.5">
               {!isArchiveSeason && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[color:var(--su-colore)] opacity-70" />}
@@ -388,9 +388,10 @@ function ScoutHubContent() {
 
                             <div className="relative flex items-center gap-3">
                               <div className="flex-1 min-w-0 flex items-center gap-2.5">
-                                <TeamLogo team={home} className="w-8 h-8 transition-transform duration-300 group-hover:scale-110" />
+                                <TeamLogo team={home} className="w-9 h-9 sm:w-8 sm:h-8 transition-transform duration-300 group-hover:scale-110" />
+                                {/* Su telefono la schedina si stringe: parla solo lo stemma */}
                                 <span
-                                  className={`text-[13px] truncate ${homeWin ? 'font-black' : played ? 'font-bold text-[color:var(--fumo)]' : 'font-bold text-[color:var(--calce)]/80'}`}
+                                  className={`hidden sm:block text-[13px] truncate ${homeWin ? 'font-black' : played ? 'font-bold text-[color:var(--fumo)]' : 'font-bold text-[color:var(--calce)]/80'}`}
                                   style={homeWin ? { color: cardColors.home } : undefined}
                                 >
                                   {home.name}
@@ -405,12 +406,12 @@ function ScoutHubContent() {
 
                               <div className="flex-1 min-w-0 flex items-center gap-2.5 justify-end">
                                 <span
-                                  className={`text-[13px] truncate text-right ${awayWin ? 'font-black' : played ? 'font-bold text-[color:var(--fumo)]' : 'font-bold text-[color:var(--calce)]/80'}`}
+                                  className={`hidden sm:block text-[13px] truncate text-right ${awayWin ? 'font-black' : played ? 'font-bold text-[color:var(--fumo)]' : 'font-bold text-[color:var(--calce)]/80'}`}
                                   style={awayWin ? { color: cardColors.away } : undefined}
                                 >
                                   {away.name}
                                 </span>
-                                <TeamLogo team={away} className="w-8 h-8 transition-transform duration-300 group-hover:scale-110" />
+                                <TeamLogo team={away} className="w-9 h-9 sm:w-8 sm:h-8 transition-transform duration-300 group-hover:scale-110" />
                               </div>
                             </div>
                           </div>
@@ -448,7 +449,7 @@ function ScoutHubContent() {
                     ) : standings.map((t: any, i: number) => {
                       const zone =
                         i < 4 ? 'bg-[color:var(--lario)]'
-                          : i < 6 ? 'bg-[color:var(--oro)]'
+                          : i < 6 ? 'bg-[color:var(--viola)]'
                             : i >= standings.length - 3 ? 'bg-red-500'
                               : 'bg-transparent';
                       return (
@@ -492,7 +493,7 @@ function ScoutHubContent() {
 
                 <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--fumo)]">
                   <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-[color:var(--lario)]" /> Champions</span>
-                  <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-[color:var(--oro)]" /> Europa</span>
+                  <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-[color:var(--viola)]" /> Europa</span>
                   <span className="flex items-center gap-2"><span className="w-2.5 h-[3px] rounded-full bg-red-500" /> Retrocessione</span>
                 </div>
               </div>

@@ -1,0 +1,17 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Chip chiaro, così tiene su tab chiare e scure -->
+  <rect x="1.5" y="1.5" width="61" height="61" rx="14" fill="#FFFFFF" stroke="#0B2233" stroke-width="2"/>
+  <!-- F cobalto (dal "FANTA") -->
+  <g fill="#1E3A8A">
+    <rect x="13" y="13" width="7" height="39"/>
+    <rect x="13" y="13" width="18" height="7"/>
+    <rect x="13" y="29" width="13" height="6"/>
+  </g>
+  <!-- L turchese (dal "LAGHÈE") -->
+  <g fill="#157C97">
+    <rect x="36" y="13" width="7" height="39"/>
+    <rect x="36" y="45" width="17" height="7"/>
+  </g>
+  <!-- accento arancione: l'apice della È del logo -->
+  <rect x="47" y="12" width="8" height="8" rx="1.5" fill="#EE5124"/>
+</svg>

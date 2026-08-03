@@ -55,10 +55,10 @@ export function SeasonSwitcher() {
                 aria-label={`Stagione ${currentConfig.label}${isArchive ? " (archivio)" : ""}. Cambia stagione`}
                 className={cn(
                     "group flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.1em] whitespace-nowrap",
-                    "border backdrop-blur-md transition-colors duration-300",
+                    "border transition-colors duration-300",
                     isArchive
-                        ? "bg-[color:var(--oro)] border-[color:var(--oro)] text-[color:var(--su-chiaro)]"
-                        : "bg-[color:var(--fondale)] border-[color:var(--calce)]/35 text-[color:var(--calce)] hover:border-[color:var(--vermiglio)]"
+                        ? "bg-[color:var(--archivio)] border-[color:var(--archivio)] text-[color:var(--su-colore)]"
+                        : "glass-forte text-[color:var(--calce)] hover:border-[color:var(--vermiglio)]"
                 )}
             >
                 {/* pallino di stato: pieno e pulsante sulla stagione in corso */}
@@ -83,7 +83,7 @@ export function SeasonSwitcher() {
                 <div
                     role="listbox"
                     aria-label="Stagioni"
-                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-[color:var(--fondale)]/98 backdrop-blur-xl border border-[color:var(--filo)] shadow-[0_20px_60px_var(--ombra)] overflow-hidden z-50 animate-fade-up"
+                    className="glass-forte absolute right-0 mt-2 w-56 rounded-2xl overflow-hidden z-50 animate-fade-up"
                 >
                     <p className="px-4 pt-3 pb-2 text-[9px] font-black uppercase tracking-[0.22em] text-[color:var(--fumo)]">
                         Stagione
@@ -108,7 +108,7 @@ export function SeasonSwitcher() {
                                         className={cn(
                                             "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border",
                                             s.archived
-                                                ? "bg-[color:var(--oro)]/15 border-[color:var(--oro)]/40 text-[color:var(--oro-testo)]"
+                                                ? "bg-[color:var(--archivio)]/15 border-[color:var(--archivio)]/45 text-[color:var(--archivio)]"
                                                 : "bg-[color:var(--lario)]/15 border-[color:var(--lario)]/40 text-[color:var(--lario)]"
                                         )}
                                     >

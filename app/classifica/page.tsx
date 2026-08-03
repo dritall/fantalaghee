@@ -149,7 +149,7 @@ function ClassificaContent() {
             <div className="relative z-30 flex flex-col flex-1 max-w-6xl mx-auto w-full">
                 <SeasonBanner />
 
-                <div className="my-6 flex flex-wrap items-end justify-between gap-3">
+                <div data-rivela className="my-6 flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <h1 className="text-3xl md:text-5xl font-black font-oswald uppercase tracking-tight text-3d-metallic mb-3">
                             Classifica Generale
@@ -167,7 +167,7 @@ function ClassificaContent() {
                             etichettaGenerale={`Ultima giocata · ${lastPlayedMatchday}`}
                         />
                         <p className="text-[color:var(--fumo)] text-[11px] hidden sm:block">
-                            <span className="bg-[color:var(--oro)] text-[color:var(--su-chiaro)] px-1.5 py-0.5 font-black">Oro</span> il primo di giornata, <span className="bg-[color:var(--calce)]/70 text-[color:var(--pece)] px-1.5 py-0.5 font-black">argento</span> il secondo
+                            Evidenziati il <span className="bg-[color:var(--viola)] text-[color:var(--su-colore)] px-1.5 py-0.5 font-black">1º</span> e il <span className="bg-[color:var(--calce)]/70 text-[color:var(--pece)] px-1.5 py-0.5 font-black">2º</span> punteggio di ogni giornata
                         </p>
                     </div>
                 </div>
@@ -325,7 +325,7 @@ function ClassificaContent() {
                                                         "p-2.5 text-center border-b border-r border-[color:var(--filo)] tabular-nums transition-colors",
                                                         "group-hover:bg-[color:var(--calce)]/[0.04]",
                                                         isBest
-                                                            ? "bg-[color:var(--oro)] text-[color:var(--su-chiaro)] font-black"
+                                                            ? "bg-[color:var(--viola)] text-[color:var(--su-colore)] font-black"
                                                             : isSecond
                                                               ? "bg-[color:var(--calce)]/70 text-[color:var(--pece)] font-black"
                                                               : "text-[color:var(--fumo)]",

@@ -1,36 +1,31 @@
 "use client";
 
 /**
- * Lo sfondo del sito: una sola giornata sul lago.
+ * Lo sfondo del sito: una giornata sul lago, dipinta a strati.
  *
- * Non è una foto e non è un gradiente fermo. È l'acqua del lago, fatta di
- * pennellate che scorrono a velocità diverse, le montagne verdi dietro e
- * qualche nuvola che passa lenta nel cielo. L'idea viene dalla pittura a
- * olio — strati sovrapposti, ognuno con il suo movimento, che a distanza si
- * leggono come una superficie sola che respira.
+ * Non è una foto e non è un gradiente fermo. È il paesaggio scomposto in piani
+ * — cielo, sole, tre creste di montagna sempre più vicine, la foschia che le
+ * stacca, l'acqua con le sue onde e un riflesso di luce. Ogni piano si muove a
+ * una velocità diversa quando si scorre (parallasse): è quello che dà la
+ * profondità, la sensazione di guardare *dentro* e non *contro* lo sfondo.
  *
- * Prima questo componente cambiava i colori con l'ora: non funzionava, il
- * sito non aveva mai una faccia sola. Ora la palette è fissa (sta in
- * globals.css) e qui resta soltanto lo sfondo, sempre lo stesso, di giorno.
- * L'unico compito rimasto verso il resto del sito è dichiarare il tema
- * chiaro, che serve ai colori delle squadre.
+ * Le nuvole derivano lente per conto loro. Tutto è solo `transform`/`opacity`,
+ * aggiornato in un unico rAF agganciato allo scroll, quindi resta fluido; e con
+ * `prefers-reduced-motion` la parallasse e le derive si fermano.
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-/* La scena, tutta qui: sono i colori dell'illustrazione di sfondo, non del
-   testo. Il testo e le superfici vivono sulle variabili di globals.css. */
-const CIELO: [string, string] = ["#E4F0F8", "#C4DEEE"]; // dall'alto in basso
-const MONTE_DIETRO = "#7FB48E"; // cresta lontana, verde velato dalla foschia
-const MONTE_DAVANTI = "#4E9068"; // cresta vicina, verde pieno
-const ACQUA: [string, string, string] = ["#7DB0CF", "#5197BE", "#357FAA"]; // fondo → superficie
+/* La scena: colori dell'illustrazione, non del testo. */
+const CIELO: [string, string] = ["#E6F1F9", "#C3DDEE"];
+const SOLE = "rgba(255, 246, 222, 0.55)";
+const MONTE_LONTANO = "#9CC2AE"; // cresta velata dalla foschia
+const MONTE_MEDIO = "#5F9E78";   // cresta di mezzo
+const MONTE_VICINO = "#3C7B58";  // cresta in primo piano, verde pieno
+const FOSCHIA = "#E6F1F9";       // il velo alla base dei monti
+const ACQUA: [string, string, string] = ["#7DB0CF", "#5197BE", "#357FAA"];
 
-/**
- * Una pennellata d'acqua: una curva morbida che si ripete due volte in
- * orizzontale, così può scorrere all'infinito senza giunte. Le tre onde
- * hanno ampiezze e velocità diverse — è quello che le fa sembrare acqua e
- * non un motivo che si ripete.
- */
+/** Una pennellata d'acqua che si ripete due volte per scorrere senza giunte. */
 function Onda({ colore, altezza, ritardo, durata, opacita }: {
     colore: string; altezza: number; ritardo: number; durata: number; opacita: number;
 }) {
@@ -38,51 +33,32 @@ function Onda({ colore, altezza, ritardo, durata, opacita }: {
                C540,${altezza - 24} 660,${altezza + 20} 800,${altezza}
                C940,${altezza - 26} 1060,${altezza + 22} 1200,${altezza}
                C1340,${altezza - 24} 1460,${altezza + 20} 1600,${altezza}
-               L1600,600 L0,600 Z`;
+               L1600,900 L0,900 Z`;
     return (
-        <g
-            style={{
-                animation: `onda ${durata}s linear ${ritardo}s infinite`,
-                opacity: opacita,
-            }}
-        >
+        <g style={{ animation: `onda ${durata}s linear ${ritardo}s infinite`, opacity: opacita }}>
             <path d={d} fill={colore} />
             <path d={d} fill={colore} transform="translate(1600,0)" />
         </g>
     );
 }
 
-/**
- * Una nuvola: tre gobbe morbide messe insieme, bianca e appena trasparente.
- * Attraversa il cielo da sinistra a destra e rientra — non serve la giuntura
- * perfetta delle onde, le nuvole possono sparire e ricomparire.
- */
+/** Una nuvola: tre gobbe morbide, bianca e appena trasparente, che deriva. */
 function Nuvola({ top, scala, durata, ritardo, opacita }: {
     top: string; scala: number; durata: number; ritardo: number; opacita: number;
 }) {
-    // L'animazione governa il translateX dello strato esterno; la scala sta
-    // sul figlio, così le due trasformazioni non si sovrascrivono.
     return (
         <span
             className="nuvola absolute left-0"
-            style={{
-                top,
-                opacity: opacita,
-                animation: `deriva ${durata}s linear ${ritardo}s infinite`,
-                willChange: "transform",
-            }}
+            style={{ top, opacity: opacita, animation: `deriva ${durata}s linear ${ritardo}s infinite`, willChange: "transform" }}
             aria-hidden="true"
         >
-            <span
-                className="block"
-                style={{ transform: `scale(${scala})`, transformOrigin: "left center" }}
-            >
-                <svg width="180" height="70" viewBox="0 0 180 70" fill="none">
+            <span className="block" style={{ transform: `scale(${scala})`, transformOrigin: "left center" }}>
+                <svg width="200" height="76" viewBox="0 0 200 76" fill="none">
                     <g fill="#FFFFFF">
-                        <ellipse cx="55" cy="45" rx="45" ry="24" />
-                        <ellipse cx="100" cy="38" rx="38" ry="30" />
-                        <ellipse cx="140" cy="47" rx="34" ry="22" />
-                        <rect x="40" y="45" width="110" height="22" rx="11" />
+                        <ellipse cx="62" cy="48" rx="50" ry="26" />
+                        <ellipse cx="112" cy="40" rx="42" ry="32" />
+                        <ellipse cx="156" cy="50" rx="38" ry="24" />
+                        <rect x="44" y="48" width="124" height="24" rx="12" />
                     </g>
                 </svg>
             </span>
@@ -91,77 +67,126 @@ function Nuvola({ top, scala, durata, ritardo, opacita }: {
 }
 
 export function SfondoLario() {
-    // Il tema è sempre chiaro: lo dichiariamo una volta per chi calcola i
-    // colori (le squadre) leggendo data-tema dall'elemento <html>.
+    // Il tema è sempre chiaro: lo dichiariamo per chi calcola i colori (le
+    // squadre) leggendo data-tema da <html>.
     useEffect(() => {
         document.documentElement.dataset.fascia = "giorno";
         document.documentElement.dataset.tema = "chiaro";
+    }, []);
+
+    // Parallasse: ogni piano ha un suo fattore. Aggiorniamo i transform in un
+    // solo requestAnimationFrame agganciato allo scroll — mai lavoro nel
+    // gestore stesso, così non si inchioda.
+    const lontano = useRef<HTMLDivElement>(null);
+    const medio = useRef<HTMLDivElement>(null);
+    const vicino = useRef<HTMLDivElement>(null);
+    const nuvole = useRef<HTMLDivElement>(null);
+    const sole = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+
+        let raf = 0;
+        const applica = () => {
+            raf = 0;
+            const y = window.scrollY || 0;
+            // i monti salgono piano (più vicini = più veloci), le nuvole e il
+            // sole scendono appena: è la parallasse che apre la profondità.
+            if (lontano.current) lontano.current.style.transform = `translate3d(0, ${y * -0.03}px, 0)`;
+            if (medio.current) medio.current.style.transform = `translate3d(0, ${y * -0.07}px, 0)`;
+            if (vicino.current) vicino.current.style.transform = `translate3d(0, ${y * -0.12}px, 0)`;
+            if (nuvole.current) nuvole.current.style.transform = `translate3d(0, ${y * 0.08}px, 0)`;
+            if (sole.current) sole.current.style.transform = `translate3d(0, ${y * 0.05}px, 0)`;
+        };
+        const onScroll = () => { if (!raf) raf = requestAnimationFrame(applica); };
+
+        applica();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => {
+            window.removeEventListener("scroll", onScroll);
+            if (raf) cancelAnimationFrame(raf);
+        };
     }, []);
 
     return (
         <div
             className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
             aria-hidden="true"
-            style={{
-                background: `linear-gradient(180deg, ${CIELO[0]} 0%, ${CIELO[1]} 100%)`,
-            }}
+            style={{ background: `linear-gradient(180deg, ${CIELO[0]} 0%, ${CIELO[1]} 100%)` }}
         >
-            {/* Le nuvole: qualche pennellata bianca che deriva lenta nel cielo,
-                sopra la linea delle montagne. */}
-            <div className="absolute inset-x-0 top-0 h-[46vh] min-h-[240px]">
-                <Nuvola top="8%"  scala={1.15} durata={90}  ritardo={0}   opacita={0.9} />
-                <Nuvola top="26%" scala={0.8}  durata={130} ritardo={-30} opacita={0.7} />
-                <Nuvola top="15%" scala={1.4}  durata={160} ritardo={-80} opacita={0.55} />
-                <Nuvola top="38%" scala={0.65} durata={110} ritardo={-55} opacita={0.6} />
+            {/* Il sole: un alone caldo e morbido, in alto a destra. */}
+            <div
+                ref={sole}
+                className="absolute -top-[12vh] right-[8vw] h-[52vh] w-[52vh] rounded-full"
+                style={{ background: `radial-gradient(circle, ${SOLE} 0%, transparent 68%)`, willChange: "transform" }}
+            />
+
+            {/* Le nuvole, sopra le montagne. */}
+            <div ref={nuvole} className="absolute inset-x-0 top-0 h-[46vh] min-h-[240px]" style={{ willChange: "transform" }}>
+                <Nuvola top="8%"  scala={1.15} durata={95}  ritardo={0}   opacita={0.92} />
+                <Nuvola top="24%" scala={0.8}  durata={135} ritardo={-30} opacita={0.7} />
+                <Nuvola top="15%" scala={1.45} durata={170} ritardo={-85} opacita={0.5} />
+                <Nuvola top="36%" scala={0.62} durata={115} ritardo={-55} opacita={0.6} />
             </div>
 
-            {/* Le montagne e l'acqua, dal fondo dello schermo. */}
-            <svg
-                className="absolute inset-x-0 bottom-0 h-[62vh] min-h-[360px] w-full"
-                viewBox="0 0 1600 600"
-                preserveAspectRatio="xMidYMax slice"
-            >
-                {/* Le montagne, dietro l'acqua: due creste verdi. */}
-                <path
-                    fill={MONTE_DIETRO}
-                    opacity={0.85}
-                    d="M0,300 L200,196 L400,268 L620,140 L840,244 L1060,168 L1280,262 L1450,196 L1600,246 L1600,600 L0,600 Z"
-                />
-                <path
-                    fill={MONTE_DAVANTI}
-                    opacity={0.95}
-                    d="M0,382 L160,306 L340,372 L540,250 L740,346 L940,276 L1150,358 L1350,292 L1520,350 L1600,322 L1600,600 L0,600 Z"
-                />
+            {/* Le montagne: tre creste, dalla più lontana e velata alla più
+                vicina e piena. Ognuna nel suo strato per la parallasse. */}
+            <div ref={lontano} className="absolute inset-x-0 bottom-0 h-[74vh] min-h-[420px]" style={{ willChange: "transform" }}>
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+                    <path fill={MONTE_LONTANO} opacity={0.75}
+                        d="M0,300 L180,214 L360,286 L560,182 L760,270 L980,196 L1200,282 L1400,214 L1600,268 L1600,900 L0,900 Z" />
+                </svg>
+            </div>
+            <div ref={medio} className="absolute inset-x-0 bottom-0 h-[70vh] min-h-[400px]" style={{ willChange: "transform" }}>
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+                    <path fill={MONTE_MEDIO} opacity={0.9}
+                        d="M0,382 L200,300 L420,372 L640,268 L860,360 L1080,286 L1300,368 L1520,300 L1600,338 L1600,900 L0,900 Z" />
+                </svg>
+            </div>
+            <div ref={vicino} className="absolute inset-x-0 bottom-0 h-[66vh] min-h-[380px]" style={{ willChange: "transform" }}>
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+                    <path fill={MONTE_VICINO}
+                        d="M0,470 L240,372 L470,452 L700,336 L940,440 L1160,360 L1380,448 L1560,384 L1600,410 L1600,900 L0,900 Z" />
+                </svg>
+            </div>
 
-                {/* L'acqua: tre onde che scorrono a velocità diverse. */}
-                <Onda colore={ACQUA[0]} altezza={430} ritardo={0} durata={46} opacita={0.9} />
-                <Onda colore={ACQUA[1]} altezza={470} ritardo={-14} durata={34} opacita={0.85} />
-                <Onda colore={ACQUA[2]} altezza={512} ritardo={-7} durata={26} opacita={0.95} />
-            </svg>
+            {/* La foschia: un velo chiaro alla base dei monti, dove incontrano
+                l'acqua. È il tocco che dà l'aria umida del lago. */}
+            <div
+                className="absolute inset-x-0 bottom-[26vh] h-[22vh] min-h-[120px]"
+                style={{ background: `linear-gradient(180deg, transparent 0%, ${FOSCHIA} 62%, ${FOSCHIA} 100%)`, opacity: 0.85 }}
+            />
 
-            {/* Grana di stampa: toglie le bande al gradiente e dà il tocco di
-                pittura invece che di rendering. */}
+            {/* L'acqua e le sue onde. */}
+            <div className="absolute inset-x-0 bottom-0 h-[30vh] min-h-[180px]">
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+                    <rect x="0" y="600" width="1600" height="300" fill={ACQUA[0]} opacity={0.5} />
+                    <Onda colore={ACQUA[0]} altezza={640} ritardo={0} durata={46} opacita={0.85} />
+                    <Onda colore={ACQUA[1]} altezza={700} ritardo={-14} durata={34} opacita={0.85} />
+                    <Onda colore={ACQUA[2]} altezza={770} ritardo={-7} durata={26} opacita={0.95} />
+                </svg>
+                {/* Riflesso di luce sull'acqua: una banda chiara che respira. */}
+                <div
+                    className="riflesso absolute inset-x-0 bottom-[6vh] h-[8vh]"
+                    style={{ background: "linear-gradient(180deg, transparent, rgba(255,255,255,0.35), transparent)" }}
+                />
+            </div>
+
+            {/* Grana di stampa: toglie le bande ai gradienti. */}
             <span
                 className="absolute inset-0"
-                style={{
-                    opacity: 0.5,
-                    backgroundImage:
-                        "repeating-linear-gradient(0deg, rgba(120,120,120,0.05) 0 1px, transparent 1px 3px)",
-                }}
+                style={{ opacity: 0.5, backgroundImage: "repeating-linear-gradient(0deg, rgba(120,120,120,0.05) 0 1px, transparent 1px 3px)" }}
             />
 
             <style jsx global>{`
-                @keyframes onda {
-                    from { transform: translateX(0); }
-                    to   { transform: translateX(-1600px); }
-                }
-                @keyframes deriva {
-                    from { transform: translateX(-220px); }
-                    to   { transform: translateX(calc(100vw + 220px)); }
-                }
+                @keyframes onda { from { transform: translateX(0); } to { transform: translateX(-1600px); } }
+                @keyframes deriva { from { transform: translateX(-240px); } to { transform: translateX(calc(100vw + 240px)); } }
+                @keyframes respiro-luce { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.7; } }
+                .riflesso { animation: respiro-luce 9s ease-in-out infinite; }
                 @media (prefers-reduced-motion: reduce) {
                     @keyframes onda { from, to { transform: translateX(0); } }
                     .nuvola { animation: none !important; }
+                    .riflesso { animation: none !important; }
                 }
             `}</style>
         </div>

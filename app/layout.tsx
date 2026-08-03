@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { IscrivitiFab } from "@/components/ui/IscrivitiFab";
 import { SfondoLario } from "@/components/layout/SfondoLario";
 import { AssistenteFluttuante } from "@/components/ui/AssistenteFluttuante";
+import { RivelaOsservatore } from "@/components/ui/RivelaOsservatore";
 import { LEAGUE_TAGLINE } from "@/lib/seasons";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -64,6 +65,7 @@ export default function RootLayout({
     <html lang="it">
       <body className={`${outfit.variable} ${inter.variable} ${greatVibes.variable} ${lora.variable} ${oswald.variable} font-sans antialiased relative overflow-x-hidden min-h-screen flex flex-col`}>
         <SfondoLario />
+        <RivelaOsservatore />
         <a
           href="#contenuto"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100]

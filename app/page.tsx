@@ -12,7 +12,7 @@ import { Tabellone } from "@/components/layout/Tabellone";
 
 const navItems: NavTileData[] = [
   { href: "/classifica", icon: Trophy, title: "Classifica", desc: "Chi comanda la lega, giornata per giornata", hex: "var(--lario)" },
-  { href: "/verdetto", icon: ShieldCheck, title: "Verdetto", desc: "Premi, statistiche e record di stagione", hex: "var(--oro)" },
+  { href: "/verdetto", icon: ShieldCheck, title: "Verdetto", desc: "Premi, statistiche e record di stagione", hex: "var(--viola)" },
   { href: "/risultati-serie-a", icon: Activity, title: "Serie A", desc: "Risultati, formazioni e classifica reale", hex: "var(--vermiglio)" },
   { href: "/regolamento", icon: BookOpen, title: "Regolamento", desc: "Le regole del gioco, senza discussioni", hex: "var(--calce)" },
 ];
@@ -44,7 +44,7 @@ export default function Home() {
         <SeasonBanner />
 
         {/* ================= INSEGNA ================= */}
-        <header className="flex flex-col items-center text-center gap-3">
+        <header className="flex flex-col items-center text-center gap-3" data-rivela="scala">
           <Marchio priority className="w-[180px] md:w-[240px] h-auto" />
 
           <h1 className="border-y-2 border-[color:var(--calce)]/70 bg-[color:var(--pece)]/70 px-5 py-2
@@ -53,32 +53,41 @@ export default function Home() {
           </h1>
         </header>
 
-        {/* ================= LO STRISCIONE =================
-            Una sola cosa urlata per pagina: qui sono le iscrizioni. */}
+        {/* ================= L'INVITO =================
+            Una sola cosa per pagina: le iscrizioni. Non più un lenzuolo
+            arancione a tutto fondo, ma una card in vetro sul lago —
+            l'arancio resta l'accento (il filetto e il bottone), non il fondo. */}
         <a
           href={ISCRIZIONE_FORM_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="striscione grana scatto scatto-lario block px-6 py-8 md:px-10 md:py-10 mt-2"
+          data-rivela
+          className="glass scatto group relative block overflow-hidden rounded-[1.6rem] px-6 py-9 md:px-12 md:py-12 mt-2"
         >
-          <span className="relative z-[3] block text-center">
-            <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--su-chiaro)]/80">
+          {/* il filetto arancio a sinistra: l'accento del marchio */}
+          <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-[color:var(--vermiglio)]" />
+          {/* alone morbido dietro il titolo */}
+          <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full"
+                style={{ background: "radial-gradient(circle, rgba(238,81,36,0.14), transparent 70%)" }} />
+          <span className="relative block text-center">
+            <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--vermiglio-testo)]">
               Stagione 2026/27 · iscrizioni aperte
             </span>
-            <span className="stampino mt-3 block text-[2.1rem] leading-[0.9] sm:text-5xl md:text-6xl text-[color:var(--su-chiaro)]">
+            <span className="stampino mt-3 block text-[2rem] leading-[0.92] sm:text-5xl md:text-6xl text-[color:var(--calce)]">
               Metti la<br />squadra in campo
             </span>
-            <span className="mt-5 inline-flex items-center gap-2 border-2 border-[color:var(--su-chiaro)] px-5 py-2.5
-                             text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--su-chiaro)]">
+            <span className="mt-7 inline-flex items-center gap-2 rounded-full bg-[color:var(--vermiglio)] px-6 py-3
+                             text-[12px] font-black uppercase tracking-[0.18em] text-[color:var(--su-chiaro)]
+                             shadow-[0_10px_28px_var(--ombra)] transition-transform duration-300 group-hover:scale-[1.04]">
               <UserPlus className="w-4 h-4" />
               Compila il form
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
           </span>
         </a>
 
         {/* ================= NAVIGAZIONE ================= */}
-        <section aria-label="Sezioni del sito" className="pt-2">
+        <section aria-label="Sezioni del sito" className="pt-2" data-rivela>
           <div className="flex items-center gap-3 mb-4">
             <span className="timbro bg-[color:var(--calce)] text-[color:var(--pece)]">Esplora la lega</span>
             <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
@@ -92,9 +101,9 @@ export default function Home() {
 
         {/* ================= ULTIMA GAZZETTA ================= */}
         {latestArticle && (
-          <section aria-label="Ultimo articolo della Gazzetta">
+          <section aria-label="Ultimo articolo della Gazzetta" data-rivela>
             <div className="flex items-center gap-3 mb-4">
-              <span className="timbro bg-[color:var(--oro)] text-[color:var(--su-chiaro)]">Ultima uscita</span>
+              <span className="timbro bg-[color:var(--lario)] text-[color:var(--su-colore)]">Ultima uscita</span>
               <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
             </div>
 
@@ -108,7 +117,7 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--pece)] via-[color:var(--pece)]/92 to-[color:var(--pece)]/45" />
               <div className="relative z-10 flex min-h-[300px] flex-col justify-end p-6 md:p-9">
-                <span className="timbro w-fit bg-[color:var(--vermiglio)] text-[color:var(--su-colore)]">
+                <span className="timbro w-fit bg-[color:var(--vermiglio)] text-[color:var(--su-chiaro)]">
                   <Newspaper className="w-3 h-3" />
                   La Gazzetta
                 </span>
@@ -130,7 +139,7 @@ export default function Home() {
         )}
 
         {/* ================= IL PUNTO ================= */}
-        <section aria-label="Il punto sulla lega">
+        <section aria-label="Il punto sulla lega" data-rivela>
           <div className="flex items-center gap-3 mb-4">
             <span className="timbro bg-[color:var(--lario)] text-[color:var(--su-colore)]">Il punto</span>
             <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
@@ -142,6 +151,7 @@ export default function Home() {
         <a
           href={REGOLAMENTO_PDF_URL}
           download
+          data-rivela
           className="group scatto flex items-center gap-4 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] px-5 py-4"
         >
           <span className="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-[color:var(--calce)]/25 bg-[color:var(--secca)]">

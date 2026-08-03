@@ -133,7 +133,7 @@ export function Tabellone() {
             <Colonna icona={CalendarDays} titolo={giornata ? `Giornata ${giornata.numero}` : "Ultima giornata"}>
                 {giornata ? (
                     <SeasonLink href="/verdetto" className="group flex flex-col gap-1">
-                        <span className="numerone text-[32px] text-[color:var(--oro)]">{giornata.punteggio}</span>
+                        <span className="numerone text-[32px] text-[color:var(--viola)]">{giornata.punteggio}</span>
                         <span className="stampino text-[13px] leading-tight text-[color:var(--calce)]">
                             {giornata.vincitore}
                         </span>

@@ -10,7 +10,7 @@ export function WaitingFirstMatchday({ subtitle }: { subtitle?: string }) {
                 <div className="absolute inset-0 bg-gradient-to-br from-[color:var(--lario)]/10 via-transparent to-[color:var(--vermiglio)]/10 pointer-events-none" />
                 <div className="relative z-10 w-20 h-20 rounded-3xl flex items-center justify-center bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)] shadow-lg">
                     <CalendarClock className="w-9 h-9 text-[color:var(--lario)]" />
-                    <Sparkles className="w-5 h-5 text-[color:var(--oro)] absolute -top-2 -right-2 animate-pulse" />
+                    <Sparkles className="w-5 h-5 text-[color:var(--viola)] absolute -top-2 -right-2 animate-pulse" />
                 </div>
                 <h3 className="relative z-10 font-oswald text-2xl md:text-3xl uppercase tracking-wide text-[color:var(--calce)]">
                     In attesa della prima giornata

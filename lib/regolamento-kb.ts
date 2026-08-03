@@ -32,7 +32,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Quanto costa iscriversi?',
         risposta:
-            'La quota è di **110 🍆**. Va saldata **prima dell\'inizio della 1ª giornata**: chi non versa viene escluso senza rimborso.\nContribuisce al montepremi finale e alla gestione della lega: la scorsa stagione, su 50 iscritti, l\'85% del raccolto è tornato in premi.',
+            'La quota è di **110 🍆**. Va saldata **prima dell\'inizio della 1ª giornata**: chi non versa viene escluso senza rimborso.\nQuasi tutto il raccolto torna in premi: solo il **5%** resta per la gestione della lega.',
         chiavi: ['quanto costa', 'quota', 'prezzo', 'costo iscrizione', 'quanto si paga', 'quanto pago', 'iscrizione costo', '110'],
         inEvidenza: true,
     },

@@ -16,12 +16,12 @@ function SeasonBannerInner() {
 
     return (
         <div
-            className="flex items-center gap-3 rounded-2xl border border-[color:var(--oro)]/30 bg-[color:var(--oro)]/[0.10] px-4 py-3
+            className="flex items-center gap-3 rounded-2xl border border-[color:var(--archivio)]/35 bg-[color:var(--archivio)]/[0.12] px-4 py-3
                        text-[color:var(--calce)] backdrop-blur-md animate-fade-up"
             role="status"
         >
-            <span className="w-8 h-8 rounded-xl bg-[color:var(--oro)]/15 border border-amber-300/30 flex items-center justify-center shrink-0">
-                <History className="w-4 h-4 text-[color:var(--oro)]" />
+            <span className="w-8 h-8 rounded-xl bg-[color:var(--archivio)]/15 border border-[color:var(--archivio)]/35 flex items-center justify-center shrink-0">
+                <History className="w-4 h-4 text-[color:var(--archivio)]" />
             </span>
             <p className="flex-1 text-xs sm:text-sm font-semibold leading-snug">
                 Stai consultando l&apos;archivio della stagione{" "}
@@ -29,9 +29,9 @@ function SeasonBannerInner() {
             </p>
             <Link
                 href={pathname}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--oro)]/15 border border-[color:var(--oro)]/35
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-[color:var(--archivio)]/15 border border-[color:var(--archivio)]/40
                            px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-[color:var(--calce)]
-                           hover:bg-[color:var(--oro)]/25 transition-colors"
+                           hover:bg-[color:var(--archivio)]/25 transition-colors"
             >
                 Torna al {SEASONS[CURRENT_SEASON].label}
                 <ArrowRight className="w-3.5 h-3.5" />

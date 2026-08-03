@@ -31,7 +31,7 @@ function ComingSoon({ className }: { className?: string }) {
             <div className="relative h-full flex flex-col items-center justify-center gap-3 text-center px-6 py-16">
                 <span className="relative w-16 h-16 rounded-2xl flex items-center justify-center bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)]">
                     <Newspaper className="w-7 h-7 text-[color:var(--lario)]" />
-                    <Sparkles className="w-4 h-4 text-[color:var(--oro)] absolute -top-1.5 -right-1.5 animate-pulse" />
+                    <Sparkles className="w-4 h-4 text-[color:var(--lario)] absolute -top-1.5 -right-1.5 animate-pulse" />
                 </span>
                 <span className="font-oswald text-xl text-[color:var(--calce)] tracking-wide uppercase">In preparazione</span>
                 <span className="text-sm text-[color:var(--fumo)] font-serif italic max-w-[240px]">
