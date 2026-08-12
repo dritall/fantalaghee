@@ -92,6 +92,7 @@
     @apply border backdrop-blur-md;
     background-color: var(--fondale);
     border-color: var(--filo);
+    border-radius: var(--ro-m);
     box-shadow: 0 10px 30px var(--ombra);
   }
 
@@ -101,11 +102,17 @@
      stacca sempre senza ricorrere al nero pieno. Usato dal selettore
      stagione, dalle tendine e dalla card d'invito in home.
      --------------------------------------------------------------- */
+  /* Nota su `isolation: isolate`: quando un elemento ha un backdrop-filter,
+     Chromium promuove il livello e si dimentica di applicare ai figli il clip
+     arrotondato di `overflow: hidden` — i filetti e le immagini interne
+     uscivano dagli angoli. Isolare il gruppo rimette il clip al suo posto. */
   .glass {
     background: rgba(255, 255, 255, 0.60);
     -webkit-backdrop-filter: blur(16px) saturate(1.25);
     backdrop-filter: blur(16px) saturate(1.25);
+    isolation: isolate;
     border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: var(--ro-l);
     box-shadow:
       0 18px 50px var(--ombra),
       inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -114,7 +121,9 @@
     background: rgba(255, 255, 255, 0.78);
     -webkit-backdrop-filter: blur(20px) saturate(1.3);
     backdrop-filter: blur(20px) saturate(1.3);
+    isolation: isolate;
     border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: var(--ro-m);
     box-shadow: 0 12px 34px var(--ombra);
   }
 
@@ -591,6 +600,24 @@
   --prato:        #2C7150;
   --prato-ombra:  rgba(0, 0, 0, 0.14);
   --riga-campo:   rgba(255, 255, 255, 0.85);
+
+  /* -------------------------------------------------------------------
+     GLI ANGOLI — una scala sola, quattro gradini.
+     Prima ogni pezzo decideva per conto suo: card a spigolo vivo accanto
+     a bottoni a pillola e a un invito con 1.6rem di raggio. Il risultato
+     era il difetto peggiore del sito: sembrava spigoloso e disordinato
+     insieme. Da qui in avanti si pesca solo da questi quattro valori, e
+     il raggio cresce con la superficie — più una cosa è grande, più
+     l'angolo è ampio.
+     ------------------------------------------------------------------- */
+  --ro-xs:  8px;    /* timbri, chip, pillole piccole */
+  --ro-s:  12px;    /* bottoni, righe di elenco, celle */
+  --ro-m:  18px;    /* le card: è il raggio di riferimento del sito */
+  --ro-l:  26px;    /* i blocchi grandi: copertine, inviti, tabelloni */
+
+  /* le curve del movimento, una per intenzione */
+  --molla:  cubic-bezier(0.16, 1, 0.3, 1);   /* entra e si posa */
+  --pronto: cubic-bezier(0.22, 0.8, 0.3, 1); /* risposta al puntatore */
 }
 
 @layer utilities {
@@ -646,21 +673,53 @@
     clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
   }
 
+  /* --- La scheda ----------------------------------------------------
+     La superficie standard del sito: bianca, angoli della scala, filo
+     sottile e un'ombra bassa e larga invece del bordo spesso. Il bordo
+     da 2px su ogni card era metà del problema "tutto squadrato": a
+     parità di contenuto disegnava una griglia di riquadri. Qui il
+     contorno lo fa l'ombra, e il filo serve solo a chiudere la forma. */
+  .scheda {
+    background-color: var(--fondale);
+    border: 1px solid var(--filo);
+    border-radius: var(--ro-m);
+    box-shadow:
+      0 1px 2px rgba(11, 34, 51, 0.05),
+      0 10px 26px -14px rgba(11, 34, 51, 0.30);
+  }
+  /* Porta al raggio grande una qualunque superficie del sistema (.scheda,
+     .glass, .glass-forte). Sta dopo di loro apposta: così vince senza
+     bisogno di un !important. */
+  .tondo-l { border-radius: var(--ro-l); }
+
   /* --- Lo scatto ----------------------------------------------------
-     Al passaggio l'elemento si stacca dal foglio invece di illuminarsi:
-     sale di due pixel e getta un'ombra piena, senza sfocatura. */
+     Al passaggio l'elemento si stacca dal foglio. Non più con un'ombra
+     secca a 45° (che raddoppiava lo spigolo e faceva "adesivo"), ma
+     salendo di tre pixel su un'ombra più profonda e con un filo del
+     colore d'accento che si accende sul contorno. Stesso gesto, resa
+     molto più pulita — e funziona identico sugli angoli tondi. */
   .scatto {
-    transition: transform 180ms cubic-bezier(0.2, 0.9, 0.3, 1),
-                box-shadow 180ms cubic-bezier(0.2, 0.9, 0.3, 1);
+    /* il filo che si accende sul contorno: di norma l'arancio del marchio,
+       ma una card può passare il colore della propria sezione */
+    --scatto-tinta: var(--vermiglio);
+    transition:
+      transform 260ms var(--pronto),
+      box-shadow 260ms var(--pronto);
   }
   .scatto:hover,
   .scatto:focus-visible {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 var(--vermiglio);
+    transform: translateY(-3px);
+    box-shadow:
+      0 2px 4px rgba(11, 34, 51, 0.06),
+      0 18px 40px -18px rgba(11, 34, 51, 0.45),
+      0 0 0 1px color-mix(in srgb, var(--scatto-tinta) 45%, transparent);
   }
-  .scatto-lario:hover,
-  .scatto-lario:focus-visible { box-shadow: 6px 6px 0 var(--lario); }
-  .scatto:active { transform: translate(0, 0); box-shadow: 2px 2px 0 var(--vermiglio); }
+  .scatto-lario { --scatto-tinta: var(--lario); }
+  .scatto-viola { --scatto-tinta: var(--viola); }
+  .scatto:active {
+    transform: translateY(-1px);
+    transition-duration: 90ms;
+  }
 
   /* --- La grana -----------------------------------------------------
      Fotocopia: righe orizzontali quasi invisibili più un pulviscolo.
@@ -736,18 +795,26 @@
      stessa griglia perché arrivino a cascata. */
   [data-rivela] {
     opacity: 0;
-    transform: translateY(30px) scale(0.98);
+    transform: translateY(26px);
+    /* la messa a fuoco: il blocco arriva sfocato e si fa nitido posandosi.
+       È quello che toglie l'effetto "slide" meccanico. */
+    filter: blur(8px);
     transition:
-      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 720ms var(--molla),
+      transform 860ms var(--molla),
+      filter 620ms ease-out;
     transition-delay: var(--ritardo, 0ms);
-    will-change: opacity, transform;
+    will-change: opacity, transform, filter;
   }
-  [data-rivela="lato"] { transform: translateX(-28px); }
-  [data-rivela="scala"] { transform: scale(0.94); }
+  [data-rivela="lato"] { transform: translateX(-26px); }
+  [data-rivela="scala"] { transform: scale(0.95); filter: blur(10px); }
   [data-rivela].visibile {
     opacity: 1;
     transform: none;
+    filter: none;
+    /* a comparsa avvenuta si spegne il will-change: tenerlo acceso su tutta
+       la pagina costa memoria video e fa sfarfallare i blocchi sfocati */
+    will-change: auto;
   }
 
   /* Prima che l'osservatore si agganci, se il JS è lento, non lasciamo
@@ -760,6 +827,7 @@
     [data-rivela] {
       opacity: 1 !important;
       transform: none !important;
+      filter: none !important;
       transition: none !important;
     }
   }

@@ -101,7 +101,7 @@ function VerdettoContent() {
 
     if (error) return (
         <div className="min-h-screen pt-24 px-4 flex justify-center items-center">
-            <div className="glass p-6 rounded-none text-red-500 border border-red-500/30">
+            <div className="glass p-6 rounded-[var(--ro-m)] text-red-500 border border-red-500/30">
                 Errore: {error}
             </div>
         </div>
@@ -215,10 +215,10 @@ function VerdettoContent() {
     const Highlight = ({ icon: Icon, title, hex, children, delay }: any) => (
         <motion.div
             initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.45 }}
-            className="relative h-full rounded-none p-[1.5px] overflow-hidden shadow-[0_10px_34px_rgba(6,10,30,0.5)]"
+            className="relative h-full rounded-[var(--ro-m)] p-[1.5px] overflow-hidden shadow-[0_10px_34px_rgba(6,10,30,0.5)]"
             style={{ background: `linear-gradient(155deg, ${hex}66, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.02))` }}
         >
-            <div className="relative h-full rounded-none bg-gradient-to-b from-[color:var(--fondale)] to-[color:var(--pece)] p-5 overflow-hidden">
+            <div className="relative h-full rounded-[calc(var(--ro-m)-1.5px)] bg-gradient-to-b from-[color:var(--fondale)] to-[color:var(--pece)] p-5 overflow-hidden">
                 <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                 <span className="absolute -right-4 -top-4 opacity-[0.07] pointer-events-none">
                     <Icon className="w-28 h-28" style={{ color: hex }} />
@@ -240,7 +240,7 @@ function VerdettoContent() {
         <div
             onMouseEnter={fireConfetti}
             onTouchStart={fireConfetti}
-            className="flex items-center justify-between gap-3 px-3 py-2 rounded-none cursor-pointer transition-colors hover:bg-[color:var(--velo-alto)]"
+            className="flex items-center justify-between gap-3 px-3 py-2 rounded-[var(--ro-s)] cursor-pointer transition-colors hover:bg-[color:var(--velo-alto)]"
         >
             <span className="flex items-center gap-2 min-w-0">
                 {rank !== undefined && <span className="text-sm shrink-0">{['🥇', '🥈', '🥉', '4️⃣'][rank] || `${rank + 1}.`}</span>}
@@ -251,7 +251,7 @@ function VerdettoContent() {
     );
 
     const Panel = ({ title, icon: Icon, hex, children, className = "" }: any) => (
-        <div className={`surface rounded-none p-5 flex flex-col ${className}`}>
+        <div className={`surface rounded-[var(--ro-m)] p-5 flex flex-col ${className}`}>
             <div className="flex items-center gap-2 mb-4">
                 {Icon && <Icon className="w-4 h-4 shrink-0" style={{ color: hex }} />}
                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: hex }}>{title}</h4>
@@ -341,7 +341,7 @@ function VerdettoContent() {
                                 ).map((p: any, i: number) => (
                                     <div
                                         key={i}
-                                        className={`flex items-center gap-3 p-3 rounded-none border transition-colors ${
+                                        className={`flex items-center gap-3 p-3 rounded-[var(--ro-s)] border transition-colors ${
                                             i === 0
                                                 ? 'border-[color:var(--viola)]/30 bg-[color:var(--viola)]/[0.08]'
                                                 : i === 1
@@ -398,7 +398,7 @@ function VerdettoContent() {
                                     {storico.melanzaneVinte.map((m) => (
                                         <div
                                             key={m.squadra}
-                                            className="rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] px-3 py-3"
+                                            className="rounded-[var(--ro-s)] border border-[color:var(--filo)] bg-[color:var(--velo)] px-3 py-3"
                                         >
                                             <span className="block text-[11px] text-[color:var(--fumo)] truncate">{m.squadra}</span>
                                             <span className="mt-1 block font-score text-lg font-black tabular-nums text-[color:var(--viola)]">
@@ -443,7 +443,7 @@ function VerdettoContent() {
                                             key={i}
                                             onMouseEnter={fireConfetti}
                                             onTouchStart={fireConfetti}
-                                            className={`flex flex-col items-center justify-center p-3.5 rounded-none border cursor-pointer transition-all hover:-translate-y-1 ${
+                                            className={`flex flex-col items-center justify-center p-3.5 rounded-[var(--ro-m)] border cursor-pointer transition-all hover:-translate-y-1 ${
                                                 i === 0
                                                     ? 'border-[color:var(--viola)]/40 bg-[color:var(--viola)]/[0.10]'
                                                     : i === 1

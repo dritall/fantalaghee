@@ -153,7 +153,7 @@ export default function GazzettaPage() {
 
                                 <SeasonLink
                                     href={`/gazzetta/${latest.id}`}
-                                    className="group relative grid md:grid-cols-2 rounded-[2rem] overflow-hidden border border-[color:var(--filo)] bg-[color:var(--fondale)]
+                                    className="group relative grid md:grid-cols-2 rounded-[var(--ro-l)] overflow-hidden border border-[color:var(--filo)] bg-[color:var(--fondale)]
                                                shadow-[0_18px_56px_var(--ombra)] transition-all duration-300
                                                hover:border-[color:var(--filo-alto)] hover:shadow-[0_26px_70px_var(--ombra)]"
                                 >

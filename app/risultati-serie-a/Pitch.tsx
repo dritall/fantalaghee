@@ -187,7 +187,7 @@ function TeamPitch({
                 )}
             </div>
 
-            <div className="relative w-full aspect-[3/4] overflow-hidden border-2 border-[color:var(--filo-alto)] bg-[color:var(--prato)]">
+            <div className="relative w-full aspect-[3/4] overflow-hidden rounded-[var(--ro-m)] border border-[color:var(--filo-alto)] bg-[color:var(--prato)]">
                 {/* righe dell'erba */}
                 <span
                     className="absolute inset-0 opacity-[0.2]"
@@ -292,7 +292,7 @@ export function Pitch({
     return (
         <div>
             {/* selettore squadra mobile */}
-            <div className="md:hidden flex p-1 mb-4 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)]">
+            <div className="md:hidden flex p-1 mb-4 rounded-full border border-[color:var(--filo)] bg-[color:var(--fondale)]">
                 {([
                     { key: "home" as const, team: home, accent: HOME_ACCENT },
                     { key: "away" as const, team: away, accent: AWAY_ACCENT },
@@ -302,7 +302,7 @@ export function Pitch({
                         onClick={() => setSide(key)}
                         aria-pressed={side === key}
                         className={cn(
-                            "flex-1 py-2 text-[11px] font-black uppercase tracking-wider truncate transition-colors",
+                            "flex-1 rounded-full py-2 text-[11px] font-black uppercase tracking-wider truncate transition-colors",
                             side === key ? "text-[#08102a]" : "text-[color:var(--fumo)]"
                         )}
                         style={side === key ? { backgroundColor: accent } : undefined}

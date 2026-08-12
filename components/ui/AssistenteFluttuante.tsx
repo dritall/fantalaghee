@@ -215,13 +215,13 @@ export function AssistenteFluttuante() {
                 aria-label={aperto ? "Chiudi l'assistente" : "Chiedi al regolamento"}
                 className={cn(
                     "fixed bottom-5 left-5 z-[70] inline-flex items-center justify-center scatto",
-                    "h-11 w-11 border-2 border-[color:var(--pece)]",
+                    "h-11 w-11 rounded-full border border-[color:var(--pece)]/70 shadow-[0_10px_26px_-10px_rgba(11,34,51,0.6)]",
                     "bg-[color:var(--calce)] text-[color:var(--pece)]",
                     aperto && "md:opacity-0 md:pointer-events-none"
                 )}
             >
                 <MessagesSquare className="w-5 h-5" strokeWidth={2.4} />
-                {daLeggere && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[color:var(--vermiglio)]" />}
+                {daLeggere && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[color:var(--vermiglio)]" />}
             </button>
 
             {/* velo: solo su telefono, dove il foglio copre tutto */}
@@ -248,12 +248,12 @@ export function AssistenteFluttuante() {
                     "inset-x-0 bottom-0 h-[85vh]",
                     // desktop: riquadro ancorato all'angolo del pulsante
                     "md:inset-auto md:left-5 md:bottom-5 md:h-[min(34rem,80vh)] md:w-[26rem]",
-                    "border-2 border-[color:var(--calce)] bg-[color:var(--fondale)]",
-                    "shadow-[0_-20px_60px_rgba(2,8,16,0.75)] md:shadow-[8px_8px_0_var(--vermiglio)]"
+                    "rounded-t-[var(--ro-l)] md:rounded-[var(--ro-l)] border border-[color:var(--filo-alto)] bg-[color:var(--fondale)]",
+                    "shadow-[0_-20px_60px_-24px_rgba(2,8,16,0.55)] md:shadow-[0_24px_60px_-24px_rgba(2,8,16,0.5)]"
                 )}
             >
-                <header className="flex items-center gap-3 px-4 py-3 border-b-2 border-[color:var(--calce)] bg-[color:var(--vermiglio)] shrink-0">
-                    <span className="w-9 h-9 flex items-center justify-center shrink-0 border-2 border-[color:var(--calce)]">
+                <header className="flex items-center gap-3 px-4 py-3 border-b border-[color:var(--calce)]/25 bg-[color:var(--vermiglio)] shrink-0">
+                    <span className="w-9 h-9 flex items-center justify-center shrink-0 rounded-[var(--ro-s)] border border-[color:var(--calce)]/30">
                         <MessagesSquare className="w-[18px] h-[18px] text-[color:var(--calce)]" strokeWidth={2.4} />
                     </span>
                     <span className="flex-1 min-w-0">
@@ -266,7 +266,7 @@ export function AssistenteFluttuante() {
                         <button
                             onClick={ricomincia}
                             aria-label="Ricomincia la conversazione"
-                            className="shrink-0 inline-flex items-center justify-center w-9 h-9 border-2 border-[color:var(--calce)]/50
+                            className="shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-[var(--ro-s)] border border-[color:var(--calce)]/40
                                        text-[color:var(--calce)]/70 hover:text-[color:var(--pece)] hover:bg-[color:var(--calce)] active:scale-95 transition-all"
                         >
                             <RotateCcw className="w-3.5 h-3.5" />
@@ -278,7 +278,7 @@ export function AssistenteFluttuante() {
                             lanciatoreRef.current?.focus();
                         }}
                         aria-label="Chiudi"
-                        className="shrink-0 inline-flex items-center justify-center w-9 h-9 border-2 border-[color:var(--calce)]/50
+                        className="shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-[var(--ro-s)] border border-[color:var(--calce)]/40
                                    text-[color:var(--calce)]/70 hover:text-[color:var(--pece)] hover:bg-[color:var(--calce)] active:scale-95 transition-all"
                     >
                         <X className="w-4 h-4" />
@@ -294,14 +294,14 @@ export function AssistenteFluttuante() {
                         m.ruolo === "utente" ? (
                             <p
                                 key={i}
-                                className="ml-auto max-w-[85%] w-fit border-2 border-[color:var(--lario)] bg-[color:var(--lario)]/15
+                                className="ml-auto max-w-[85%] w-fit rounded-[var(--ro-m)] rounded-br-[var(--ro-xs)] border border-[color:var(--lario)]/60 bg-[color:var(--lario)]/15
                                            px-3.5 py-2 text-sm text-[color:var(--calce)]"
                             >
                                 {m.testo}
                             </p>
                         ) : (
                             <div key={i} className="max-w-[92%] space-y-2">
-                                <div className="w-fit border-2 border-[color:var(--filo)] bg-[color:var(--secca)] px-3.5 py-2.5 text-sm leading-relaxed text-[color:var(--calce)]/80">
+                                <div className="w-fit rounded-[var(--ro-m)] rounded-bl-[var(--ro-xs)] border border-[color:var(--filo)] bg-[color:var(--secca)] px-3.5 py-2.5 text-sm leading-relaxed text-[color:var(--calce)]/80">
                                     <Testo contenuto={m.testo} />
                                 </div>
 
@@ -311,7 +311,7 @@ export function AssistenteFluttuante() {
                                             <button
                                                 key={sez}
                                                 onClick={() => apriArgomento(sez)}
-                                                className="border-2 border-[color:var(--lario)]/50 bg-[color:var(--lario)]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.08em]
+                                                className="rounded-full border border-[color:var(--lario)]/50 bg-[color:var(--lario)]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.08em]
                                                            text-[color:var(--lario)] hover:bg-[color:var(--lario)] hover:text-[color:var(--su-colore)] active:scale-95 transition-all text-left"
                                             >
                                                 {ARGOMENTI.find((a) => a.sezione === sez)?.titolo}
@@ -326,7 +326,7 @@ export function AssistenteFluttuante() {
                                             <button
                                                 key={v.id}
                                                 onClick={() => chiediVoce(v)}
-                                                className="border-2 border-[color:var(--filo-alto)] bg-[color:var(--secca)] px-3 py-1.5 text-[11px] font-semibold
+                                                className="rounded-full border border-[color:var(--filo-alto)] bg-[color:var(--secca)] px-3 py-1.5 text-[11px] font-semibold
                                                            text-[color:var(--calce)] hover:bg-[color:var(--vermiglio)] hover:text-[color:var(--su-chiaro)] hover:border-[color:var(--vermiglio)] active:scale-95 transition-all text-left"
                                             >
                                                 {v.domanda}
@@ -348,7 +348,7 @@ export function AssistenteFluttuante() {
                                 <button
                                     key={v.id}
                                     onClick={() => chiediVoce(v)}
-                                    className="border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] px-3 py-1.5 text-[11px] font-semibold
+                                    className="rounded-full border border-[color:var(--filo)] bg-[color:var(--fondale)] px-3 py-1.5 text-[11px] font-semibold
                                                text-[color:var(--fumo)] hover:text-[color:var(--pece)] hover:bg-[color:var(--calce)] hover:border-[color:var(--calce)] active:scale-95 transition-all text-left"
                                 >
                                     {v.domanda}
@@ -367,7 +367,7 @@ export function AssistenteFluttuante() {
                         e.preventDefault();
                         rispondi(bozza);
                     }}
-                    className="flex items-center gap-2 px-3 py-3 border-t-2 border-[color:var(--filo)] shrink-0
+                    className="flex items-center gap-2 px-3 py-3 border-t border-[color:var(--filo)] shrink-0
                                pb-[max(0.75rem,env(safe-area-inset-bottom))]"
                 >
                     <input
@@ -377,7 +377,7 @@ export function AssistenteFluttuante() {
                         placeholder="Quanti difensori posso schierare?"
                         aria-label="Scrivi una domanda sul regolamento"
                         enterKeyHint="send"
-                        className="flex-1 min-w-0 border-2 border-[color:var(--filo)] bg-[color:var(--pece)] px-4 min-h-[42px]
+                        className="flex-1 min-w-0 rounded-full border border-[color:var(--filo)] bg-[color:var(--pece)] px-4 min-h-[42px]
                                    text-sm text-[color:var(--calce)] placeholder:text-[color:var(--fumo)] outline-none
                                    focus:border-[color:var(--lario)] transition-colors"
                     />
@@ -386,7 +386,7 @@ export function AssistenteFluttuante() {
                         disabled={!bozza.trim()}
                         aria-label="Invia la domanda"
                         className={cn(
-                            "shrink-0 inline-flex items-center justify-center w-[42px] h-[42px] border-2 transition-all",
+                            "shrink-0 inline-flex items-center justify-center w-[42px] h-[42px] rounded-full border transition-all",
                             bozza.trim()
                                 ? "bg-[color:var(--vermiglio)] border-[color:var(--vermiglio)] text-[color:var(--su-chiaro)] active:scale-95"
                                 : "bg-transparent border-[color:var(--filo)] text-[color:var(--fumo)]/50 cursor-not-allowed"

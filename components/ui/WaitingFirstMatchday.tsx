@@ -5,10 +5,13 @@ import { ISCRIZIONE_FORM_URL } from "@/lib/seasons";
 
 export function WaitingFirstMatchday({ subtitle }: { subtitle?: string }) {
     return (
-        <div className="relative rounded-[2rem] p-[1px] bg-gradient-to-b from-[color:var(--filo-alto)] to-[color:var(--filo)] overflow-hidden shadow-[0_12px_40px_var(--ombra)]">
-            <div className="relative rounded-[calc(2rem-1px)] bg-[color:var(--fondale)]/80 backdrop-blur-xl px-6 py-16 flex flex-col items-center justify-center text-center gap-4 overflow-hidden">
+        // Stava su un vetro all'80%: sopra al lago diventava una lastra grigia
+        // e il paesaggio ci passava attraverso sporcando il testo. Adesso è una
+        // scheda piena, con il vetro solo come velo esterno.
+        <div className="glass-forte tondo-l relative overflow-hidden shadow-[0_16px_44px_-20px_rgba(11,34,51,0.45)]">
+            <div className="relative px-6 py-16 flex flex-col items-center justify-center text-center gap-4 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-[color:var(--lario)]/10 via-transparent to-[color:var(--vermiglio)]/10 pointer-events-none" />
-                <div className="relative z-10 w-20 h-20 rounded-3xl flex items-center justify-center bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)] shadow-lg">
+                <div className="relative z-10 w-20 h-20 rounded-[var(--ro-m)] flex items-center justify-center bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)]">
                     <CalendarClock className="w-9 h-9 text-[color:var(--lario)]" />
                     <Sparkles className="w-5 h-5 text-[color:var(--viola)] absolute -top-2 -right-2 animate-pulse" />
                 </div>

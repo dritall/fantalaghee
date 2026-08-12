@@ -4,14 +4,22 @@
  * Lo sfondo del sito: una giornata sul lago, dipinta a strati.
  *
  * Non è una foto e non è un gradiente fermo. È il paesaggio scomposto in piani
- * — cielo, sole, uccelli, tre creste di montagna sempre più vicine con la loro
- * pineta, la foschia che le stacca, l'acqua con le onde, il riflesso delle
- * montagne e una banda di luce. Ogni piano si muove a una velocità diversa
- * quando si scorre (parallasse): è quello che dà la profondità.
+ * — cielo, sole, nuvole, tre creste sempre più vicine, la foschia che le
+ * stacca, il bosco sul crinale, l'acqua col riflesso e la banda di luce. Ogni
+ * piano si muove a una velocità diversa quando si scorre (parallasse): è
+ * quello che dà la profondità.
  *
- * Perché le punte non vengano mai tagliate sul desktop largo, i monti sono
- * disegnati in una viewBox panoramica (più larga che alta) e riempiono
- * l'altezza: così a schermo largo si taglia ai lati, non in cima.
+ * Regole del disegno, imparate a spese della versione precedente:
+ *
+ *  · niente spigoli. Le creste sono curve di Bézier con le cime arrotondate,
+ *    non spezzate di segmenti dritti: un profilo di montagna non ha vertici.
+ *  · niente giunte. Ogni cresta è riempita con un gradiente verticale che
+ *    finisce nel colore della foschia, così i piani si fondono da soli invece
+ *    di appoggiarsi uno sull'altro con una riga netta.
+ *  · le nuvole sono cerchi bianchi sfocati, non ellissi con sotto un
+ *    rettangolo: la sfocatura è ciò che le rende nuvole.
+ *  · scorrendo, un velo del colore della pagina sale sul paesaggio. In cima si
+ *    vede il lago; più giù la scena arretra e lascia lavorare il contenuto.
  *
  * Tutto è solo `transform`/`opacity` in un unico rAF agganciato allo scroll,
  * quindi resta fluido; con `prefers-reduced-motion` parallasse e derive si
@@ -21,23 +29,108 @@
 import { useEffect, useRef } from "react";
 
 /* La scena: colori dell'illustrazione, non del testo. */
-const CIELO: [string, string, string] = ["#EAF4FB", "#D3E7F3", "#BFDCEC"];
-const SOLE = "rgba(255, 246, 220, 0.6)";
-const MONTE_LONTANO = "#A7CBB7";
-const MONTE_MEDIO = "#6BA381";
-const MONTE_VICINO = "#41805C";
-const PINETA = "#2F6B4C";
-const FOSCHIA = "#EAF4FB";
-const ACQUA: [string, string, string] = ["#8AB8D4", "#5B9DC2", "#3A83AD"];
+const CIELO = {
+    alto: "#EFF7FC",
+    mezzo: "#DCECF7",
+    basso: "#C9E2F0",
+    orizzonte: "#E4F0F3",
+};
+const FOSCHIA = "#DEEDF4";
+
+/** Le tre creste: colore in cima, colore alla base (dove si fondono). */
+const CRESTE = [
+    { su: "#93BCC0", giu: "#CBE2EC", opacita: 0.62 },
+    { su: "#5E9A7B", giu: "#A8CFDA", opacita: 0.82 },
+    { su: "#2F6F4E", giu: "#79ADB8", opacita: 1 },
+];
+
+/**
+ * Da una fila di punti (cima, valle, cima…) a una curva continua.
+ *
+ * È una Catmull-Rom convertita in Bézier: la linea passa esattamente per i
+ * punti dati e la `tensione` decide quanto si gonfia fra l'uno e l'altro. Con
+ * una tensione bassa i fianchi restano tesi e solo la vetta si smussa — che è
+ * come è fatta una montagna. Con la tensione alta si ottengono le dune, che
+ * era il difetto della versione prima di questa.
+ */
+function cresta(punti: [number, number][], tensione: number): string {
+    const p = punti;
+    let d = `M${p[0][0]},${p[0][1]}`;
+    for (let i = 0; i < p.length - 1; i++) {
+        const p0 = p[i - 1] ?? p[i];
+        const p1 = p[i];
+        const p2 = p[i + 1];
+        const p3 = p[i + 2] ?? p2;
+        const c1x = p1[0] + ((p2[0] - p0[0]) / 6) * tensione;
+        const c1y = p1[1] + ((p2[1] - p0[1]) / 6) * tensione;
+        const c2x = p2[0] - ((p3[0] - p1[0]) / 6) * tensione;
+        const c2y = p2[1] - ((p3[1] - p1[1]) / 6) * tensione;
+        d += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0]},${p2[1]}`;
+    }
+    return `${d} L1600,520 L0,520 Z`;
+}
+
+/**
+ * I tre skyline. La viewBox è panoramica (1600×520) e si taglia ai lati, mai
+ * in cima. Più la cresta è vicina, più è bassa nel quadro e più larghe sono le
+ * sue forme: è la prospettiva a fare la profondità, prima ancora del colore.
+ */
+const PROFILI = [
+    // lontana — le cime alte dietro a tutto, appena velate
+    cresta([
+        [0, 196], [128, 132], [244, 184], [372, 78], [512, 158],
+        [648, 104], [790, 176], [936, 86], [1076, 166], [1216, 110],
+        [1354, 182], [1486, 124], [1600, 168],
+    ], 0.62),
+    // media — la dorsale vera, quella che porta il disegno
+    cresta([
+        [0, 262], [152, 202], [302, 256], [438, 140], [566, 228],
+        [706, 168], [852, 250], [1004, 154], [1152, 240], [1302, 186],
+        [1452, 252], [1600, 204],
+    ], 0.6),
+    // vicina — il crinale in primo piano, quello col bosco
+    cresta([
+        [0, 322], [186, 288], [346, 334], [508, 236], [668, 312],
+        [828, 252], [992, 328], [1152, 264], [1312, 322], [1466, 270],
+        [1600, 312],
+    ], 0.58),
+];
+
+/**
+ * Il bosco sul crinale vicino: non alberelli triangolari messi in fila, ma un
+ * profilo continuo di chiome tonde che segue la cresta. Da lontano un bosco è
+ * una linea frastagliata morbida, non una serie di frecce.
+ */
+function boscoPath(): string {
+    // La fascia boscata sta sotto il crinale, non sopra: sui monti veri gli
+    // abeti si fermano ben prima della cima.
+    const base = 372;
+    let d = `M0,${base}`;
+    let x = 0;
+    // gobbe di ampiezza e altezza variabili: la variazione è pseudo-casuale ma
+    // deterministica, così il disegno non "balla" fra un render e l'altro.
+    let i = 0;
+    while (x < 1600) {
+        const largo = 16 + ((i * 37) % 19);
+        const alto = 12 + ((i * 53) % 17);
+        const cima = base - 62 - alto - Math.sin(i / 5.5) * 16;
+        d += ` C ${x + largo * 0.25},${cima + 14} ${x + largo * 0.75},${cima} ${x + largo},${cima + 10}`;
+        d += ` C ${x + largo * 1.3},${cima + 22} ${x + largo * 1.6},${base - 46} ${x + largo * 2},${base - 40}`;
+        x += largo * 2;
+        i += 1;
+    }
+    return `${d} L1600,${base} L1600,520 L0,520 Z`;
+}
+const BOSCO = boscoPath();
 
 /** Una pennellata d'acqua che si ripete due volte per scorrere senza giunte. */
 function Onda({ colore, altezza, ritardo, durata, opacita }: {
     colore: string; altezza: number; ritardo: number; durata: number; opacita: number;
 }) {
-    const d = `M0,${altezza} C120,${altezza - 22} 260,${altezza + 18} 400,${altezza}
-               C540,${altezza - 20} 660,${altezza + 16} 800,${altezza}
-               C940,${altezza - 22} 1060,${altezza + 18} 1200,${altezza}
-               C1340,${altezza - 20} 1460,${altezza + 16} 1600,${altezza}
+    const d = `M0,${altezza} C120,${altezza - 20} 260,${altezza + 16} 400,${altezza}
+               C540,${altezza - 18} 660,${altezza + 14} 800,${altezza}
+               C940,${altezza - 20} 1060,${altezza + 16} 1200,${altezza}
+               C1340,${altezza - 18} 1460,${altezza + 14} 1600,${altezza}
                L1600,400 L0,400 Z`;
     return (
         <g style={{ animation: `onda ${durata}s linear ${ritardo}s infinite`, opacity: opacita }}>
@@ -47,25 +140,37 @@ function Onda({ colore, altezza, ritardo, durata, opacita }: {
     );
 }
 
-/** Una nuvola: gobbe morbide, bianca e appena trasparente, che deriva. */
-function Nuvola({ top, scala, durata, ritardo, opacita }: {
-    top: string; scala: number; durata: number; ritardo: number; opacita: number;
+/**
+ * Una nuvola: quattro cerchi bianchi sotto una sfocatura. La sfocatura sta sul
+ * contenitore, quindi il browser la calcola una volta sola e poi si limita a
+ * spostare il livello — la deriva resta gratis.
+ */
+function Nuvola({ top, scala, durata, ritardo, opacita, sfoca }: {
+    top: string; scala: number; durata: number; ritardo: number; opacita: number; sfoca: number;
 }) {
     return (
         <span
-            className="nuvola absolute left-0"
-            style={{ top, opacity: opacita, animation: `deriva ${durata}s linear ${ritardo}s infinite`, willChange: "transform" }}
+            className="nuvola absolute left-0 block"
+            style={{
+                top,
+                opacity: opacita,
+                animation: `deriva ${durata}s linear ${ritardo}s infinite`,
+                willChange: "transform",
+            }}
             aria-hidden="true"
         >
-            <span className="block" style={{ transform: `scale(${scala})`, transformOrigin: "left center" }}>
-                <svg width="210" height="80" viewBox="0 0 210 80" fill="none">
-                    <g fill="#FFFFFF">
-                        <ellipse cx="64" cy="50" rx="52" ry="27" />
-                        <ellipse cx="118" cy="42" rx="44" ry="33" />
-                        <ellipse cx="164" cy="52" rx="40" ry="25" />
-                        <rect x="46" y="50" width="130" height="25" rx="12" />
-                    </g>
-                </svg>
+            <span
+                className="relative block h-[90px] w-[260px]"
+                style={{
+                    transform: `scale(${scala})`,
+                    transformOrigin: "left center",
+                    filter: `blur(${sfoca}px)`,
+                }}
+            >
+                <span className="absolute left-[10px] top-[34px] h-[52px] w-[112px] rounded-full bg-white" />
+                <span className="absolute left-[52px] top-[10px] h-[74px] w-[104px] rounded-full bg-white" />
+                <span className="absolute left-[118px] top-[26px] h-[58px] w-[92px] rounded-full bg-white" />
+                <span className="absolute left-[36px] top-[52px] h-[34px] w-[176px] rounded-full bg-white" />
             </span>
         </span>
     );
@@ -76,7 +181,7 @@ function Uccello({ x, y, scala }: { x: number; y: number; scala: number }) {
     return (
         <path
             d={`M${x},${y} q${5 * scala},${-4 * scala} ${10 * scala},0 q${5 * scala},${-4 * scala} ${10 * scala},0`}
-            fill="none" stroke="#4A6472" strokeWidth={1.6} strokeLinecap="round" opacity={0.5}
+            fill="none" stroke="#54707F" strokeWidth={1.5} strokeLinecap="round" opacity={0.42}
         />
     );
 }
@@ -93,13 +198,24 @@ export function SfondoLario() {
     const nuvole = useRef<HTMLDivElement>(null);
     const sole = useRef<HTMLDivElement>(null);
     const uccelli = useRef<HTMLDivElement>(null);
+    const velo = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+        const ridotto = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
         let raf = 0;
         const applica = () => {
             raf = 0;
             const y = window.scrollY || 0;
+
+            // Il velo non dipende dal movimento ridotto: è una questione di
+            // leggibilità, non di effetto. Scendendo, il paesaggio arretra
+            // dietro al colore della pagina e smette di competere col testo.
+            if (velo.current) {
+                const q = Math.min(1, y / (window.innerHeight * 0.9));
+                velo.current.style.opacity = String(q * 0.62);
+            }
+            if (ridotto) return;
+
             if (lontano.current) lontano.current.style.transform = `translate3d(0, ${y * -0.03}px, 0)`;
             if (medio.current) medio.current.style.transform = `translate3d(0, ${y * -0.07}px, 0)`;
             if (vicino.current) vicino.current.style.transform = `translate3d(0, ${y * -0.12}px, 0)`;
@@ -117,14 +233,24 @@ export function SfondoLario() {
         <div
             className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
             aria-hidden="true"
-            style={{ background: `linear-gradient(180deg, ${CIELO[0]} 0%, ${CIELO[1]} 52%, ${CIELO[2]} 100%)` }}
+            style={{
+                background: `linear-gradient(180deg, ${CIELO.alto} 0%, ${CIELO.mezzo} 34%, ${CIELO.basso} 62%, ${CIELO.orizzonte} 100%)`,
+            }}
         >
-            {/* Il sole: un alone caldo, in alto a destra. */}
+            {/* Il sole: un alone caldo che respira, in alto a destra. */}
             <div
                 ref={sole}
-                className="absolute -top-[14vh] right-[7vw] h-[56vh] w-[56vh] rounded-full"
-                style={{ background: `radial-gradient(circle, ${SOLE} 0%, transparent 66%)`, willChange: "transform" }}
-            />
+                className="absolute -top-[18vh] right-[6vw] h-[64vh] w-[64vh] rounded-full"
+                style={{ willChange: "transform" }}
+            >
+                <span
+                    className="alone absolute inset-0 rounded-full"
+                    style={{
+                        background:
+                            "radial-gradient(circle, rgba(255,247,224,0.85) 0%, rgba(255,240,205,0.42) 34%, rgba(255,236,196,0) 68%)",
+                    }}
+                />
+            </div>
 
             {/* Gli uccelli. */}
             <div ref={uccelli} className="absolute inset-x-0 top-[12vh] h-[16vh]" style={{ willChange: "transform" }}>
@@ -135,86 +261,176 @@ export function SfondoLario() {
                 </svg>
             </div>
 
-            {/* Le nuvole, sopra le montagne. */}
-            <div ref={nuvole} className="absolute inset-x-0 top-0 h-[46vh] min-h-[240px]" style={{ willChange: "transform" }}>
-                <Nuvola top="7%"  scala={1.15} durata={95}  ritardo={0}   opacita={0.92} />
-                <Nuvola top="22%" scala={0.78} durata={135} ritardo={-30} opacita={0.68} />
-                <Nuvola top="14%" scala={1.45} durata={175} ritardo={-90} opacita={0.48} />
-                <Nuvola top="34%" scala={0.6}  durata={115} ritardo={-55} opacita={0.58} />
+            {/* Le nuvole. Quelle sfocate forte stanno lontane, le altre vicine. */}
+            <div ref={nuvole} className="absolute inset-x-0 top-0 h-[48vh] min-h-[260px]" style={{ willChange: "transform" }}>
+                <Nuvola top="6%"  scala={1.05} durata={104} ritardo={0}   opacita={0.78} sfoca={9} />
+                <Nuvola top="21%" scala={0.7}  durata={148} ritardo={-34} opacita={0.5}  sfoca={12} />
+                <Nuvola top="12%" scala={1.5}  durata={188} ritardo={-96} opacita={0.34} sfoca={18} />
+                <Nuvola top="33%" scala={0.55} durata={124} ritardo={-58} opacita={0.42} sfoca={8} />
             </div>
 
-            {/* --- Le tre creste. viewBox panoramica (1600×420, larga più che
-                alta) e slice: a schermo largo si taglia ai lati, mai le punte. --- */}
+            {/* --- Le tre creste. Ognuna sfuma nella foschia alla base: è così
+                che i piani si staccano senza una riga di taglio. --- */}
             <div ref={lontano} className="absolute inset-x-0 bottom-0 h-[80vh] min-h-[440px]" style={{ willChange: "transform" }}>
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax slice">
-                    <path fill={MONTE_LONTANO} opacity={0.7}
-                        d="M0,168 L150,96 L320,150 L520,70 L720,140 L940,84 L1160,146 L1380,96 L1600,138 L1600,420 L0,420 Z" />
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 520" preserveAspectRatio="xMidYMax slice">
+                    <defs>
+                        <linearGradient id="cresta-lontana" x1="0" y1="0.24" x2="0" y2="1">
+                            <stop offset="0%" stopColor={CRESTE[0].su} />
+                            <stop offset="46%" stopColor={CRESTE[0].su} />
+                            <stop offset="100%" stopColor={CRESTE[0].giu} />
+                        </linearGradient>
+                    </defs>
+                    <path d={PROFILI[0]} fill="url(#cresta-lontana)" opacity={CRESTE[0].opacita} />
                 </svg>
             </div>
+
             <div ref={medio} className="absolute inset-x-0 bottom-0 h-[72vh] min-h-[400px]" style={{ willChange: "transform" }}>
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax slice">
-                    <path fill={MONTE_MEDIO} opacity={0.92}
-                        d="M0,214 L210,120 L430,196 L650,92 L880,182 L1090,110 L1310,190 L1520,118 L1600,158 L1600,420 L0,420 Z" />
-                    {/* neve/luce sulle punte più alte */}
-                    <path fill="#EAF4FB" opacity={0.5}
-                        d="M650,92 L688,128 L612,128 Z M1090,110 L1124,142 L1056,142 Z" />
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 520" preserveAspectRatio="xMidYMax slice">
+                    <defs>
+                        <linearGradient id="cresta-media" x1="0" y1="0.3" x2="0" y2="1">
+                            <stop offset="0%" stopColor={CRESTE[1].su} />
+                            <stop offset="50%" stopColor={CRESTE[1].su} />
+                            <stop offset="100%" stopColor={CRESTE[1].giu} />
+                        </linearGradient>
+                        {/* la luce del sole prende il versante destro delle cime */}
+                        <linearGradient id="luce-media" x1="0" y1="0" x2="1" y2="0.4">
+                            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0" />
+                            <stop offset="72%" stopColor="#FFFFFF" stopOpacity="0.16" />
+                            <stop offset="100%" stopColor="#FFF6DC" stopOpacity="0.28" />
+                        </linearGradient>
+                    </defs>
+                    <path d={PROFILI[1]} fill="url(#cresta-media)" opacity={CRESTE[1].opacita} />
+                    <path d={PROFILI[1]} fill="url(#luce-media)" />
                 </svg>
             </div>
+
             <div ref={vicino} className="absolute inset-x-0 bottom-0 h-[64vh] min-h-[360px]" style={{ willChange: "transform" }}>
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax slice">
-                    <path fill={MONTE_VICINO}
-                        d="M0,280 L250,170 L470,250 L700,140 L940,244 L1160,164 L1380,248 L1560,186 L1600,214 L1600,420 L0,420 Z" />
-                    {/* pineta: una fila di abeti sul crinale in primo piano */}
-                    <g fill={PINETA}>
-                        <path d="M120,300 l10,-22 l10,22 Z M150,300 l12,-27 l12,27 Z M185,300 l9,-20 l9,20 Z
-                                 M330,296 l11,-24 l11,24 Z M362,296 l13,-29 l13,29 Z M398,296 l10,-22 l10,22 Z
-                                 M560,300 l10,-22 l10,22 Z M590,300 l12,-27 l12,27 Z M624,300 l9,-20 l9,20 Z
-                                 M800,296 l11,-24 l11,24 Z M832,296 l13,-29 l13,29 Z M868,296 l10,-22 l10,22 Z
-                                 M1030,300 l10,-22 l10,22 Z M1060,300 l12,-27 l12,27 Z M1094,300 l9,-20 l9,20 Z
-                                 M1270,298 l11,-24 l11,24 Z M1302,298 l13,-29 l13,29 Z M1338,298 l10,-22 l10,22 Z
-                                 M1470,300 l12,-26 l12,26 Z M1504,300 l10,-22 l10,22 Z" opacity={0.9} />
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 520" preserveAspectRatio="xMidYMax slice">
+                    <defs>
+                        <linearGradient id="cresta-vicina" x1="0" y1="0.36" x2="0" y2="1">
+                            <stop offset="0%" stopColor={CRESTE[2].su} />
+                            <stop offset="54%" stopColor={CRESTE[2].su} />
+                            <stop offset="100%" stopColor={CRESTE[2].giu} />
+                        </linearGradient>
+                        <linearGradient id="bosco-sfuma" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#2E6449" stopOpacity="0.85" />
+                            <stop offset="100%" stopColor="#6FA0A8" stopOpacity="0" />
+                        </linearGradient>
+                        {/* maschera: il bosco esiste solo dentro la sagoma del monte */}
+                        <clipPath id="dentro-cresta">
+                            <path d={PROFILI[2]} />
+                        </clipPath>
+                    </defs>
+                    <path d={PROFILI[2]} fill="url(#cresta-vicina)" opacity={CRESTE[2].opacita} />
+                    <g clipPath="url(#dentro-cresta)">
+                        <path d={BOSCO} fill="url(#bosco-sfuma)" />
                     </g>
                 </svg>
             </div>
 
-            {/* La foschia alla base dei monti. */}
+            {/* La foschia alla base dei monti: un respiro chiaro, senza bordo.
+                Sta bassa e finisce dov'è la riva, così vela i piedi delle
+                creste e non le cime. */}
             <div
-                className="absolute inset-x-0 bottom-[24vh] h-[20vh] min-h-[110px]"
-                style={{ background: `linear-gradient(180deg, transparent 0%, ${FOSCHIA} 66%, ${FOSCHIA} 100%)`, opacity: 0.8 }}
+                className="absolute inset-x-0 bottom-[20vh] h-[18vh] min-h-[100px]"
+                style={{
+                    background: `linear-gradient(180deg, rgba(222,237,244,0) 0%, ${FOSCHIA}C4 52%, ${FOSCHIA}F2 100%)`,
+                }}
             />
 
-            {/* L'acqua: riflesso dei monti + onde + banda di luce. */}
-            <div className="absolute inset-x-0 bottom-0 h-[28vh] min-h-[170px]">
+            {/* L'acqua: riflesso dei monti + onde + banda di luce. La riva non
+                è un bordo ma una dissolvenza: il primo quinto della lastra è
+                trasparente e raccoglie la foschia. */}
+            <div className="absolute inset-x-0 bottom-0 h-[26vh] min-h-[160px]">
                 <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1600 400" preserveAspectRatio="xMidYMax slice">
-                    <rect x="0" y="120" width="1600" height="280" fill={ACQUA[0]} opacity={0.45} />
-                    {/* riflesso capovolto e sfumato del profilo dei monti */}
-                    <path fill={MONTE_VICINO} opacity={0.14}
-                        d="M0,120 L250,175 L470,140 L700,190 L940,142 L1160,182 L1380,142 L1600,168 L1600,120 Z" />
-                    <Onda colore={ACQUA[0]} altezza={210} ritardo={0} durata={46} opacita={0.8} />
-                    <Onda colore={ACQUA[1]} altezza={270} ritardo={-14} durata={34} opacita={0.85} />
-                    <Onda colore={ACQUA[2]} altezza={340} ritardo={-7} durata={26} opacita={0.95} />
+                    <defs>
+                        <linearGradient id="acqua-fondo" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={FOSCHIA} stopOpacity="0" />
+                            <stop offset="14%" stopColor="#D2E7F0" stopOpacity="0.85" />
+                            <stop offset="30%" stopColor="#B7D6E7" />
+                            <stop offset="64%" stopColor="#7FB1D0" />
+                            <stop offset="100%" stopColor="#4E8FB6" />
+                        </linearGradient>
+                        <linearGradient id="onda-alta" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#9CC4DC" stopOpacity="0.55" />
+                            <stop offset="100%" stopColor="#7FB1D0" stopOpacity="0.9" />
+                        </linearGradient>
+                        <linearGradient id="onda-media" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#6BA5C9" stopOpacity="0.7" />
+                            <stop offset="100%" stopColor="#4E8FB6" stopOpacity="0.95" />
+                        </linearGradient>
+                        <linearGradient id="onda-bassa" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#3F81AB" stopOpacity="0.9" />
+                            <stop offset="100%" stopColor="#31719B" />
+                        </linearGradient>
+                        {/* il riflesso è sfocato: l'acqua non restituisce contorni */}
+                        <filter id="sfoca-riflesso" x="-10%" y="-10%" width="120%" height="140%">
+                            <feGaussianBlur stdDeviation="7" />
+                        </filter>
+                    </defs>
+
+                    <rect x="0" y="0" width="1600" height="400" fill="url(#acqua-fondo)" />
+
+                    {/* riflesso capovolto del profilo vicino, subito sotto la riva */}
+                    <g filter="url(#sfoca-riflesso)" opacity={0.2} transform="translate(0,74)">
+                        <path fill="#2F6F4E"
+                            d="M0,0 C 136,14 218,66 342,56 C 466,46 532,106 654,104
+                               C 776,102 830,44 950,44 C 1062,44 1132,96 1252,88
+                               C 1364,80 1448,38 1600,50 L1600,0 Z" />
+                    </g>
+
+                    <Onda colore="url(#onda-alta)" altezza={190} ritardo={0} durata={46} opacita={0.75} />
+                    <Onda colore="url(#onda-media)" altezza={262} ritardo={-14} durata={34} opacita={0.85} />
+                    <Onda colore="url(#onda-bassa)" altezza={334} ritardo={-7} durata={26} opacita={0.95} />
                 </svg>
+
                 <div
-                    className="riflesso absolute inset-x-0 top-[24%] h-[7vh]"
-                    style={{ background: "linear-gradient(180deg, transparent, rgba(255,255,255,0.4), transparent)" }}
+                    className="riflesso absolute inset-x-0 top-[20%] h-[8vh]"
+                    style={{ background: "linear-gradient(180deg, transparent, rgba(255,255,255,0.42), transparent)" }}
                 />
             </div>
 
-            {/* Grana di stampa: toglie le bande ai gradienti. */}
+            {/* Il velo che sale con lo scroll: il paesaggio arretra e lascia
+                il palco al contenuto. L'opacità la scrive il rAF. */}
+            <div
+                ref={velo}
+                className="absolute inset-0"
+                style={{
+                    opacity: 0,
+                    background: `linear-gradient(180deg, ${FOSCHIA}00 0%, var(--pece) 34%, var(--pece) 100%)`,
+                    transition: "opacity 120ms linear",
+                    willChange: "opacity",
+                }}
+            />
+
+            {/* Vignettatura appena accennata: tiene lo sguardo al centro. */}
             <span
                 className="absolute inset-0"
-                style={{ opacity: 0.45, backgroundImage: "repeating-linear-gradient(0deg, rgba(120,120,120,0.05) 0 1px, transparent 1px 3px)" }}
+                style={{ background: "radial-gradient(120% 90% at 50% 34%, transparent 52%, rgba(11,34,51,0.09) 100%)" }}
+            />
+
+            {/* Grana: pulviscolo finissimo, toglie le bande ai gradienti. */}
+            <span
+                className="absolute inset-0 mix-blend-multiply"
+                style={{
+                    opacity: 0.22,
+                    backgroundImage:
+                        "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
+                }}
             />
 
             <style jsx global>{`
                 @keyframes onda { from { transform: translateX(0); } to { transform: translateX(-1600px); } }
-                @keyframes deriva { from { transform: translateX(-250px); } to { transform: translateX(calc(100vw + 250px)); } }
-                @keyframes respiro-luce { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.65; } }
-                .riflesso { animation: respiro-luce 9s ease-in-out infinite; }
+                @keyframes deriva { from { transform: translateX(-320px); } to { transform: translateX(calc(100vw + 320px)); } }
+                @keyframes respiro-luce { 0%, 100% { opacity: 0.28; } 50% { opacity: 0.6; } }
+                @keyframes respiro-sole { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.06); opacity: 1; } }
+                .riflesso { animation: respiro-luce 11s ease-in-out infinite; }
+                .alone { animation: respiro-sole 16s ease-in-out infinite; }
                 @media (prefers-reduced-motion: reduce) {
                     @keyframes onda { from, to { transform: translateX(0); } }
                     .nuvola { animation: none !important; }
                     .riflesso { animation: none !important; }
+                    .alone { animation: none !important; }
                 }
             `}</style>
         </div>

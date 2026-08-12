@@ -252,7 +252,7 @@ function ScoutHubContent() {
         </div>
 
         {seasonUnavailable ? (
-          <div className="surface rounded-none p-12 flex flex-col items-center justify-center gap-4 text-center">
+          <div className="surface rounded-[var(--ro-m)] p-12 flex flex-col items-center justify-center gap-4 text-center">
             <AlertTriangle className="w-10 h-10 text-[color:var(--fumo)]" />
             <p className="text-[color:var(--calce)]/80 text-sm font-black uppercase tracking-widest">Calendario non ancora disponibile</p>
             <p className="text-[color:var(--fumo)] text-xs max-w-md leading-relaxed">Lega Serie A non ha ancora pubblicato il calendario della stagione {seasonLabel}. Torna a controllare più avanti.</p>
@@ -266,7 +266,7 @@ function ScoutHubContent() {
             <p className="text-[color:var(--fumo)] text-[11px] font-black uppercase tracking-[0.28em]">Cerco la giornata in corso…</p>
           </div>
         ) : selectedRound === null ? (
-          <div className="surface rounded-none p-12 flex flex-col items-center justify-center gap-4 text-center">
+          <div className="surface rounded-[var(--ro-m)] p-12 flex flex-col items-center justify-center gap-4 text-center">
             <AlertTriangle className="w-10 h-10 text-[color:var(--fumo)]" />
             <p className="text-[color:var(--calce)]/80 text-sm font-black uppercase tracking-widest">Dati non disponibili</p>
             <p className="text-[color:var(--fumo)] text-xs max-w-md leading-relaxed break-all">{matchError || 'Lega Serie A non ha risposto. Riprova più tardi.'}</p>
@@ -281,7 +281,7 @@ function ScoutHubContent() {
                     onClick={() => selectedRound > 1 && handleRoundChange(selectedRound - 1)}
                     disabled={selectedRound <= 1}
                     aria-label="Giornata precedente"
-                    className="shrink-0 w-9 h-9 rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] flex items-center justify-center
+                    className="shrink-0 w-9 h-9 rounded-full border border-[color:var(--filo)] bg-[color:var(--velo)] flex items-center justify-center
                                text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-[color:var(--velo-alto)] disabled:opacity-25 disabled:pointer-events-none transition-all"
                   >
                     <ChevronLeft className="w-4 h-4" />
@@ -291,7 +291,7 @@ function ScoutHubContent() {
                     {Array.from({ length: TOTAL_ROUNDS }, (_, i) => i + 1).map(r => (
                       <button key={r} onClick={() => handleRoundChange(r)}
                         aria-current={selectedRound === r ? 'true' : undefined}
-                        className={`px-4 py-2 rounded-none shrink-0 font-black text-xs tabular-nums border transition-all duration-300
+                        className={`px-4 py-2 rounded-[var(--ro-s)] shrink-0 font-black text-xs tabular-nums border transition-all duration-300
                           ${selectedRound === r
                             ? 'active-round-btn border-[color:var(--calce)] bg-[color:var(--calce)] text-[color:var(--pece)]'
                             : 'border-[color:var(--filo)] bg-[color:var(--velo)] text-[color:var(--fumo)] hover:text-[color:var(--calce)] hover:border-[color:var(--filo-alto)] hover:bg-[color:var(--velo-alto)]'}`}>
@@ -304,7 +304,7 @@ function ScoutHubContent() {
                     onClick={() => selectedRound < TOTAL_ROUNDS && handleRoundChange(selectedRound + 1)}
                     disabled={selectedRound >= TOTAL_ROUNDS}
                     aria-label="Giornata successiva"
-                    className="shrink-0 w-9 h-9 rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] flex items-center justify-center
+                    className="shrink-0 w-9 h-9 rounded-full border border-[color:var(--filo)] bg-[color:var(--velo)] flex items-center justify-center
                                text-[color:var(--calce)]/80 hover:text-[color:var(--calce)] hover:bg-[color:var(--velo-alto)] disabled:opacity-25 disabled:pointer-events-none transition-all"
                   >
                     <ChevronRight className="w-4 h-4" />
@@ -321,20 +321,20 @@ function ScoutHubContent() {
                 {loadingMatches ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="h-[92px] rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] overflow-hidden relative">
+                      <div key={i} className="h-[92px] rounded-[var(--ro-m)] border border-[color:var(--filo)] bg-[color:var(--velo)] overflow-hidden relative">
                         <div className="absolute inset-0 animate-shimmer bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)] bg-[length:200%_100%]" />
                       </div>
                     ))}
                   </div>
                 ) : matchError ? (
-                  <div className="rounded-none border border-red-500/30 bg-red-500/[0.08] p-6">
+                  <div className="rounded-[var(--ro-m)] border border-red-500/30 bg-red-500/[0.08] p-6">
                     <div className="flex items-center gap-2 text-red-600 font-black mb-2 text-xs uppercase tracking-widest">
                       <AlertTriangle className="w-4 h-4" /> Errore caricamento
                     </div>
                     <p className="text-[color:var(--fumo)] text-xs font-mono break-all">{matchError}</p>
                   </div>
                 ) : matches.length === 0 ? (
-                  <div className="surface rounded-none p-10 text-center">
+                  <div className="surface rounded-[var(--ro-m)] p-10 text-center">
                     <p className="text-[color:var(--fumo)] text-xs font-black uppercase tracking-[0.2em]">Nessuna partita per questa giornata</p>
                   </div>
                 ) : (
@@ -355,12 +355,13 @@ function ScoutHubContent() {
                         <button
                           key={m.matchId || m.id || idx}
                           onClick={() => openMatch(m)}
-                          className="group scatto relative text-left border-2 overflow-hidden bg-[color:var(--fondale)]"
+                          className="group scatto relative text-left rounded-[var(--ro-m)] border overflow-hidden bg-[color:var(--fondale)]
+                                     shadow-[0_1px_2px_rgba(11,34,51,0.05),0_10px_24px_-16px_rgba(11,34,51,0.3)]"
                           style={{ borderColor: 'var(--filo)' }}
                         >
                           <div className="relative px-4 py-3.5 overflow-hidden">
-                            <span className="absolute left-0 top-0 h-[3px] w-1/2 rounded-tl-[calc(1.5rem-1px)]" style={{ backgroundColor: cardColors.home }} />
-                            <span className="absolute right-0 top-0 h-[3px] w-1/2 rounded-tr-[calc(1.5rem-1px)]" style={{ backgroundColor: cardColors.away }} />
+                            <span className="absolute left-0 top-0 h-[3px] w-1/2 rounded-tl-[var(--ro-m)]" style={{ backgroundColor: cardColors.home }} />
+                            <span className="absolute right-0 top-0 h-[3px] w-1/2 rounded-tr-[var(--ro-m)]" style={{ backgroundColor: cardColors.away }} />
                             <span
                               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                               style={{
@@ -426,7 +427,7 @@ function ScoutHubContent() {
             {/* ===== CLASSIFICA ===== */}
             {activeTab === 'classifica' && (
               <div className="space-y-4">
-                <div className="surface rounded-none p-3 md:p-5 overflow-x-auto custom-scrollbar">
+                <div className="surface rounded-[var(--ro-m)] p-3 md:p-5 overflow-x-auto custom-scrollbar">
                   <div className="min-w-[620px]">
                     <div className="grid grid-cols-12 items-center py-2.5 px-3 text-[9px] font-black uppercase text-[color:var(--fumo)] border-b border-[color:var(--filo)] tracking-[0.16em]">
                       <span className="col-span-1 text-center">#</span>
@@ -456,7 +457,7 @@ function ScoutHubContent() {
                         <div
                           key={t.id}
                           className="relative grid grid-cols-12 items-center py-2.5 px-3 border-b border-[color:var(--filo)] last:border-0
-                                     hover:bg-[color:var(--velo)] rounded-none transition-colors group"
+                                     hover:bg-[color:var(--velo)] rounded-[var(--ro-s)] transition-colors group"
                         >
                           <span className={`absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full ${zone}`} />
 

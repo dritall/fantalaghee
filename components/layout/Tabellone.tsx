@@ -41,7 +41,8 @@ function Colonna({
     return (
         <div
             className={cn(
-                "relative flex flex-col gap-3 overflow-hidden border-2 border-[color:var(--filo)] p-4",
+                "relative flex flex-col gap-3 overflow-hidden rounded-[var(--ro-m)] border border-[color:var(--filo)] p-4",
+                "shadow-[0_1px_2px_rgba(11,34,51,0.05),0_10px_26px_-14px_rgba(11,34,51,0.3)]",
                 sfondo ? "bg-[#071A24]" : "bg-[color:var(--fondale)]"
             )}
         >

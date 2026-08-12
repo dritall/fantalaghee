@@ -52,7 +52,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                         {isActive && (
                             <motion.span
                                 layoutId="navbar-indicator"
-                                className="absolute inset-0 bg-[color:var(--velo-alto)] border-2 border-[color:var(--filo-alto)]"
+                                className="absolute inset-0 rounded-full bg-[color:var(--velo-alto)] border border-[color:var(--filo-alto)]"
                                 initial={false}
                                 transition={{ type: "spring", stiffness: 500, damping: 34 }}
                             />
@@ -124,8 +124,8 @@ export function Navbar() {
             className={cn(
                 "fixed top-0 w-full z-50 transition-all duration-300",
                 scrolled
-                    ? "bg-[color:var(--fondale)]/95 backdrop-blur-xl border-b-2 border-[color:var(--calce)]/30 shadow-[0_6px_24px_var(--ombra)]"
-                    : "bg-[color:var(--fondale)]/85 backdrop-blur-xl border-b-2 border-[color:var(--filo-alto)]"
+                    ? "bg-[color:var(--fondale)]/95 backdrop-blur-xl border-b border-[color:var(--filo-alto)] shadow-[0_6px_24px_var(--ombra)]"
+                    : "bg-[color:var(--fondale)]/85 backdrop-blur-xl border-b border-[color:var(--filo)]"
             )}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -162,7 +162,7 @@ export function Navbar() {
                     </SeasonLink>
 
                     {/* ============ MENU DESKTOP ============ */}
-                    <div className="hidden lg:flex items-center gap-0.5 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)]/70 p-1 backdrop-blur-sm">
+                    <div className="hidden lg:flex items-center gap-0.5 rounded-full border border-[color:var(--filo)] bg-[color:var(--fondale)]/70 p-1 backdrop-blur-sm">
                         <NavLinks />
                     </div>
 
@@ -171,7 +171,7 @@ export function Navbar() {
                         <a
                             href={REGOLAMENTO_PDF_URL}
                             download
-                            className="group hidden md:inline-flex items-center gap-2 border-2 border-[color:var(--calce)]/30 bg-[color:var(--fondale)]/70 px-3 py-1.5
+                            className="group hidden md:inline-flex items-center gap-2 rounded-full border border-[color:var(--calce)]/25 bg-[color:var(--fondale)]/70 px-3.5 py-1.5
                                        text-[11px] font-black uppercase tracking-[0.1em] text-[color:var(--calce)]/85 backdrop-blur-md transition-all duration-200
                                        hover:bg-[color:var(--calce)] hover:text-[color:var(--pece)] hover:border-[color:var(--calce)]"
                             title="Scarica il regolamento in PDF"
@@ -187,7 +187,7 @@ export function Navbar() {
 
                         <button
                             onClick={() => setIsOpen((v) => !v)}
-                            className="lg:hidden p-2 border-2 border-[color:var(--filo)] text-[color:var(--calce)]/80 hover:text-[color:var(--pece)] hover:bg-[color:var(--calce)] hover:border-[color:var(--calce)] transition-colors"
+                            className="lg:hidden p-2 rounded-[var(--ro-s)] border border-[color:var(--filo)] text-[color:var(--calce)]/80 hover:text-[color:var(--pece)] hover:bg-[color:var(--calce)] hover:border-[color:var(--calce)] transition-colors"
                             aria-label={isOpen ? "Chiudi il menu" : "Apri il menu"}
                             aria-expanded={isOpen}
                         >
