@@ -40,8 +40,8 @@ export function IscrivitiFab() {
             rel="noopener noreferrer"
             aria-label="Iscriviti alla Lega"
             className={cn(
-                "group scatto scatto-lario fixed bottom-5 right-5 z-[60] flex items-center gap-2 px-4 h-[50px]",
-                "border-2 border-[color:var(--pece)] bg-[color:var(--vermiglio)]",
+                "group scatto scatto-lario fixed bottom-5 right-5 z-[60] flex items-center gap-2 px-5 h-[50px] rounded-full",
+                "border border-[color:var(--pece)]/70 bg-[color:var(--vermiglio)] shadow-[0_10px_28px_-10px_rgba(11,34,51,0.6)]",
                 "text-[color:var(--calce)] font-black uppercase tracking-[0.16em] text-[11px]",
                 "transition-all duration-300 ease-out",
                 hidden && "translate-y-24 opacity-0 pointer-events-none"

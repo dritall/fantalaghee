@@ -74,6 +74,18 @@ export function RivelaOsservatore() {
         let raf2 = 0;
         const raf1 = requestAnimationFrame(() => { raf2 = requestAnimationFrame(aggancia); });
         const t1 = window.setTimeout(aggancia, 250);
+
+        // I blocchi che dipendono da una fetch (l'ultima Gazzetta in home, il
+        // tabellone) compaiono nel DOM molto dopo di noi: se l'API è lenta
+        // arrivano quando abbiamo già finito il giro, e restavano invisibili
+        // occupando il loro spazio — un buco in mezzo alla pagina. Restiamo
+        // in ascolto sul DOM e li agganciamo appena nascono.
+        let rafMut = 0;
+        const mutazioni = new MutationObserver(() => {
+            if (rafMut) return;
+            rafMut = requestAnimationFrame(() => { rafMut = 0; aggancia(); });
+        });
+        mutazioni.observe(document.body, { childList: true, subtree: true });
         // Rete di sicurezza: qualunque cosa sia ancora nascosta dopo 1.6s si
         // mostra comunque. Chi scrolla prima vede l'animazione (l'observer
         // scatta subito); il resto non resta mai bloccato.
@@ -86,8 +98,10 @@ export function RivelaOsservatore() {
         return () => {
             cancelAnimationFrame(raf1);
             if (raf2) cancelAnimationFrame(raf2);
+            if (rafMut) cancelAnimationFrame(rafMut);
             window.clearTimeout(t1);
             window.clearTimeout(t2);
+            mutazioni.disconnect();
             osservatore.disconnect();
         };
     }, [pathname]);

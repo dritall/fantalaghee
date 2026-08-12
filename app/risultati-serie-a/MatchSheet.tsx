@@ -163,7 +163,7 @@ function MomentumChart({
                 </span>
             </div>
 
-            <div className="rounded-none border border-[color:var(--filo)] bg-[color:var(--fondale)] p-3">
+            <div className="rounded-[var(--ro-s)] border border-[color:var(--filo)] bg-[color:var(--fondale)] p-3">
                 <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="none" role="img"
                      aria-label={`Andamento della pressione: ${homeName} sopra, ${awayName} sotto`}>
                     <defs>
@@ -500,7 +500,7 @@ function TeamStats({
     return (
         <div className="space-y-4 py-2">
             {/* chi è chi: senza questa riga le barre colorate sono un indovinello */}
-            <div className="sticky top-0 z-10 -mx-1 mb-1 flex items-center justify-between gap-3 rounded-none bg-[color:var(--fondale)]/95 px-3 py-2 backdrop-blur">
+            <div className="sticky top-0 z-10 -mx-1 mb-1 flex items-center justify-between gap-3 rounded-[var(--ro-s)] bg-[color:var(--fondale)]/95 px-3 py-2 backdrop-blur">
                 <span className="flex min-w-0 items-center gap-2">
                     <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors.home }} />
                     <span className="truncate text-[10px] font-black uppercase tracking-wider" style={{ color: colors.home }}>
@@ -659,7 +659,7 @@ export function MatchSheet({
                     className="fixed z-[101] inset-x-0 bottom-0 md:inset-0 md:m-auto
                                h-[92vh] md:h-fit md:max-h-[88vh] w-full md:max-w-3xl
                                flex flex-col overflow-hidden
-                               rounded-t-[2rem] md:rounded-none border border-[color:var(--filo)] bg-[color:var(--fondale)] text-[color:var(--calce)]
+                               rounded-t-[var(--ro-l)] md:rounded-[var(--ro-l)] border border-[color:var(--filo)] bg-[color:var(--fondale)] text-[color:var(--calce)]
                                shadow-[0_-24px_70px_rgba(0,0,0,0.7)] md:shadow-[0_40px_100px_rgba(0,0,0,0.75)]
                                focus:outline-none"
                     aria-describedby={undefined}

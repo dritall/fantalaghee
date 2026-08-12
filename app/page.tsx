@@ -62,7 +62,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
           data-rivela
-          className="glass scatto group relative block overflow-hidden rounded-[1.6rem] px-6 py-7 md:px-12 md:py-12 mt-1"
+          className="glass scatto group relative block overflow-hidden px-6 py-7 md:px-12 md:py-12 mt-1"
         >
           {/* il filetto arancio a sinistra: l'accento del marchio */}
           <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-[color:var(--vermiglio)]" />
@@ -109,13 +109,19 @@ export default function Home() {
 
             <SeasonLink
               href={`/gazzetta/${latestArticle.id}`}
-              className="group scatto relative block overflow-hidden border-2 border-[color:var(--calce)] bg-[color:var(--pece)]"
+              className="group scatto scatto-lario relative block overflow-hidden rounded-[var(--ro-l)]
+                         border border-[color:var(--filo)] bg-[color:var(--pece)]
+                         shadow-[0_1px_2px_rgba(11,34,51,0.05),0_14px_34px_-18px_rgba(11,34,51,0.4)]"
             >
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
                 style={{ backgroundImage: `url(${latestArticle.imageUrl})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--pece)] via-[color:var(--pece)]/92 to-[color:var(--pece)]/45" />
+              {/* due veli incrociati: quello verticale regge il titolo, quello
+                  orizzontale tiene pulito il lato da cui si legge. Con una
+                  copertina qualsiasi il testo deve restare leggibile. */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--pece)] via-[color:var(--pece)]/94 to-[color:var(--pece)]/50" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--pece)]/85 via-[color:var(--pece)]/25 to-transparent" />
               <div className="relative z-10 flex min-h-[230px] md:min-h-[300px] flex-col justify-end p-6 md:p-9">
                 <span className="timbro w-fit bg-[color:var(--vermiglio)] text-[color:var(--su-chiaro)]">
                   <Newspaper className="w-3 h-3" />
@@ -152,9 +158,9 @@ export default function Home() {
           href={REGOLAMENTO_PDF_URL}
           download
           data-rivela
-          className="group scatto flex items-center gap-4 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] px-5 py-4"
+          className="scheda group scatto flex items-center gap-4 px-5 py-4"
         >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-[color:var(--calce)]/25 bg-[color:var(--secca)]">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--ro-s)] bg-[color:var(--secca)]">
             <Download className="h-5 w-5 text-[color:var(--calce)] transition-transform duration-300 group-hover:translate-y-0.5" />
           </span>
           <span className="min-w-0 flex-1">

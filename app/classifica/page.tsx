@@ -174,7 +174,7 @@ function ClassificaContent() {
 
                 {/* ===== TELEFONO: card per squadra ===== */}
                 <div className="sm:hidden">
-                    <div className="flex gap-1 mb-4 p-1 border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] w-fit">
+                    <div className="flex gap-1 mb-4 p-1 rounded-full border border-[color:var(--filo)] bg-[color:var(--fondale)] w-fit">
                         {([
                             { key: "totale" as const, label: "Totale", icon: Trophy },
                             { key: "giornata" as const, label: colonnaGiornata, icon: CalendarDays },
@@ -189,7 +189,7 @@ function ClassificaContent() {
                                 )}
                             >
                                 {mobileView === v.key && (
-                                    <span className="absolute inset-0 bg-[color:var(--calce)]" />
+                                    <span className="absolute inset-0 rounded-full bg-[color:var(--calce)]" />
                                 )}
                                 <v.icon className="relative w-3.5 h-3.5" />
                                 <span className="relative">{v.label}</span>
@@ -206,7 +206,8 @@ function ClassificaContent() {
                                     className={cn(
                                         // fondo pieno e sfocatura: sotto c'è la foto dello stadio,
                                         // con una card troppo trasparente i numeri si perdono
-                                        "relative flex items-center gap-3 p-3.5 border-2 transition-colors",
+                                        "relative flex items-center gap-3 p-3.5 rounded-[var(--ro-m)] border transition-colors",
+                                        "shadow-[0_1px_2px_rgba(11,34,51,0.05),0_8px_20px_-14px_rgba(11,34,51,0.3)]",
                                         "bg-[color:var(--fondale)]",
                                         index === 0
                                             ? "border-[color:var(--vermiglio)]"
@@ -217,12 +218,12 @@ function ClassificaContent() {
                                 >
                                     <span
                                         className={cn(
-                                            "numerone w-9 h-9 shrink-0 flex items-center justify-center text-sm",
+                                            "numerone w-9 h-9 shrink-0 flex items-center justify-center text-sm rounded-[var(--ro-s)]",
                                             index === 0
                                                 ? "bg-[color:var(--vermiglio)] text-[color:var(--su-colore)]"
                                                 : index < 3
                                                   ? "bg-[color:var(--calce)] text-[color:var(--pece)]"
-                                                  : "border-2 border-[color:var(--filo)] text-[color:var(--fumo)]"
+                                                  : "border border-[color:var(--filo)] text-[color:var(--fumo)]"
                                         )}
                                     >
                                         {mobileView === "totale" ? team.rank : index + 1}
@@ -245,7 +246,8 @@ function ClassificaContent() {
                 </div>
 
                 {/* ===== DESKTOP: tabella con tutte le giornate ===== */}
-                <div className="hidden sm:flex flex-1 w-full flex-col border-2 border-[color:var(--filo)] bg-[color:var(--fondale)] overflow-hidden">
+                <div className="hidden sm:flex flex-1 w-full flex-col rounded-[var(--ro-m)] border border-[color:var(--filo)] bg-[color:var(--fondale)] overflow-hidden
+                                shadow-[0_1px_2px_rgba(11,34,51,0.05),0_10px_26px_-14px_rgba(11,34,51,0.3)]">
                     <div ref={tabellaRef} className="overflow-auto w-full max-h-[76vh] custom-scrollbar">
                         <table className="w-full text-left text-sm whitespace-nowrap border-collapse">
                             <thead className="sticky top-0 z-40">

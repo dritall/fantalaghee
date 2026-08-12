@@ -79,7 +79,7 @@ function StatGroup({ title, stats, source }: { title: string; stats: StatDef[]; 
     return (
         <div>
             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)] mb-2">{title}</h4>
-            <dl className="rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] overflow-hidden">
+            <dl className="rounded-[var(--ro-m)] border border-[color:var(--filo)] bg-[color:var(--velo)] overflow-hidden">
                 {rows.map((r) => (
                     <div
                         key={r.label}
@@ -96,7 +96,7 @@ function StatGroup({ title, stats, source }: { title: string; stats: StatDef[]; 
 
 function HeroStat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
     return (
-        <div className="flex-1 rounded-none border border-[color:var(--filo)] bg-[color:var(--velo)] py-2.5 text-center">
+        <div className="flex-1 rounded-[var(--ro-s)] border border-[color:var(--filo)] bg-[color:var(--velo)] py-2.5 text-center">
             <span
                 className={cn(
                     "block font-score text-2xl font-bold tabular-nums leading-none",
@@ -176,7 +176,7 @@ export function PlayerSheet({
                     aria-describedby={undefined}
                     className="fixed z-[121] inset-x-0 bottom-0 md:inset-0 md:m-auto
                                    w-full md:w-[420px] h-fit max-h-[88vh] md:max-h-[80vh] flex flex-col
-                                   rounded-t-[2rem] md:rounded-none border border-[color:var(--filo)] bg-[color:var(--fondale)]
+                                   rounded-t-[var(--ro-l)] md:rounded-[var(--ro-l)] border border-[color:var(--filo)] bg-[color:var(--fondale)]
                                    shadow-[0_-20px_60px_var(--ombra)] md:shadow-[0_30px_80px_var(--ombra)]
                                    overflow-hidden animate-fade-up focus:outline-none"
                 >
@@ -196,12 +196,12 @@ export function PlayerSheet({
                                     src={player.photo}
                                     alt=""
                                     onError={() => setPhotoFailed(true)}
-                                    className="relative w-16 h-16 rounded-none object-cover object-top border-2 bg-[color:var(--secca)] shrink-0"
+                                    className="relative w-16 h-16 rounded-[var(--ro-s)] object-cover object-top border-2 bg-[color:var(--secca)] shrink-0"
                                     style={{ borderColor: accent }}
                                 />
                             ) : (
                                 <span
-                                    className="relative w-16 h-16 rounded-none border-2 bg-[color:var(--secca)] shrink-0 flex items-center justify-center"
+                                    className="relative w-16 h-16 rounded-[var(--ro-s)] border-2 bg-[color:var(--secca)] shrink-0 flex items-center justify-center"
                                     style={{ borderColor: accent }}
                                 >
                                     <span className="text-xl font-black text-[color:var(--calce)]/80 tabular-nums">
@@ -244,22 +244,22 @@ export function PlayerSheet({
                             {(player.subbedIn || player.subbedOut || player.yellow || player.red) && (
                                 <div className="flex flex-wrap gap-1.5">
                                     {player.subbedIn && (
-                                        <span className="rounded-none bg-emerald-500/12 border border-emerald-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
+                                        <span className="rounded-full bg-emerald-500/12 border border-emerald-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
                                             Entrato {player.subbedIn}&apos;
                                         </span>
                                     )}
                                     {player.subbedOut && (
-                                        <span className="rounded-none bg-red-500/12 border border-red-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-600">
+                                        <span className="rounded-full bg-red-500/12 border border-red-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-600">
                                             Uscito {player.subbedOut}&apos;
                                         </span>
                                     )}
                                     {player.yellow && (
-                                        <span className="rounded-none bg-yellow-400/15 border border-yellow-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-yellow-700">
+                                        <span className="rounded-full bg-yellow-400/15 border border-yellow-500/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-yellow-700">
                                             Ammonito
                                         </span>
                                     )}
                                     {player.red && (
-                                        <span className="rounded-none bg-red-500/15 border border-red-500/35 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-600">
+                                        <span className="rounded-full bg-red-500/15 border border-red-500/35 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-red-600">
                                             Espulso
                                         </span>
                                     )}
