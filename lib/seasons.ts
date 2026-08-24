@@ -34,8 +34,14 @@ export const ARCHIVED_SEASON = '2526';
 /** Data a partire dalla quale un articolo della Gazzetta è considerato della nuova stagione */
 export const NEW_SEASON_ARTICLES_FROM = '2026-08-01';
 
-/** Link al form di iscrizione per la nuova stagione */
-export const ISCRIZIONE_FORM_URL = 'https://forms.gle/Jmj5wdFUUjcJcxKt6';
+/**
+ * Squadre iscritte alla stagione in corso.
+ *
+ * Le iscrizioni sono chiuse e il campionato è partito: questo numero non è più
+ * una stima, ed è quello da cui dipendono la struttura delle coppe e gli
+ * importi dei premi. La stagione scorsa erano 50 (vedi `premi-riferimento`).
+ */
+export const SQUADRE_ISCRITTE = 40;
 
 /** PDF del regolamento in vigore, servito da /public/docs */
 export const REGOLAMENTO_PDF_URL = '/docs/regolamento-fantalaghee-2627.pdf';

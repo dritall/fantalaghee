@@ -205,8 +205,10 @@ export function AssistenteFluttuante() {
 
     return (
         <>
-            {/* Il pulsante sta a sinistra perché a destra c'è già l'invito
-                all'iscrizione: due pastiglie nello stesso angolo si coprirebbero. */}
+            {/* Il pulsante sta in basso a sinistra. Ci era finito per non
+                coprire l'invito all'iscrizione, che ora non c'è più: l'angolo
+                destro è libero, ma spostarlo cambierebbe un gesto che chi usa
+                il sito ha già imparato. */}
             <button
                 ref={lanciatoreRef}
                 onClick={() => setAperto((v) => !v)}

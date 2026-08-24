@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Marchio } from "@/components/ui/Marchio";
-import { Activity, Trophy, ShieldCheck, BookOpen, UserPlus, ArrowRight, Download, Newspaper } from "lucide-react";
-import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE } from "@/lib/seasons";
+import { Activity, Trophy, ShieldCheck, BookOpen, ArrowRight, Download, Newspaper } from "lucide-react";
+import { REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE, SQUADRE_ISCRITTE } from "@/lib/seasons";
 import { NavTile, type NavTileData } from "@/components/ui/NavTile";
 import { SeasonBanner } from "@/components/ui/SeasonBanner";
 import { SeasonLink } from "@/components/ui/SeasonLink";
@@ -53,14 +53,12 @@ export default function Home() {
           </h1>
         </header>
 
-        {/* ================= L'INVITO =================
-            Una sola cosa per pagina: le iscrizioni. Non più un lenzuolo
-            arancione a tutto fondo, ma una card in vetro sul lago —
-            l'arancio resta l'accento (il filetto e il bottone), non il fondo. */}
-        <a
-          href={ISCRIZIONE_FORM_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+        {/* ================= IL CAMPIONATO =================
+            Al posto dell'invito a iscriversi, che non ha più senso a
+            iscrizioni chiuse: la stessa card, che ora porta dove si guarda
+            chi comanda. L'arancio resta l'accento, non il fondo. */}
+        <SeasonLink
+          href="/classifica"
           data-rivela
           className="glass scatto group relative block overflow-hidden px-6 py-7 md:px-12 md:py-12 mt-1"
         >
@@ -71,20 +69,20 @@ export default function Home() {
                 style={{ background: "radial-gradient(circle, rgba(238,81,36,0.14), transparent 70%)" }} />
           <span className="relative block text-center">
             <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--vermiglio-testo)]">
-              Stagione 2026/27 · iscrizioni aperte
+              Stagione 2026/27 · {SQUADRE_ISCRITTE} squadre in campo
             </span>
             <span className="stampino mt-3 block text-[2rem] leading-[0.92] sm:text-5xl md:text-6xl text-[color:var(--calce)]">
-              Metti la<br />squadra in campo
+              Il campionato<br />è cominciato
             </span>
             <span className="mt-7 inline-flex items-center gap-2 rounded-full bg-[color:var(--vermiglio)] px-6 py-3
                              text-[12px] font-black uppercase tracking-[0.18em] text-[color:var(--su-chiaro)]
                              shadow-[0_10px_28px_var(--ombra)] transition-transform duration-300 group-hover:scale-[1.04]">
-              <UserPlus className="w-4 h-4" />
-              Compila il form
+              <Trophy className="w-4 h-4" />
+              Vai alla classifica
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
           </span>
-        </a>
+        </SeasonLink>
 
         {/* ================= NAVIGAZIONE ================= */}
         <section aria-label="Sezioni del sito" className="pt-2" data-rivela>

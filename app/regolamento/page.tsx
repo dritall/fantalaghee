@@ -4,16 +4,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Download, ChevronDown, Sparkles, ShieldCheck, Trophy, BadgeEuro, Scale,
-    AlertTriangle, ListChecks, UserPlus, Plus, Minus, ArrowRight,
+    AlertTriangle, ListChecks, Plus, Minus, ArrowRight,
 } from "lucide-react";
-import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL } from "@/lib/seasons";
+import { REGOLAMENTO_PDF_URL, SQUADRE_ISCRITTE } from "@/lib/seasons";
 import { cn } from "@/lib/utils";
 
 type SectionId = "novita" | "iscrizione" | "rosa" | "coppe" | "premi" | "bonus" | "casi";
 
 const sections: { id: SectionId; title: string; short: string; icon: any; accent: string }[] = [
     { id: "novita", title: "Novità 2026/2027", short: "Novità", icon: Sparkles, accent: "#B03A63" },
-    { id: "iscrizione", title: "Iscrizione e Quota", short: "Iscrizione", icon: ShieldCheck, accent: "#0E5C69" },
+    { id: "iscrizione", title: "Quota e Partecipazione", short: "Quota", icon: ShieldCheck, accent: "#0E5C69" },
     { id: "rosa", title: "Rosa, Formazione e Mercato", short: "Rosa", icon: BadgeEuro, accent: "#1D4ED8" },
     { id: "coppe", title: "Competizioni e Coppe", short: "Coppe", icon: Trophy, accent: "#8A5E12" },
     { id: "premi", title: "Distribuzione Premi", short: "Premi", icon: ListChecks, accent: "#2F6B44" },
@@ -256,16 +256,6 @@ export default function RegolamentoPage() {
                             <Download className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" />
                             Scarica PDF Completo
                         </a>
-                        <a
-                            href={ISCRIZIONE_FORM_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--carta-filo)] bg-[color:var(--carta-velo)] px-7 py-3.5 sm:py-3
-                                       text-sm font-bold uppercase tracking-wider text-[color:var(--carta-corpo)] hover:text-[color:var(--carta-forte)] hover:bg-[color:var(--carta-forte)]/[0.08] active:scale-95 transition-all"
-                        >
-                            <UserPlus className="w-4 h-4" />
-                            Iscriviti alla Lega
-                        </a>
                     </div>
                 </header>
 
@@ -349,16 +339,16 @@ export default function RegolamentoPage() {
                                 <strong>secondo miglior punteggio di giornata</strong> riceve un premio, ogni turno.
                             </Callout>
                             <Callout tone="info">
-                                I dettagli completi su premi e struttura definitiva delle coppe verranno comunicati{" "}
-                                <strong>entro l&apos;inizio della 5ª giornata</strong> di Serie A 26/27 — dipendono dal numero
-                                ufficiale di squadre iscritte.
+                                La stagione è partita con <strong>{SQUADRE_ISCRITTE} squadre</strong>. I dettagli completi su premi
+                                e struttura definitiva delle coppe verranno comunicati{" "}
+                                <strong>entro l&apos;inizio della 5ª giornata</strong> di Serie A 26/27.
                             </Callout>
                         </div>
                     </AccordionItem>
 
                     <AccordionItem
                         id="iscrizione"
-                        title="Iscrizione e Quota"
+                        title="Quota e Partecipazione"
                         icon={ShieldCheck}
                         accent="#0E5C69"
                         isOpen={!!open.iscrizione}
@@ -372,13 +362,13 @@ export default function RegolamentoPage() {
                             <Rule label="Pagamento">
                                 A mano, oppure contattando gli organizzatori se davvero non è possibile altrimenti.
                             </Rule>
-                            <Rule label="Procedura">
-                                Compila il form → ricevi la mail di conferma con il link alla lega su Fantaclub → inserisci
-                                la rosa e gioca.
+                            <Rule label="Squadre al via">
+                                Il campionato 26/27 è partito con{" "}
+                                <strong className="text-[color:var(--carta-forte)]">{SQUADRE_ISCRITTE} squadre</strong>.
                             </Rule>
-                            <Rule label="Iscrizioni tardive">
-                                Ammesse fino all&apos;inizio della 3ª giornata. Chi si iscrive dopo la 1ª giornata riceve{" "}
-                                <strong className="text-[color:var(--carta-forte)]">66 punti d&apos;ufficio</strong> per ogni giornata saltata.
+                            <Rule label="Chi è entrato a stagione iniziata">
+                                Riceve <strong className="text-[color:var(--carta-forte)]">66 punti d&apos;ufficio</strong> per ogni
+                                giornata saltata prima del suo ingresso.
                             </Rule>
                             <Rule label="Piattaforma">Fantaclub.</Rule>
                             <Rule label="Quotazioni giocatori">Redazione Milano.</Rule>
@@ -477,8 +467,10 @@ export default function RegolamentoPage() {
                                 </h3>
                                 <p className="text-sm text-[color:var(--carta-corpo)] leading-relaxed">
                                     Un giocatore è bloccato (non acquistabile) se posseduto da almeno{" "}
-                                    <em className="text-[color:var(--carta-corpo)]">totale iscritti / 6</em> squadre, dopo l&apos;inizio della 1ª
-                                    giornata. Resta bloccato finché non scende sotto la soglia.
+                                    <em className="text-[color:var(--carta-corpo)]">totale squadre / 6</em>, dopo l&apos;inizio della 1ª
+                                    giornata — con le {SQUADRE_ISCRITTE} squadre di quest&apos;anno,{" "}
+                                    <strong className="text-[color:var(--carta-forte)]">{Math.ceil(SQUADRE_ISCRITTE / 6)} squadre</strong>.
+                                    Resta bloccato finché non scende sotto la soglia.
                                 </p>
                             </div>
                         </div>
@@ -507,8 +499,8 @@ export default function RegolamentoPage() {
                                 ))}
                             </div>
                             <p className="text-xs text-[color:var(--carta-tenue)] leading-relaxed">
-                                Struttura e date definitive verranno comunicate entro l&apos;inizio della 5ª giornata, in base al
-                                numero di squadre iscritte.
+                                Struttura e date definitive verranno comunicate entro l&apos;inizio della 5ª giornata, sulle{" "}
+                                {SQUADRE_ISCRITTE} squadre al via.
                             </p>
                         </div>
                     </AccordionItem>
@@ -539,7 +531,7 @@ export default function RegolamentoPage() {
                             </dl>
 
                             <Callout tone="info" title="Importi entro la 5ª giornata">
-                                Dipendono dal numero definitivo di iscritti e vengono comunicati entro
+                                Si calcolano sulle {SQUADRE_ISCRITTE} squadre al via e vengono comunicati entro
                                 l&apos;inizio della 5ª giornata. Gli importi delle stagioni passate si
                                 vedono cambiando stagione dal selettore in alto.
                             </Callout>

@@ -2,12 +2,12 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { Marchio } from "@/components/ui/Marchio";
-import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, UserPlus, Download, Home } from "lucide-react";
+import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, Download, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { SeasonSwitcher } from "@/components/ui/SeasonSwitcher";
-import { ISCRIZIONE_FORM_URL, REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE } from "@/lib/seasons";
+import { REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE } from "@/lib/seasons";
 import { SeasonLink } from "@/components/ui/SeasonLink";
 
 const navItems = [
@@ -229,17 +229,6 @@ export function Navbar() {
                             </div>
 
                             <div className="pt-4 space-y-2">
-                                <a
-                                    href={ISCRIZIONE_FORM_URL}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={() => setIsOpen(false)}
-                                    className="flex items-center justify-center gap-2 px-3 py-3.5 rounded-2xl text-base font-black uppercase tracking-wider
-                                               bg-[color:var(--vermiglio)] text-[color:var(--su-chiaro)] shadow-[0_8px_24px_var(--ombra)] border border-[color:var(--filo-alto)]"
-                                >
-                                    <UserPlus className="w-5 h-5" />
-                                    Iscriviti alla Lega
-                                </a>
                                 <a
                                     href={REGOLAMENTO_PDF_URL}
                                     download

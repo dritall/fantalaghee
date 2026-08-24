@@ -13,6 +13,8 @@
  *  - `sezione`  a quale parte del regolamento rimanda
  */
 
+import { SQUADRE_ISCRITTE } from './seasons.ts';
+
 export type Sezione = 'novita' | 'iscrizione' | 'rosa' | 'coppe' | 'premi' | 'bonus' | 'casi' | 'sito';
 
 export type VoceKB = {
@@ -30,10 +32,10 @@ export const KB: VoceKB[] = [
     {
         id: 'quota',
         sezione: 'iscrizione',
-        domanda: 'Quanto costa iscriversi?',
+        domanda: 'Quanto costa la quota?',
         risposta:
             'La quota è di **110 🍆**. Va saldata **prima dell\'inizio della 1ª giornata**: chi non versa viene escluso senza rimborso.\nQuasi tutto il raccolto torna in premi: solo il **5%** resta per la gestione della lega.',
-        chiavi: ['quanto costa', 'quota', 'prezzo', 'costo iscrizione', 'quanto si paga', 'quanto pago', 'iscrizione costo', '110'],
+        chiavi: ['quanto costa', 'quota', 'prezzo', 'costo', 'quanto si paga', 'quanto pago', '110'],
         inEvidenza: true,
     },
     {
@@ -63,26 +65,18 @@ export const KB: VoceKB[] = [
     {
         id: 'come-iscriversi',
         sezione: 'iscrizione',
-        domanda: 'Come mi iscrivo?',
+        domanda: 'Posso ancora entrare nella lega?',
         risposta:
-            'Tre passi: **compili il form** di iscrizione → **ricevi una mail di conferma** con il link alla lega su Fantaclub → **inserisci la rosa** e giochi.',
-        chiavi: ['come mi iscrivo', 'iscrizione', 'iscriversi', 'come partecipare', 'voglio giocare', 'come entro', 'procedura iscrizione', 'form'],
+            `**No: le iscrizioni sono chiuse.** Il campionato 2026/27 è partito con **${SQUADRE_ISCRITTE} squadre** e la rosa dei partecipanti è quella definitiva.`,
+        chiavi: ['come mi iscrivo', 'iscrizione', 'iscriversi', 'come partecipare', 'voglio giocare', 'come entro', 'posso entrare', 'form', 'dove mi iscrivo', 'link iscrizione', 'modulo iscrizione'],
         inEvidenza: true,
-    },
-    {
-        id: 'link-form',
-        sezione: 'iscrizione',
-        domanda: 'Dove trovo il form di iscrizione?',
-        risposta:
-            'Il pulsante **Iscriviti alla Lega** è in cima a questa pagina e in fondo a ogni schermata. Porta direttamente al modulo da compilare.',
-        chiavi: ['dove trovo il form', 'link iscrizione', 'modulo iscrizione', 'dove mi iscrivo', 'link form'],
     },
     {
         id: 'iscrizione-tardiva',
         sezione: 'iscrizione',
         domanda: 'Posso iscrivermi a campionato iniziato?',
         risposta:
-            'Sì, **fino all\'inizio della 3ª giornata**. Chi entra dopo la 1ª giornata riceve **66 punti d\'ufficio** per ogni giornata saltata.',
+            'No: il campionato è cominciato e le iscrizioni sono chiuse. Chi era stato ammesso dopo la 1ª giornata riceve **66 punti d\'ufficio** per ogni giornata saltata.',
         chiavi: ['iscrizione tardiva', 'iscrivermi dopo', 'campionato iniziato', 'in ritardo', 'terza giornata', 'ritardatari', 'entrare dopo'],
         inEvidenza: true,
     },
@@ -97,9 +91,9 @@ export const KB: VoceKB[] = [
     {
         id: 'termine-iscrizioni',
         sezione: 'iscrizione',
-        domanda: 'Fino a quando si può entrare nella lega?',
+        domanda: 'Fino a quando si poteva entrare nella lega?',
         risposta:
-            'Le iscrizioni chiudono **all\'inizio della 3ª giornata**. Dopo non si entra più, per nessun motivo.',
+            `Le iscrizioni si sono chiuse con l'inizio del campionato: le **${SQUADRE_ISCRITTE} squadre** al via sono quelle che giocano la stagione.`,
         chiavi: ['fino a quando iscrizioni', 'chiusura iscrizioni', 'ultimo giorno iscrizione', 'quando chiudono iscrizioni'],
     },
 
@@ -108,7 +102,7 @@ export const KB: VoceKB[] = [
         id: 'piattaforma',
         sezione: 'iscrizione',
         domanda: 'Su che piattaforma si gioca?',
-        risposta: 'Si gioca su **Fantaclub**. Il link alla lega arriva nella mail di conferma dopo l\'iscrizione.',
+        risposta: 'Si gioca su **Fantaclub**. Il link alla lega è quello ricevuto per mail a inizio stagione.',
         chiavi: ['piattaforma', 'fantaclub', 'app', 'dove si gioca', 'sito di gioco', 'fantacalcio app'],
         inEvidenza: true,
     },
@@ -212,7 +206,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Cosa sono i giocatori bloccati?',
         risposta:
-            'Dopo l\'inizio della 1ª giornata un giocatore diventa **non acquistabile** se è già posseduto da almeno **totale iscritti ÷ 6** squadre. Resta bloccato finché non scende sotto quella soglia.',
+            `Dopo l'inizio della 1ª giornata un giocatore diventa **non acquistabile** se è già posseduto da almeno **un sesto delle squadre** — con le ${SQUADRE_ISCRITTE} di quest'anno, **${Math.ceil(SQUADRE_ISCRITTE / 6)} squadre**. Resta bloccato finché non scende sotto quella soglia.`,
         chiavi: ['giocatori bloccati', 'bloccato', 'non acquistabile', 'soglia possesso', 'diviso 6', 'blocco giocatore'],
         inEvidenza: true,
     },
@@ -221,7 +215,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Quando si sblocca un giocatore?',
         risposta:
-            'Appena il numero di squadre che lo possiedono scende **sotto la soglia** di iscritti ÷ 6. Non c\'è una data fissa: dipende dal mercato.',
+            `Appena il numero di squadre che lo possiedono scende **sotto la soglia** di un sesto del totale (${Math.ceil(SQUADRE_ISCRITTE / 6)} squadre su ${SQUADRE_ISCRITTE}). Non c'è una data fissa: dipende dal mercato.`,
         chiavi: ['sblocca', 'sbloccare giocatore', 'quando torna acquistabile', 'giocatore libero'],
     },
     {
@@ -229,7 +223,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Quando si può fare mercato a campionato iniziato?',
         risposta:
-            'Il mercato si muove **fra una giornata e l\'altra**: a giornata in corso è chiuso. Valgono comunque le due regole di sempre — niente plusvalenze e i **giocatori bloccati** restano non acquistabili finché sono posseduti da almeno un sesto degli iscritti.',
+            'Il mercato si muove **fra una giornata e l\'altra**: a giornata in corso è chiuso. Valgono comunque le due regole di sempre — niente plusvalenze e i **giocatori bloccati** restano non acquistabili finché sono posseduti da almeno un sesto delle squadre.',
         chiavi: ['mercato di riparazione', 'riparazione', 'mercato invernale', 'gennaio', 'seconda sessione mercato', 'mercato durante il campionato', 'quando fare mercato', 'mercato aperto', 'scambi', 'svincolati'],
     },
 
@@ -440,7 +434,7 @@ export const KB: VoceKB[] = [
         sezione: 'coppe',
         domanda: 'Come sono strutturate le coppe?',
         risposta:
-            'Struttura e date definitive vengono comunicate **entro l\'inizio della 5ª giornata**: dipendono dal numero ufficiale di squadre iscritte.',
+            `Struttura e date definitive vengono comunicate **entro l'inizio della 5ª giornata**, sulle ${SQUADRE_ISCRITTE} squadre al via.`,
         chiavi: ['struttura coppe', 'come funzionano coppe', 'formato coppe', 'quando si sa', 'quinta giornata', 'girone'],
     },
     {
@@ -511,7 +505,7 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Quando si sanno i premi di campionato e coppe?',
         risposta:
-            'Si assegnano sulla **classifica finale**, quindi all\'ultima giornata. Gli importi 26/27 arrivano entro l\'inizio della 5ª giornata, perché dipendono dagli iscritti.\nRiferimento 25/26: classifica **850 · 650 · 500 · 350 · 220 🍆** alle prime cinque; Super Lega **350 · 250 · 150 · 150**; Coppa UEFA **100 · 50**.',
+            'Si assegnano sulla **classifica finale**, quindi all\'ultima giornata. Gli importi 26/27 arrivano entro l\'inizio della 5ª giornata, perché dipendono dal numero di squadre.\nRiferimento 25/26: classifica **850 · 650 · 500 · 350 · 220 🍆** alle prime cinque; Super Lega **350 · 250 · 150 · 150**; Coppa UEFA **100 · 50**.',
         chiavi: ['quando premi', 'quando si pagano', 'premi finali', 'fine campionato', 'ultima giornata premi', 'premi classifica', 'vince in classifica', 'premio campionato', 'premi coppe'],
     },
     {
@@ -519,7 +513,7 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Cosa sono le melanzane?',
         risposta:
-            '🍆 è l\'unità di conto della lega: la quota d\'iscrizione e tutti i premi si contano in melanzane.',
+            '🍆 è l\'unità di conto della lega: la quota e tutti i premi si contano in melanzane.',
         chiavi: ['melanzane', 'melanzana', 'cosa sono le melanzane', 'emoji melanzana', 'unita di conto', 'cosa significa', 'valuta'],
     },
 
@@ -691,15 +685,15 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Quante squadre partecipano?',
         risposta:
-            'Il numero definitivo si conosce a iscrizioni chiuse: da lì dipendono struttura delle coppe e importi dei premi, comunicati **entro l\'inizio della 5ª giornata**. La stagione scorsa erano **50 squadre**.',
+            `Quest'anno sono **${SQUADRE_ISCRITTE} squadre** (la stagione scorsa erano 50). Su questo numero si calcolano struttura delle coppe e importi dei premi, comunicati **entro l'inizio della 5ª giornata**.`,
         chiavi: ['quante squadre', 'quanti partecipanti', 'quanti iscritti', 'numero squadre', 'quanti siamo'],
     },
     {
         id: 'due-squadre',
         sezione: 'iscrizione',
-        domanda: 'Posso iscrivere due squadre?',
+        domanda: 'Si può avere più di una squadra?',
         risposta:
-            'Il regolamento pubblicato non lo prevede né lo vieta esplicitamente. È una decisione degli organizzatori: chiedi nel gruppo WhatsApp prima di pagare due quote.',
+            'Il regolamento pubblicato non lo prevede né lo vieta esplicitamente. È una decisione degli organizzatori: se ne parla nel gruppo WhatsApp.',
         chiavi: ['due squadre', 'seconda squadra', 'piu squadre', 'doppia iscrizione'],
     },
     {
@@ -976,7 +970,7 @@ export const SUGGERIMENTI = KB.filter((v) => v.inEvidenza).slice(0, 4);
 
 export const ARGOMENTI: { sezione: Sezione; titolo: string }[] = [
     { sezione: 'novita', titolo: 'Novità' },
-    { sezione: 'iscrizione', titolo: 'Iscrizione e voti' },
+    { sezione: 'iscrizione', titolo: 'Quota e voti' },
     { sezione: 'rosa', titolo: 'Rosa e formazione' },
     { sezione: 'bonus', titolo: 'Bonus e malus' },
     { sezione: 'coppe', titolo: 'Coppe' },
@@ -1015,7 +1009,7 @@ export function domandeDi(sezione: Sezione, quante = 4): VoceKB[] {
 
 export const TITOLO_SEZIONE: Record<Sezione, string> = {
     novita: 'le novità di quest\'anno',
-    iscrizione: 'iscrizione, quota e voti',
+    iscrizione: 'quota, partecipazione e voti',
     rosa: 'rosa, formazione e mercato',
     bonus: 'bonus, malus e modificatore',
     coppe: 'coppe e soglie gol',

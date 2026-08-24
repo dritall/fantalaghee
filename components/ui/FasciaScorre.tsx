@@ -13,8 +13,8 @@
  * ciclo non ha giunte visibili.
  */
 
-import { QUOTA, PREMIO_GIORNATA, GIORNATE, ISCRITTI_RIFERIMENTO } from "@/lib/premi-riferimento";
-import { LEAGUE_TAGLINE } from "@/lib/seasons";
+import { QUOTA, PREMIO_GIORNATA, GIORNATE } from "@/lib/premi-riferimento";
+import { LEAGUE_TAGLINE, SQUADRE_ISCRITTE } from "@/lib/seasons";
 
 const VOCI: { forte: string; debole: string }[] = [
     { forte: `${PREMIO_GIORNATA} 🍆`, debole: "a chi vince la giornata" },
@@ -23,7 +23,7 @@ const VOCI: { forte: string; debole: string }[] = [
     { forte: `${QUOTA} 🍆`, debole: "quota di stagione" },
     { forte: `${GIORNATE}`, debole: "giornate di campionato" },
     { forte: "112,5", debole: "il record da battere" },
-    { forte: `${ISCRITTI_RIFERIMENTO}`, debole: "squadre l'anno scorso" },
+    { forte: `${SQUADRE_ISCRITTE}`, debole: "squadre al via" },
     { forte: LEAGUE_TAGLINE, debole: "dal 2025" },
 ];
 
