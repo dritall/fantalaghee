@@ -190,20 +190,31 @@ export async function GET(request: Request) {
 
       const enc = encodeURIComponent(matchId);
 
-      const [header, stats, lineups, events1, playerStats] = await Promise.allSettled([
+      const [header, stats, lineups, events1, playerStats, momentum] = await Promise.allSettled([
         legaFetch(`${BASE}/matches/${enc}/header?locale=it-IT`, MATCH_REVALIDATE),
         legaFetch(`${BASE}/match/${enc}/teamstats?locale=it-IT`, STATS_REVALIDATE),
         legaFetch(`${BASE}/matches/${enc}/lineups?locale=it-IT`, MATCH_REVALIDATE),
         legaFetch(`${BASE}/match/${enc}/action?locale=it-IT`, MATCH_REVALIDATE).catch(() => legaFetch(`${BASE}/match/${enc}/events?locale=it-IT`, MATCH_REVALIDATE)),
         legaFetch(`${BASE}/match/${enc}/playerstats?locale=it-IT`, STATS_REVALIDATE),
+        // Opta al minuto: è il Momento vero di Lega, non la curva ricostruita dai gol
+        legaFetch(`${BASE}/match/${enc}/momentum?locale=it-IT`, MATCH_REVALIDATE),
       ]);
 
+      const headerVal = header.status === 'fulfilled' ? header.value : null;
+      const editorial = headerVal?.editorial || {};
+      const highlightsUrl =
+        [editorial.highlightsUrl, editorial.highlightsNationalUrl, editorial.highlightsInternationalUrl]
+          .map((u: any) => String(u || '').trim())
+          .find((u: string) => /^https?:\/\//i.test(u)) || null;
+
       const payload = {
-        header: header.status === 'fulfilled' ? header.value : null,
+        header: headerVal,
         stats: stats.status === 'fulfilled' ? stats.value : null,
         lineups: lineups.status === 'fulfilled' ? lineups.value : null,
         events: events1.status === 'fulfilled' ? events1.value : null,
         playerStats: playerStats.status === 'fulfilled' ? playerStats.value : null,
+        momentum: momentum.status === 'fulfilled' ? momentum.value : null,
+        highlightsUrl,
       };
 
       // I blocchi grezzi restano (retrocompatibilità e diagnostica), ma il sito

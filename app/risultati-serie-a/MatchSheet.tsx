@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, AlertTriangle, Users, ListOrdered, BarChart3, Activity } from "lucide-react";
+import { X, Loader2, AlertTriangle, Users, ListOrdered, BarChart3, Activity, Play } from "lucide-react";
 import { TeamLogo } from "./TeamLogo";
 import { Pitch } from "./Pitch";
 import { PlayerSheet } from "./PlayerSheet";
+import { Momento, ticksFromApi, legaMatchUrl } from "./Momento";
 import type { NormalizedMatch, NormalizedPlayer, NormalizedEvent } from "@/lib/lega-normalize";
 import { cn } from "@/lib/utils";
 import { matchColors } from "@/lib/team-colors";
@@ -44,170 +45,6 @@ const EVENT_TAG: Partial<Record<NormalizedEvent["kind"], { text: string; classNa
 
 /* ========================================================= TIMELINE EVENTI */
 
-const EVENT_MOMENTUM: Record<string, number> = {
-    goal: 12,
-    "penalty-goal": 14,
-    "own-goal": -8,
-    yellow: -2,
-    red: -5,
-    sub: 1,
-    other: 0,
-};
-
-type MomentumPoint = { label: string; home: number; away: number };
-
-function calcMomentum(events: NormalizedEvent[]): MomentumPoint[] {
-    if (events.length === 0) return [];
-    const buckets: { min: number; home: number; away: number }[] = [];
-    let lastMin = 0;
-    for (const e of events) {
-        const w = EVENT_MOMENTUM[e.kind] ?? 0;
-        if (w === 0) continue;
-        if (e.minute > lastMin + 2) {
-            buckets.push({ min: lastMin + Math.ceil((e.minute - lastMin) / 2), home: 0, away: 0 });
-        }
-        if (e.side === "home") buckets.push({ min: e.minute, home: Math.abs(w), away: 0 });
-        else buckets.push({ min: e.minute, home: 0, away: Math.abs(w) });
-        lastMin = e.minute;
-    }
-    const maxVal = Math.max(...buckets.map((b) => Math.max(b.home, b.away)), 1);
-    return buckets.map((b) => ({
-        label: b.min <= 45 ? `${b.min}'` : b.min <= 90 ? `${b.min}'` : `${b.min}+'`,
-        home: Math.round((b.home / maxVal) * 100),
-        away: Math.round((b.away / maxVal) * 100),
-    }));
-}
-
-/**
- * Grafico del momento della partita.
- *
- * La versione precedente disegnava barre larghe 4px dentro un contenitore che
- * scorreva in orizzontale: su telefono era illeggibile e su desktop restava
- * schiacciata. Qui il tracciato e' un SVG con viewBox, quindi si adatta a
- * qualunque larghezza senza scorrimento, e invece di un evento per barra
- * mostra una curva di pressione: ogni episodio pesa e poi si smorza nei
- * minuti successivi, che e' come il momento si legge davvero.
- */
-function MomentumChart({
-    events,
-    colors,
-    homeName,
-    awayName,
-}: {
-    events: NormalizedEvent[];
-    colors: { home: string; away: string };
-    homeName: string;
-    awayName: string;
-}) {
-    const W = 320;
-    const H = 120;
-    const MID = H / 2;
-    const LAST = Math.max(90, ...events.map((e) => e.minute + e.extra));
-
-    const curve = useMemo(() => {
-        // peso di ogni tipo di episodio e quanto a lungo continua a "pesare"
-        const WEIGHT: Record<string, number> = {
-            goal: 10, 'penalty-goal': 10, 'own-goal': -6,
-            'penalty-missed': 4, red: -7, yellow: 2, sub: 1.5, var: 1, other: 0,
-        };
-        const DECAY = 9; // minuti
-
-        const points: { m: number; v: number }[] = [];
-        for (let m = 0; m <= LAST; m += 1) {
-            let v = 0;
-            for (const e of events) {
-                const w = WEIGHT[e.kind] ?? 0;
-                if (!w) continue;
-                const dt = m - (e.minute + e.extra);
-                if (dt < 0 || dt > DECAY * 2) continue;
-                const strength = w * Math.exp(-(dt * dt) / (2 * DECAY * DECAY));
-                v += e.side === 'home' ? strength : -strength;
-            }
-            points.push({ m, v });
-        }
-        const peak = Math.max(1, ...points.map((p) => Math.abs(p.v)));
-        return points.map((p) => ({ ...p, v: p.v / peak }));
-    }, [events, LAST]);
-
-    if (events.length === 0 || curve.length < 3) {
-        return (
-            <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
-                Non ci sono abbastanza episodi per leggere il momento
-            </p>
-        );
-    }
-
-    const x = (m: number) => (m / LAST) * W;
-    const y = (v: number) => MID - v * (MID - 8);
-
-    const line = curve.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(p.m).toFixed(2)},${y(p.v).toFixed(2)}`).join(' ');
-    const areaHome = `M0,${MID} ` + curve.map((p) => `L${x(p.m).toFixed(2)},${y(Math.max(0, p.v)).toFixed(2)}`).join(' ') + ` L${W},${MID} Z`;
-    const areaAway = `M0,${MID} ` + curve.map((p) => `L${x(p.m).toFixed(2)},${y(Math.min(0, p.v)).toFixed(2)}`).join(' ') + ` L${W},${MID} Z`;
-
-    const goals = events.filter((e) => e.kind === 'goal' || e.kind === 'penalty-goal' || e.kind === 'own-goal');
-
-    return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
-                <span className="flex items-center gap-2 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: colors.home }} />
-                    <span className="text-[11px] font-black uppercase tracking-wider truncate" style={{ color: colors.home }}>
-                        {homeName}
-                    </span>
-                </span>
-                <span className="flex items-center gap-2 min-w-0 justify-end">
-                    <span className="text-[11px] font-black uppercase tracking-wider truncate" style={{ color: colors.away }}>
-                        {awayName}
-                    </span>
-                    <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: colors.away }} />
-                </span>
-            </div>
-
-            <div className="rounded-[var(--ro-s)] border border-[color:var(--filo)] bg-[color:var(--fondale)] p-3">
-                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="none" role="img"
-                     aria-label={`Andamento della pressione: ${homeName} sopra, ${awayName} sotto`}>
-                    <defs>
-                        <linearGradient id="momHome" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={colors.home} stopOpacity="0.75" />
-                            <stop offset="100%" stopColor={colors.home} stopOpacity="0.05" />
-                        </linearGradient>
-                        <linearGradient id="momAway" x1="0" y1="1" x2="0" y2="0">
-                            <stop offset="0%" stopColor={colors.away} stopOpacity="0.75" />
-                            <stop offset="100%" stopColor={colors.away} stopOpacity="0.05" />
-                        </linearGradient>
-                    </defs>
-
-                    {/* tacche dei quarti d'ora */}
-                    {[15, 30, 45, 60, 75].map((m) => (
-                        <line key={m} x1={x(m)} y1="6" x2={x(m)} y2={H - 6}
-                              stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-                    ))}
-                    <line x1={x(45)} y1="4" x2={x(45)} y2={H - 4} stroke="rgba(255,255,255,0.16)" strokeWidth="1" strokeDasharray="3 3" />
-
-                    <path d={areaHome} fill="url(#momHome)" />
-                    <path d={areaAway} fill="url(#momAway)" />
-                    <path d={line} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
-                    <line x1="0" y1={MID} x2={W} y2={MID} stroke="rgba(255,255,255,0.22)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-
-                    {goals.map((g, i) => (
-                        <circle key={i} cx={x(g.minute + g.extra)} cy={MID} r="3.5"
-                                fill={g.side === 'home' ? colors.home : colors.away}
-                                stroke="#080c20" strokeWidth="1.5" />
-                    ))}
-                </svg>
-
-                <div className="flex justify-between mt-1.5 px-0.5 text-[9px] font-bold tabular-nums text-[color:var(--fumo)]">
-                    {[0, 15, 30, 45, 60, 75, 90].map((m) => <span key={m}>{m}&apos;</span>)}
-                </div>
-            </div>
-
-            <p className="text-[10px] leading-relaxed text-[color:var(--fumo)]">
-                La curva misura la pressione dopo ogni episodio — gol, cartellini, cambi — e la lascia
-                smorzare nei minuti seguenti. I pallini sulla linea centrale sono le reti.
-            </p>
-        </div>
-    );
-}
 
 function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { home: string; away: string } }) {
     if (events.length === 0) {
@@ -367,7 +204,7 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
 
 /* -------------------------------------------------------- statistiche team */
 
-type TeamStatRow = { label: string; home: number; away: number; percent: boolean };
+type TeamStatRow = { label: string; home: number; away: number; percent: boolean; group: string };
 
 /** Riduce le molte forme del blocco teamstats a righe confrontabili. */
 function buildTeamStats(raw: any): TeamStatRow[] {
@@ -386,96 +223,163 @@ function buildTeamStats(raw: any): TeamStatRow[] {
         });
     });
 
-    const pick = (aliases: string[], label: string): TeamStatRow | null => {
+    const pick = (aliases: string[], label: string, group: string): TeamStatRow | null => {
         for (const a of aliases) {
             for (const key of Array.from(map.keys())) {
-                if (key === a || key.includes(a)) {
+                if (key === a || (a.length > 6 && key.includes(a))) {
                     const v = map.get(key)!;
                     const h = Number(v.home);
                     const aw = Number(v.away);
                     if (!Number.isFinite(h) && !Number.isFinite(aw)) return null;
                     if (h === 0 && aw === 0) return null;
-                    return { label, home: h || 0, away: aw || 0, percent: v.percent };
+                    return { label, home: h || 0, away: aw || 0, percent: v.percent, group };
                 }
             }
         }
         return null;
     };
 
-    const sep = (title: string): TeamStatRow => ({ label: `__sep__${title}`, home: -1, away: -1, percent: false });
+    const pickExact = (ids: string[], label: string, group: string): TeamStatRow | null => {
+        for (const a of ids) {
+            const v = map.get(a.toLowerCase());
+            if (!v) continue;
+            const h = Number(v.home);
+            const aw = Number(v.away);
+            if (!Number.isFinite(h) && !Number.isFinite(aw)) continue;
+            if (h === 0 && aw === 0) continue;
+            return { label, home: h || 0, away: aw || 0, percent: v.percent || a.includes("perc"), group };
+        }
+        return pick(ids, label, group);
+    };
 
-    const addSection = (title: string, stats: (TeamStatRow | null)[]) => {
+    const sep = (title: string, group: string): TeamStatRow => ({ label: `__sep__${title}`, home: -1, away: -1, percent: false, group });
+
+    const addSection = (title: string, group: string, stats: (TeamStatRow | null)[]) => {
         const rows = stats.filter(Boolean) as TeamStatRow[];
         if (rows.length === 0) return;
-        if (out.length > 0) out.push(sep(""));
-        out.push(sep(title));
-        rows.forEach(r => out.push(r));
+        if (out.length > 0) out.push(sep("", group));
+        out.push(sep(title, group));
+        rows.forEach((r) => out.push(r));
     };
 
     const out: TeamStatRow[] = [];
 
-    addSection("POSSESSO", [
-        pick(["possession-perc", "possessionpercentage"], "Possesso palla"),
+    addSection("GENERALE", "generale", [
+        pickExact(["possession-perc", "possessionpercentage"], "Possesso palla", "generale"),
+        pickExact(["fieldtilt"], "Field tilt", "generale"),
+        pickExact(["goals-scored", "goals"], "Gol", "generale"),
+        pickExact(["expected-goals"], "xG", "generale"),
+        pickExact(["expectedgoalagainst"], "xG subiti", "generale"),
+        pickExact(["timeaheadperc"], "% tempo in vantaggio", "generale"),
+        pickExact(["timebehindperc"], "% tempo in svantaggio", "generale"),
+        pickExact(["effectiveTime"], "Tempo effettivo (min)", "generale"),
     ]);
 
-    addSection("TIRO", [
-        pick(["totalscoringatt", "shots"], "Tiri totali"),
-        pick(["ontargetscoringatt", "shots-on-target"], "Tiri in porta"),
-        pick(["shots-at-goal-inside-box", "attemptsibox"], "Tiri dentro area"),
-        pick(["shots-at-goal-outside-box", "attemptsobox"], "Tiri fuori area"),
-        pick(["blocked-scoring-att", "blockedshots"], "Tiri bloccati"),
-        pick(["big-chances", "bigchancecreated"], "Grandi occasioni"),
-        pick(["hitwoodwork", "hitwoodwork", "shots-crossbar", "shots-post"], "Legni"),
+    addSection("ATTACCO", "attacco", [
+        pick(["totalscoringatt", "shots"], "Tiri totali", "attacco"),
+        pickExact(["shots-on-goal", "ontargetscoringatt"], "Tiri in porta", "attacco"),
+        pick(["shots-at-goal-inside-box", "attemptsibox"], "Tiri dentro area", "attacco"),
+        pick(["shots-at-goal-outside-box", "attemptsobox"], "Tiri fuori area", "attacco"),
+        pick(["blocked-scoring-att", "blocked-shots", "blockedshots"], "Tiri bloccati", "attacco"),
+        pick(["big-chances", "bigchancecreated"], "Grandi occasioni", "attacco"),
+        pickExact(["chances-created"], "Occasioni create", "attacco"),
+        pickExact(["expected-goals"], "xG", "attacco"),
+        pick(["goalassist", "assists"], "Assist", "attacco"),
+        pick(["hitwoodwork", "shots-crossbar", "shots-post"], "Legni", "attacco"),
+        pick(["touches-opponent-box", "touchesinoppbox"], "Tocchi area avversaria", "attacco"),
+        pickExact(["penareaentries"], "Entrate in area", "attacco"),
+        pick(["cornertaken", "corners"], "Corner", "attacco"),
+        pick(["penalty-goals"], "Gol su rigore", "attacco"),
+        pick(["own-goals"], "Autogol", "attacco"),
     ]);
 
-    addSection("xG & PUNTI", [
-        pick(["expected-goals", "expectedgoals"], "xG"),
-        pick(["goalassist", "assists"], "Assist"),
-        pick(["own-goals"], "Autogol"),
-        pick(["penalty-goals"], "Gol su rigore"),
+    addSection("PASSAGGI", "passaggi", [
+        pick(["totalpass", "total-passes"], "Passaggi", "passaggi"),
+        pick(["passes-completed", "accuratepass", "accurate-pass"], "Passaggi riusciti", "passaggi"),
+        pick(["accurate-pass-perc", "passing-accuracy-perc"], "Precisione passaggi", "passaggi"),
+        pick(["key-passes", "totalattassist"], "Passaggi chiave", "passaggi"),
+        pick(["crosses", "totalcross"], "Cross", "passaggi"),
+        pick(["crosses-successful", "accuratecross"], "Cross riusciti", "passaggi"),
+        pickExact(["totallongballs"], "Lanci lunghi", "passaggi"),
+        pickExact(["accuratelongballs"], "Lanci lunghi riusciti", "passaggi"),
+        pickExact(["totalthroughball"], "Filtri", "passaggi"),
+        pickExact(["accuratethroughball"], "Filtri riusciti", "passaggi"),
     ]);
 
-    addSection("PASSAGGI", [
-        pick(["totalpass", "total-passes"], "Passaggi"),
-        pick(["passes-completed", "accuratepass"], "Passaggi riusciti"),
-        pick(["accurate-pass-perc", "passing-accuracy-perc"], "Precisione passaggi"),
-        pick(["key-passes", "totalattassist"], "Passaggi chiave"),
-        pick(["crosses", "totalcross"], "Cross"),
-        pick(["crosses-successful", "accuratecross"], "Cross riusciti"),
-        pick(["cornertaken", "corners"], "Corner"),
+    addSection("DIFESA", "difesa", [
+        pick(["totaltackle", "tackles", "tackles-total"], "Contrasti", "difesa"),
+        pick(["tackles-successful", "wontackle"], "Contrasti riusciti", "difesa"),
+        pick(["tackles-won-perc", "tackleswonperc"], "% Contrasti vinti", "difesa"),
+        pick(["interception", "interceptions"], "Intercetti", "difesa"),
+        pick(["totalclearance", "clearences"], "Spazzate", "difesa"),
+        pick(["saves"], "Parate", "difesa"),
+        pickExact(["goalsconceded"], "Gol subiti", "difesa"),
+        pick(["duels-won", "duelwon"], "Duelli vinti", "difesa"),
+        pick(["aerial-duels-won", "aerialduelswon", "aerialwon"], "Duelli aerei vinti", "difesa"),
+        pick(["aerial-duels-won-perc", "aerialduelswonperc"], "% Duelli aerei vinti", "difesa"),
+        pickExact(["groundduelswon"], "Duelli a terra vinti", "difesa"),
+        pickExact(["ballrecovery"], "Palle recuperate", "difesa"),
     ]);
 
-    addSection("DIFESA", [
-        pick(["totaltackle", "tackles"], "Contrasti"),
-        pick(["tackles-successful", "wontackle"], "Contrasti riusciti"),
-        pick(["tackles-won-perc", "tackleswonperc"], "% Contrasti vinti"),
-        pick(["interception", "interceptions"], "Intercetti"),
-        pick(["totalclearance", "clearences"], "Spazzate"),
-        pick(["saves"], "Parate"),
+    addSection("DISCIPLINA", "difesa", [
+        pick(["fouls", "foulsconceded"], "Falli commessi", "difesa"),
+        pick(["fouls-suffered", "foulssuffered"], "Falli subiti", "difesa"),
+        pick(["totaloffside", "offsides"], "Fuorigioco", "difesa"),
+        pick(["totalyellowcard", "yellow-cards"], "Ammonizioni", "difesa"),
+        pick(["totalredcard", "red-cards"], "Espulsioni", "difesa"),
     ]);
 
-    addSection("DUELLI", [
-        pick(["duels-won", "duelwon"], "Duelli vinti"),
-        pick(["aerial-duels-won", "aerialduelswon", "aerialwon"], "Duelli aerei vinti"),
-        pick(["aerial-duels-won-perc", "aerialduelswonperc"], "% Duelli aerei vinti"),
-    ]);
-
-    addSection("DISCIPLINA", [
-        pick(["fouls", "foulsconceded"], "Falli commessi"),
-        pick(["fouls-suffered", "foulssuffered"], "Falli subiti"),
-        pick(["totaloffside", "offsides"], "Fuorigioco"),
-        pick(["totalyellowcard", "yellow-cards"], "Ammonizioni"),
-        pick(["totalredcard", "red-cards"], "Espulsioni"),
-    ]);
-
-    addSection("FISICO & SPAZIO", [
-        pick(["touches-opponent-box", "touchesinoppbox"], "Tocchi area avversaria"),
-        pick(["sprints"], "Sprint"),
-        pick(["distance-covered"], "Distanza (km)"),
-        pick(["touches"], "Tocchi totali"),
+    addSection("FISICO", "fisico", [
+        pickExact(["distance-covered"], "Distanza (km)", "fisico"),
+        pickExact(["distance-covered-sprinting"], "Distanza in sprint", "fisico"),
+        pickExact(["distance-covered-high-intensity-running"], "Distanza alta intensità", "fisico"),
+        pick(["sprints"], "Sprint", "fisico"),
+        pickExact(["maximum-speed"], "Velocità max", "fisico"),
+        pick(["touches"], "Tocchi totali", "fisico"),
     ]);
 
     return out;
+}
+
+function AreeAzione({
+    areas,
+    colors,
+    homeName,
+    awayName,
+}: {
+    areas: any;
+    colors: { home: string; away: string };
+    homeName: string;
+    awayName: string;
+}) {
+    const h = areas?.home;
+    const a = areas?.away;
+    if (!h || !a) return null;
+    const Terzo = ({ label, home, away }: { label: string; home: number; away: number }) => (
+        <div className="flex-1 text-center">
+            <div className="text-[9px] font-black uppercase tracking-wider text-[color:var(--fumo)] mb-1">{label}</div>
+            <div className="h-16 rounded-[var(--ro-s)] border border-[color:var(--filo)] flex flex-col overflow-hidden">
+                <span className="flex-1 flex items-center justify-center text-[12px] font-black" style={{ backgroundColor: `${colors.home}33`, color: colors.home }}>
+                    {home}%
+                </span>
+                <span className="flex-1 flex items-center justify-center text-[12px] font-black" style={{ backgroundColor: `${colors.away}33`, color: colors.away }}>
+                    {away}%
+                </span>
+            </div>
+        </div>
+    );
+    return (
+        <div>
+            <div className="text-[9px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)] mb-2 text-center">
+                Azioni per fascia · {homeName} / {awayName}
+            </div>
+            <div className="flex gap-1.5">
+                <Terzo label="Sinistra" home={h.leftThirdRatio} away={a.leftThirdRatio} />
+                <Terzo label="Centro" home={h.centreThirdRatio} away={a.centreThirdRatio} />
+                <Terzo label="Destra" home={h.rightThirdRatio} away={a.rightThirdRatio} />
+            </div>
+        </div>
+    );
 }
 
 function TeamStats({
@@ -483,12 +387,26 @@ function TeamStats({
     colors,
     homeName,
     awayName,
+    actionAreas,
 }: {
     rows: TeamStatRow[];
     colors: { home: string; away: string };
     homeName: string;
     awayName: string;
+    actionAreas?: any[];
 }) {
+    const [gruppo, setGruppo] = useState("tutte");
+    const pills = [
+        { id: "tutte", label: "Tutte" },
+        { id: "generale", label: "Generale" },
+        { id: "attacco", label: "Attacco" },
+        { id: "passaggi", label: "Passaggi" },
+        { id: "difesa", label: "Difesa" },
+        { id: "fisico", label: "Fisico" },
+    ];
+    const visibili = gruppo === "tutte" ? rows : rows.filter((r) => r.group === gruppo);
+    const fullTimeAreas = (actionAreas || []).find((a: any) => String(a?.period || "").toLowerCase().includes("full")) || (actionAreas || [])[0];
+
     if (rows.length === 0) {
         return (
             <p className="py-16 text-center text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
@@ -499,32 +417,54 @@ function TeamStats({
 
     return (
         <div className="space-y-4 py-2">
-            {/* chi è chi: senza questa riga le barre colorate sono un indovinello */}
-            <div className="sticky top-0 z-10 -mx-1 mb-1 flex items-center justify-between gap-3 rounded-[var(--ro-s)] bg-[color:var(--fondale)]/95 px-3 py-2 backdrop-blur">
-                <span className="flex min-w-0 items-center gap-2">
-                    <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors.home }} />
-                    <span className="truncate text-[10px] font-black uppercase tracking-wider" style={{ color: colors.home }}>
-                        {homeName}
+            <div className="sticky top-0 z-10 -mx-1 mb-1 rounded-[var(--ro-s)] bg-[color:var(--fondale)]/95 px-2 py-2 backdrop-blur">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                    <span className="flex min-w-0 items-center gap-2">
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors.home }} />
+                        <span className="truncate text-[10px] font-black uppercase tracking-wider" style={{ color: colors.home }}>
+                            {homeName}
+                        </span>
                     </span>
-                </span>
-                <span className="flex min-w-0 items-center gap-2">
-                    <span className="truncate text-[10px] font-black uppercase tracking-wider" style={{ color: colors.away }}>
-                        {awayName}
+                    <span className="flex min-w-0 items-center gap-2">
+                        <span className="truncate text-[10px] font-black uppercase tracking-wider" style={{ color: colors.away }}>
+                            {awayName}
+                        </span>
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors.away }} />
                     </span>
-                    <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors.away }} />
-                </span>
+                </div>
+                <div className="flex gap-1 overflow-x-auto no-scrollbar">
+                    {pills.map((p) => (
+                        <button
+                            key={p.id}
+                            onClick={() => setGruppo(p.id)}
+                            aria-pressed={gruppo === p.id}
+                            className={cn(
+                                "shrink-0 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                                gruppo === p.id
+                                    ? "bg-[color:var(--calce)] text-[color:var(--pece)]"
+                                    : "border border-[color:var(--filo)] text-[color:var(--fumo)]"
+                            )}
+                        >
+                            {p.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            {rows.map((r) => {
+            {fullTimeAreas && (gruppo === "tutte" || gruppo === "generale") && (
+                <AreeAzione areas={fullTimeAreas} colors={colors} homeName={homeName} awayName={awayName} />
+            )}
+
+            {visibili.map((r, i) => {
                 // Se la label inizia con __sep__, è un separatore di sezione
                 if (r.label.startsWith("__sep__")) {
                     const sectionName = r.label.slice(7);
                     if (!sectionName) {
                         // Separatore vuoto
-                        return <div key={r.label} className="h-px bg-[color:var(--velo)] my-1" />;
+                        return <div key={`${r.label}-${i}`} className="h-px bg-[color:var(--velo)] my-1" />;
                     }
                     return (
-                        <div key={r.label} className="flex items-center gap-2 pt-1">
+                        <div key={`${r.label}-${i}`} className="flex items-center gap-2 pt-1">
                             <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
                             <span className="text-[9px] font-black uppercase tracking-[0.22em] text-[color:var(--fumo)] shrink-0">
                                 {sectionName}
@@ -541,7 +481,7 @@ function TeamStats({
                 const awayLeads = r.away > r.home;
 
                 return (
-                    <div key={r.label}>
+                    <div key={`${r.group}-${r.label}-${i}`}>
                         <div className="flex items-center justify-between gap-3 mb-1.5">
                             <span
                                 className="text-sm font-black tabular-nums w-12"
@@ -601,7 +541,7 @@ export function MatchSheet({
     onClose,
 }: {
     fixture: any;
-    details: { normalized?: NormalizedMatch | null; stats?: any } | null;
+    details: { normalized?: NormalizedMatch | null; stats?: any; momentum?: any; highlightsUrl?: string | null; header?: any; events?: any } | null;
     loading: boolean;
     error: string | null;
     stagione: string;
@@ -614,6 +554,7 @@ export function MatchSheet({
 
     const normalized = details?.normalized || null;
     const teamStats = useMemo(() => buildTeamStats(details?.stats), [details?.stats]);
+    const momentumTicks = useMemo(() => ticksFromApi(details?.momentum), [details?.momentum]);
 
     useEffect(() => {
         setTab("formazioni");
@@ -640,8 +581,12 @@ export function MatchSheet({
     const colors = matchColors(homeName, awayName, tema);
 
     // Stadio dall'header API
-    const stadiumName = fixture?.stadiumName || fixture?.stadium || fixture?.venue || null;
-    const stadiumCity = fixture?.cityName || fixture?.city || fixture?.location || null;
+    const stadiumName = fixture?.stadiumName || fixture?.stadium || fixture?.venue || details?.header?.stadiumName || null;
+    const stadiumCity = fixture?.cityName || fixture?.city || fixture?.location || details?.header?.cityName || null;
+    const highlightsUrl = details?.highlightsUrl || null;
+    const matchId = fixture?.matchId || fixture?.id || details?.header?.matchId;
+    const commentaryUrl = legaMatchUrl(matchId, homeName, awayName, "commentary");
+    const actionAreas = details?.events?.actionAreas || details?.header?.actionAreas || [];
 
     const selectPlayer = (side: "home" | "away") => (p: NormalizedPlayer) =>
         setSelected({
@@ -739,6 +684,19 @@ export function MatchSheet({
                                 <span>{stadiumName}{stadiumCity ? ` · ${stadiumCity}` : ""}</span>
                             </div>
                         )}
+                        {highlightsUrl && (
+                            <a
+                                href={highlightsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="relative mt-3 mx-auto flex items-center justify-center gap-1.5 w-fit px-3 py-1.5 rounded-full
+                                           text-[10px] font-black uppercase tracking-[0.16em]
+                                           bg-[color:var(--vermiglio)] text-[color:var(--su-colore)]"
+                            >
+                                <Play className="w-3 h-3 fill-current" />
+                                Highlights
+                            </a>
+                        )}
                     </header>
 
                     {/* ---------------- schede ---------------- */}
@@ -819,15 +777,23 @@ export function MatchSheet({
                                     )}
                                     {tab === "eventi" && <Timeline events={normalized.events} colors={colors} />}
                                     {tab === "momento" && (
-                                        <MomentumChart
+                                        <Momento
+                                            ticks={momentumTicks}
                                             events={normalized.events}
                                             colors={colors}
                                             homeName={homeName}
                                             awayName={awayName}
+                                            commentaryUrl={commentaryUrl}
                                         />
                                     )}
                                     {tab === "statistiche" && (
-                                        <TeamStats rows={teamStats} colors={colors} homeName={homeName} awayName={awayName} />
+                                        <TeamStats
+                                            rows={teamStats}
+                                            colors={colors}
+                                            homeName={homeName}
+                                            awayName={awayName}
+                                            actionAreas={actionAreas}
+                                        />
                                     )}
                                 </motion.div>
                             </AnimatePresence>
