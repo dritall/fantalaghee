@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { NormalizedPlayer, NormalizedTeam } from "@/lib/lega-normalize";
+import { usaFotoGiocatore } from "@/lib/foto-giocatore";
 import { cn } from "@/lib/utils";
 
 /** Foto del giocatore con bordo accentato e ombra. */
@@ -14,14 +15,14 @@ function PlayerAvatar({
     accent: string;
     size?: "sm" | "md";
 }) {
-    const [failed, setFailed] = useState(false);
+    const foto = usaFotoGiocatore(player);
     const px = size === "sm" ? "w-9 h-9" : "w-12 h-12 md:w-14 md:h-14";
     const style = {
         borderColor: accent,
         boxShadow: `0 0 16px ${accent}55, 0 0 40px ${accent}22`,
     };
 
-    if (failed || !player.photo) {
+    if (!foto.src) {
         return (
             <span
                 className={cn(px, "rounded-full flex items-center justify-center border-2 bg-[color:var(--secca)] shrink-0")}
@@ -34,10 +35,10 @@ function PlayerAvatar({
 
     return (
         <img
-            src={player.photo}
+            src={foto.src}
             alt=""
             loading="lazy"
-            onError={() => setFailed(true)}
+            onError={foto.onError}
             className={cn(px, "rounded-full object-cover object-top border-2 bg-[color:var(--secca)] shrink-0")}
             style={style}
         />

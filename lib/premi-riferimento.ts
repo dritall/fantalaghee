@@ -15,6 +15,7 @@
 export type VocePremio = { titolo: string; importo: number; nota?: string };
 
 export const STAGIONE_RIFERIMENTO = '2025/26';
+/** Squadre della stagione di riferimento. Per quella in corso: `SQUADRE_ISCRITTE`. */
 export const ISCRITTI_RIFERIMENTO = 50;
 export const QUOTA = 110;
 export const GIORNATE = 38;

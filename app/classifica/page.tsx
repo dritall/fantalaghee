@@ -28,8 +28,11 @@ function ClassificaContent() {
             setLoading(true);
             try {
                 const res = await fetch(`/api/classifica?stagione=${stagione}`);
-                if (!res.ok) throw new Error('Failed to fetch data');
-                const data = await res.json();
+                const data = await res.json().catch(() => null);
+                // la rotta risponde con `error` invece di una classifica finta
+                if (!res.ok || data?.error) {
+                    throw new Error(data?.error || 'classifica non raggiungibile');
+                }
                 setLeaderboard(data.classifica || []);
             } catch (err: any) {
                 setError(err.message);
@@ -65,19 +68,23 @@ function ClassificaContent() {
         );
     })();
 
-    // Ultima giornata giocata: serve un punteggio vero, non una cella
-    // riempita da una formula con stringa vuota o uno zero di comodo.
-    const lastPlayedMatchday = matchdays.reduce((acc, g) => {
-        const played = leaderboard.some((team) => {
+    // Una giornata è giocata solo se qualcuno ha un punteggio vero: il foglio
+    // riempie di zeri le colonne future, e senza questo filtro il campionato
+    // appena iniziato mostrerebbe 37 giornate tutte "vinte" a zero punti.
+    const isGiocata = (g: string) =>
+        leaderboard.some((team) => {
             const n = toNumber(team[g]);
             return n !== null && n > 0;
         });
-        return played ? g : acc;
-    }, matchdays[0]);
+    const matchdaysGiocate = matchdays.filter(isGiocata);
+
+    // Ultima giornata giocata: serve un punteggio vero, non una cella
+    // riempita da una formula con stringa vuota o uno zero di comodo.
+    const lastPlayedMatchday = matchdaysGiocate[matchdaysGiocate.length - 1] ?? matchdays[0];
 
     // Miglior punteggio di ogni giornata, e il secondo: dal 26/27 anche chi
     // arriva secondo nel turno prende un premio, quindi va evidenziato.
-    const bestPerMatchday = matchdays.reduce((acc, g) => {
+    const bestPerMatchday = matchdaysGiocate.reduce((acc, g) => {
         const values = leaderboard
             .map((team) => toNumber(team[g]))
             .filter((v): v is number => v !== null);
@@ -85,7 +92,7 @@ function ClassificaContent() {
         return acc;
     }, {} as Record<string, number>);
 
-    const secondPerMatchday = matchdays.reduce((acc, g) => {
+    const secondPerMatchday = matchdaysGiocate.reduce((acc, g) => {
         const distinti = Array.from(
             new Set(leaderboard.map((team) => toNumber(team[g])).filter((v): v is number => v !== null))
         ).sort((a, b) => b - a);
@@ -94,12 +101,7 @@ function ClassificaContent() {
     }, {} as Record<string, number>);
 
     // Numeri delle giornate giocate, per il selettore
-    const numeriGiocati = matchdays
-        .filter((g) => leaderboard.some((team) => {
-            const n = toNumber(team[g]);
-            return n !== null && n > 0;
-        }))
-        .map((g) => parseInt(g.replace(/\D/g, ""), 10));
+    const numeriGiocati = matchdaysGiocate.map((g) => parseInt(g.replace(/\D/g, ""), 10));
 
     // Colonna mostrata: quella scelta nel menu, altrimenti l'ultima giocata
     const colonnaGiornata =

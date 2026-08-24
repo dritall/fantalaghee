@@ -44,7 +44,10 @@ export type NormalizedPlayer = {
     /** coordinate tattiche 0..1 già normalizzate (x da sinistra, y dalla propria porta) */
     x: number | null;
     y: number | null;
+    /** primo indirizzo utile della foto, o niente */
     photo: string | null;
+    /** tutti gli indirizzi da provare in ordine, come per gli stemmi */
+    photos: string[];
     stats: Record<string, number | string>;
     goals: number;
     ownGoals: number;
@@ -76,6 +79,9 @@ export type NormalizedMatch = {
 const ROLE_LABELS: Record<number, string> = { 1: 'Portiere', 2: 'Difensore', 3: 'Centrocampista', 4: 'Attaccante' };
 
 const MEDIA_BASE = 'https://media-sdp.legaseriea.it';
+
+/** Stesso archivio, servito anche da qui: è l'host da cui arrivano gli stemmi. */
+const IMG_BASE = 'https://img.legaseriea.it/vimages';
 
 /** Chiave fissa della libreria foto di Lega, uguale per tutte le stagioni. */
 const PLAYER_IMAGES_KEY = 'ec93b94f74294dc98ab5bcfd67fc0d88';
@@ -111,76 +117,107 @@ function fullPlayerName(p: any): string {
 }
 
 /**
- * Ricava l'URL della foto giocatore.
+ * Ricava gli URL possibili della foto giocatore, dal più affidabile al meno.
  *
- * L'API a volte mette il percorso nel *valore*, a volte nel *nome della chiave*
- * (es. `playerImagehomeleft/playerImages/....webp`). Se non troviamo niente
- * costruiamo l'URL con lo schema noto: basta stagione, squadra e giocatore.
+ * Perché una lista e non un solo indirizzo: Lega serve le stesse foto da due
+ * host (`media-sdp` e `img.../vimages`, lo stesso sdoppiamento che c'è per gli
+ * stemmi), con tre inquadrature (`middle`, `left`, `celeb`) e un segmento di
+ * percorso che *non* è il lato della partita ma la divisa: nei dati reali vale
+ * `home` anche per la squadra ospite. Puntare a un solo indirizzo significa
+ * che basta una di queste variabili fuori posto — o una stagione che non ha
+ * ancora pubblicato l'`imagery` nelle formazioni — per lasciare la scheda
+ * senza nessuna faccia. Con la lista il browser scende alla prossima come già
+ * fa per gli stemmi in `TeamLogo`.
  */
-export function playerPhoto(p: any, seasonId?: string, teamId?: string, side: 'home' | 'away' = 'home'): string | null {
-    if (!p) return null;
+export function playerPhotoUrls(p: any, seasonId?: string, teamId?: string): string[] {
+    if (!p) return [];
 
     // Le immagini di Lega rispondono solo a chi dichiara di arrivare dal loro
     // sito, quindi non si possono mettere direttamente in un <img>: passano
     // dal ponte /api/lega-image, che rifà la richiesta con le intestazioni
     // giuste.
     const proxied = (absolute: string) => `/api/lega-image?src=${encodeURIComponent(absolute)}`;
-    const absolutize = (v: string) =>
-        proxied(v.startsWith('http') ? v : `${MEDIA_BASE}${v.startsWith('/') ? '' : '/'}${v}`);
 
+    const out: string[] = [];
+    const push = (url: string | null | undefined) => {
+        if (!url) return;
+        if (!out.includes(url)) out.push(url);
+    };
+
+    /** Un percorso relativo esiste su entrambi gli host: proviamoli tutti e due. */
+    const fromPath = (raw: string) => {
+        const v = raw.trim();
+        if (!v) return;
+        if (v.startsWith('http')) {
+            push(proxied(v));
+            return;
+        }
+        const clean = v.replace(/^\/+/, '');
+        push(proxied(`${MEDIA_BASE}/${clean}`));
+        push(proxied(`${IMG_BASE}/${clean}`));
+    };
+
+    // 1) Percorso incastrato nel *nome* della chiave (vecchie risposte
+    //    dell'API: `playerImagehomeleft/playerImages/....webp`).
     const prefixes = ['playerimagehome', 'playerimageaway'];
     for (const key of Object.keys(p)) {
         const lower = key.toLowerCase();
         if (!prefixes.some((pre) => lower.startsWith(pre))) continue;
 
         const value = p[key];
-        if (typeof value === 'string' && value.includes('.webp')) return absolutize(value);
-        // percorso incorporato nel nome della chiave
+        if (typeof value === 'string' && value.includes('.webp')) fromPath(value);
         if (lower.includes('.webp')) {
-            const idx = key.toLowerCase().indexOf('playerimages');
-            if (idx > -1) return absolutize(key.slice(idx));
+            const idx = lower.indexOf('playerimages');
+            if (idx > -1) fromPath(key.slice(idx));
         }
     }
 
-    // Le foto reali arrivano dentro p.imagery (da lineups API):
-    // { playerImage_home_left: "playerImages/.../left.webp",
-    //   playerImage_home_celeb: "playerImages/.../celeb.webp",
-    //   playerImage_home_middle: "playerImages/.../middle.webp" }
-    // Attenzione: _celeb.webp spesso dà 404, preferiamo _middle o _left.
+    // 2) Il posto giusto: `p.imagery` dalle formazioni.
+    //    { playerImage_home_left, playerImage_home_middle, playerImage_home_celeb }
+    //    `celeb` è quella che manca più spesso, quindi va per ultima.
     if (p.imagery && typeof p.imagery === 'object' && !Array.isArray(p.imagery)) {
-        const variants: any[] = [];
-        for (const key of Object.keys(p.imagery)) {
-            const value = p.imagery[key];
-            if (typeof value === 'string' && value.includes('.webp')) {
-                variants.push({ key: key.toLowerCase(), value });
-            }
+        const variants = Object.keys(p.imagery)
+            .map((key) => ({ key: key.toLowerCase(), value: p.imagery[key] }))
+            .filter((v) => typeof v.value === 'string' && v.value.includes('.webp'));
+
+        for (const sub of ['middle', 'left', 'celeb']) {
+            variants.filter((v) => v.key.includes(sub)).forEach((v) => fromPath(v.value));
         }
-        // Priorità: middle (fronte) > left (profilo) > celeb (404 frequente) > resto
-        const order = ['middle', 'left', 'celeb'];
-        for (const sub of order) {
-            const found = variants.find((v: any) => v.key.includes(sub));
-            if (found) return absolutize(found.value);
-        }
-        if (variants.length > 0) return absolutize(variants[0].value);
+        variants.forEach((v) => fromPath(v.value));
     }
 
+    // 3) Campi singoli, quando ci sono.
     for (const field of ['image', 'photo', 'pictureUrl', 'imageUrl', 'playerImage']) {
         const v = p[field] ?? p.details?.[field] ?? p.player?.[field];
-        if (typeof v === 'string' && v.includes('.webp')) return absolutize(v);
+        if (typeof v === 'string' && v.includes('.webp')) fromPath(v);
     }
 
+    // 4) Ultimo ripiego: l'indirizzo ricostruito a mano da stagione, squadra e
+    //    giocatore. Il segmento del lato è la divisa, non la posizione in
+    //    classifica del match: negli unici dati che abbiamo è sempre `home`
+    //    per entrambe le squadre, quindi `home` va provato per primo anche
+    //    quando stiamo guardando gli ospiti.
     const pid = shortId(p.playerId || p.id || p.player?.playerId);
     const sid = shortId(seasonId);
     const tid = shortId(teamId);
-    // Schema verificato su un URL reale servito da legaseriea.it:
-    // /playerImages/{costante}/{stagione}/{squadra}/{lato}/{giocatore}_left.webp
-    // L'underscore prima di "left" mancava, e senza quello ogni foto era un 404.
     if (pid && sid && tid) {
-        return proxied(
-            `${MEDIA_BASE}/playerImages/${PLAYER_IMAGES_KEY}/${sid}/${tid}/${side}/${pid}_left.webp`
-        );
+        // La divisa di casa va provata per prima a prescindere dal lato della
+        // partita: è quella che Lega pubblica anche per gli ospiti. L'altra
+        // resta come rete. Fra le inquadrature qui parte `_left`, che è quella
+        // verificata su un URL reale; `_middle` e `_celeb` seguono.
+        for (const kit of ['home', 'away']) {
+            for (const shot of ['left', 'middle', 'celeb']) {
+                fromPath(`playerImages/${PLAYER_IMAGES_KEY}/${sid}/${tid}/${kit}/${pid}_${shot}.webp`);
+            }
+        }
     }
-    return null;
+
+    return out;
+}
+
+/** Compatibilità: il primo indirizzo della lista, o niente. */
+export function playerPhoto(p: any, seasonId?: string, teamId?: string): string | null {
+    return playerPhotoUrls(p, seasonId, teamId)[0] ?? null;
 }
 
 /** Riduce a un oggetto piatto le tre forme in cui arrivano le statistiche. */
@@ -265,7 +302,7 @@ function tacticalPosition(p: any, indexInRole: number, totalInRole: number): { x
 function normalizePlayers(
     list: any[],
     starter: boolean,
-    ctx: { seasonId?: string; teamId?: string; side: 'home' | 'away'; playerStats: Map<string, any> }
+    ctx: { seasonId?: string; teamId?: string; playerStats: Map<string, any> }
 ): NormalizedPlayer[] {
     const byRole: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [] };
     list.forEach((p) => {
@@ -293,6 +330,7 @@ function normalizePlayers(
         const subOut = evOf((t) => t.includes('substitution-out') || t === 'suboff')[0];
 
         const statGoals = numStat(stats, ['goals', 'goal']);
+        const photos = playerPhotoUrls(p, ctx.seasonId, ctx.teamId);
 
         return {
             id,
@@ -306,7 +344,8 @@ function normalizePlayers(
             captain: !!(p?.captain || p?.isCaptain),
             x,
             y,
-            photo: playerPhoto(p, ctx.seasonId, ctx.teamId, ctx.side),
+            photo: photos[0] ?? null,
+            photos,
             stats,
             goals: goalEvents.length || statGoals || 0,
             ownGoals: ownGoalEvents.length,
@@ -447,7 +486,7 @@ export function normalizeMatch(raw: {
 
     const build = (side: 'home' | 'away', teamRaw: any, teamId: any, fallbackName: string): NormalizedTeam => {
         const block = lineups?.[side] || {};
-        const ctx = { seasonId, teamId, side, playerStats };
+        const ctx = { seasonId, teamId, playerStats };
         return {
             id: shortId(teamId) || null,
             name: teamName(teamRaw, fallbackName),

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X, Loader2 } from "lucide-react";
 import { statOf, type NormalizedPlayer } from "@/lib/lega-normalize";
+import { usaFotoGiocatore } from "@/lib/foto-giocatore";
 import { cn } from "@/lib/utils";
 
 type StatDef = { label: string; keys: string[]; percent?: boolean };
@@ -132,10 +133,9 @@ export function PlayerSheet({
 }) {
     const [season, setSeason] = useState<any>(null);
     const [loadingSeason, setLoadingSeason] = useState(false);
-    const [photoFailed, setPhotoFailed] = useState(false);
+    const foto = usaFotoGiocatore(player);
 
     useEffect(() => {
-        setPhotoFailed(false);
         setSeason(null);
         if (!player?.id) return;
 
@@ -191,11 +191,11 @@ export function PlayerSheet({
                                 style={{ background: `radial-gradient(circle at 20% 0%, ${accent}55, transparent 70%)` }}
                             />
 
-                            {player.photo && !photoFailed ? (
+                            {foto.src ? (
                                 <img
-                                    src={player.photo}
+                                    src={foto.src}
                                     alt=""
-                                    onError={() => setPhotoFailed(true)}
+                                    onError={foto.onError}
                                     className="relative w-16 h-16 rounded-[var(--ro-s)] object-cover object-top border-2 bg-[color:var(--secca)] shrink-0"
                                     style={{ borderColor: accent }}
                                 />

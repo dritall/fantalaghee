@@ -44,36 +44,44 @@ const parseSheetData = (data: string[][]) => {
     // --- Data Extraction Logic (Based on getDashboard.js) ---
     // Note: getDashboard.js used hardcoded indices. We try to respect them but add safety checks.
 
+    // Il foglio viene azzerato a inizio stagione e le righe tornano corte: una
+    // cella letta a posizione fissa può non esistere affatto. `cella` legge
+    // sempre una stringa, così nessuna lettura qui sotto può far esplodere la
+    // rotta e lasciare il Verdetto con la schermata d'errore.
+    const cella = (riga: number, colonna: number): string => {
+        const v = data[riga]?.[colonna];
+        return typeof v === 'string' ? v.trim() : v == null ? '' : String(v);
+    };
+    const cellaOrND = (riga: number, colonna: number): string => cella(riga, colonna) || 'N/D';
+
     // A60 (Index 59) -> Numero Giornata
-    const numeroGiornataText = data[59] ? data[59][0] : '';
-    const numeroGiornata = parseInt(numeroGiornataText.match(/\d+/)?.[0] || '0');
+    const numeroGiornata = parseInt(cella(59, 0).match(/\d+/)?.[0] || '0');
 
     // A56 (Index 55) -> Leader Attuale
-    const leaderAttuale = data[55] ? data[55][0] : 'N/D';
+    const leaderAttuale = cellaOrND(55, 0);
 
     // B62 (Index 61) -> Campione di Giornata
-    const campioneDiGiornata = data[61] ? data[61][1] : 'N/D';
+    const campioneDiGiornata = cellaOrND(61, 1);
 
     // Podio (Rows 65, 66, 67 -> Indices 64, 65, 66)
-    const podio = [
-        { squadra: data[64]?.[0] || 'N/D', punteggio: data[64]?.[1] || 'N/D' },
-        { squadra: data[65]?.[0] || 'N/D', punteggio: data[65]?.[1] || 'N/D' },
-        { squadra: data[66]?.[0] || 'N/D', punteggio: data[66]?.[1] || 'N/D' }
-    ];
+    const podio = [64, 65, 66].map((riga) => ({
+        squadra: cellaOrND(riga, 0),
+        punteggio: cellaOrND(riga, 1),
+    }));
 
     // Record Assoluto (G56, G57, G58 -> Indices 55, 56, 57, Col 6)
     const recordAssoluto = {
-        punteggio: data[55] ? data[55][6] : 'N/D',
-        squadra: data[56] ? data[56][6] : 'N/D',
-        giornata: data[57] ? data[57][6] : 'N/D'
+        punteggio: cellaOrND(55, 6),
+        squadra: cellaOrND(56, 6),
+        giornata: cellaOrND(57, 6),
     };
 
     // Cucchiaio di Legno (G61, G62, G63 -> Indices 60, 61, 62, Col 6)
     // Note: Original code used indices 60, 61, 62 for F61, F62, F63
     const cucchiaioDiLegno = {
-        punteggio: data[60] ? data[60][6] : 'N/D',
-        squadra: data[61] ? data[61][6] : 'N/D',
-        giornata: data[62] ? data[62][6] : 'N/D'
+        punteggio: cellaOrND(60, 6),
+        squadra: cellaOrND(61, 6),
+        giornata: cellaOrND(62, 6),
     };
 
     // --- Sezioni Dinamiche ---
@@ -127,8 +135,10 @@ const parseSheetData = (data: string[][]) => {
     let migliorPunteggio = { info: 'N/D', premio: 'N/D' };
     const migliorPunteggioRow = findRowIndex("Miglior Punteggio", 0);
     if (migliorPunteggioRow !== -1 && data[migliorPunteggioRow + 1]) {
-        const row = data[migliorPunteggioRow + 1];
-        migliorPunteggio = { info: row[0], premio: row[2] };
+        migliorPunteggio = {
+            info: cellaOrND(migliorPunteggioRow + 1, 0),
+            premio: cellaOrND(migliorPunteggioRow + 1, 2),
+        };
     }
 
     // Premi Super Lega (A82:C87 -> indices 81-86, data rows at 83-86)

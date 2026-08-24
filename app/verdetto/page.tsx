@@ -389,6 +389,34 @@ function VerdettoContent() {
                                         {storico.premio.vincitori.length}.
                                     </p>
                                 )}
+
+                                {/* Dal 26/27 prende un premio anche il secondo. L'importo dipende
+                                    dagli iscritti e si conosce entro la 5ª giornata: qui c'è chi lo
+                                    ha vinto, non una cifra inventata. */}
+                                {storico.premio.secondi && (
+                                    <div className="mt-4 pt-3 border-t border-[color:var(--filo)]">
+                                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)] mb-1.5">
+                                            Secondo di giornata
+                                        </p>
+                                        <div className="space-y-0.5">
+                                            {storico.premio.secondi.squadre.map((squadra) => (
+                                                <div key={squadra} className="flex items-center justify-between gap-3 px-3 py-2">
+                                                    <span className="flex items-center gap-2 min-w-0">
+                                                        <span className="text-sm shrink-0">🥈</span>
+                                                        <span className="text-xs text-[color:var(--calce)]/80 truncate">{squadra}</span>
+                                                    </span>
+                                                    <span className="text-xs font-bold text-[color:var(--fumo)] tabular-nums shrink-0">
+                                                        {storico.premio!.secondi!.punteggio} pt
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="mt-1.5 text-[11px] text-[color:var(--fumo)]">
+                                            Novità 2026/27: premiato anche il secondo punteggio del turno. L&apos;importo
+                                            viene comunicato entro l&apos;inizio della 5ª giornata.
+                                        </p>
+                                    </div>
+                                )}
                             </Panel>
                         )}
 
@@ -414,6 +442,8 @@ function VerdettoContent() {
                         )}
 
                         <p className="text-[11px] leading-relaxed text-[color:var(--fumo)]">
+                            Il conteggio delle 🍆 qui sopra tiene solo i 25 🍆 del primo di giornata: il premio
+                            al secondo si aggiungerà quando l&apos;importo sarà ufficiale.
                             Premi di campionato e coppe si assegnano sulla classifica finale: compaiono solo
                             all&apos;ultima giornata. Per il montepremi completo della giornata in corso torna su
                             <button

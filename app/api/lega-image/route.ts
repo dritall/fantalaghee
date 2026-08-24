@@ -49,9 +49,13 @@ export async function GET(request: Request) {
     }
 
     try {
+        // Niente Data Cache di Next su un corpo binario: qui passano webp da
+        // decine di kB e la cache dei fetch è pensata per JSON, con un limite
+        // di dimensione oltre il quale si comporta in modo diverso. La cache
+        // vera la fa comunque la CDN, con il Cache-Control della risposta.
         const upstream = await fetch(target.toString(), {
             headers: HEADERS,
-            next: { revalidate: 86400 },
+            cache: 'no-store',
         });
 
         if (!upstream.ok) {

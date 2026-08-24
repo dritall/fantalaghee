@@ -10,9 +10,9 @@
  */
 
 import { Marchio } from "@/components/ui/Marchio";
-import { UserPlus, ArrowUp } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { SeasonLink } from "@/components/ui/SeasonLink";
-import { ISCRIZIONE_FORM_URL, LEAGUE_TAGLINE } from "@/lib/seasons";
+import { LEAGUE_TAGLINE } from "@/lib/seasons";
 
 const link = [
     { name: "Classifica", href: "/classifica" },
@@ -49,18 +49,6 @@ export function Footer() {
                                 </SeasonLink>
                             ))}
                         </nav>
-
-                        <a
-                            href={ISCRIZIONE_FORM_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="shrink-0 inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--vermiglio)]
-                                       px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--su-chiaro)]
-                                       transition-transform hover:scale-[1.04]"
-                        >
-                            <UserPlus className="w-3.5 h-3.5" />
-                            Iscriviti
-                        </a>
                     </div>
 
                     {/* riga crediti */}

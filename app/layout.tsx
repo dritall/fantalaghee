@@ -3,7 +3,6 @@ import { Outfit, Inter, Great_Vibes, Lora, Oswald } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { IscrivitiFab } from "@/components/ui/IscrivitiFab";
 import { SfondoLario } from "@/components/layout/SfondoLario";
 import { AssistenteFluttuante } from "@/components/ui/AssistenteFluttuante";
 import { RivelaOsservatore } from "@/components/ui/RivelaOsservatore";
@@ -78,7 +77,6 @@ export default function RootLayout({
         <div id="contenuto" className="flex-1 flex flex-col">
           {children}
         </div>
-        <IscrivitiFab />
         <AssistenteFluttuante />
         <Footer />
       </body>

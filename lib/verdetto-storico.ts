@@ -73,7 +73,19 @@ export function punteggiDiGiornata(righe: SquadraRiga[], g: number): PunteggioGi
  */
 export const PREMIO_GIORNATA = 25;
 
-export type PremioGiornata = { vincitori: string[]; punteggio: number; quota: number; totale: number };
+export type PremioGiornata = {
+    vincitori: string[];
+    punteggio: number;
+    quota: number;
+    totale: number;
+    /**
+     * Secondo miglior punteggio del turno: dal 2026/27 prende un premio anche
+     * lui. L'importo però dipende dagli iscritti e viene comunicato entro la 5ª
+     * giornata, quindi qui c'è solo chi è arrivato secondo — la quota resta
+     * fuori finché non è un numero vero e non una nostra invenzione.
+     */
+    secondi: { squadre: string[]; punteggio: number } | null;
+};
 
 /**
  * Premio della giornata: si ricava dai soli punteggi, quindi vale anche per le
@@ -84,11 +96,23 @@ export function premioDiGiornata(podio: PunteggioGiornata[], totale = PREMIO_GIO
     if (podio.length === 0) return null;
     const migliore = podio[0].punteggio;
     const vincitori = podio.filter((p) => p.punteggio === migliore).map((p) => p.squadra);
+
+    // il secondo punteggio è il primo *diverso* dal migliore: chi pareggia con
+    // la vetta è primo a pari merito, non secondo
+    const secondoPunteggio = podio.find((p) => p.punteggio < migliore)?.punteggio ?? null;
+
     return {
         vincitori,
         punteggio: migliore,
         quota: Math.round((totale / vincitori.length) * 100) / 100,
         totale,
+        secondi:
+            secondoPunteggio === null
+                ? null
+                : {
+                      squadre: podio.filter((p) => p.punteggio === secondoPunteggio).map((p) => p.squadra),
+                      punteggio: secondoPunteggio,
+                  },
     };
 }
 

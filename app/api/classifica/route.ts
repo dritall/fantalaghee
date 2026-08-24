@@ -10,7 +10,8 @@ const fetchAndParseCSV = async (url: string, options = { header: true }, timeout
         const signal = controller.signal;
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-        const response = await fetch(url, { signal, redirect: 'follow' }); // Added redirect: follow
+        // il foglio cambia durante la giornata: mai servire una copia in cache
+        const response = await fetch(url, { signal, redirect: 'follow', cache: 'no-store' });
 
         clearTimeout(timeoutId);
 
@@ -74,15 +75,16 @@ export async function GET(request: NextRequest) {
     } catch (error: any) {
         console.error("API Error in Classifica Route:", error);
 
-        // Fallback Mock Data ONLY if real fetch fails hard
-        const mockData = [
-            { rank: 1, team: "AC Ciucco (FALLBACK)", owner: "Marco", points: 42, last: "W", change: "up" },
-            { rank: 2, team: "Real Colizzati", owner: "Giuseppe", points: 39, last: "W", change: "same" },
-        ];
-
-        return NextResponse.json({
-            classifica: mockData,
-            warning: "Impossibile recuperare i dati live. Visualizzo dati simulati."
-        });
+        // Niente classifica finta: durante una giornata di campionato una
+        // tabella di squadre inventate è peggio di un errore, perché sembra
+        // vera. Chi chiama vede l'errore e la pagina lo dice.
+        return NextResponse.json(
+            {
+                error: 'Classifica non raggiungibile',
+                details: error?.message || 'errore sconosciuto',
+                stagione: season.slug,
+            },
+            { status: 502 }
+        );
     }
 }
