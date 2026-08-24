@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Papa from 'papaparse';
 import { getSeason } from '@/lib/seasons';
+import { puntiGenerali } from '@/lib/numbers';
 
 export const dynamic = 'force-dynamic';
 // Helper function to fetch and parse CSV data
@@ -54,12 +55,14 @@ export async function GET(request: NextRequest) {
             riga.Team && riga.Team.trim() !== ''
         );
 
-        // 2. Sort by Generale (Total Points) descending
-        const sortedClassifica = datiFiltrati.sort((a: any, b: any) => {
-            const pA = parseFloat(a.Generale || 0);
-            const pB = parseFloat(b.Generale || 0);
-            return pB - pA;
+        // Se Generale è vuoto il foglio non ha ancora calcolato le formule:
+        // sommiamo G1…G38 così la classifica si popola appena c'è una giornata.
+        const conTotale = datiFiltrati.map((riga: any) => {
+            const haGenerale = riga.Generale != null && String(riga.Generale).trim() !== '';
+            return haGenerale ? riga : { ...riga, Generale: String(puntiGenerali(riga)) };
         });
+
+        const sortedClassifica = conTotale.sort((a: any, b: any) => puntiGenerali(b) - puntiGenerali(a));
 
         // 3. Map to include Rank but keep all data
         const result = sortedClassifica.map((item: any, index: number) => ({

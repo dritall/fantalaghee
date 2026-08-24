@@ -53,8 +53,12 @@ console.log('\nnessuna imagery: indirizzo ricostruito');
     ok('divisa di casa per prima', src[0].includes('/SID/TID/home/'), src[0]);
     ok('inquadratura verificata (_left) per prima', src[0].endsWith('_left.webp'), src[0]);
     ok('prova anche la divisa da trasferta', src.some((u) => u.includes('/SID/TID/away/')));
-    ok('prova tutte e tre le inquadrature',
-        ['_middle.webp', '_left.webp', '_celeb.webp'].every((s) => src.some((u) => u.endsWith(s))));
+    ok('prova left e middle (celeb 404-a troppo spesso, non la costruiamo più)',
+        ['_middle.webp', '_left.webp'].every((s) => src.some((u) => u.endsWith(s))));
+    ok('media-sdp, non img.legaseriea, sui path costruiti',
+        src.every((u) => u.startsWith('https://media-sdp.legaseriea.it/')));
+    ok('prova anche le stagioni archiviate come rete',
+        src.some((u) => u.includes('5f0e080fc3a44073984b75b3a8e06a8a')));
 }
 
 console.log('\nsenza dati non si inventa niente');

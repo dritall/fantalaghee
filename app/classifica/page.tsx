@@ -129,8 +129,8 @@ function ClassificaContent() {
         </div>
     );
 
-    // Stagione non ancora iniziata: nessun dato o tutti i totali a zero
-    const isPreSeason = leaderboard.length === 0 || leaderboard.every((t) => !toNumber(t.Generale));
+    // Stagione non ancora iniziata: nessuna giornata con un punteggio vero
+    const isPreSeason = leaderboard.length === 0 || matchdaysGiocate.length === 0;
 
     if (isPreSeason) return (
         <main className="min-h-screen pt-24 pb-8 px-4 md:px-8 flex flex-col relative">

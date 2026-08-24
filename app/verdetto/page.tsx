@@ -107,11 +107,15 @@ function VerdettoContent() {
         </div>
     );
 
-    // Stagione non ancora iniziata: nessuna giornata o tutti i punti a zero
+    // Stagione non ancora iniziata: niente giornata sul foglio e niente G1…G38
+    const giornate = giornateDisponibili(righeClassifica);
     const isPreSeason =
         !data ||
-        !Number(data.numeroGiornata) ||
-        (Array.isArray(data.classifica) && data.classifica.length > 0 && data.classifica.every((d: any) => !Number(d.punti)));
+        (
+            !Number(data.numeroGiornata) &&
+            (!Array.isArray(data.classifica) || data.classifica.every((d: any) => !Number(d.punti))) &&
+            giornate.length === 0
+        );
 
     if (isPreSeason) return (
         <main className="min-h-screen pt-24 pb-12 px-4 md:px-8 relative">
@@ -129,7 +133,6 @@ function VerdettoContent() {
     );
 
     // Giornate ricavabili dal foglio classifica e verdetto ricalcolato.
-    const giornate = giornateDisponibili(righeClassifica);
     const storico: VerdettoGiornata | null =
         giornataScelta !== null && righeClassifica.length > 0
             ? verdettoAllaGiornata(righeClassifica, giornataScelta)

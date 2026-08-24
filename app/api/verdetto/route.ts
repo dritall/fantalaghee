@@ -1,7 +1,8 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import Papa from 'papaparse';
 import { getSeason } from '@/lib/seasons';
+import { toNumber } from '@/lib/numbers';
+import { giornateDisponibili, verdettoAllaGiornata } from '@/lib/verdetto-storico';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
@@ -9,26 +10,40 @@ export const runtime = 'edge';
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const season = getSeason(searchParams.get('stagione'));
+    const bust = `t=${Date.now()}`;
 
     try {
-        const response = await fetch(`${season.verdettoUrl}&t=${Date.now()}`, { cache: 'no-store' });
-        if (!response.ok) {
-            throw new Error(`Errore nel caricare lo spreadsheet: ${response.statusText}`);
+        const [verdettoRes, classificaRes] = await Promise.all([
+            fetch(`${season.verdettoUrl}&${bust}`, { cache: 'no-store' }),
+            fetch(`${season.classificaUrl}${season.classificaUrl.includes('?') ? '&' : '?'}${bust}`, { cache: 'no-store' }),
+        ]);
+
+        if (!verdettoRes.ok) {
+            throw new Error(`Errore nel caricare lo spreadsheet: ${verdettoRes.statusText}`);
         }
 
-        const csvText = await response.text();
-
+        const csvText = await verdettoRes.text();
         const parseResult = Papa.parse(csvText, { skipEmptyLines: false });
         const allData = parseResult.data as string[][];
 
         if (!allData || allData.length === 0) {
-            throw new Error("Nessun dato trovato nel CSV");
+            throw new Error('Nessun dato trovato nel CSV');
         }
 
         const processedData = parseSheetData(allData);
 
-        return NextResponse.json({ ...processedData, stagione: season.slug });
+        // Il foglio del Verdetto ha le celle dei premi e dei box in posizioni
+        // che cambiano da una stagione all'altra. I punteggi veri stanno nelle
+        // colonne G1…G38 della classifica: se il dashboard è vuoto o letto
+        // storto, si ricostruisce da lì.
+        if (classificaRes.ok) {
+            const classificaCsv = await classificaRes.text();
+            const parsed = Papa.parse(classificaCsv, { header: true, skipEmptyLines: true });
+            const righe = (parsed.data as any[]).filter((r) => r?.Team && String(r.Team).trim());
+            arricchisciDaClassifica(processedData, righe);
+        }
 
+        return NextResponse.json({ ...processedData, stagione: season.slug });
     } catch (error: any) {
         console.error('Errore in /api/verdetto:', error);
         return NextResponse.json(
@@ -39,127 +54,147 @@ export async function GET(request: NextRequest) {
 }
 
 const parseSheetData = (data: string[][]) => {
-    const findRowIndex = (label: string, col = 0) => data.findIndex(row => row && row[col] && row[col].trim().toLowerCase() === label.toLowerCase());
-
-    // --- Data Extraction Logic (Based on getDashboard.js) ---
-    // Note: getDashboard.js used hardcoded indices. We try to respect them but add safety checks.
-
-    // Il foglio viene azzerato a inizio stagione e le righe tornano corte: una
-    // cella letta a posizione fissa può non esistere affatto. `cella` legge
-    // sempre una stringa, così nessuna lettura qui sotto può far esplodere la
-    // rotta e lasciare il Verdetto con la schermata d'errore.
     const cella = (riga: number, colonna: number): string => {
         const v = data[riga]?.[colonna];
         return typeof v === 'string' ? v.trim() : v == null ? '' : String(v);
     };
     const cellaOrND = (riga: number, colonna: number): string => cella(riga, colonna) || 'N/D';
 
-    // A60 (Index 59) -> Numero Giornata
-    const numeroGiornata = parseInt(cella(59, 0).match(/\d+/)?.[0] || '0');
+    const trovaRiga = (re: RegExp): number =>
+        data.findIndex((row) => row?.some((c) => re.test(String(c || ''))));
 
-    // A56 (Index 55) -> Leader Attuale
-    const leaderAttuale = cellaOrND(55, 0);
+    const valoreAccanto = (da: number, fino: number, etichetta: RegExp): string => {
+        for (let r = da; r <= fino && r < data.length; r++) {
+            const row = data[r] || [];
+            for (let c = 0; c < row.length; c++) {
+                if (etichetta.test(String(row[c] || '').trim())) {
+                    const next = String(row[c + 1] ?? '').trim();
+                    if (next) return next;
+                }
+            }
+        }
+        return '';
+    };
 
-    // B62 (Index 61) -> Campione di Giornata
-    const campioneDiGiornata = cellaOrND(61, 1);
+    // --- Leader / record / campione / podio / cucchiaio: per etichetta, non per riga fissa ---
 
-    // Podio (Rows 65, 66, 67 -> Indices 64, 65, 66)
-    const podio = [64, 65, 66].map((riga) => ({
-        squadra: cellaOrND(riga, 0),
-        punteggio: cellaOrND(riga, 1),
-    }));
+    const iLeader = trovaRiga(/leader\s+attuale/i);
+    const leaderAttuale = iLeader >= 0 ? cellaOrND(iLeader + 1, 0) : 'N/D';
 
-    // Record Assoluto (G56, G57, G58 -> Indices 55, 56, 57, Col 6)
+    const iRecord = trovaRiga(/record\s+assoluto/i);
     const recordAssoluto = {
-        punteggio: cellaOrND(55, 6),
-        squadra: cellaOrND(56, 6),
-        giornata: cellaOrND(57, 6),
+        punteggio: (iRecord >= 0 && valoreAccanto(iRecord, iRecord + 6, /^punteggio$/i)) || 'N/D',
+        squadra: (iRecord >= 0 && valoreAccanto(iRecord, iRecord + 6, /^squadra$/i)) || 'N/D',
+        giornata: (iRecord >= 0 && valoreAccanto(iRecord, iRecord + 6, /^giornata$/i)) || 'N/D',
     };
 
-    // Cucchiaio di Legno (G61, G62, G63 -> Indices 60, 61, 62, Col 6)
-    // Note: Original code used indices 60, 61, 62 for F61, F62, F63
+    const iCamp = trovaRiga(/campione della giornata/i);
+    let numeroGiornata = 0;
+    let campioneDiGiornata = 'N/D';
+    if (iCamp >= 0) {
+        const daEtichetta = cella(iCamp, 0).match(/giornata\s*(\d+)/i);
+        numeroGiornata = parseInt(daEtichetta?.[1] || '0', 10);
+        campioneDiGiornata = valoreAccanto(iCamp, iCamp + 4, /^squadra$/i) || 'N/D';
+        if (campioneDiGiornata === 'N/D') {
+            const nxt = cella(iCamp + 1, 0);
+            if (nxt && !/punteggio|squadra|podio|premi/i.test(nxt)) campioneDiGiornata = nxt;
+        }
+    }
+
+    const iPodio = trovaRiga(/podio della giornata/i);
+    const podio: { squadra: string; punteggio: string }[] = [];
+    if (iPodio >= 0) {
+        for (let r = iPodio + 1; r <= iPodio + 3 && r < data.length; r++) {
+            const squadra = cella(r, 0);
+            if (!squadra || /premi|podio|campione|leader/i.test(squadra)) break;
+            podio.push({ squadra, punteggio: cellaOrND(r, 1) });
+        }
+    }
+
+    const iCucc = trovaRiga(/cucchiaio di legno/i);
     const cucchiaioDiLegno = {
-        punteggio: cellaOrND(60, 6),
-        squadra: cellaOrND(61, 6),
-        giornata: cellaOrND(62, 6),
+        punteggio: (iCucc >= 0 && valoreAccanto(iCucc, iCucc + 5, /^punteggio$/i)) || 'N/D',
+        squadra: (iCucc >= 0 && valoreAccanto(iCucc, iCucc + 5, /^squadra$/i)) || 'N/D',
+        giornata: (iCucc >= 0 && valoreAccanto(iCucc, iCucc + 5, /^giornata$/i)) || 'N/D',
     };
 
-    // --- Sezioni Dinamiche ---
-
-    // Classifica (Squadre On Fire) - Top 5 from Dashboard!A3:C7
-    // A3 starts at index 2. We read Rows 3,4,5,6,7.
-    // Col A (Index 0) = Squadra, Col B (Index 1) = Generale, Col C (Index 2) = Media
-    const classifica: any[] = [];
-
-    // We iterate from row index 2 (A3) to 6 (A7) - total 5 rows
-    for (let i = 2; i <= 6; i++) {
-        const row = data[i];
-        if (row && row[0]) {
-            classifica.push({
-                squadra: row[0],
-                punti: parseFloat(row[1]?.replace(',', '.') || '0'),
-                mediaPunti: parseFloat(row[2]?.replace(',', '.') || '0')
-            });
+    // Classifica / Squadre on fire: prime righe dati sotto l'intestazione.
+    // Col B = Punteggio Totale (spesso vuoto a inizio stagione),
+    // Col F = Punteggio Max (c'è già dopo G1).
+    const classifica: { squadra: string; punti: number; mediaPunti: number }[] = [];
+    for (let i = 1; i < data.length && classifica.length < 8; i++) {
+        const nome = cella(i, 0);
+        if (!nome) continue;
+        if (/nome squadra|leader|campione|podio|premi|miglior|record|cucchiaio|momento|top\s*5/i.test(nome)) {
+            if (classifica.length) break;
+            continue;
         }
+        const punti = toNumber(data[i][1]) ?? toNumber(data[i][5]) ?? 0;
+        const mediaPunti = toNumber(data[i][2]) ?? 0;
+        classifica.push({ squadra: nome, punti, mediaPunti });
+        if (classifica.length >= 5 && /leader|campione/i.test(cella(i + 1, 0))) break;
     }
-
-    // Sort by Total Points (Descending) as requested
     classifica.sort((a, b) => b.punti - a.punti);
+    const classificaTop = classifica.slice(0, 5);
 
-    // Premi di Giornata (Starts Index 71, Row 72 to Index 98, Row 99)
-    const premiDiGiornata: any[] = [];
-    for (let i = 71; i <= 98; i++) {
-        const row = data[i];
-        if (row && (row[5] || row[6])) { // Col F or G present
-            premiDiGiornata.push({ squadra: row[5], premio: row[6] });
+    // Premi di giornata: blocco a destra di "Premi di Giornata"
+    const iPremiG = trovaRiga(/premi di giornata/i);
+    const premiDiGiornata: { squadra: string; premio: string }[] = [];
+    if (iPremiG >= 0) {
+        // la riga dell'etichetta ha Squadra | Premi… ; i dati partono dalla riga dopo
+        for (let i = iPremiG + 1; i < Math.min(data.length, iPremiG + 40); i++) {
+            const row = data[i] || [];
+            const squadra = String(row[5] || '').trim();
+            const premio = String(row[6] || '').trim();
+            if (!squadra && !premio) {
+                if (premiDiGiornata.length) break;
+                continue;
+            }
+            if (/squadra|premi|miglior/i.test(squadra)) continue;
+            premiDiGiornata.push({ squadra, premio });
         }
     }
 
-    // Premi Classifica Generale
-    // Search "Premi Classifica Generale" in Col A (0) is unreliable if we want fixed C73:C77.
-    // C73 is Index 72 (Row 73). Range C73:C77 means indices 72, 73, 74, 75, 76.
-    const premiClassifica: any[] = [];
-    // We assume the structure: Squadra is in Col A (0), and Prize Amount is now in Col C (2) as requested.
-    // If user meant "Value is in C, Team is in A", we use that.
-
-    for (let i = 72; i <= 76; i++) {
-        const row = data[i];
-        if (row && row[0]) {
-            // Squadra at 0 (A), Premio at 2 (C)
-            premiClassifica.push({ squadra: row[0], premio: row[2] });
+    // Premi classifica generale: sotto l'etichetta, col A / C
+    const iPremiC = trovaRiga(/premi classifica generale/i);
+    const premiClassifica: { squadra: string; premio: string }[] = [];
+    if (iPremiC >= 0) {
+        for (let i = iPremiC + 2; i <= iPremiC + 8 && i < data.length; i++) {
+            const squadra = cella(i, 0);
+            if (!squadra || /miglior|super\s*lega|coppa|riepilogo/i.test(squadra)) break;
+            premiClassifica.push({ squadra, premio: cella(i, 2) });
         }
     }
 
-    // Miglior Punteggio
-    // Search "Miglior Punteggio" in Col A (0)
     let migliorPunteggio = { info: 'N/D', premio: 'N/D' };
-    const migliorPunteggioRow = findRowIndex("Miglior Punteggio", 0);
-    if (migliorPunteggioRow !== -1 && data[migliorPunteggioRow + 1]) {
+    const iMiglior = trovaRiga(/^miglior punteggio$/i);
+    if (iMiglior !== -1) {
         migliorPunteggio = {
-            info: cellaOrND(migliorPunteggioRow + 1, 0),
-            premio: cellaOrND(migliorPunteggioRow + 1, 2),
+            info: cellaOrND(iMiglior + 1, 0),
+            premio: cellaOrND(iMiglior + 1, 2),
         };
     }
 
-    // Premi Super Lega (A82:C87 -> indices 81-86, data rows at 83-86)
-    const premiSuperLega: any[] = [];
-    for (let i = 83; i <= 86; i++) {
-        const row = data[i];
-        if (row && row[0]) {
-            premiSuperLega.push({ squadra: row[0], posizione: row[1], premio: row[2] });
+    const iSuper = trovaRiga(/premi super\s*lega/i);
+    const premiSuperLega: { squadra: string; posizione: string; premio: string }[] = [];
+    if (iSuper >= 0) {
+        for (let i = iSuper + 2; i <= iSuper + 6 && i < data.length; i++) {
+            const squadra = cella(i, 0);
+            if (!squadra || /coppa|uefa|riepilogo/i.test(squadra)) break;
+            premiSuperLega.push({ squadra, posizione: cella(i, 1), premio: cella(i, 2) });
         }
     }
 
-    // Premi Coppa UEFA (A88:C90 -> indices 87-89, data rows at 88-89)
-    const premiCoppaUefa: any[] = [];
-    for (let i = 88; i <= 89; i++) {
-        const row = data[i];
-        if (row && row[0]) {
-            premiCoppaUefa.push({ squadra: row[0], posizione: row[1], premio: row[2] });
+    const iUefa = trovaRiga(/premi coppa uefa/i);
+    const premiCoppaUefa: { squadra: string; posizione: string; premio: string }[] = [];
+    if (iUefa >= 0) {
+        for (let i = iUefa + 2; i <= iUefa + 4 && i < data.length; i++) {
+            const squadra = cella(i, 0);
+            if (!squadra || /riepilogo/i.test(squadra)) break;
+            premiCoppaUefa.push({ squadra, posizione: cella(i, 1), premio: cella(i, 2) });
         }
     }
 
-    // Riepilogo aggregato per squadra (somma di tutte le categorie premi)
     const totals: Record<string, number> = {};
     const addPrize = (squadra: string, premio: any) => {
         const val = parseFloat(String(premio).replace(',', '.'));
@@ -167,17 +202,16 @@ const parseSheetData = (data: string[][]) => {
             totals[squadra.trim()] = (totals[squadra.trim()] || 0) + val;
         }
     };
-    premiClassifica.forEach(p => addPrize(p.squadra, p.premio));
-    premiDiGiornata.forEach(p => addPrize(p.squadra, p.premio));
+    premiClassifica.forEach((p) => addPrize(p.squadra, p.premio));
+    premiDiGiornata.forEach((p) => addPrize(p.squadra, p.premio));
     if (migliorPunteggio.info !== 'N/D') addPrize(migliorPunteggio.info.split(' - ')[0].trim(), migliorPunteggio.premio);
-    premiSuperLega.forEach(p => addPrize(p.squadra, p.premio));
-    premiCoppaUefa.forEach(p => addPrize(p.squadra, p.premio));
+    premiSuperLega.forEach((p) => addPrize(p.squadra, p.premio));
+    premiCoppaUefa.forEach((p) => addPrize(p.squadra, p.premio));
 
-    // Merge varianti nome Cippalippa1418 (es. spazi/maiuscole diverse tra sheet e migliorPunteggio)
-    const cippaKeys = Object.keys(totals).filter(k => k.toLowerCase().replace(/\s/g, '') === 'cippalippa1418');
+    const cippaKeys = Object.keys(totals).filter((k) => k.toLowerCase().replace(/\s/g, '') === 'cippalippa1418');
     if (cippaKeys.length > 1) {
         const merged = cippaKeys.reduce((sum, k) => sum + totals[k], 0);
-        cippaKeys.forEach(k => delete totals[k]);
+        cippaKeys.forEach((k) => delete totals[k]);
         totals['Cippalippa1418'] = merged;
     }
 
@@ -192,14 +226,59 @@ const parseSheetData = (data: string[][]) => {
         podio,
         recordAssoluto,
         cucchiaioDiLegno,
-        classifica,
+        classifica: classificaTop,
         premi: {
             classifica: premiClassifica,
             giornata: premiDiGiornata,
-            migliorPunteggio: migliorPunteggio,
+            migliorPunteggio,
             superLega: premiSuperLega,
             coppaUefa: premiCoppaUefa,
-            riepilogo: premiRiepilogo
-        }
+            riepilogo: premiRiepilogo,
+        },
     };
 };
+
+function arricchisciDaClassifica(
+    processed: ReturnType<typeof parseSheetData>,
+    righe: any[]
+) {
+    if (!righe.length) return;
+    const gs = giornateDisponibili(righe);
+    const g = processed.numeroGiornata || gs[gs.length - 1] || 0;
+    if (g <= 0) return;
+
+    const storico = verdettoAllaGiornata(righe, g);
+    processed.numeroGiornata = processed.numeroGiornata || g;
+
+    const assente = (v: string) => !v || v === 'N/D' || /punteggio totale|premi di giornata/i.test(v);
+
+    if (assente(processed.leaderAttuale)) processed.leaderAttuale = storico.leader;
+    if (assente(processed.campioneDiGiornata)) {
+        processed.campioneDiGiornata = storico.podio[0]?.squadra || processed.campioneDiGiornata;
+    }
+    const podioRotto =
+        processed.podio.length === 0 || processed.podio.every((p) => assente(p.punteggio) || assente(p.squadra));
+    if (podioRotto) {
+        processed.podio = storico.podio.slice(0, 3).map((p) => ({
+            squadra: p.squadra,
+            punteggio: String(p.punteggio),
+        }));
+    }
+    if (!processed.classifica.length || processed.classifica.every((c) => !c.punti)) {
+        processed.classifica = storico.classifica.slice(0, 5);
+    }
+    if (assente(processed.recordAssoluto.punteggio) && storico.record) {
+        processed.recordAssoluto = {
+            punteggio: String(storico.record.punteggio),
+            squadra: storico.record.squadra,
+            giornata: `Giornata ${storico.record.giornata}`,
+        };
+    }
+    if (assente(processed.cucchiaioDiLegno.punteggio) && storico.cucchiaio) {
+        processed.cucchiaioDiLegno = {
+            punteggio: String(storico.cucchiaio.punteggio),
+            squadra: storico.cucchiaio.squadra,
+            giornata: `Giornata ${storico.cucchiaio.giornata}`,
+        };
+    }
+}

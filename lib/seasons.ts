@@ -53,3 +53,24 @@ export function getSeason(slug?: string | null): SeasonConfig {
     if (slug && SEASONS[slug]) return SEASONS[slug];
     return SEASONS[CURRENT_SEASON];
 }
+
+/**
+ * Id stagione Lega Serie A (solo il segmento corto), dalla più recente.
+ * Serve alle foto giocatore: Lega pubblica le facce della stagione nuova in
+ * ritardo, e quelle dell'anno prima restano online con lo stesso playerId.
+ */
+export function serieASeasonShortIds(preferred?: string | null): string[] {
+    const corto = (raw?: string | null) => {
+        if (!raw) return '';
+        const decoded = raw.includes('%') ? decodeURIComponent(raw) : raw;
+        return decoded.includes('::') ? decoded.split('::').pop() || decoded : decoded;
+    };
+    const out: string[] = [];
+    const push = (raw?: string | null) => {
+        const id = corto(raw);
+        if (id && !out.includes(id)) out.push(id);
+    };
+    push(preferred);
+    Object.values(SEASONS).forEach((s) => push(s.serieASeasonId));
+    return out;
+}

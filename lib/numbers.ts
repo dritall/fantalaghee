@@ -64,6 +64,23 @@ export function toNumber(raw: unknown): number | null {
     return Number.isFinite(n) ? n : null;
 }
 
+/**
+ * Totale di una riga di classifica. Se la colonna Generale è vuota (formule
+ * del foglio non ancora calcolate, o CSV pubblicato senza i valori) si somma
+ * G1…G38. Così una giornata caricata a mano non sparisce dal sito.
+ */
+export function puntiGenerali(riga: Record<string, unknown> | null | undefined): number {
+    const dichiarato = toNumber(riga?.Generale);
+    if (dichiarato !== null) return dichiarato;
+    let somma = 0;
+    for (const [chiave, valore] of Object.entries(riga || {})) {
+        if (!/^G\s*\d{1,2}$/i.test(String(chiave).trim())) continue;
+        const n = toNumber(valore);
+        if (n !== null) somma += n;
+    }
+    return Math.round(somma * 100) / 100;
+}
+
 /** Numero riformattato all'italiana, per mostrarlo com'è stato scritto. */
 export function formatNumber(n: number | null): string {
     if (n === null) return '-';

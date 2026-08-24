@@ -1,3 +1,5 @@
+import { serieASeasonShortIds } from './seasons.ts';
+
 /**
  * Normalizzazione dei dati partita di Lega Serie A.
  *
@@ -197,18 +199,26 @@ export function playerPhotoUrls(p: any, seasonId?: string, teamId?: string): str
     //    classifica del match: negli unici dati che abbiamo è sempre `home`
     //    per entrambe le squadre, quindi `home` va provato per primo anche
     //    quando stiamo guardando gli ospiti.
+    //
+    //    Lega pubblica le foto della stagione nuova in ritardo (a G1 2026/27
+    //    `imagery` è `{}` e i path con l'id nuovo rispondono 404). Quelle
+    //    dell'anno prima restano su media-sdp con lo stesso playerId: le
+    //    proviamo tutte, stagione corrente per prima.
     const pid = shortId(p.playerId || p.id || p.player?.playerId);
-    const sid = shortId(seasonId);
     const tid = shortId(teamId);
-    if (pid && sid && tid) {
-        // La divisa di casa va provata per prima a prescindere dal lato della
-        // partita: è quella che Lega pubblica anche per gli ospiti. L'altra
-        // resta come rete. Fra le inquadrature qui parte `_left`, che è quella
-        // verificata su un URL reale; `_middle` e `_celeb` seguono.
-        for (const kit of ['home', 'away']) {
-            for (const shot of ['left', 'middle', 'celeb']) {
-                fromPath(`playerImages/${PLAYER_IMAGES_KEY}/${sid}/${tid}/${kit}/${pid}_${shot}.webp`);
+    const seasonIds = serieASeasonShortIds(seasonId);
+    if (pid && tid && seasonIds.length) {
+        // media-sdp è l'host che risponde; img.legaseriea.it su questi path
+        // costruiti dà 404, quindi qui non lo accodiamo: evita una raffica
+        // di onError prima di arrivare a una faccia vera.
+        // Lista corta: home/left + home/middle per stagione, poi away/left.
+        for (const sid of seasonIds) {
+            for (const shot of ['left', 'middle']) {
+                push(proxied(`${MEDIA_BASE}/playerImages/${PLAYER_IMAGES_KEY}/${sid}/${tid}/home/${pid}_${shot}.webp`));
             }
+        }
+        for (const sid of seasonIds) {
+            push(proxied(`${MEDIA_BASE}/playerImages/${PLAYER_IMAGES_KEY}/${sid}/${tid}/away/${pid}_left.webp`));
         }
     }
 
@@ -336,7 +346,7 @@ function normalizePlayers(
             id,
             name: playerName(p),
             fullName: fullPlayerName(p),
-            number: Number(p?.jerseyNumber ?? p?.shirtNumber) || null,
+            number: Number(p?.jerseyNumber ?? p?.shirtNumber ?? p?.bibNumber) || null,
             role,
             roleLabel: ROLE_LABELS[role] || 'Giocatore',
             position: p?.position || null,
@@ -469,12 +479,18 @@ export function normalizeMatch(raw: {
 }): NormalizedMatch {
     const header = raw?.header || {};
     const lineups = raw?.lineups || {};
-    const seasonId = header?.seasonId;
+    // L'header 2026/27 non ha più `seasonId` in cima: sta in competition/matchSet.
+    // Le squadre stanno su `home`/`away`, non più su `homeTeam`/`awayTeam`.
+    const seasonId =
+        header?.seasonId ||
+        header?.competition?.seasonId ||
+        header?.matchSet?.seasonId ||
+        lineups?.seasonId;
 
-    const homeTeamRaw = header?.homeTeam || {};
-    const awayTeamRaw = header?.awayTeam || {};
-    const homeTeamId = homeTeamRaw?.teamId || homeTeamRaw?.id;
-    const awayTeamId = awayTeamRaw?.teamId || awayTeamRaw?.id;
+    const homeTeamRaw = header?.home || header?.homeTeam || {};
+    const awayTeamRaw = header?.away || header?.awayTeam || {};
+    const homeTeamId = homeTeamRaw?.teamId || homeTeamRaw?.id || lineups?.home?.teamId;
+    const awayTeamId = awayTeamRaw?.teamId || awayTeamRaw?.id || lineups?.away?.teamId;
 
     // indice delle statistiche per giocatore, così la ricerca è O(1)
     // Attenzione: l'API nidifica playerId dentro entry.player.playerId, non a livello top
@@ -489,9 +505,9 @@ export function normalizeMatch(raw: {
         const ctx = { seasonId, teamId, playerStats };
         return {
             id: shortId(teamId) || null,
-            name: teamName(teamRaw, fallbackName),
-            logo: teamRaw?.imagery?.teamLogo || teamRaw?.imagery?.teamLogoLight || null,
-            formation: block?.formation || block?.tacticalModule || null,
+            name: teamName(teamRaw, lineups?.[side]?.shortName || fallbackName),
+            logo: teamRaw?.imagery?.teamLogo || teamRaw?.imagery?.teamLogoLight || lineups?.[side]?.imagery?.teamLogo || null,
+            formation: block?.formation || block?.tacticalModule || block?.tacticalFormation || null,
             coach: block?.coach ? playerName({ player: block.coach }) : null,
             starters: normalizePlayers(block?.fielded || [], true, ctx),
             bench: normalizePlayers(block?.benched || [], false, ctx),
