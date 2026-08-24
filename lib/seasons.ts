@@ -70,6 +70,12 @@ export function serieASeasonShortIds(preferred?: string | null): string[] {
         const id = corto(raw);
         if (id && !out.includes(id)) out.push(id);
     };
+    // Prima le stagioni archiviate (foto già online), poi quella del match,
+    // poi eventuali altre. L'imagery dichiarata dall'API, se c'è, viene
+    // comunque messa davanti da playerPhotoUrls — qui è solo il ripiego.
+    Object.values(SEASONS).forEach((s) => {
+        if (s.archived) push(s.serieASeasonId);
+    });
     push(preferred);
     Object.values(SEASONS).forEach((s) => push(s.serieASeasonId));
     return out;

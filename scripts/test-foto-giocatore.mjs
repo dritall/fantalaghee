@@ -50,8 +50,9 @@ console.log('\nnessuna imagery: indirizzo ricostruito');
     const p = { playerId: 'serie-a::Football_Player::PID', role: 4 };
     const src = sorgenti(playerPhotoUrls(p, 'serie-a::Football_Season::SID', 'serie-a::Football_Team::TID'));
     ok('qualche indirizzo c\'è', src.length > 0);
-    ok('divisa di casa per prima', src[0].includes('/SID/TID/home/'), src[0]);
+    ok('divisa di casa per prima', src[0].includes('/TID/home/'), src[0]);
     ok('inquadratura verificata (_left) per prima', src[0].endsWith('_left.webp'), src[0]);
+    ok('include la stagione passata come path', src.some((u) => u.includes('/SID/TID/')));
     ok('prova anche la divisa da trasferta', src.some((u) => u.includes('/SID/TID/away/')));
     ok('prova left e middle (celeb 404-a troppo spesso, non la costruiamo più)',
         ['_middle.webp', '_left.webp'].every((s) => src.some((u) => u.endsWith(s))));

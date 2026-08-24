@@ -250,6 +250,10 @@ function arricchisciDaClassifica(
     const storico = verdettoAllaGiornata(righe, g);
     processed.numeroGiornata = processed.numeroGiornata || g;
 
+    // i punteggi del dashboard sono spesso a zero (formule non calcolate):
+    // la classifica top 5 e i box si prendono dalle colonne G, che esistono.
+    processed.classifica = storico.classifica.slice(0, 5);
+
     const assente = (v: string) => !v || v === 'N/D' || /punteggio totale|premi di giornata/i.test(v);
 
     if (assente(processed.leaderAttuale)) processed.leaderAttuale = storico.leader;
@@ -263,9 +267,6 @@ function arricchisciDaClassifica(
             squadra: p.squadra,
             punteggio: String(p.punteggio),
         }));
-    }
-    if (!processed.classifica.length || processed.classifica.every((c) => !c.punti)) {
-        processed.classifica = storico.classifica.slice(0, 5);
     }
     if (assente(processed.recordAssoluto.punteggio) && storico.record) {
         processed.recordAssoluto = {
