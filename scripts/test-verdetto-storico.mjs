@@ -4,7 +4,7 @@
  *
  *   node --experimental-strip-types scripts/test-verdetto-storico.mjs
  */
-import { verdettoAllaGiornata, punteggiDiGiornata, giornateDisponibili } from '../lib/verdetto-storico.ts';
+import { verdettoAllaGiornata, punteggiDiGiornata, giornateDisponibili, premioDiGiornata } from '../lib/verdetto-storico.ts';
 
 let failures = 0;
 const eq = (name, got, want) => {
@@ -51,6 +51,31 @@ eq('peggiore complessivo', [g3.cucchiaio.squadra, g3.cucchiaio.punteggio, g3.cuc
 
 console.log('\nil leader puo cambiare strada facendo');
 check('leader G1 diverso da leader G3', g1.leader !== g3.leader, [g1.leader, g3.leader]);
+
+console.log('\npremio di giornata: primo e, dal 26/27, secondo');
+{
+    const p2 = premioDiGiornata(punteggiDiGiornata(righe, 2));
+    eq('vincitore G2', p2.vincitori, ['Stoke Azzo']);
+    eq('quota intera al vincitore unico', p2.quota, 25);
+    eq('secondo di G2', [p2.secondi.squadre, p2.secondi.punteggio], [['Fantagiulia'], 81]);
+
+    // parita in testa: il premio si divide e il "secondo" e' il primo punteggio piu basso
+    const pari = premioDiGiornata([
+        { squadra: 'A', punteggio: 90 },
+        { squadra: 'B', punteggio: 90 },
+        { squadra: 'C', punteggio: 80 },
+        { squadra: 'D', punteggio: 80 },
+    ]);
+    eq('primi a pari merito', pari.vincitori, ['A', 'B']);
+    eq('quota dimezzata', pari.quota, 12.5);
+    eq('chi pareggia in vetta non e secondo', pari.secondi, { squadre: ['C', 'D'], punteggio: 80 });
+
+    eq('nessun secondo se giocano tutti lo stesso punteggio',
+       premioDiGiornata([{ squadra: 'A', punteggio: 70 }, { squadra: 'B', punteggio: 70 }]).secondi, null);
+    eq('nessun secondo con una sola squadra',
+       premioDiGiornata([{ squadra: 'A', punteggio: 70 }]).secondi, null);
+    eq('giornata senza punteggi', premioDiGiornata([]), null);
+}
 
 console.log('\ncasi limite');
 const vuoto = verdettoAllaGiornata([], 5);
