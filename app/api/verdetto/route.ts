@@ -43,7 +43,13 @@ export async function GET(request: NextRequest) {
             arricchisciDaClassifica(processedData, righe);
         }
 
-        return NextResponse.json({ ...processedData, stagione: season.slug });
+        // Stessa logica di /api/classifica: il foglio a monte è sempre fresco,
+        // la nostra risposta può stare in cache pochi secondi per non farsi
+        // richiamare a vuoto da ogni componente della pagina a ogni caricamento.
+        return NextResponse.json(
+            { ...processedData, stagione: season.slug },
+            { headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' } }
+        );
     } catch (error: any) {
         console.error('Errore in /api/verdetto:', error);
         return NextResponse.json(
@@ -275,7 +281,12 @@ function arricchisciDaClassifica(
             giornata: `Giornata ${storico.record.giornata}`,
         };
     }
-    if (assente(processed.cucchiaioDiLegno.punteggio) && storico.cucchiaio) {
+    // Il Cucchiaio di Legno del Dashboard (celle F50:G53) è una formula del
+    // foglio: può restare ferma su un valore vecchio o sbagliato senza
+    // risultare "vuota". Il minimo vero si ricalcola sempre dalle colonne
+    // G1…G38, mai dalla cella — a differenza degli altri box che si
+    // ricalcolano solo se il dashboard è vuoto.
+    if (storico.cucchiaio) {
         processed.cucchiaioDiLegno = {
             punteggio: String(storico.cucchiaio.punteggio),
             squadra: storico.cucchiaio.squadra,
