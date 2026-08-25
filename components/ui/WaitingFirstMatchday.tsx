@@ -2,7 +2,7 @@
 
 import { CalendarClock, Sparkles } from "lucide-react";
 
-export function WaitingFirstMatchday({ subtitle }: { subtitle?: string }) {
+export function WaitingFirstMatchday({ title, subtitle }: { title?: string; subtitle?: string }) {
     return (
         // Stava su un vetro all'80%: sopra al lago diventava una lastra grigia
         // e il paesaggio ci passava attraverso sporcando il testo. Adesso è una
@@ -15,7 +15,7 @@ export function WaitingFirstMatchday({ subtitle }: { subtitle?: string }) {
                     <Sparkles className="w-5 h-5 text-[color:var(--viola)] absolute -top-2 -right-2 animate-pulse" />
                 </div>
                 <h3 className="relative z-10 font-oswald text-2xl md:text-3xl uppercase tracking-wide text-[color:var(--calce)]">
-                    In attesa della prima giornata
+                    {title || "In attesa della prima giornata"}
                 </h3>
                 <p className="relative z-10 text-sm text-[color:var(--fumo)] font-serif italic max-w-md">
                     {subtitle || "Il campionato sta per iniziare: i dati appariranno qui dopo la prima giornata."}
