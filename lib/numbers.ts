@@ -86,3 +86,17 @@ export function formatNumber(n: number | null): string {
     if (n === null) return '-';
     return new Intl.NumberFormat('it-IT', { maximumFractionDigits: 2, useGrouping: true }).format(n);
 }
+
+/**
+ * Punto delle migliaia per un intero, senza passare da Intl/toLocaleString.
+ * La resa di `toLocaleString('it-IT')` senza opzioni dipende dalla build di
+ * ICU del runtime che lo esegue: si è visto in produzione un mismatch di
+ * idratazione React vero e proprio, "4130" lato server e "4.130" lato
+ * client per lo stesso numero. Questa è deterministica ovunque.
+ */
+export function formattaMigliaia(n: number): string {
+    const negativo = n < 0;
+    const cifre = Math.round(Math.abs(n)).toString();
+    const raggruppato = cifre.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return negativo ? `-${raggruppato}` : raggruppato;
+}

@@ -18,6 +18,7 @@ import {
     COPPA_UEFA,
     MIGLIOR_PUNTEGGIO,
 } from "@/lib/premi-2627";
+import { formattaMigliaia } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
 
 type SectionId = "novita" | "iscrizione" | "rosa" | "coppe" | "premi" | "bonus" | "casi";
@@ -539,13 +540,13 @@ export default function RegolamentoPage() {
                     >
                         <div className="space-y-5 pt-3">
                             <p className="text-sm text-[color:var(--carta-corpo)] leading-relaxed">
-                                Montepremi <strong className="text-[color:var(--carta-forte)]">{MONTEPREMI_NETTO.toLocaleString("it-IT")} 🍆</strong>,
+                                Montepremi <strong className="text-[color:var(--carta-forte)]">{formattaMigliaia(MONTEPREMI_NETTO)} 🍆</strong>,
                                 distribuito tutto. Quota {QUOTA} 🍆.
                             </p>
                             <dl>
                                 <Rule label="Premi di giornata">
                                     {PREMIO_GIORNATA_PRIMO} 🍆 al 1°, {PREMIO_GIORNATA_SECONDO} 🍆 al 2° (novità).
-                                    A pari punteggio si divide. Totale stagione: {TOTALE_GIORNATE.toLocaleString("it-IT")} 🍆.
+                                    A pari punteggio si divide. Totale stagione: {formattaMigliaia(TOTALE_GIORNATE)} 🍆.
                                 </Rule>
                                 <Rule label="Classifica generale">
                                     {CLASSIFICA_GENERALE.map((v) => `${v.titolo} ${v.importo} 🍆`).join(" · ")}.
@@ -567,7 +568,7 @@ export default function RegolamentoPage() {
                                 </Rule>
                             </dl>
                             <div className="rounded-2xl border border-[color:var(--carta-filo)] bg-[color:var(--carta-velo)] px-4 py-3 text-xs text-[color:var(--carta-tenue)]">
-                                Riepilogo: generale 2.090 · record 100 · Super Lega 650 · UEFA 150 · giornate 1.140 = {MONTEPREMI_NETTO.toLocaleString("it-IT")} 🍆.
+                                Riepilogo: generale 2.090 · record 100 · Super Lega 650 · UEFA 150 · giornate 1.140 = {formattaMigliaia(MONTEPREMI_NETTO)} 🍆.
                             </div>
                         </div>
                     </AccordionItem>

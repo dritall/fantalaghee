@@ -16,6 +16,7 @@ import {
     MONTEPREMI_NETTO,
 } from "@/lib/premi-2627";
 import { GIORNATE, SQUADRE_ISCRITTE, CURRENT_SEASON } from "@/lib/seasons";
+import { formattaMigliaia } from "@/lib/numbers";
 
 type Voce = { forte: string; debole: string };
 
@@ -30,7 +31,7 @@ const BASE: Voce[] = [
 ];
 
 const REGOLAMENTO: Voce[] = [
-    { forte: `${MONTEPREMI_NETTO.toLocaleString("it-IT")} 🍆`, debole: "montepremi 26/27, tutto ai partecipanti" },
+    { forte: `${formattaMigliaia(MONTEPREMI_NETTO)} 🍆`, debole: "montepremi 26/27, tutto ai partecipanti" },
     { forte: "4×10", debole: "gironi coppe: tutte in Super Lega o UEFA" },
     { forte: "G1–G8", debole: "il ranking decide i gironi" },
     { forte: "STOP", debole: "Colpo Proibito fuori dal regolamento" },
