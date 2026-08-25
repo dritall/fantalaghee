@@ -13,18 +13,19 @@
  * ciclo non ha giunte visibili.
  */
 
-import { QUOTA, PREMIO_GIORNATA, GIORNATE } from "@/lib/premi-riferimento";
-import { LEAGUE_TAGLINE, SQUADRE_ISCRITTE } from "@/lib/seasons";
+import { QUOTA, PREMIO_GIORNATA_PRIMO, PREMIO_GIORNATA_SECONDO } from "@/lib/premi-2627";
+import { GIORNATE, SQUADRE_ISCRITTE } from "@/lib/seasons";
 
 const VOCI: { forte: string; debole: string }[] = [
-    { forte: `${PREMIO_GIORNATA} 🍆`, debole: "a chi vince la giornata" },
+    { forte: `${PREMIO_GIORNATA_PRIMO} 🍆`, debole: "al 1° di giornata" },
+    { forte: `${PREMIO_GIORNATA_SECONDO} 🍆`, debole: "al 2° di giornata" },
     { forte: "24", debole: "giocatori in rosa" },
     { forte: "600", debole: "fantamilioni di budget" },
     { forte: `${QUOTA} 🍆`, debole: "quota di stagione" },
     { forte: `${GIORNATE}`, debole: "giornate di campionato" },
     { forte: "112,5", debole: "il record da battere" },
     { forte: `${SQUADRE_ISCRITTE}`, debole: "squadre al via" },
-    { forte: LEAGUE_TAGLINE, debole: "dal 2025" },
+    { forte: "Il Fantacalcio del Lario", debole: "dal 2025" },
 ];
 
 function Serie({ ariaHidden }: { ariaHidden?: boolean }) {

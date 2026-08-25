@@ -21,7 +21,7 @@ import { CalendarDays, Newspaper, ScrollText, ArrowRight } from "lucide-react";
 import { SeasonLink } from "@/components/ui/SeasonLink";
 import { cn } from "@/lib/utils";
 import { toNumber, stripDecorations } from "@/lib/numbers";
-import { PREMIO_GIORNATA_PRIMO_EURO, PREMIO_GIORNATA_SECONDO_EURO } from "@/lib/premi-riferimento";
+import { PREMIO_GIORNATA_PRIMO, PREMIO_GIORNATA_SECONDO } from "@/lib/premi-2627";
 
 type Piazzamento = { squadra: string; punteggio: string };
 type Giornata = { numero: string; primo: Piazzamento; secondo: Piazzamento | null } | null;
@@ -149,7 +149,7 @@ export function Tabellone() {
                                 {giornata.primo.squadra}
                             </span>
                             <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--viola)]">
-                                {PREMIO_GIORNATA_PRIMO_EURO}€ al primo
+                                {PREMIO_GIORNATA_PRIMO} 🍆 al 1°
                             </span>
                         </span>
 
@@ -160,7 +160,7 @@ export function Tabellone() {
                                     {giornata.secondo.squadra}
                                 </span>
                                 <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--lario)]">
-                                    {PREMIO_GIORNATA_SECONDO_EURO}€ al secondo
+                                    {PREMIO_GIORNATA_SECONDO} 🍆 al 2°
                                 </span>
                             </span>
                         )}
@@ -202,8 +202,8 @@ export function Tabellone() {
             <Colonna icona={ScrollText} titolo="Da sapere">
                 <ul className="flex flex-col gap-2 text-xs leading-relaxed text-[color:var(--fumo)]">
                     <li>
-                        <strong className="text-[color:var(--calce)]">Novità 26/27:</strong> {PREMIO_GIORNATA_PRIMO_EURO}€
-                        al miglior punteggio di giornata, {PREMIO_GIORNATA_SECONDO_EURO}€ al secondo.
+                        <strong className="text-[color:var(--calce)]">Novità 26/27:</strong> {PREMIO_GIORNATA_PRIMO} 🍆
+                        al miglior punteggio di giornata, {PREMIO_GIORNATA_SECONDO} 🍆 al secondo.
                     </li>
                     <li>
                         <strong className="text-[color:var(--calce)]">Coppe:</strong> scontro diretto, il

@@ -34,7 +34,9 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Quanto costa la quota?',
         risposta:
-            'La quota è di **110 🍆**. Va saldata **prima dell\'inizio della 1ª giornata**: chi non versa viene escluso senza rimborso.\nQuasi tutto il raccolto torna in premi: solo il **5%** resta per la gestione della lega.',
+            'La quota è di **110 🍆**. Va saldata **prima dell\'inizio della 1ª giornata**: ' +
+            'chi non versa viene escluso senza rimborso.\n' +
+            'Il montepremi 2026/27 è **distribuito integralmente** ai partecipanti — nessuna quota trattenuta per la gestione.',
         chiavi: ['quanto costa', 'quota', 'prezzo', 'costo', 'quanto si paga', 'quanto pago', '110'],
         inEvidenza: true,
     },
@@ -434,8 +436,19 @@ export const KB: VoceKB[] = [
         sezione: 'coppe',
         domanda: 'Come sono strutturate le coppe?',
         risposta:
-            `Struttura e date definitive vengono comunicate **entro l'inizio della 5ª giornata**, sulle ${SQUADRE_ISCRITTE} squadre al via.`,
-        chiavi: ['struttura coppe', 'come funzionano coppe', 'formato coppe', 'quando si sa', 'quinta giornata', 'girone'],
+            `Struttura 2026/27 su **40 squadre**:\n` +
+            `**G1–G8** → Ranking 1°–40° (classifica generale).\n` +
+            `**G9–G18** → 4 gironi da 10 squadre (metodo serpentone). Nessuna eliminazione: ` +
+            `prime 5 per girone → **Coppa Super Lega** (20 squadre); ultime 5 → **Coppa UEFA** (20 squadre).\n` +
+            `**Tabelloni** (da 32): 12 BYE + 8 al Preliminare:\n` +
+            `  • Super Lega: BYE alle prime 3 di ogni girone; Preliminare a 4ª e 5ª.\n` +
+            `  • Coppa UEFA: BYE alle 6ª–7ª–8ª di ogni girone; Preliminare a 9ª e 10ª.\n` +
+            `**Calendario**: Prelim G20–21 · ⏸G22 · Ottavi G23–24 · ⏸G25 · Quarti G26–27 · ⏸G28 · Semi G29–30 · ⏸G31 · Finali G32 (gara unica).`,
+        chiavi: [
+            'struttura coppe', 'come funzionano coppe', 'formato coppe', 'quando si sa',
+            'quinta giornata', 'girone', 'ranking', 'serpentone', '4 gironi',
+            'preliminare', 'bye', 'calendario coppe', 'ottavi quarti semifinali',
+        ],
     },
     {
         id: 'soglie-gol',
@@ -462,8 +475,15 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Quanto si vince facendo il miglior punteggio di giornata?',
         risposta:
-            'Il miglior punteggio di giornata vale **25 🍆**. A pari punteggio il premio si **divide** fra tutte le squadre in testa.\nNel 25/26 questo ha distribuito **950 🍆** in tutto, cioè 25 × 38 giornate. Gli importi 26/27 si confermano entro la 5ª giornata, ma la struttura resta simile.',
-        chiavi: ['premio giornata', 'quanto si vince', 'miglior punteggio giornata', '25', 'vincitore giornata', 'vince la giornata', 'premio settimanale', 'primo di giornata'],
+            'Il 1° classificato di giornata vale **20 🍆**; il 2° classificato vale **10 🍆** (novità 2026/27). ' +
+            'A pari punteggio il premio si **divide** fra le squadre ex-aequo nella rispettiva posizione.\n' +
+            'Totale stagionale: **1.140 🍆** (30 🍆 × 38 giornate).',
+        chiavi: [
+            'premio giornata', 'quanto si vince', 'miglior punteggio giornata',
+            '20', '10', 'vincitore giornata', 'vince la giornata',
+            'primo di giornata', 'secondo di giornata', 'premio settimanale',
+            'primo secondo giornata',
+        ],
         inEvidenza: true,
     },
     {
@@ -479,7 +499,8 @@ export const KB: VoceKB[] = [
         sezione: 'novita',
         domanda: 'Anche il secondo di giornata prende un premio?',
         risposta:
-            'Sì, è **la novità del 2026/27**: oltre al primo, anche il **secondo miglior punteggio di giornata** riceve un premio ogni turno. Gli importi definitivi vengono comunicati entro l\'inizio della 5ª giornata.',
+            'Sì, è **la novità del 2026/27**: ogni giornata il **1° classificato prende 20 🍆** e il ' +
+            '**2° classificato prende 10 🍆**. A parità il premio si divide tra le squadre ex-aequo per posizione.',
         chiavi: ['secondo classificato', 'secondo giornata', 'premio secondo', 'novita premi', 'nuovo premio'],
         inEvidenza: true,
     },
@@ -488,7 +509,11 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Quali premi ci sono in totale?',
         risposta:
-            'Tre famiglie: **premi di giornata** (1° e 2° classificato di ogni turno, più il miglior punteggio stagionale), **premi di classifica generale** per le prime posizioni del Campionato, e **premi coppe** per Super Lega e UEFA.\nNel 25/26 sono stati distribuiti **4.670 🍆** su 5.500 raccolti: 950 in giornate, 2.570 in classifica, 1.050 nelle coppe, 100 al record.',
+            'Tre famiglie di premi per un totale di **4.130 🍆** distribuiti integralmente:\n' +
+            '**Premi di giornata** — 1° = 20 🍆 e 2° = 10 🍆 per ogni turno (1.140 🍆 su 38 giornate), ' +
+            'più 100 🍆 al miglior punteggio stagionale.\n' +
+            '**Classifica Generale** — 750 · 550 · 450 · 340 🍆 alle prime quattro squadre (2.090 🍆).\n' +
+            '**Coppe** — Super Lega 300 · 200 · 150 🍆; Coppa UEFA 100 · 50 🍆 (800 🍆 totali).',
         chiavi: ['quali premi', 'premi', 'montepremi', 'lista premi', 'cosa si vince', 'distribuzione premi', 'melanzane distribuite', 'totale premi', 'totale montepremi', 'quanto si distribuisce'],
         inEvidenza: true,
     },
@@ -505,7 +530,11 @@ export const KB: VoceKB[] = [
         sezione: 'premi',
         domanda: 'Quando si sanno i premi di campionato e coppe?',
         risposta:
-            'Si assegnano sulla **classifica finale**, quindi all\'ultima giornata. Gli importi 26/27 arrivano entro l\'inizio della 5ª giornata, perché dipendono dal numero di squadre.\nRiferimento 25/26: classifica **850 · 650 · 500 · 350 · 220 🍆** alle prime cinque; Super Lega **350 · 250 · 150 · 150**; Coppa UEFA **100 · 50**.',
+            'I premi si assegnano sulla **classifica finale** (ultima giornata di campionato).\n' +
+            '**Riferimento 2026/27**: classifica **750 · 550 · 450 · 340 🍆** (4 posti); ' +
+            'Super Lega **300 · 200 · 150 🍆** (3 posti); Coppa UEFA **100 · 50 🍆** (2 posti).\n' +
+            '**Riferimento 2025/26**: classifica **850 · 650 · 500 · 350 · 220 🍆** (5 posti); ' +
+            'Super Lega **350 · 250 · 150 · 150 🍆** (4 posti); Coppa UEFA **100 · 50 🍆** (2 posti).',
         chiavi: ['quando premi', 'quando si pagano', 'premi finali', 'fine campionato', 'ultima giornata premi', 'premi classifica', 'vince in classifica', 'premio campionato', 'premi coppe'],
     },
     {

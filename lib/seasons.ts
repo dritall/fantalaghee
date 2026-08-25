@@ -43,6 +43,9 @@ export const NEW_SEASON_ARTICLES_FROM = '2026-08-01';
  */
 export const SQUADRE_ISCRITTE = 40;
 
+/** Giornate del Campionato Generale: segue la Serie A. */
+export const GIORNATE = 38;
+
 /** PDF del regolamento in vigore, servito da /public/docs */
 export const REGOLAMENTO_PDF_URL = '/docs/regolamento-fantalaghee-2627.pdf';
 
