@@ -85,6 +85,15 @@ non un import).
 
 ## Changelog a staffetta
 
+Una riga per sessione/cambiamento degno di nota, più recente in cima. Non
+è un log di dettaglio (c'è git per quello): serve a far sapere alla
+prossima sessione — di qualunque agente — "cosa è già stato toccato di
+recente e perché", per non ripetere un fix che un'altra sessione ha già
+fatto in parallelo — è esattamente il tipo di collisione che ha causato il
+bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
+hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
+cancellando l'unico titolo rimasto).
+
 - 2026-08-25 — Chiuso il resto della roadmap del 25/08: audit completo
   dell'assistente del regolamento contro il testo integrale del PDF
   definitivo (pagamento quota allineato alla scadenza reale del 3ª
@@ -98,15 +107,6 @@ non un import).
   riferimenti a componenti (es. icone) come prop a un componente client,
   quindi i dati statici con icone (`navItems`) sono stati spostati in un
   componente client dedicato (`NavGrid` in `components/ui/NavTile.tsx`).
-
-Una riga per sessione/cambiamento degno di nota, più recente in cima. Non
-è un log di dettaglio (c'è git per quello): serve a far sapere alla
-prossima sessione — di qualunque agente — "cosa è già stato toccato di
-recente e perché", per non ripetere un fix che un'altra sessione ha già
-fatto in parallelo — è esattamente il tipo di collisione che ha causato il
-bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
-hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
-cancellando l'unico titolo rimasto).
 
 - 2026-08-25 — Hermes: fascia home senza più il record 112,5 del 25/26
   (ora record 26/27 da `/api/verdetto` + flash Gazzetta + pillole coppe);
