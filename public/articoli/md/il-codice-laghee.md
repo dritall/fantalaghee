@@ -13,33 +13,37 @@ cover:
   sottotitolo: >-
     Extra 26/27: quanto si vince, come si giocano le coppe, e dove trovare
     tutto sul sito. Prima di aprire WhatsApp.
+  didascalia: Il codice della stagione, letto sulle sponde del Lario.
   image_prompt: >-
-    Illustrazione satirica da copertina vintage sul lago di Como. Al centro
-    un librone di cuoio enorme, tipo tavole della legge, aperto su un molo;
-    dalle pagine escono melanzane come monete e un serpentone di quattro
-    gironi che diventa due coppe. Intorno, una cartina goliardica della riva:
-    sei quartieri senza scritte (tabellone, bilancia, scudo, pallone,
-    giornale, codice). Luce di fine estate, tratto da locandina anni Trenta.
-    Nessun testo leggibile, nessun cartello, nessuna testata di giornale,
-    nessuna folla decorativa.
+    Satirical vintage illustration on a Lake Como dock at late summer.
+    Center: a huge antique leather law-book on a wooden lectern, open,
+    gold coins and purple eggplants pouring from the pages. From the book
+    rises one colorful four-headed snake that splits into two golden cups.
+    Beside it, an old white-bearded man in a plain blue-and-white striped
+    shirt reads the book on his knees. Background only: lake, mountains,
+    colorful lakeside houses, one anonymous rowboat with no name painted.
+    STRICTLY FORBIDDEN: dogs, puppies, cats, birds, any animal, any
+    readable text, letters, numbers, labels, signs, captions, maps with
+    words, icon cards with names, newspapers, floating stickers. No golden
+    retriever. No Cuccioloni. Clean 1930s poster comic style, no watermark.
   box1:
-    title: "💰 I PREZZI"
+    title: "I PREZZI"
     rows:
       - Quota|110 🍆
-      - 1° di giornata|20 🍆
-      - 2° di giornata|10 🍆
+      - Primo di giornata|20 🍆
+      - Secondo di giornata|10 🍆
       - Montepremi|4.130 🍆
   box2:
-    title: "🗺️ IL SITO"
+    title: "IL SITO"
     rows:
       - Classifica|1° e 2° di turno
       - Verdetto|podio e selettore
       - Coppe|vetrina fino alla G8
       - Serie A|il campionato vero
   box3:
-    title: "🆕 LE NOVITÀ"
+    title: "LE NOVITÀ"
     rows:
-      - 2° di giornata|10 🍆
+      - Argento di giornata|10 🍆
       - Coppe|4 gironi, nessuno fuori
       - Colpo Proibito|rimosso
 ---

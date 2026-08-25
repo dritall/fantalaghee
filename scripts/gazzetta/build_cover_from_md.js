@@ -88,6 +88,7 @@ async function buildOne(mdPath, { force = false } = {}) {
         box1: c.box1,   // { title, rows: [...] }
         box2: c.box2,
         box3: c.box3,
+        stagione_etichetta: ({ '2627': '2026/27', '2526': '2025/26' })[data.stagione] || data.stagione || '2026/27',
     };
 
     await renderCover(coverData, outPath);

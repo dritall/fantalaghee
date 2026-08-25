@@ -94,6 +94,10 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-08-26 — Hermes: rifatta copertina *Il Codice Laghèe* — via cane/etichette
+  nell'hero, box «1 di giornata» (il `1°` veniva letto come rank), testata
+  copertina 2025/26 hardcoded. File: `il-codice-laghee.md`, `template.html`,
+  `genera_gazzetta.js`, `build_cover_from_md.js`.
 - 2026-08-25 — Hermes: Extra Gazzetta *Il Codice Laghèe* (`il-codice-laghee.md`,
   prima `draft` per copertina, poi live). Non passa da `/api/gazzetta/publish`
   (quello scrive solo `gazzetta-g{N}` e avrebbe sovrascritto la G1).

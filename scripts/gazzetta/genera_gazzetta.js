@@ -107,6 +107,9 @@ async function renderCover(datiGiornata, outputPath) {
             const dataStr = clean(dati.data);
             set('top-date', dataStr);
             const nGiornata = (dataStr.match(/GIORNATA\s+(\d+)/i) || [])[1];
+            if (dati.stagione_etichetta) {
+                set('top-season', `Fanta Laghèe — Stagione ${dati.stagione_etichetta}`);
+            }
 
             const titolo = clean(dati.titolo_principale);
 
