@@ -44,7 +44,6 @@ cover:
       - Campione|Steven Bradbury
       - Record|85.5 Steven Bradbury
       - Cucchiaio|OldLions 56
-draft: true
 ---
 # SI PARTE: BRADBURY È IL PRIMO RE DEL LARIO
 
