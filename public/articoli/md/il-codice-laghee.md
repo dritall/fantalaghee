@@ -15,17 +15,17 @@ cover:
     tutto sul sito. Prima di aprire WhatsApp.
   didascalia: Il codice della stagione, letto sulle sponde del Lario.
   image_prompt: >-
-    Satirical vintage illustration on a Lake Como dock at late summer.
-    Center: a huge antique leather law-book on a wooden lectern, open,
-    gold coins and purple eggplants pouring from the pages. From the book
-    rises one colorful four-headed snake that splits into two golden cups.
-    Beside it, an old white-bearded man in a plain blue-and-white striped
-    shirt reads the book on his knees. Background only: lake, mountains,
-    colorful lakeside houses, one anonymous rowboat with no name painted.
-    STRICTLY FORBIDDEN: dogs, puppies, cats, birds, any animal, any
-    readable text, letters, numbers, labels, signs, captions, maps with
-    words, icon cards with names, newspapers, floating stickers. No golden
-    retriever. No Cuccioloni. Clean 1930s poster comic style, no watermark.
+    Vintage 1930s poster, Lake Como sunset. Left side: a giant stone
+    obelisk carved with the word "REGOLAMENTO" in Italian ONLY — no other
+    text, no numbers. Right side: a scale balancing two piles of golden
+    coins. Between them, a simple wooden table with a scroll of parchment
+    unfurled, held at the corners by two smooth stones. On the far right,
+    a single large purple eggplant on a white plate. The lake is calm,
+    mountains in background, one small sailboat on the horizon. Style:
+    Italian travel poster, solid flat colors, sharp lines, no halftones.
+    FORBIDDEN absolutely: dogs, puppies, animals, people, crowds, birds,
+    readable text other than the word "REGOLAMENTO", labels, signs,
+    newspapers, nothing written on the parchment, no floating elements.
   box1:
     title: "I PREZZI"
     rows:
