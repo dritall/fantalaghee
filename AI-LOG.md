@@ -108,6 +108,14 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-08-25 — Hermes: fascia home senza più il record 112,5 del 25/26
+  (ora record 26/27 da `/api/verdetto` + flash Gazzetta + pillole coppe);
+  elenco Gazzetta con divisore `Stagione 2025/26` (edizione straordinaria
+  taggata `stagione: 2627`); regolamento pagina: coppe 7 fasi e montepremi
+  4.130 da `premi-2627.ts`, via i placeholder «entro la 5ª giornata»;
+  Colpo Proibito dichiarato fuori. File: `FasciaScorre.tsx`,
+  `app/gazzetta/*`, `app/regolamento/page.tsx`, `lib/regolamento-kb.ts`.
+  Da questa sessione: **leggere `AI-LOG.md` prima di ogni modifica**.
 - 2026-08-25 — Aggiunta la pagina `/coppe` (stato d'attesa + struttura,
   premi da `premi-2627.ts`) e collegata da Navbar e dalla sezione Coppe
   del Regolamento — prima esisteva ma non era raggiungibile da nessun
