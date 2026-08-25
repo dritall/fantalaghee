@@ -70,10 +70,16 @@ export async function GET(request: NextRequest) {
             ...item // Spread all original columns (Team, Mister, NickName, Generale, G1...G38)
         }));
 
-        return NextResponse.json({
-            classifica: result,
-            stagione: season.slug
-        });
+        // Il foglio a monte non va mai in cache (cambia durante la giornata),
+        // ma la nostra risposta sì, per pochi secondi: senza, ogni componente
+        // della pagina che la richiama (fascia numeri, tabellone, classifica)
+        // martella il Google Sheet pubblico a ogni caricamento — la domenica
+        // sera, con tutta la lega che controlla insieme, è il punto dove il
+        // sito rischia di rallentare per davvero.
+        return NextResponse.json(
+            { classifica: result, stagione: season.slug },
+            { headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' } }
+        );
 
     } catch (error: any) {
         console.error("API Error in Classifica Route:", error);

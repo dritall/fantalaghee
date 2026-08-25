@@ -37,7 +37,12 @@ export async function GET() {
         // Strict chronological sort by date descending (newest first)
         articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-        return NextResponse.json(articles);
+        // Cambia solo quando esce un nuovo articolo (nuovo deploy): più
+        // componenti della stessa pagina la richiamano (fascia numeri,
+        // tabellone, elenco Gazzetta), ha senso tenerla in cache un po'.
+        return NextResponse.json(articles, {
+            headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' },
+        });
     } catch (error) {
         console.error("Error reading articles frontmatter:", error);
         return NextResponse.json({ error: 'Failed to load articles' }, { status: 500 });
