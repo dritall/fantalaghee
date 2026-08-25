@@ -21,9 +21,10 @@ import { CalendarDays, Newspaper, ScrollText, ArrowRight } from "lucide-react";
 import { SeasonLink } from "@/components/ui/SeasonLink";
 import { cn } from "@/lib/utils";
 import { toNumber, stripDecorations } from "@/lib/numbers";
-import { PREMIO_GIORNATA } from "@/lib/premi-riferimento";
+import { PREMIO_GIORNATA_PRIMO_EURO, PREMIO_GIORNATA_SECONDO_EURO } from "@/lib/premi-riferimento";
 
-type Giornata = { numero: string; vincitore: string; punteggio: string } | null;
+type Piazzamento = { squadra: string; punteggio: string };
+type Giornata = { numero: string; primo: Piazzamento; secondo: Piazzamento | null } | null;
 type Uscita = { id: string; title: string; date?: string; imageUrl?: string } | null;
 
 function Colonna({
@@ -99,16 +100,24 @@ export function Tabellone() {
                 }, null);
                 if (!ultima) return;
 
-                const migliore = righe
+                const classificati = righe
                     .map((r) => ({ squadra: String(r.Team ?? ""), punti: toNumber(r[ultima]) }))
-                    .filter((x) => x.squadra && x.punti !== null)
-                    .sort((a, b) => (b.punti as number) - (a.punti as number))[0];
-                if (!migliore) return;
+                    .filter((x): x is { squadra: string; punti: number } => !!x.squadra && x.punti !== null)
+                    .sort((a, b) => b.punti - a.punti);
+                if (classificati.length === 0) return;
+
+                const migliore = classificati[0];
+                // il secondo è il primo punteggio *diverso* dal migliore: chi
+                // pareggia in vetta è primo a pari merito, non secondo
+                const secondo = classificati.find((c) => c.punti < migliore.punti) ?? null;
 
                 setGiornata({
                     numero: ultima.replace(/\D/g, ""),
-                    vincitore: migliore.squadra,
-                    punteggio: stripDecorations(String(migliore.punti)),
+                    primo: { squadra: migliore.squadra, punteggio: stripDecorations(String(migliore.punti)) },
+                    secondo: secondo && {
+                        squadra: secondo.squadra,
+                        punteggio: stripDecorations(String(secondo.punti)),
+                    },
                 });
             })
             .catch(() => null)
@@ -133,13 +142,31 @@ export function Tabellone() {
             {/* ------------------------------------------------ ultima giornata */}
             <Colonna icona={CalendarDays} titolo={giornata ? `Giornata ${giornata.numero}` : "Ultima giornata"}>
                 {giornata ? (
-                    <SeasonLink href="/verdetto" className="group flex flex-col gap-1">
-                        <span className="numerone text-[32px] text-[color:var(--viola)]">{giornata.punteggio}</span>
-                        <span className="stampino text-[13px] leading-tight text-[color:var(--calce)]">
-                            {giornata.vincitore}
+                    <SeasonLink href="/verdetto" className="group flex flex-col gap-2.5">
+                        <span className="flex flex-col gap-0.5">
+                            <span className="numerone text-[28px] leading-none text-[color:var(--viola)]">{giornata.primo.punteggio}</span>
+                            <span className="stampino text-[13px] leading-tight text-[color:var(--calce)]">
+                                {giornata.primo.squadra}
+                            </span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--viola)]">
+                                {PREMIO_GIORNATA_PRIMO_EURO}€ al primo
+                            </span>
                         </span>
-                        <span className="mt-1 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--lario)]">
-                            {PREMIO_GIORNATA} 🍆 al primo
+
+                        {giornata.secondo && (
+                            <span className="flex flex-col gap-0.5 border-t border-[color:var(--filo)] pt-2">
+                                <span className="numerone text-[20px] leading-none text-[color:var(--lario)]">{giornata.secondo.punteggio}</span>
+                                <span className="stampino text-[12px] leading-tight text-[color:var(--calce)]/85">
+                                    {giornata.secondo.squadra}
+                                </span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--lario)]">
+                                    {PREMIO_GIORNATA_SECONDO_EURO}€ al secondo
+                                </span>
+                            </span>
+                        )}
+
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--fumo)]">
+                            Tutti i verdetti
                             <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
                         </span>
                     </SeasonLink>
@@ -175,8 +202,8 @@ export function Tabellone() {
             <Colonna icona={ScrollText} titolo="Da sapere">
                 <ul className="flex flex-col gap-2 text-xs leading-relaxed text-[color:var(--fumo)]">
                     <li>
-                        <strong className="text-[color:var(--calce)]">Novità 26/27:</strong> premia anche il
-                        secondo miglior punteggio di giornata.
+                        <strong className="text-[color:var(--calce)]">Novità 26/27:</strong> {PREMIO_GIORNATA_PRIMO_EURO}€
+                        al miglior punteggio di giornata, {PREMIO_GIORNATA_SECONDO_EURO}€ al secondo.
                     </li>
                     <li>
                         <strong className="text-[color:var(--calce)]">Coppe:</strong> scontro diretto, il

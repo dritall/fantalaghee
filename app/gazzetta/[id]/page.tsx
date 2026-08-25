@@ -139,10 +139,6 @@ export default function ArticlePage() {
                         <span className="h-px flex-1 bg-black/15" />
                     </div>
 
-                    <h1 className="font-testata font-bold uppercase text-[#16100F] text-[2rem] sm:text-[2.9rem] md:text-[3.35rem] leading-[0.98] tracking-[-0.01em] text-balance">
-                        {metadata.title}
-                    </h1>
-
                     {metadata.description && (
                         <p className="mt-5 font-lora italic text-lg sm:text-xl leading-relaxed text-black/72 border-l-[3px] border-[#C8102E] pl-4">
                             {metadata.description}

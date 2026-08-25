@@ -14,6 +14,14 @@
 
 export type VocePremio = { titolo: string; importo: number; nota?: string };
 
+/**
+ * Premio di giornata 2026/27, comunicato dalla lega: non più melanzane ma
+ * euro veri, e non più solo al primo — anche il secondo di giornata porta
+ * a casa qualcosa.
+ */
+export const PREMIO_GIORNATA_PRIMO_EURO = 20;
+export const PREMIO_GIORNATA_SECONDO_EURO = 10;
+
 export const STAGIONE_RIFERIMENTO = '2025/26';
 /** Squadre della stagione di riferimento. Per quella in corso: `SQUADRE_ISCRITTE`. */
 export const ISCRITTI_RIFERIMENTO = 50;

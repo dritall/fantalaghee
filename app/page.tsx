@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Marchio } from "@/components/ui/Marchio";
 import { Activity, Trophy, ShieldCheck, BookOpen, ArrowRight, Download, Newspaper } from "lucide-react";
-import { REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE, SQUADRE_ISCRITTE } from "@/lib/seasons";
+import { REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE } from "@/lib/seasons";
 import { NavTile, type NavTileData } from "@/components/ui/NavTile";
 import { SeasonBanner } from "@/components/ui/SeasonBanner";
 import { SeasonLink } from "@/components/ui/SeasonLink";
@@ -53,53 +53,12 @@ export default function Home() {
           </h1>
         </header>
 
-        {/* ================= IL CAMPIONATO =================
-            Al posto dell'invito a iscriversi, che non ha più senso a
-            iscrizioni chiuse: la stessa card, che ora porta dove si guarda
-            chi comanda. L'arancio resta l'accento, non il fondo. */}
-        <SeasonLink
-          href="/classifica"
-          data-rivela
-          className="glass scatto group relative block overflow-hidden px-6 py-7 md:px-12 md:py-12 mt-1"
-        >
-          {/* il filetto arancio a sinistra: l'accento del marchio */}
-          <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-[color:var(--vermiglio)]" />
-          {/* alone morbido dietro il titolo */}
-          <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full"
-                style={{ background: "radial-gradient(circle, rgba(238,81,36,0.14), transparent 70%)" }} />
-          <span className="relative block text-center">
-            <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--vermiglio-testo)]">
-              Stagione 2026/27 · {SQUADRE_ISCRITTE} squadre in campo
-            </span>
-            <span className="stampino mt-3 block text-[2rem] leading-[0.92] sm:text-5xl md:text-6xl text-[color:var(--calce)]">
-              Il campionato<br />è cominciato
-            </span>
-            <span className="mt-7 inline-flex items-center gap-2 rounded-full bg-[color:var(--vermiglio)] px-6 py-3
-                             text-[12px] font-black uppercase tracking-[0.18em] text-[color:var(--su-chiaro)]
-                             shadow-[0_10px_28px_var(--ombra)] transition-transform duration-300 group-hover:scale-[1.04]">
-              <Trophy className="w-4 h-4" />
-              Vai alla classifica
-              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </span>
-          </span>
-        </SeasonLink>
-
-        {/* ================= NAVIGAZIONE ================= */}
-        <section aria-label="Sezioni del sito" className="pt-2" data-rivela>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="timbro bg-[color:var(--calce)] text-[color:var(--pece)]">Esplora la lega</span>
-            <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {navItems.map((item, index) => (
-              <NavTile key={item.href} item={item} index={index} />
-            ))}
-          </div>
-        </section>
-
-        {/* ================= ULTIMA GAZZETTA ================= */}
+        {/* ================= ULTIMA GAZZETTA =================
+            Il campionato è cominciato: l'annuncio non serve più, conta cosa
+            è appena successo. Questa è la prima cosa che si vede, non più
+            in fondo alla pagina. */}
         {latestArticle && (
-          <section aria-label="Ultimo articolo della Gazzetta" data-rivela>
+          <section aria-label="Ultimo articolo della Gazzetta" data-rivela className="mt-1">
             <div className="flex items-center gap-3 mb-4">
               <span className="timbro bg-[color:var(--lario)] text-[color:var(--su-colore)]">Ultima uscita</span>
               <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
@@ -141,6 +100,19 @@ export default function Home() {
             </SeasonLink>
           </section>
         )}
+
+        {/* ================= NAVIGAZIONE ================= */}
+        <section aria-label="Sezioni del sito" className="pt-2" data-rivela>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="timbro bg-[color:var(--calce)] text-[color:var(--pece)]">Esplora la lega</span>
+            <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {navItems.map((item, index) => (
+              <NavTile key={item.href} item={item} index={index} />
+            ))}
+          </div>
+        </section>
 
         {/* ================= IL PUNTO ================= */}
         <section aria-label="Il punto sulla lega" data-rivela>

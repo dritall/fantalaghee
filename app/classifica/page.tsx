@@ -169,7 +169,7 @@ function ClassificaContent() {
                             etichettaGenerale={`Ultima giocata · ${lastPlayedMatchday}`}
                         />
                         <p className="text-[color:var(--fumo)] text-[11px] hidden sm:block">
-                            Evidenziati il <span className="bg-[color:var(--viola)] text-[color:var(--su-colore)] px-1.5 py-0.5 font-black">1º</span> e il <span className="bg-[color:var(--calce)]/70 text-[color:var(--pece)] px-1.5 py-0.5 font-black">2º</span> punteggio di ogni giornata
+                            Evidenziati il <span className="bg-[color:var(--viola)] text-[color:var(--su-colore)] px-1.5 py-0.5 font-black">1º</span> e il <span className="bg-[color:var(--calce)] text-[color:var(--pece)] px-1.5 py-0.5 font-black">2º</span> punteggio di ogni giornata
                         </p>
                     </div>
                 </div>
@@ -331,7 +331,7 @@ function ClassificaContent() {
                                                         isBest
                                                             ? "bg-[color:var(--viola)] text-[color:var(--su-colore)] font-black"
                                                             : isSecond
-                                                              ? "bg-[color:var(--calce)]/70 text-[color:var(--pece)] font-black"
+                                                              ? "bg-[color:var(--calce)] text-[color:var(--pece)] font-black"
                                                               : "text-[color:var(--fumo)]",
                                                         g === colonnaGiornata && giornataScelta !== null && !isBest && !isSecond &&
                                                             "bg-[color:var(--lario)]/10 text-[color:var(--su-colore)]"
