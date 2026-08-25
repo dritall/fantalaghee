@@ -97,6 +97,19 @@ cancellando l'unico titolo rimasto).
 - 2026-08-25 — Hermes: Extra Gazzetta *Il Codice Laghèe* (`il-codice-laghee.md`,
   prima `draft` per copertina, poi live). Non passa da `/api/gazzetta/publish`
   (quello scrive solo `gazzetta-g{N}` e avrebbe sovrascritto la G1).
+- 2026-08-25 — Chiuso il resto della roadmap del 25/08: audit completo
+  dell'assistente del regolamento contro il testo integrale del PDF
+  definitivo (pagamento quota allineato alla scadenza reale del 3ª
+  giornata, criteri Super Lega/UEFA precisati, aggiunte le regole di
+  parità in coppa e una voce sul Colpo Proibito rimosso); `app/error.tsx`
+  e `app/global-error.tsx` a tema; corretto un contrasto sotto soglia AA
+  nell'assistente flottante (testo trasparente su sfondo arancione
+  pieno, ~3:1 invece di 4.5:1); Home convertita in componente server per
+  l'ultimo articolo (niente più fetch client-side) — nel farlo, occhio
+  a un limite reale di RSC: un componente server non può passare
+  riferimenti a componenti (es. icone) come prop a un componente client,
+  quindi i dati statici con icone (`navItems`) sono stati spostati in un
+  componente client dedicato (`NavGrid` in `components/ui/NavTile.tsx`).
 - 2026-08-25 — Hermes: fascia home senza più il record 112,5 del 25/26
   (ora record 26/27 da `/api/verdetto` + flash Gazzetta + pillole coppe);
   elenco Gazzetta con divisore `Stagione 2025/26` (edizione straordinaria

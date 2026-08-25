@@ -373,7 +373,7 @@ export default function RegolamentoPage() {
                     >
                         <dl className="pt-2">
                             <Rule label="Quota">
-                                110 🍆, da saldare <strong className="text-[color:var(--carta-forte)]">prima dell&apos;inizio della 1ª giornata</strong>.
+                                110 🍆, da saldare <strong className="text-[color:var(--carta-forte)]">entro l&apos;inizio della 3ª giornata</strong>.
                                 Il mancato versamento comporta l&apos;esclusione senza rimborso.
                             </Rule>
                             <Rule label="Pagamento">
@@ -385,7 +385,8 @@ export default function RegolamentoPage() {
                             </Rule>
                             <Rule label="Chi è entrato a stagione iniziata">
                                 Riceve <strong className="text-[color:var(--carta-forte)]">66 punti d&apos;ufficio</strong> per ogni
-                                giornata saltata prima del suo ingresso.
+                                giornata saltata prima del suo ingresso. Le iscrizioni restano aperte fino all&apos;inizio della{" "}
+                                <strong className="text-[color:var(--carta-forte)]">3ª giornata</strong>, poi si chiudono.
                             </Rule>
                             <Rule label="Piattaforma">Fantaclub.</Rule>
                             <Rule label="Quotazioni giocatori">Redazione Milano.</Rule>
