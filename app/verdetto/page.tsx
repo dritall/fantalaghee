@@ -434,7 +434,10 @@ function VerdettoContent() {
                                                 {m.melanzane} 🍆
                                             </span>
                                             <span className="block text-[10px] text-[color:var(--fumo)]">
-                                                {m.giornateVinte} {m.giornateVinte === 1 ? 'giornata' : 'giornate'}
+                                                {[
+                                                    m.primi > 0 && `${m.primi}× 1°`,
+                                                    m.secondi > 0 && `${m.secondi}× 2°`,
+                                                ].filter(Boolean).join(' · ')}
                                             </span>
                                         </div>
                                     ))}

@@ -1,5 +1,5 @@
 import { toNumber } from './numbers.ts';
-import { PREMIO_GIORNATA_PRIMO } from './premi-2627';
+import { PREMIO_GIORNATA_PRIMO, PREMIO_GIORNATA_SECONDO } from './premi-2627';
 
 /**
  * Ricostruzione del verdetto per una giornata qualsiasi.
@@ -33,8 +33,8 @@ export type VerdettoGiornata = {
     cucchiaio: (PunteggioGiornata & { giornata: number }) | null;
     /** premio di quella giornata */
     premio: PremioGiornata | null;
-    /** melanzane vinte in giornata dalla 1ª alla giornata scelta */
-    melanzaneVinte: { squadra: string; melanzane: number; giornateVinte: number }[];
+    /** melanzane vinte in giornata dalla 1ª alla giornata scelta (1° e 2° posto) */
+    melanzaneVinte: { squadra: string; melanzane: number; primi: number; secondi: number }[];
 };
 
 /** Colonne delle giornate presenti nel foglio, in ordine numerico. */
@@ -144,7 +144,7 @@ export function verdettoAllaGiornata(righe: SquadraRiga[], g: number): VerdettoG
     // record, peggior prestazione e melanzane di giornata nell'arco 1..g
     let record: (PunteggioGiornata & { giornata: number }) | null = null;
     let cucchiaio: (PunteggioGiornata & { giornata: number }) | null = null;
-    const bottino = new Map<string, { melanzane: number; giornateVinte: number }>();
+    const bottino = new Map<string, { melanzane: number; primi: number; secondi: number }>();
     for (let i = 1; i <= g; i++) {
         const punteggi = punteggiDiGiornata(righe, i);
         for (const p of punteggi) {
@@ -153,12 +153,24 @@ export function verdettoAllaGiornata(righe: SquadraRiga[], g: number): VerdettoG
         }
         const premioI = premioDiGiornata(punteggi);
         premioI?.vincitori.forEach((squadra) => {
-            const corrente = bottino.get(squadra) ?? { melanzane: 0, giornateVinte: 0 };
+            const corrente = bottino.get(squadra) ?? { melanzane: 0, primi: 0, secondi: 0 };
             bottino.set(squadra, {
+                ...corrente,
                 melanzane: Math.round((corrente.melanzane + premioI.quota) * 100) / 100,
-                giornateVinte: corrente.giornateVinte + 1,
+                primi: corrente.primi + 1,
             });
         });
+        if (premioI?.secondi) {
+            const quotaSecondo = Math.round((PREMIO_GIORNATA_SECONDO / premioI.secondi.squadre.length) * 100) / 100;
+            premioI.secondi.squadre.forEach((squadra) => {
+                const corrente = bottino.get(squadra) ?? { melanzane: 0, primi: 0, secondi: 0 };
+                bottino.set(squadra, {
+                    ...corrente,
+                    melanzane: Math.round((corrente.melanzane + quotaSecondo) * 100) / 100,
+                    secondi: corrente.secondi + 1,
+                });
+            });
+        }
     }
 
     return {

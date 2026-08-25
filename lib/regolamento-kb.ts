@@ -69,7 +69,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Posso ancora entrare nella lega?',
         risposta:
-            `**No: le iscrizioni sono chiuse.** Il campionato 2026/27 è partito con **${SQUADRE_ISCRITTE} squadre** e la rosa dei partecipanti è quella definitiva.`,
+            `Il campionato 2026/27 è partito con **${SQUADRE_ISCRITTE} squadre**, ma le iscrizioni restano aperte **fino all'inizio della 3ª giornata**. Chi entra dopo la 1ª giornata riceve **66 punti d'ufficio** per ogni giornata saltata. Contatta gli organizzatori nel gruppo WhatsApp.`,
         chiavi: ['come mi iscrivo', 'iscrizione', 'iscriversi', 'come partecipare', 'voglio giocare', 'come entro', 'posso entrare', 'form', 'dove mi iscrivo', 'link iscrizione', 'modulo iscrizione'],
         inEvidenza: true,
     },
@@ -78,7 +78,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Posso iscrivermi a campionato iniziato?',
         risposta:
-            'No: il campionato è cominciato e le iscrizioni sono chiuse. Chi era stato ammesso dopo la 1ª giornata riceve **66 punti d\'ufficio** per ogni giornata saltata.',
+            'Sì, ma solo **fino all\'inizio della 3ª giornata**. Chi si iscrive dopo la 1ª giornata riceve **66 punti d\'ufficio** per ogni giornata saltata. Dall\'inizio della 3ª giornata le iscrizioni si chiudono definitivamente.',
         chiavi: ['iscrizione tardiva', 'iscrivermi dopo', 'campionato iniziato', 'in ritardo', 'terza giornata', 'ritardatari', 'entrare dopo'],
         inEvidenza: true,
     },
@@ -87,7 +87,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Quanti punti prendo per le giornate saltate?',
         risposta:
-            '**66 punti d\'ufficio** per ogni giornata non giocata, se ti sei iscritto dopo la 1ª giornata.',
+            '**66 punti d\'ufficio** per ogni giornata non giocata, se ti sei iscritto dopo la 1ª giornata (e prima della chiusura definitiva, all\'inizio della 3ª).',
         chiavi: ['punti ufficio', 'punti dufficio', 'giornate saltate', '66 punti', 'punti giornate perse'],
     },
     {
@@ -95,7 +95,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Fino a quando si poteva entrare nella lega?',
         risposta:
-            `Le iscrizioni si sono chiuse con l'inizio del campionato: le **${SQUADRE_ISCRITTE} squadre** al via sono quelle che giocano la stagione.`,
+            `Fino all'inizio della **3ª giornata**. Le **${SQUADRE_ISCRITTE} squadre** al via sono quelle iscritte per la 1ª, ma chi si aggiunge entro la 3ª gioca comunque la stagione, con 66 punti d'ufficio per le giornate perse.`,
         chiavi: ['fino a quando iscrizioni', 'chiusura iscrizioni', 'ultimo giorno iscrizione', 'quando chiudono iscrizioni'],
     },
 
@@ -208,8 +208,8 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Cosa sono i giocatori bloccati?',
         risposta:
-            `Dopo l'inizio della 1ª giornata un giocatore diventa **non acquistabile** se è già posseduto da almeno **un sesto delle squadre** — con le ${SQUADRE_ISCRITTE} di quest'anno, **${Math.ceil(SQUADRE_ISCRITTE / 6)} squadre**. Resta bloccato finché non scende sotto quella soglia.`,
-        chiavi: ['giocatori bloccati', 'bloccato', 'non acquistabile', 'soglia possesso', 'diviso 6', 'blocco giocatore'],
+            'Dopo la fine della 1ª giornata un giocatore diventa **non acquistabile** se è presente in **6 o più squadre**. Se una di quelle lo cede, il giocatore non torna acquistabile nella stessa settimana: è la **Regola Anti-Speculazione**, e torna libero solo dalla settimana successiva.',
+        chiavi: ['giocatori bloccati', 'bloccato', 'non acquistabile', 'soglia possesso', '6 squadre', 'blocco giocatore', 'anti speculazione'],
         inEvidenza: true,
     },
     {
@@ -217,7 +217,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Quando si sblocca un giocatore?',
         risposta:
-            `Appena il numero di squadre che lo possiedono scende **sotto la soglia** di un sesto del totale (${Math.ceil(SQUADRE_ISCRITTE / 6)} squadre su ${SQUADRE_ISCRITTE}). Non c'è una data fissa: dipende dal mercato.`,
+            'Appena il numero di squadre che lo possiedono scende **sotto 6**. Non c\'è una data fissa: dipende dal mercato. Se viene ceduto da bloccato, comunque, la prima settimana non conta: resta non acquistabile fino a quella dopo (Regola Anti-Speculazione).',
         chiavi: ['sblocca', 'sbloccare giocatore', 'quando torna acquistabile', 'giocatore libero'],
     },
     {
@@ -225,7 +225,7 @@ export const KB: VoceKB[] = [
         sezione: 'rosa',
         domanda: 'Quando si può fare mercato a campionato iniziato?',
         risposta:
-            'Il mercato si muove **fra una giornata e l\'altra**: a giornata in corso è chiuso. Valgono comunque le due regole di sempre — niente plusvalenze e i **giocatori bloccati** restano non acquistabili finché sono posseduti da almeno un sesto delle squadre.',
+            'Il mercato si muove **fra una giornata e l\'altra**: a giornata in corso è chiuso. Valgono comunque le due regole di sempre — niente plusvalenze e i **giocatori bloccati** restano non acquistabili finché sono posseduti da 6 o più squadre.',
         chiavi: ['mercato di riparazione', 'riparazione', 'mercato invernale', 'gennaio', 'seconda sessione mercato', 'mercato durante il campionato', 'quando fare mercato', 'mercato aperto', 'scambi', 'svincolati'],
     },
 
@@ -636,8 +636,8 @@ export const KB: VoceKB[] = [
         sezione: 'novita',
         domanda: 'Cosa cambia rispetto alla scorsa stagione?',
         risposta:
-            'Quasi nulla: il regolamento è **praticamente identico** al 2025/26. L\'unica novità sostanziale è il **premio al secondo classificato di giornata**, che prima non esisteva.',
-        chiavi: ['cosa cambia', 'novita', 'differenze', 'nuovo regolamento', 'rispetto scorso anno', 'cambiamenti'],
+            'Cinque cose, rispetto al 25/26: **quota** a 110 🍆 (era 100) da versare prima della 1ª giornata; **premio al 2° di giornata** (10 🍆), prima non esisteva; **coppe** rifatte su 4 gironi da 10 squadre, senza eliminazione: tutte finiscono in Super Lega o UEFA; l\'**inserimento manuale della formazione** ora richiede un messaggio nel gruppo WhatsApp; e il **Colpo Proibito è stato rimosso**.',
+        chiavi: ['cosa cambia', 'novita', 'differenze', 'nuovo regolamento', 'rispetto scorso anno', 'cambiamenti', 'colpo proibito'],
         inEvidenza: true,
     },
 
@@ -851,7 +851,7 @@ export const KB: VoceKB[] = [
         sezione: 'sito',
         domanda: 'Riassumimi il regolamento in breve',
         risposta:
-            'Quota **110 🍆**. Rosa da **24 giocatori** (3-8-8-5) con **600 Fantamilioni**, su **Fantaclub**, voti Fantaclub Classic. Formazione entro **15 minuti prima del primo anticipo**, modulo fisso, 5 sostituzioni. Si gioca **Campionato**, **Super Lega** e **Coppa UEFA**. Ogni giornata il miglior punteggio vale **25 🍆**, e dal 26/27 c\'è un premio anche per il secondo.',
+            'Quota **110 🍆**. Rosa da **24 giocatori** (3-8-8-5) con **600 Fantamilioni**, su **Fantaclub**, voti Fantaclub Classic. Formazione entro **15 minuti prima del primo anticipo**, modulo fisso, 5 sostituzioni. Si gioca **Campionato**, **Super Lega** e **Coppa UEFA**. Ogni giornata **20 🍆** al primo e **10 🍆** al secondo.',
         chiavi: ['riassunto', 'in breve', 'riassumi', 'sintesi', 'tutto', 'spiegami', 'regole principali'],
         inEvidenza: true,
     },
