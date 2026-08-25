@@ -1,36 +1,20 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
 import { Marchio } from "@/components/ui/Marchio";
-import { Activity, Trophy, ShieldCheck, BookOpen, ArrowRight, Download, Newspaper } from "lucide-react";
+import { ArrowRight, Download, Newspaper } from "lucide-react";
 import { REGOLAMENTO_PDF_URL, LEAGUE_TAGLINE } from "@/lib/seasons";
-import { NavTile, type NavTileData } from "@/components/ui/NavTile";
+import { NavGrid } from "@/components/ui/NavTile";
 import { SeasonBanner } from "@/components/ui/SeasonBanner";
 import { SeasonLink } from "@/components/ui/SeasonLink";
 import { FasciaScorre } from "@/components/ui/FasciaScorre";
 import { Tabellone } from "@/components/layout/Tabellone";
+import { getLatestArticle } from "@/lib/articles";
 
-const navItems: NavTileData[] = [
-  { href: "/classifica", icon: Trophy, title: "Classifica", desc: "Chi comanda la lega, giornata per giornata", hex: "var(--lario)" },
-  { href: "/verdetto", icon: ShieldCheck, title: "Verdetto", desc: "Premi, statistiche e record di stagione", hex: "var(--viola)" },
-  { href: "/risultati-serie-a", icon: Activity, title: "Serie A", desc: "Risultati, formazioni e classifica reale", hex: "var(--vermiglio)" },
-  { href: "/regolamento", icon: BookOpen, title: "Regolamento", desc: "Le regole del gioco, senza discussioni", hex: "var(--calce)" },
-];
-
+/**
+ * Componente server: l'ultimo articolo si legge da disco al render, niente
+ * fetch client verso la propria API (che restava comunque necessaria per
+ * fascia numeri, tabellone ed elenco Gazzetta, tutti componenti client).
+ */
 export default function Home() {
-  const [latestArticle, setLatestArticle] = useState<any>(null);
-
-  useEffect(() => {
-    fetch('/api/articles')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const first = data.find((a: any) => !a.placeholder) || data[0];
-          setLatestArticle(first?.placeholder ? null : first);
-        }
-      })
-      .catch(() => null);
-  }, []);
+  const latestArticle = getLatestArticle();
 
   return (
     <main className="min-h-screen pt-16 md:pt-20 font-sans relative z-10">
@@ -107,11 +91,7 @@ export default function Home() {
             <span className="timbro bg-[color:var(--calce)] text-[color:var(--pece)]">Esplora la lega</span>
             <span className="h-[2px] flex-1 bg-[color:var(--filo)]" />
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {navItems.map((item, index) => (
-              <NavTile key={item.href} item={item} index={index} />
-            ))}
-          </div>
+          <NavGrid />
         </section>
 
         {/* ================= IL PUNTO ================= */}

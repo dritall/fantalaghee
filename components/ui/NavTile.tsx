@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Activity, Trophy, ShieldCheck, BookOpen, type LucideIcon } from "lucide-react";
 import { SeasonLink } from "@/components/ui/SeasonLink";
 
 export type NavTileData = {
@@ -86,5 +86,28 @@ export function NavTile({ item, index }: { item: NavTileData; index: number }) {
                 />
             </span>
         </SeasonLink>
+    );
+}
+
+const navItems: NavTileData[] = [
+    { href: "/classifica", icon: Trophy, title: "Classifica", desc: "Chi comanda la lega, giornata per giornata", hex: "var(--lario)" },
+    { href: "/verdetto", icon: ShieldCheck, title: "Verdetto", desc: "Premi, statistiche e record di stagione", hex: "var(--viola)" },
+    { href: "/risultati-serie-a", icon: Activity, title: "Serie A", desc: "Risultati, formazioni e classifica reale", hex: "var(--vermiglio)" },
+    { href: "/regolamento", icon: BookOpen, title: "Regolamento", desc: "Le regole del gioco, senza discussioni", hex: "var(--calce)" },
+];
+
+/**
+ * Griglia della sezione "Esplora la lega" in home. I dati sono statici e le
+ * icone sono componenti (funzioni): non possono attraversare il confine
+ * server→client come prop, quindi vivono qui invece che nella pagina, che è
+ * un componente server.
+ */
+export function NavGrid() {
+    return (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {navItems.map((item, index) => (
+                <NavTile key={item.href} item={item} index={index} />
+            ))}
+        </div>
     );
 }
