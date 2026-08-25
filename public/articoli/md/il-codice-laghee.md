@@ -7,7 +7,6 @@ description: >-
 author: L'Oracolo del Laghèe
 image: /image/gazzetta/il-codice-laghee.png
 stagione: '2627'
-draft: true
 cover:
   giornata: extra
   titolo_principale: IL CODICE LAGHÈE
