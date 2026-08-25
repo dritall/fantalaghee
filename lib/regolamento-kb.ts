@@ -34,7 +34,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Quanto costa la quota?',
         risposta:
-            'La quota è di **110 🍆**. Va saldata **prima dell\'inizio della 1ª giornata**: ' +
+            'La quota è di **110 🍆**. Va saldata **entro l\'inizio della 3ª giornata**: ' +
             'chi non versa viene escluso senza rimborso.\n' +
             'Il montepremi 2026/27 è **distribuito integralmente** ai partecipanti — nessuna quota trattenuta per la gestione.',
         chiavi: ['quanto costa', 'quota', 'prezzo', 'costo', 'quanto si paga', 'quanto pago', '110'],
@@ -53,7 +53,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Entro quando devo pagare?',
         risposta:
-            'Entro **l\'inizio della 1ª giornata**. Dopo quel momento senza pagamento si è fuori, e la quota non viene rimborsata.',
+            'Entro **l\'inizio della 3ª giornata** (stesso termine delle iscrizioni tardive). Dopo quel momento senza pagamento si è fuori, e la quota non viene rimborsata.',
         chiavi: ['entro quando pago', 'scadenza pagamento', 'quando pagare', 'termine pagamento', 'deadline quota'],
     },
     {
@@ -421,15 +421,34 @@ export const KB: VoceKB[] = [
         id: 'super-lega',
         sezione: 'coppe',
         domanda: 'Cos\'è la Coppa Super Lega?',
-        risposta: 'La coppa riservata alle **squadre più forti**, che escono dalla fase iniziale di qualificazione.',
+        risposta:
+            'La coppa delle **squadre più forti**: chi finisce **1ª-5ª nel proprio girone** (G9–G18) ci entra, 20 squadre in totale.',
         chiavi: ['super lega', 'superlega', 'coppa super lega', 'champions'],
     },
     {
         id: 'coppa-uefa',
         sezione: 'coppe',
         domanda: 'Cos\'è la Coppa UEFA?',
-        risposta: 'La coppa per **tutte le altre squadre**, quelle che non entrano in Super Lega.',
+        risposta:
+            'La coppa delle **altre 20 squadre**: chi finisce **6ª-10ª nel proprio girone** (G9–G18) ci entra, invece che in Super Lega.',
         chiavi: ['coppa uefa', 'uefa', 'europa league', 'seconda coppa'],
+    },
+    {
+        id: 'parita-coppe',
+        sezione: 'coppe',
+        domanda: 'Come si decide chi passa il turno in caso di parità in coppa?',
+        risposta:
+            '**Andata/ritorno** (dal Preliminare alle Semifinali): 1) somma dei due punteggi; 2) a parità, il punteggio più alto nella singola partita; 3) ancora parità, la squadra meglio piazzata in Classifica Generale; 4) ultima istanza, monetina in diretta WhatsApp.\n' +
+            '**Finali** (gara unica, G32): 1) punteggio più alto nella partita; 2) parità, meglio piazzata in Classifica Generale alla G32; 3) monetina.',
+        chiavi: ['parita coppe', 'chi passa il turno', 'pareggio coppa', 'spareggio', 'monetina', 'regole di parita', 'tie break coppa'],
+    },
+    {
+        id: 'colpo-proibito',
+        sezione: 'novita',
+        domanda: 'Cos\'è il Colpo Proibito?',
+        risposta:
+            'Era una regola della stagione 2025/26. **Dal 2026/27 è stato rimosso**: non esiste più, e non ha alcun effetto sul gioco di quest\'anno.',
+        chiavi: ['colpo proibito', 'cos è il colpo proibito', 'colpo proibito rimosso', 'colpo vietato'],
     },
     {
         id: 'struttura-coppe',
