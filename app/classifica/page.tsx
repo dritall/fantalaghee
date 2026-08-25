@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { WaitingFirstMatchday } from "@/components/ui/WaitingFirstMatchday";
 import { CURRENT_SEASON } from "@/lib/seasons";
 import { toNumber, stripDecorations } from "@/lib/numbers";
+import { punteggiDiGiornata, primoESecondo } from "@/lib/verdetto-storico";
 import { SeasonBanner } from "@/components/ui/SeasonBanner";
 import { SeasonPill } from "@/components/ui/SeasonPill";
 import { SelettoreGiornata } from "@/components/ui/SelettoreGiornata";
@@ -84,21 +85,17 @@ function ClassificaContent() {
 
     // Miglior punteggio di ogni giornata, e il secondo: dal 26/27 anche chi
     // arriva secondo nel turno prende un premio, quindi va evidenziato.
-    const bestPerMatchday = matchdaysGiocate.reduce((acc, g) => {
-        const values = leaderboard
-            .map((team) => toNumber(team[g]))
-            .filter((v): v is number => v !== null);
-        if (values.length > 0) acc[g] = Math.max(...values);
-        return acc;
-    }, {} as Record<string, number>);
-
-    const secondPerMatchday = matchdaysGiocate.reduce((acc, g) => {
-        const distinti = Array.from(
-            new Set(leaderboard.map((team) => toNumber(team[g])).filter((v): v is number => v !== null))
-        ).sort((a, b) => b - a);
-        if (distinti.length > 1) acc[g] = distinti[1];
-        return acc;
-    }, {} as Record<string, number>);
+    // Stessa regola (e stessa funzione) di Tabellone e del Verdetto: il
+    // secondo è il primo punteggio *diverso* dal migliore, pari merito
+    // compresi.
+    const bestPerMatchday: Record<string, number> = {};
+    const secondPerMatchday: Record<string, number> = {};
+    matchdaysGiocate.forEach((g) => {
+        const piazzamenti = primoESecondo(punteggiDiGiornata(leaderboard, parseInt(g.replace(/\D/g, ""), 10)));
+        if (!piazzamenti) return;
+        bestPerMatchday[g] = piazzamenti.primo.punteggio;
+        if (piazzamenti.secondo) secondPerMatchday[g] = piazzamenti.secondo.punteggio;
+    });
 
     // Numeri delle giornate giocate, per il selettore
     const numeriGiocati = matchdaysGiocate.map((g) => parseInt(g.replace(/\D/g, ""), 10));

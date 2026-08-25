@@ -86,32 +86,56 @@ export type PremioGiornata = {
     secondi: { squadre: string[]; punteggio: number } | null;
 };
 
+export type PiazzamentoGiornata = { squadre: string[]; punteggio: number };
+
+/**
+ * Chi arriva primo e secondo in una giornata, gestendo i pari merito: il
+ * secondo è il primo punteggio *diverso* dal migliore, non la seconda riga
+ * dell'elenco — chi pareggia con la vetta è primo anche lui, non secondo.
+ *
+ * Questa logica è stata riscritta da zero in tre punti diversi del sito
+ * (qui, nel tabellone della home, nella pagina classifica), con la stessa
+ * regola ma leggermente diversa nell'implementazione: è la fonte diretta di
+ * più di un bug reale. Prima di duplicarla altrove, usa questa funzione.
+ */
+export function primoESecondo(
+    podio: PunteggioGiornata[]
+): { primo: PiazzamentoGiornata; secondo: PiazzamentoGiornata | null } | null {
+    if (podio.length === 0) return null;
+    const migliore = podio[0].punteggio;
+    const primo = {
+        squadre: podio.filter((p) => p.punteggio === migliore).map((p) => p.squadra),
+        punteggio: migliore,
+    };
+
+    const secondoPunteggio = podio.find((p) => p.punteggio < migliore)?.punteggio ?? null;
+    const secondo =
+        secondoPunteggio === null
+            ? null
+            : {
+                  squadre: podio.filter((p) => p.punteggio === secondoPunteggio).map((p) => p.squadra),
+                  punteggio: secondoPunteggio,
+              };
+
+    return { primo, secondo };
+}
+
 /**
  * Premio della giornata: si ricava dai soli punteggi, quindi vale anche per le
  * giornate passate. Diverso dai premi di campionato e coppe, che dipendono
  * dalla classifica finale e si assegnano solo all'ultima giornata.
  */
 export function premioDiGiornata(podio: PunteggioGiornata[], totale = PREMIO_GIORNATA): PremioGiornata | null {
-    if (podio.length === 0) return null;
-    const migliore = podio[0].punteggio;
-    const vincitori = podio.filter((p) => p.punteggio === migliore).map((p) => p.squadra);
-
-    // il secondo punteggio è il primo *diverso* dal migliore: chi pareggia con
-    // la vetta è primo a pari merito, non secondo
-    const secondoPunteggio = podio.find((p) => p.punteggio < migliore)?.punteggio ?? null;
+    const piazzamenti = primoESecondo(podio);
+    if (!piazzamenti) return null;
+    const { primo, secondo } = piazzamenti;
 
     return {
-        vincitori,
-        punteggio: migliore,
-        quota: Math.round((totale / vincitori.length) * 100) / 100,
+        vincitori: primo.squadre,
+        punteggio: primo.punteggio,
+        quota: Math.round((totale / primo.squadre.length) * 100) / 100,
         totale,
-        secondi:
-            secondoPunteggio === null
-                ? null
-                : {
-                      squadre: podio.filter((p) => p.punteggio === secondoPunteggio).map((p) => p.squadra),
-                      punteggio: secondoPunteggio,
-                  },
+        secondi: secondo,
     };
 }
 

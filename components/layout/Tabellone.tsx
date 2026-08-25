@@ -22,10 +22,18 @@ import { SeasonLink } from "@/components/ui/SeasonLink";
 import { cn } from "@/lib/utils";
 import { toNumber, stripDecorations } from "@/lib/numbers";
 import { PREMIO_GIORNATA_PRIMO, PREMIO_GIORNATA_SECONDO } from "@/lib/premi-2627";
+import { punteggiDiGiornata, primoESecondo } from "@/lib/verdetto-storico";
 
-type Piazzamento = { squadra: string; punteggio: string };
+type Piazzamento = { squadre: string[]; punteggio: string };
 type Giornata = { numero: string; primo: Piazzamento; secondo: Piazzamento | null } | null;
 type Uscita = { id: string; title: string; date?: string; imageUrl?: string } | null;
+
+/** "A e B" con due squadre, "A, B e C" con tre o più — per i pari merito. */
+function elencoSquadre(squadre: string[]): string {
+    if (squadre.length <= 1) return squadre[0] ?? "";
+    if (squadre.length === 2) return squadre.join(" e ");
+    return `${squadre.slice(0, -1).join(", ")} e ${squadre[squadre.length - 1]}`;
+}
 
 function Colonna({
     icona: Icona,
@@ -100,23 +108,19 @@ export function Tabellone() {
                 }, null);
                 if (!ultima) return;
 
-                const classificati = righe
-                    .map((r) => ({ squadra: String(r.Team ?? ""), punti: toNumber(r[ultima]) }))
-                    .filter((x): x is { squadra: string; punti: number } => !!x.squadra && x.punti !== null)
-                    .sort((a, b) => b.punti - a.punti);
-                if (classificati.length === 0) return;
-
-                const migliore = classificati[0];
-                // il secondo è il primo punteggio *diverso* dal migliore: chi
-                // pareggia in vetta è primo a pari merito, non secondo
-                const secondo = classificati.find((c) => c.punti < migliore.punti) ?? null;
+                const numeroGiornata = parseInt(ultima.replace(/\D/g, ""), 10);
+                const piazzamenti = primoESecondo(punteggiDiGiornata(righe, numeroGiornata));
+                if (!piazzamenti) return;
 
                 setGiornata({
-                    numero: ultima.replace(/\D/g, ""),
-                    primo: { squadra: migliore.squadra, punteggio: stripDecorations(String(migliore.punti)) },
-                    secondo: secondo && {
-                        squadra: secondo.squadra,
-                        punteggio: stripDecorations(String(secondo.punti)),
+                    numero: String(numeroGiornata),
+                    primo: {
+                        squadre: piazzamenti.primo.squadre,
+                        punteggio: stripDecorations(String(piazzamenti.primo.punteggio)),
+                    },
+                    secondo: piazzamenti.secondo && {
+                        squadre: piazzamenti.secondo.squadre,
+                        punteggio: stripDecorations(String(piazzamenti.secondo.punteggio)),
                     },
                 });
             })
@@ -146,7 +150,7 @@ export function Tabellone() {
                         <span className="flex flex-col gap-0.5">
                             <span className="numerone text-[28px] leading-none text-[color:var(--viola)]">{giornata.primo.punteggio}</span>
                             <span className="stampino text-[13px] leading-tight text-[color:var(--calce)]">
-                                {giornata.primo.squadra}
+                                {elencoSquadre(giornata.primo.squadre)}
                             </span>
                             <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--viola)]">
                                 {PREMIO_GIORNATA_PRIMO} 🍆 al 1°
@@ -157,7 +161,7 @@ export function Tabellone() {
                             <span className="flex flex-col gap-0.5 border-t border-[color:var(--filo)] pt-2">
                                 <span className="numerone text-[20px] leading-none text-[color:var(--lario)]">{giornata.secondo.punteggio}</span>
                                 <span className="stampino text-[12px] leading-tight text-[color:var(--calce)]/85">
-                                    {giornata.secondo.squadra}
+                                    {elencoSquadre(giornata.secondo.squadre)}
                                 </span>
                                 <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[color:var(--lario)]">
                                     {PREMIO_GIORNATA_SECONDO} 🍆 al 2°
