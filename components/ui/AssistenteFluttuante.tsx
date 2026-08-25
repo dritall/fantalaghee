@@ -260,7 +260,10 @@ export function AssistenteFluttuante() {
                     </span>
                     <span className="flex-1 min-w-0">
                         <span className="stampino block text-[15px] leading-none text-[color:var(--calce)]">Chiedi al regolamento</span>
-                        <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--calce)]/65 leading-tight mt-1">
+                        {/* Niente opacità qui: --vermiglio pieno tiene l'AA solo con inchiostro
+                            scuro solido sopra (vedi nota su --vermiglio in globals.css) — una
+                            versione trasparente di --calce sopra l'arancione scende sotto 4.5:1. */}
+                        <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--calce)] leading-tight mt-1">
                             Risponde solo su regolamento e premi
                         </span>
                     </span>
