@@ -7,6 +7,17 @@ import {
     AlertTriangle, ListChecks, Plus, Minus, ArrowRight,
 } from "lucide-react";
 import { REGOLAMENTO_PDF_URL, SQUADRE_ISCRITTE } from "@/lib/seasons";
+import {
+    QUOTA,
+    MONTEPREMI_NETTO,
+    PREMIO_GIORNATA_PRIMO,
+    PREMIO_GIORNATA_SECONDO,
+    TOTALE_GIORNATE,
+    CLASSIFICA_GENERALE,
+    SUPER_LEGA,
+    COPPA_UEFA,
+    MIGLIOR_PUNTEGGIO,
+} from "@/lib/premi-2627";
 import { cn } from "@/lib/utils";
 
 type SectionId = "novita" | "iscrizione" | "rosa" | "coppe" | "premi" | "bonus" | "casi";
@@ -331,17 +342,21 @@ export default function RegolamentoPage() {
                     >
                         <div className="space-y-4 pt-3">
                             <p className="text-sm text-[color:var(--carta-corpo)] leading-relaxed">
-                                Per i veterani: il regolamento resta <strong className="text-[color:var(--carta-forte)]">praticamente identico</strong> a
-                                quello della stagione 25/26. L&apos;unica novità sostanziale:
+                                Seconda edizione, {SQUADRE_ISCRITTE} squadre, regolamento chiuso. Per i veterani,
+                                queste sono le differenze vere rispetto al 25/26:
                             </p>
-                            <Callout tone="new" title="🏅 Nuovo premio: secondo classificato di giornata">
-                                Non festeggia più solo il primo: ora anche il{" "}
-                                <strong>secondo miglior punteggio di giornata</strong> riceve un premio, ogni turno.
+                            <Callout tone="new" title="🏅 Premio anche al 2° di giornata">
+                                Ogni turno: {PREMIO_GIORNATA_PRIMO} 🍆 al primo, {PREMIO_GIORNATA_SECONDO} 🍆 al secondo.
+                                A parità il premio si divide.
                             </Callout>
-                            <Callout tone="info">
-                                La stagione è partita con <strong>{SQUADRE_ISCRITTE} squadre</strong>. I dettagli completi su premi
-                                e struttura definitiva delle coppe verranno comunicati{" "}
-                                <strong>entro l&apos;inizio della 5ª giornata</strong> di Serie A 26/27.
+                            <Callout tone="info" title="💰 Quota 110 🍆, prima della G1">
+                                Non più 100, e non più «entro la 3ª». Chi non paga prima del fischio è fuori, senza rimborso.
+                            </Callout>
+                            <Callout tone="info" title="🏅 Coppe su 40 squadre, nessuno eliminato">
+                                4 gironi da 10. Prime 5 di ogni girone → Super Lega, ultime 5 → UEFA. Tutte e 40 vanno in una coppa.
+                            </Callout>
+                            <Callout tone="warn" title="🚫 Colpo Proibito fuori">
+                                Quest&apos;anno non esiste. Formazione manuale WhatsApp: 1 volta a stagione, solo per problemi tecnici.
                             </Callout>
                         </div>
                     </AccordionItem>
@@ -466,11 +481,9 @@ export default function RegolamentoPage() {
                                     Giocatori bloccati
                                 </h3>
                                 <p className="text-sm text-[color:var(--carta-corpo)] leading-relaxed">
-                                    Un giocatore è bloccato (non acquistabile) se posseduto da almeno{" "}
-                                    <em className="text-[color:var(--carta-corpo)]">totale squadre / 6</em>, dopo l&apos;inizio della 1ª
-                                    giornata — con le {SQUADRE_ISCRITTE} squadre di quest&apos;anno,{" "}
-                                    <strong className="text-[color:var(--carta-forte)]">{Math.ceil(SQUADRE_ISCRITTE / 6)} squadre</strong>.
-                                    Resta bloccato finché non scende sotto la soglia.
+                                    Un giocatore è bloccato se è in{" "}
+                                    <strong className="text-[color:var(--carta-forte)]">6 o più rose</strong> dopo la 1ª giornata.
+                                    Se lo cedi, non è acquistabile nella stessa settimana: torna libero da quella dopo.
                                 </p>
                             </div>
                         </div>
@@ -484,23 +497,34 @@ export default function RegolamentoPage() {
                         isOpen={!!open.coppe}
                         onToggle={() => toggle("coppe")}
                     >
-                        <div className="space-y-3 pt-3">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-4 pt-3">
+                            <p className="text-sm text-[color:var(--carta-corpo)] leading-relaxed">
+                                Stessa idea dell&apos;anno scorso, ricalibrata sulle {SQUADRE_ISCRITTE} iscritte. Nessuna
+                                eliminazione a fine gironi: tutte vanno in Super Lega o in UEFA.
+                            </p>
+                            <ol className="space-y-3">
                                 {[
-                                    { t: "Campionato Generale", d: "Classifica a punteggio per tutta la stagione." },
-                                    { t: "Fase Iniziale Coppe", d: "Qualificazione che costruisce le due competizioni finali." },
-                                    { t: "Coppa Super Lega", d: "Per le squadre più forti." },
-                                    { t: "Coppa UEFA", d: "Per tutte le altre squadre." },
-                                ].map((c) => (
-                                    <div key={c.t} className="rounded-2xl border border-[color:var(--carta-filo)] bg-[color:var(--carta-velo)] p-4">
-                                        <p className="text-sm font-black text-[color:var(--carta-forte)] mb-1">{c.t}</p>
-                                        <p className="text-xs text-[color:var(--carta-tenue)] leading-relaxed">{c.d}</p>
-                                    </div>
+                                    { n: "1", t: "Qualificazione · G1–G8", d: "La classifica generale diventa il Ranking 1°–40°, e da lì si fanno i gironi." },
+                                    { n: "2", t: "Gironi · dopo G8", d: "4 gironi da 10, metodo serpentone: 1°→A, 2°→B, 3°→C, 4°→D, 5°→D, 6°→C…" },
+                                    { n: "3", t: "Fase a gironi · G9–G18", d: "Ognuno gioca le altre 9 del girone, sola andata. Nove partite, nessuno fuori." },
+                                    { n: "4", t: "Smistamento", d: "1ª–5ª di ogni girone → Coppa Super Lega (20). 6ª–10ª → Coppa UEFA (20)." },
+                                    { n: "5", t: "Tabelloni da 32", d: "12 BYE agli ottavi + 8 al preliminare. Super Lega: BYE alle prime 3, preliminare a 4ª e 5ª. UEFA: BYE a 6ª–8ª, preliminare a 9ª e 10ª." },
+                                    { n: "6", t: "Calendario", d: "Prelim G20–21 · pausa G22 · Ottavi G23–24 · G25 · Quarti G26–27 · G28 · Semi G29–30 · G31 · Finali G32 (gara unica, anche 3°/4°)." },
+                                    { n: "7", t: "Parità", d: "Andata/ritorno: somma dei due punteggi, poi miglior singola, poi classifica generale, poi monetina WhatsApp. Finale: punteggio, poi classifica alla G32, poi monetina." },
+                                ].map((f) => (
+                                    <li key={f.n} className="flex gap-3 rounded-2xl border border-[color:var(--carta-filo)] bg-[color:var(--carta-velo)] p-3.5">
+                                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#8A5E12]/15 text-[11px] font-black text-[#8A5E12]">
+                                            {f.n}
+                                        </span>
+                                        <span>
+                                            <span className="block text-sm font-black text-[color:var(--carta-forte)]">{f.t}</span>
+                                            <span className="mt-0.5 block text-xs leading-relaxed text-[color:var(--carta-tenue)]">{f.d}</span>
+                                        </span>
+                                    </li>
                                 ))}
-                            </div>
+                            </ol>
                             <p className="text-xs text-[color:var(--carta-tenue)] leading-relaxed">
-                                Struttura e date definitive verranno comunicate entro l&apos;inizio della 5ª giornata, sulle{" "}
-                                {SQUADRE_ISCRITTE} squadre al via.
+                                In coppa il punteggio diventa gol (soglia 66 = 1 gol, poi +1 ogni 4 punti). Formazione di coppa libera, indipendente dal campionato.
                             </p>
                         </div>
                     </AccordionItem>
@@ -514,27 +538,37 @@ export default function RegolamentoPage() {
                         onToggle={() => toggle("premi")}
                     >
                         <div className="space-y-5 pt-3">
+                            <p className="text-sm text-[color:var(--carta-corpo)] leading-relaxed">
+                                Montepremi <strong className="text-[color:var(--carta-forte)]">{MONTEPREMI_NETTO.toLocaleString("it-IT")} 🍆</strong>,
+                                distribuito tutto. Quota {QUOTA} 🍆.
+                            </p>
                             <dl>
                                 <Rule label="Premi di giornata">
-                                    1° e 2° classificato di ogni giornata, più il miglior punteggio stagionale.
-                                    A pari punteggio il premio si divide fra le squadre in testa.
+                                    {PREMIO_GIORNATA_PRIMO} 🍆 al 1°, {PREMIO_GIORNATA_SECONDO} 🍆 al 2° (novità).
+                                    A pari punteggio si divide. Totale stagione: {TOTALE_GIORNATE.toLocaleString("it-IT")} 🍆.
                                 </Rule>
-                                <Rule label="Premi classifica generale">Prime posizioni del Campionato.</Rule>
-                                <Rule label="Premi coppe">Vincitori di Super Lega e UEFA.</Rule>
+                                <Rule label="Classifica generale">
+                                    {CLASSIFICA_GENERALE.map((v) => `${v.titolo} ${v.importo} 🍆`).join(" · ")}.
+                                </Rule>
+                                <Rule label="Miglior punteggio stagionale">
+                                    {MIGLIOR_PUNTEGGIO.importo} 🍆 a chi fa il turno più alto dell&apos;anno.
+                                </Rule>
+                                <Rule label="Coppa Super Lega">
+                                    {SUPER_LEGA.map((v) => `${v.titolo} ${v.importo} 🍆`).join(" · ")}.
+                                </Rule>
+                                <Rule label="Coppa UEFA">
+                                    {COPPA_UEFA.map((v) => `${v.titolo} ${v.importo} 🍆`).join(" · ")}.
+                                </Rule>
                                 <Rule label="Campionato e coppe non si giocano allo stesso modo">
                                     Nel <strong className="text-[color:var(--carta-forte)]">Campionato</strong> conta
-                                    solo il punteggio: si somma giornata dopo giornata e vince chi ha il totale
-                                    più alto. Nelle <strong className="text-[color:var(--carta-forte)]">coppe</strong> si
-                                    gioca invece a <strong className="text-[color:var(--carta-forte)]">scontro diretto</strong>: il
-                                    punteggio si trasforma in gol secondo le soglie, e chi ne fa di più passa il turno.
+                                    solo il punteggio. Nelle <strong className="text-[color:var(--carta-forte)]">coppe</strong> si
+                                    gioca a <strong className="text-[color:var(--carta-forte)]">scontro diretto</strong>: i
+                                    punti diventano gol, e chi ne fa di più passa.
                                 </Rule>
                             </dl>
-
-                            <Callout tone="info" title="Importi entro la 5ª giornata">
-                                Si calcolano sulle {SQUADRE_ISCRITTE} squadre al via e vengono comunicati entro
-                                l&apos;inizio della 5ª giornata. Gli importi delle stagioni passate si
-                                vedono cambiando stagione dal selettore in alto.
-                            </Callout>
+                            <div className="rounded-2xl border border-[color:var(--carta-filo)] bg-[color:var(--carta-velo)] px-4 py-3 text-xs text-[color:var(--carta-tenue)]">
+                                Riepilogo: generale 2.090 · record 100 · Super Lega 650 · UEFA 150 · giornate 1.140 = {MONTEPREMI_NETTO.toLocaleString("it-IT")} 🍆.
+                            </div>
                         </div>
                     </AccordionItem>
 

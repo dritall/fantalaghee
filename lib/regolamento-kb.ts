@@ -714,7 +714,7 @@ export const KB: VoceKB[] = [
         sezione: 'iscrizione',
         domanda: 'Quante squadre partecipano?',
         risposta:
-            `Quest'anno sono **${SQUADRE_ISCRITTE} squadre** (la stagione scorsa erano 50). Su questo numero si calcolano struttura delle coppe e importi dei premi, comunicati **entro l'inizio della 5ª giornata**.`,
+            `Quest'anno sono **${SQUADRE_ISCRITTE} squadre** (la stagione scorsa erano 50). Su questo numero sono già calcolati coppe e montepremi: **4.130 🍆** da distribuire.`,
         chiavi: ['quante squadre', 'quanti partecipanti', 'quanti iscritti', 'numero squadre', 'quanti siamo'],
     },
     {
@@ -791,7 +791,7 @@ export const KB: VoceKB[] = [
         sezione: 'sito',
         domanda: 'Quante giornate dura il campionato?',
         risposta:
-            'Il Campionato Generale segue la Serie A: **38 giornate**. Le coppe si giocano in parallelo, con la struttura comunicata entro la 5ª giornata.',
+            'Il Campionato Generale segue la Serie A: **38 giornate**. Le coppe girano in parallelo: ranking G1–G8, gironi G9–G18, tabelloni da G20, finali G32.',
         chiavi: ['quante giornate', '38', 'durata campionato', 'quanti turni'],
     },
 

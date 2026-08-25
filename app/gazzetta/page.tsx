@@ -206,18 +206,19 @@ export default function GazzettaPage() {
                                         const prev = rest[index - 1];
                                         const isFirstArchived =
                                             article.stagione === ARCHIVED_SEASON &&
-                                            !!prev &&
-                                            prev.stagione !== ARCHIVED_SEASON;
+                                            (!prev || prev.stagione !== ARCHIVED_SEASON);
 
                                         return (
                                             <Fragment key={article.id || index}>
                                                 {isFirstArchived && (
-                                                    <div className="col-span-full flex items-center gap-4 mt-4 mb-1">
-                                                        <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
-                                                        <span className="text-[#16100F]/55 text-[10px] uppercase tracking-[0.22em] font-black whitespace-nowrap">
-                                                            Archivio {SEASONS[ARCHIVED_SEASON].label}
-                                                        </span>
-                                                        <span className="h-px flex-1 bg-[color:var(--velo-alto)]" />
+                                                    <div className="col-span-full my-2">
+                                                        <div className="flex items-center gap-4 rounded-full border border-[color:var(--filo)] bg-[color:var(--velo)] px-4 py-2.5">
+                                                            <span className="h-px flex-1 bg-[color:var(--filo-alto)]" />
+                                                            <span className="text-[11px] uppercase tracking-[0.22em] font-black whitespace-nowrap text-[color:var(--calce)]">
+                                                                Stagione {SEASONS[ARCHIVED_SEASON].label}
+                                                            </span>
+                                                            <span className="h-px flex-1 bg-[color:var(--filo-alto)]" />
+                                                        </div>
                                                     </div>
                                                 )}
 

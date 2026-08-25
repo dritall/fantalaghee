@@ -1,4 +1,5 @@
 import { toNumber } from './numbers.ts';
+import { PREMIO_GIORNATA_PRIMO } from './premi-2627';
 
 /**
  * Ricostruzione del verdetto per una giornata qualsiasi.
@@ -71,7 +72,7 @@ export function punteggiDiGiornata(righe: SquadraRiga[], g: number): PunteggioGi
  * Melanzane in palio ogni giornata per il miglior punteggio. A pari punti il
  * premio si divide fra tutte le squadre in testa.
  */
-export const PREMIO_GIORNATA = 25;
+export const PREMIO_GIORNATA = PREMIO_GIORNATA_PRIMO;
 
 export type PremioGiornata = {
     vincitori: string[];
@@ -80,9 +81,7 @@ export type PremioGiornata = {
     totale: number;
     /**
      * Secondo miglior punteggio del turno: dal 2026/27 prende un premio anche
-     * lui. L'importo però dipende dagli iscritti e viene comunicato entro la 5ª
-     * giornata, quindi qui c'è solo chi è arrivato secondo — la quota resta
-     * fuori finché non è un numero vero e non una nostra invenzione.
+     * lui (10 🍆 ufficiali).
      */
     secondi: { squadre: string[]; punteggio: number } | null;
 };

@@ -206,8 +206,8 @@ export function Tabellone() {
                         al miglior punteggio di giornata, {PREMIO_GIORNATA_SECONDO} 🍆 al secondo.
                     </li>
                     <li>
-                        <strong className="text-[color:var(--calce)]">Coppe:</strong> scontro diretto, il
-                        punteggio diventa gol secondo le soglie.
+                        <strong className="text-[color:var(--calce)]">Coppe:</strong> 4 gironi da 10,
+                        tutte in Super Lega o UEFA. Poi scontro diretto.
                     </li>
                     <li>
                         <strong className="text-[color:var(--calce)]">Formazione:</strong> entro 15 minuti dal

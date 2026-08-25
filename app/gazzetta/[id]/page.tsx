@@ -72,6 +72,15 @@ export default function ArticlePage() {
         [content]
     );
 
+    /** La copertina porta già il titolo: togliamo l'H1 gemello in testa al markdown. */
+    const corpo = useMemo(() => {
+        const raw = content.replace(/^\uFEFF/, "").trimStart();
+        const titolo = (metadata?.title || "").trim();
+        if (!titolo) return content;
+        const escaped = titolo.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return raw.replace(new RegExp(`^#\\s+${escaped}\\s*\\n+`, "i"), "");
+    }, [content, metadata?.title]);
+
     if (loading) return (
         <div className="min-h-screen pt-24 flex justify-center items-center">
             <Loader2 className="w-10 h-10 text-[#C2185B] animate-spin" />
@@ -173,7 +182,7 @@ export default function ArticlePage() {
                             <span className="font-testata text-[9px] font-bold uppercase tracking-[0.16em] border border-[#F8F3EA]/45 px-1.5 py-0.5 whitespace-nowrap">
                                 La prima pagina
                             </span>
-                            <span className="truncate">{metadata.title}</span>
+                            <span className="truncate opacity-70">{dataIt}</span>
                         </figcaption>
                     </figure>
                 )}
@@ -181,7 +190,7 @@ export default function ArticlePage() {
                 {/* --- CORPO -------------------------------------------------- */}
                 <div className="relative z-10 px-5 sm:px-10 py-8">
                     <div className="giornale">
-                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{corpo}</ReactMarkdown>
                     </div>
                 </div>
 
