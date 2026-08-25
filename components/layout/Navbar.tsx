@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { Marchio } from "@/components/ui/Marchio";
-import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, Download, Home } from "lucide-react";
+import { Menu, X, Trophy, Newspaper, BookOpen, Gavel, Activity, Download, Home, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,7 @@ import { SeasonLink } from "@/components/ui/SeasonLink";
 const navItems = [
     { name: "Classifica", full: "Classifica Lega", href: "/classifica", icon: Trophy },
     { name: "Verdetto", full: "Il Verdetto", href: "/verdetto", icon: Gavel },
+    { name: "Coppe", full: "Super Lega e UEFA", href: "/coppe", icon: Shield },
     { name: "Serie A", full: "Risultati Serie A", href: "/risultati-serie-a", icon: Activity },
     { name: "Gazzetta", full: "La Gazzetta", href: "/gazzetta", icon: Newspaper },
     { name: "Regolamento", full: "Regolamento", href: "/regolamento", icon: BookOpen },

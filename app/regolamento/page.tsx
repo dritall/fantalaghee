@@ -20,6 +20,7 @@ import {
 } from "@/lib/premi-2627";
 import { formattaMigliaia } from "@/lib/numbers";
 import { cn } from "@/lib/utils";
+import { SeasonLink } from "@/components/ui/SeasonLink";
 
 type SectionId = "novita" | "iscrizione" | "rosa" | "coppe" | "premi" | "bonus" | "casi";
 
@@ -527,6 +528,15 @@ export default function RegolamentoPage() {
                             <p className="text-xs text-[color:var(--carta-tenue)] leading-relaxed">
                                 In coppa il punteggio diventa gol (soglia 66 = 1 gol, poi +1 ogni 4 punti). Formazione di coppa libera, indipendente dal campionato.
                             </p>
+                            <SeasonLink
+                                href="/coppe"
+                                className="group flex items-center justify-between gap-3 rounded-2xl border border-[color:var(--carta-filo)] bg-[color:var(--carta-velo)] px-4 py-3 transition-colors hover:border-[#8A5E12]/40"
+                            >
+                                <span className="text-sm font-black text-[color:var(--carta-forte)]">
+                                    Vai alla vetrina Coppe
+                                </span>
+                                <ArrowRight className="h-4 w-4 shrink-0 text-[color:var(--carta-tenue)] transition-transform duration-300 group-hover:translate-x-1" />
+                            </SeasonLink>
                         </div>
                     </AccordionItem>
 
