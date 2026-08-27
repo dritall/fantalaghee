@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SfondoLario } from "@/components/layout/SfondoLario";
+import { GoogleAnalytics } from "@/components/layout/GoogleAnalytics";
 import { AssistenteFluttuante } from "@/components/ui/AssistenteFluttuante";
 import { RivelaOsservatore } from "@/components/ui/RivelaOsservatore";
 import { LEAGUE_TAGLINE } from "@/lib/seasons";
@@ -79,6 +80,7 @@ export default function RootLayout({
         </div>
         <AssistenteFluttuante />
         <Footer />
+        <GoogleAnalytics />
       </body>
     </html>
   );

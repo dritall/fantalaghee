@@ -94,6 +94,11 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-08-27 — Claude: aggiunto GA4 (`components/layout/GoogleAnalytics.tsx`,
+  montato in `app/layout.tsx`). Legge `NEXT_PUBLIC_GA_ID` da env (vedi
+  `.env.example`) e carica lo script solo se la var è presente **e**
+  `NODE_ENV === "production"`, con `anonymize_ip: true`. Non fa nulla finché
+  qualcuno non imposta `NEXT_PUBLIC_GA_ID` su Vercel (env di produzione).
 - 2026-08-26 — Hermes: rifatta copertina *Il Codice Laghèe* — via cane/etichette
   nell'hero, box «1 di giornata» (il `1°` veniva letto come rank), testata
   copertina 2025/26 hardcoded. File: `il-codice-laghee.md`, `template.html`,
