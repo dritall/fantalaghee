@@ -83,6 +83,23 @@ non un import).
   riscrittura di storia) e push di `main`. Fallo solo se il branch è già
   verificato (build pulita) — è un'azione che va in produzione reale.
 
+## Cose provate e scartate
+
+- **Personalizzazione "Avanzate" di Fantaclub (header/footer custom).**
+  Fantaclub (la piattaforma di gioco, non questo repo) ha un pannello
+  "Avanzate" che permette di iniettare HTML/CSS prima e dopo il contenuto
+  di pagina. Sembrava un modo per mettere un rimando a fantalaghee.co
+  sulle pagine che i manager usano ogni settimana (formazioni, voti), ma
+  **non è così**: quel template si applica solo alla vista
+  `https://www.fantaclub.it/servlet/lega/fantalaghee?insito=si`, pensata
+  per essere incorporata via `<iframe>` in un sito esterno — sulle pagine
+  vere del gioco non cambia nulla (confermato dall'utente). La vista
+  `insito` stessa mostra un widget di Fantaclub (maglia/grafico bomber)
+  probabilmente pensato per un iframe stretto tipo sidebar: aperto a piena
+  larghezza gli elementi (posizionati assoluti) sono sparsi e inutilizzabili.
+  Scartato il 27/08/2026, campi Avanzate rimessi vuoti. Non riprovare senza
+  prima aver capito come va dimensionato quel widget.
+
 ## Changelog a staffetta
 
 Una riga per sessione/cambiamento degno di nota, più recente in cima. Non
