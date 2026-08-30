@@ -3,38 +3,21 @@
 /**
  * La fascia che scorre sotto la testata.
  *
- * Mix fisso (quota, rosa, premi di giornata) + flash della settimana:
- * record di *questa* stagione, ultima Gazzetta, pillole di regolamento.
- * Mai più il 112,5 del 25/26.
+ * Solo cose che servono adesso (G2): flash della settimana (record, giornata,
+ * Gazzetta) + rosa/budget/squadre. Niente montepremi, quote, 🍆 in testata:
+ * in homepage i crawler/AI overview le prendevano per verdura.
  */
 
 import { useEffect, useState } from "react";
-import {
-    QUOTA,
-    PREMIO_GIORNATA_PRIMO,
-    PREMIO_GIORNATA_SECONDO,
-    MONTEPREMI_NETTO,
-} from "@/lib/premi-2627";
 import { GIORNATE, SQUADRE_ISCRITTE, CURRENT_SEASON } from "@/lib/seasons";
-import { formattaMigliaia } from "@/lib/numbers";
 
 type Voce = { forte: string; debole: string };
 
 const BASE: Voce[] = [
-    { forte: `${PREMIO_GIORNATA_PRIMO} 🍆`, debole: "al 1° di giornata" },
-    { forte: `${PREMIO_GIORNATA_SECONDO} 🍆`, debole: "al 2° di giornata" },
+    { forte: `${SQUADRE_ISCRITTE}`, debole: "squadre al via" },
     { forte: "24", debole: "giocatori in rosa" },
     { forte: "600", debole: "fantamilioni di budget" },
-    { forte: `${QUOTA} 🍆`, debole: "quota di stagione" },
     { forte: `${GIORNATE}`, debole: "giornate di campionato" },
-    { forte: `${SQUADRE_ISCRITTE}`, debole: "squadre al via" },
-];
-
-const REGOLAMENTO: Voce[] = [
-    { forte: `${formattaMigliaia(MONTEPREMI_NETTO)} 🍆`, debole: "montepremi 26/27, tutto ai partecipanti" },
-    { forte: "4×10", debole: "gironi coppe: tutte in Super Lega o UEFA" },
-    { forte: "G1–G8", debole: "il ranking decide i gironi" },
-    { forte: "STOP", debole: "Colpo Proibito fuori dal regolamento" },
 ];
 
 function itNum(n: string | number) {
@@ -117,7 +100,6 @@ export function FasciaScorre() {
     const voci: Voce[] = [
         ...flash,
         ...BASE,
-        ...REGOLAMENTO,
         { forte: "Il Fantacalcio del Lario", debole: "dal 2025" },
     ];
 

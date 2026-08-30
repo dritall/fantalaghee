@@ -94,6 +94,7 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-08-30 — Hermes: partite Serie A in corso usavano `matchStatus` (campo inesistente) e risultavano «Finita»; ora `status`/`phase`/`time` + minuto live, Momento tagliato all'orologio, cache/poll più stretti. Fascia home senza montepremi/🍆. Footer senza `pb-24` (buco PWA). File: `lib/match-clock.ts`, `app/risultati-serie-a/*`, `app/api/football/route.ts`, `FasciaScorre.tsx`, `Footer.tsx`.
 - 2026-08-26 — Hermes: rifatta copertina *Il Codice Laghèe* — via cane/etichette
   nell'hero, box «1 di giornata» (il `1°` veniva letto come rank), testata
   copertina 2025/26 hardcoded. File: `il-codice-laghee.md`, `template.html`,

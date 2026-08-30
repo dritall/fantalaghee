@@ -12,6 +12,7 @@ import type { NormalizedMatch, NormalizedPlayer, NormalizedEvent } from "@/lib/l
 import { cn } from "@/lib/utils";
 import { matchColors } from "@/lib/team-colors";
 import { usaTema } from "@/lib/usa-tema";
+import { matchClock } from "@/lib/match-clock";
 
 const TABS = [
     { id: "formazioni", label: "Formazioni", icon: Users },
@@ -571,10 +572,12 @@ export function MatchSheet({
     const away = fixture.awayTeam || fixture.away;
     const homeName = normalized?.home.name || home?.shortName || home?.officialName || "Casa";
     const awayName = normalized?.away.name || away?.shortName || away?.officialName || "Ospite";
-    const hs = fixture.providerHomeScore ?? fixture.homeScore;
-    const as_ = fixture.providerAwayScore ?? fixture.awayScore;
-    const played = hs !== null && hs !== undefined;
-    const isLive = fixture.matchStatus === "Playing" || fixture.matchStatus === "LIVE";
+    const src = details?.header || fixture;
+    const hs = src.providerHomeScore ?? src.homeScore ?? fixture.providerHomeScore ?? fixture.homeScore;
+    const as_ = src.providerAwayScore ?? src.awayScore ?? fixture.providerAwayScore ?? fixture.awayScore;
+    const clock = matchClock(src);
+    const played = clock.isFinished || (hs !== null && hs !== undefined && !clock.isUpcoming);
+    const isLive = clock.isLive;
 
     // Colori presi dagli stemmi, schiariti per il fondo notturno e resi
     // diversi fra loro quando le due squadre giocano su tinte simili.
@@ -637,7 +640,7 @@ export function MatchSheet({
                             {isLive ? (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/15 border border-red-500/35 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-red-600">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-                                    Live
+                                    {clock.label && clock.label !== "LIVE" ? `Live ${clock.label}` : "Live"}
                                 </span>
                             ) : (
                                 <span className="rounded-full bg-[color:var(--velo-alto)] border border-[color:var(--filo)] px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)]">
@@ -784,6 +787,7 @@ export function MatchSheet({
                                             homeName={homeName}
                                             awayName={awayName}
                                             commentaryUrl={commentaryUrl}
+                                            liveMinute={isLive ? clock.minute : null}
                                         />
                                     )}
                                     {tab === "statistiche" && (

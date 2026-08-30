@@ -9,6 +9,7 @@ import { TeamLogo, getTeamLogoUrl } from './TeamLogo';
 import { MatchSheet } from './MatchSheet';
 import { matchColors } from '@/lib/team-colors';
 import { usaTema } from '@/lib/usa-tema';
+import { clockFields, isLiveMatch, matchClock } from '@/lib/match-clock';
 
 const TOTAL_ROUNDS = 38;
 
@@ -100,12 +101,14 @@ function ScoutHubContent() {
   }, [stagione]);
 
   /* -------------------------------------------------------------- partite */
-  const loadRound = useCallback(async (round: number) => {
-    setLoadingMatches(true);
-    setMatchError(null);
-    setMatches([]);
+  const loadRound = useCallback(async (round: number, silent = false) => {
+    if (!silent) {
+      setLoadingMatches(true);
+      setMatchError(null);
+      setMatches([]);
+    }
     try {
-      const res = await fetch(`/api/football?endpoint=matches&round=${round}&stagione=${stagione}`);
+      const res = await fetch(`/api/football?endpoint=matches&round=${round}&stagione=${stagione}`, { cache: 'no-store' });
       const json = await res.json();
       if (json.seasonUnavailable) { setSeasonUnavailable(true); return; }
       if (!json.ok) throw new Error(json.error || 'Errore sconosciuto');
@@ -118,9 +121,9 @@ function ScoutHubContent() {
       });
       setMatches(sorted);
     } catch (e: any) {
-      setMatchError(e.message);
+      if (!silent) setMatchError(e.message);
     } finally {
-      setLoadingMatches(false);
+      if (!silent) setLoadingMatches(false);
     }
   }, [stagione]);
 
@@ -170,27 +173,56 @@ function ScoutHubContent() {
   }, [selectedRound, activeTab]);
 
   /* ------------------------------------------------------- dettaglio match */
-  const openMatch = async (m: any) => {
-    setModalFixture(m);
-    setMatchDetails(null);
-    setMatchDetailsError(null);
-    setLoadingModal(true);
+  const openMatch = async (m: any, silent = false) => {
+    if (!silent) {
+      setModalFixture(m);
+      setMatchDetails(null);
+      setMatchDetailsError(null);
+      setLoadingModal(true);
+    }
     try {
       const matchId = m.matchId || m.id;
       const seasonId = m.seasonId || m.competition?.seasonId || m.matchSet?.seasonId || seasonConfig.serieASeasonId;
       const qs = new URLSearchParams({ endpoint: 'match', id: String(matchId) });
       if (seasonId) qs.set('seasonId', String(seasonId));
-      const res = await fetch(`/api/football?${qs.toString()}`);
+      const res = await fetch(`/api/football?${qs.toString()}`, { cache: 'no-store' });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'Risposta non valida');
       setMatchDetails(json.data);
+      if (json.data?.header) {
+        setModalFixture((prev: any) => (prev ? { ...prev, ...clockFields(json.data.header) } : prev));
+      }
     } catch (err: any) {
-      setMatchDetailsError(err.message || 'Errore nel caricamento del tabellino');
-      setMatchDetails(null);
+      if (!silent) {
+        setMatchDetailsError(err.message || 'Errore nel caricamento del tabellino');
+        setMatchDetails(null);
+      }
     } finally {
-      setLoadingModal(false);
+      if (!silent) setLoadingModal(false);
     }
   };
+
+  const anyLive = matches.some(isLiveMatch);
+
+  useEffect(() => {
+    if (!selectedRound || !anyLive) return;
+    const id = window.setInterval(() => {
+      loadRound(selectedRound, true);
+    }, 20000);
+    return () => window.clearInterval(id);
+  }, [selectedRound, anyLive, loadRound]);
+
+  useEffect(() => {
+    if (!modalFixture) return;
+    const src = matchDetails?.header || modalFixture;
+    if (!isLiveMatch(src)) return;
+    const id = window.setInterval(() => {
+      openMatch(modalFixture, true);
+    }, 20000);
+    return () => window.clearInterval(id);
+    // openMatch è ricreato ogni render: dipendere da lui rifarebbe il poll in loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalFixture?.matchId || modalFixture?.id, matchDetails?.header?.status, matchDetails?.header?.phase]);
 
   const closeMatch = () => {
     setModalFixture(null);
@@ -344,10 +376,11 @@ function ScoutHubContent() {
                       const away = resolveTeam(m.awayTeam || m.away, 'Ospite');
                       const hs = m.providerHomeScore ?? m.homeScore;
                       const as_ = m.providerAwayScore ?? m.awayScore;
-                      const played = hs !== null && hs !== undefined;
-                      const isLive = m.matchStatus === 'Playing' || m.matchStatus === 'LIVE';
-                      const homeWin = played && hs > as_;
-                      const awayWin = played && as_ > hs;
+                      const clock = matchClock(m);
+                      const played = clock.isFinished || (hs !== null && hs !== undefined && !clock.isUpcoming);
+                      const isLive = clock.isLive;
+                      const homeWin = played && !isLive && hs > as_;
+                      const awayWin = played && !isLive && as_ > hs;
                       // stessi colori della schedina: la card anticipa chi gioca
                       const cardColors = matchColors(home.name, away.name, tema);
 
@@ -378,9 +411,9 @@ function ScoutHubContent() {
                               {isLive ? (
                                 <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.16em] text-red-600">
                                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                  Live
+                                  {clock.label && clock.label !== "LIVE" ? clock.label : "Live"}
                                 </span>
-                              ) : played ? (
+                              ) : clock.isFinished || played ? (
                                 <span className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-600">Finita</span>
                               ) : (
                                 <span className="text-[9px] font-black uppercase tracking-[0.16em] text-[color:var(--fumo)]">Da giocare</span>

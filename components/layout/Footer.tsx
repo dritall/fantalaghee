@@ -31,7 +31,7 @@ export function Footer() {
             <div className="h-1 w-full bg-[color:var(--vermiglio)]" />
 
             <div className="glass-forte">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 pb-24 sm:pb-5">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                     {/* riga principale: marchio · link · azione */}
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                         <SeasonLink href="/" aria-label="Fanta Laghèe — home" className="shrink-0 w-fit">

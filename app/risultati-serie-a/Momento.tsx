@@ -55,6 +55,7 @@ export function Momento({
     homeName,
     awayName,
     commentaryUrl,
+    liveMinute,
 }: {
     ticks: MomentumTick[];
     events: NormalizedEvent[];
@@ -62,15 +63,19 @@ export function Momento({
     homeName: string;
     awayName: string;
     commentaryUrl?: string | null;
+    liveMinute?: number | null;
 }) {
     const official = ticks.length >= 10;
-    const bars = official
+    const rawBars = official
         ? ticks.map((t) => ({
               minute: clockMinute(t.periodId, t.matchMinute),
               home: t.home,
               away: t.away,
           }))
-        : fallbackFromEvents(events);
+        : fallbackFromEvents(events, liveMinute);
+
+    const cap = liveMinute != null && liveMinute > 0 ? liveMinute : null;
+    const bars = cap != null ? rawBars.filter((b) => b.minute <= cap + 1) : rawBars;
 
     if (bars.length === 0) {
         return (
@@ -148,7 +153,7 @@ export function Momento({
                     })}
                 </div>
                 <div className="flex justify-between mt-1.5 px-0.5 text-[9px] font-bold tabular-nums text-[color:var(--fumo)]">
-                    {[0, 15, 30, 45, 60, 75, 90].map((m) => (
+                    {axisMarks(bars[bars.length - 1]?.minute || (cap ?? 90)).map((m) => (
                         <span key={m}>{m}&apos;</span>
                     ))}
                 </div>
@@ -211,7 +216,19 @@ function etichettaEvento(kind: string): string {
     return kind;
 }
 
-function fallbackFromEvents(events: NormalizedEvent[]): { minute: number; home: number; away: number }[] {
+function axisMarks(last: number): number[] {
+    const end = Math.max(1, Math.round(last));
+    const step = end <= 20 ? 5 : 15;
+    const marks: number[] = [];
+    for (let m = 0; m < end; m += step) marks.push(m);
+    if (marks[marks.length - 1] !== end) marks.push(end);
+    return marks;
+}
+
+function fallbackFromEvents(
+    events: NormalizedEvent[],
+    liveMinute?: number | null
+): { minute: number; home: number; away: number }[] {
     const WEIGHT: Record<string, number> = {
         goal: 10,
         "penalty-goal": 12,
@@ -223,7 +240,11 @@ function fallbackFromEvents(events: NormalizedEvent[]): { minute: number; home: 
         var: 1,
         other: 0,
     };
-    const last = Math.max(90, ...events.map((e) => e.minute + e.extra));
+    const lastEvent = events.length ? Math.max(...events.map((e) => e.minute + e.extra)) : 0;
+    const last =
+        liveMinute != null && liveMinute > 0
+            ? Math.max(liveMinute, lastEvent)
+            : Math.max(90, lastEvent);
     const out: { minute: number; home: number; away: number }[] = [];
     for (let m = 1; m <= last; m++) {
         let home = 0;

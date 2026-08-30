@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSeason } from '@/lib/seasons';
 import { normalizeMatch } from '@/lib/lega-normalize';
+import { isLiveMatch } from '@/lib/match-clock';
 
 const HEADERS: HeadersInit = {
   'User-Agent': 'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
@@ -13,9 +14,9 @@ const HEADERS: HeadersInit = {
 // chiamata pesante (tutte le partite della stagione) ad ogni round selezionato
 // dall'utente, velocizzando la pagina e riducendo il rischio di errori/timeout
 // lato Lega Serie A. Tempi più lunghi per non farsi bannare.
-const SEASON_FETCH_REVALIDATE = 300; // 5 minuti per season data
-const MATCH_REVALIDATE = 120;        // 2 minuti per match header/lineups
-const STATS_REVALIDATE = 600;        // 10 minuti per team/player stats (non cambiano post-partita)
+const SEASON_FETCH_REVALIDATE = 30; // elenco partite: abbastanza fresco da seguire il live
+const MATCH_REVALIDATE = 20;        // header/lineups/eventi/momentum in corso
+const STATS_REVALIDATE = 120;       // stats: durante il live servono, a fine partita restano stabili
 
 async function legaFetch(url: string, revalidate: number = SEASON_FETCH_REVALIDATE) {
   const res = await fetch(url, {
@@ -125,7 +126,7 @@ export async function GET(request: Request) {
               matchesHasLive: false,
             };
           }
-          if (m.status === 'LIVE' || m.matchStatus === 'LIVE') {
+          if (isLiveMatch(m)) {
             matchsetsMap[round].matchesHasLive = true;
           }
         }
@@ -144,7 +145,7 @@ export async function GET(request: Request) {
         );
       }
 
-      return NextResponse.json({ ok: true, data: out }, { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=60' } });
+      return NextResponse.json({ ok: true, data: out }, { headers: { 'Cache-Control': 'public, s-maxage=20, stale-while-revalidate=10' } });
     }
 
     if (endpoint === 'matches') {
@@ -178,7 +179,7 @@ export async function GET(request: Request) {
             matches,
           },
         },
-        { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=60' } }
+        { headers: { 'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=10' } }
       );
     }
 
@@ -230,7 +231,7 @@ export async function GET(request: Request) {
 
       return NextResponse.json(
         { ok: true, data: { ...payload, normalized } },
-        { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' } }
+        { headers: { 'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=10' } }
       );
     }
 
