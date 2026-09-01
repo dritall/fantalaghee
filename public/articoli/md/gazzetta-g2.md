@@ -20,15 +20,17 @@ cover:
     bocce/bocciofila, in fondo un asilo con giochi colorati (non è il soggetto,
     è il quartiere). Al centro due o tre sosia di Nico Paz (Como, maglia numero
     10, viso e capelli da lui) un po' matti che festeggiano il record sul campo
-    da bocce: una boccia in aria, loro ridono da provincia. A sinistra un
-    brianzolo da provincia in casual/terrace londinese: bomberino Harrington con
-    fodera tartan aperto sopra la maglia home Como 2026/27 vera (blu marine
-    pinstripe, polo, tre strisce adidas bianche sulle spalle, colletto trim
-    rosso-bianco-oro, stemma Como 1907, sponsor Revolut, pantaloncini bianchi,
-    calzettoni blu), quasi sul podio, faccia da Brianza non da cockney. A destra
-    una mascotte calcistica con le lettere RDDS cucite visibili sul petto che si
-    prende un trono da spogliatoio. Sfondo lago di Como, scena piena, niente
-    folla decorativa, niente giornale-nel-giornale, niente insegna da bar.
+    da bocce: una boccia in aria, loro ridono da provincia. A sinistra DUE o TRE
+    Brianza Boys, tutti sui 30 anni (trenta, non un vecchietto, non un
+    pensionato, non un solo tizio anziano): gruppo di brianzoli da provincia in
+    casual/terrace londinese, bomberini Harrington con fodera tartan aperti
+    sopra la maglia home Como 2026/27 vera (blu marine pinstripe, polo, tre
+    strisce adidas bianche sulle spalle, colletto trim rosso-bianco-oro, stemma
+    Como 1907, sponsor Revolut, pantaloncini bianchi, calzettoni blu), quasi sul
+    podio, facce da Brianza non da cockney. A destra una mascotte calcistica con
+    le lettere RDDS cucite visibili sul petto che si prende un trono da
+    spogliatoio. Sfondo lago di Como, scena piena, niente folla decorativa,
+    niente giornale-nel-giornale, niente insegna da bar.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
