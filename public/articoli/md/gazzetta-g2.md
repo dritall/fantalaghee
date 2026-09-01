@@ -51,7 +51,6 @@ cover:
       - Campione|Paz de Bindella
       - Record|87 Paz de Bindella
       - Cucchiaio|OldLions 56
-draft: true
 ---
 # DA BINDELLA IL RECORD, RDDS PRENDE IL LARIO
 
