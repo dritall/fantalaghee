@@ -24,6 +24,24 @@ function occhiello(id: string, title: string): string {
     return n ? `Giornata ${n}` : "Edizione speciale";
 }
 
+function normaTitolo(s: string): string {
+    return s.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/**
+ * La copertina ha già titolo e sottotitolo. Se il markdown riparte con lo
+ * stesso H1 di metadata.title, lo togliamo — altrimenti sotto la foto
+ * ricompare il titolo (e in testata c'era anche la description).
+ * Solo a copertina visibile: se la foto manca, l'H1 resta l'unico titolo.
+ */
+function stripTitoloDuplicato(markdown: string, title: string, copertinaVisibile: boolean): string {
+    if (!copertinaVisibile || !title) return markdown;
+    const t = normaTitolo(title);
+    return markdown.replace(/^\s*#\s+(.+?)\s*\n+/, (intero, heading: string) =>
+        normaTitolo(heading) === t ? "" : intero
+    );
+}
+
 export default function ArticlePage() {
     const params = useParams();
     const id = params.id as string;
@@ -70,6 +88,12 @@ export default function ArticlePage() {
     const minuti = useMemo(
         () => Math.max(1, Math.round(content.trim().split(/\s+/).length / 200)),
         [content]
+    );
+
+    const copertinaVisibile = Boolean(metadata?.image) && imageOk;
+    const corpo = useMemo(
+        () => (metadata ? stripTitoloDuplicato(content, metadata.title, copertinaVisibile) : content),
+        [content, metadata, copertinaVisibile]
     );
 
     if (loading) return (
@@ -126,7 +150,7 @@ export default function ArticlePage() {
                     </div>
                 </header>
 
-                {/* --- APERTURA ----------------------------------------------- */}
+                {/* --- APERTURA: solo meta, niente titolo/sottotitolo (stanno in copertina) */}
                 <div className="relative z-10 px-5 sm:px-10 pt-7">
 
                     <div className="flex items-center gap-3 mb-4">
@@ -139,14 +163,7 @@ export default function ArticlePage() {
                         <span className="h-px flex-1 bg-black/15" />
                     </div>
 
-                    {metadata.description && (
-                        <p className="mt-5 font-lora italic text-lg sm:text-xl leading-relaxed text-black/72 border-l-[3px] border-[#C8102E] pl-4">
-                            {metadata.description}
-                        </p>
-                    )}
-
-                    {/* Firma */}
-                    <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-1 border-y border-black/15 py-2.5 font-testata text-[11px] sm:text-xs uppercase tracking-[0.16em] text-black/55">
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-y border-black/15 py-2.5 font-testata text-[11px] sm:text-xs uppercase tracking-[0.16em] text-black/55">
                         <span className="text-[#16100F] font-semibold">di {metadata.author}</span>
                         <span className="hidden sm:inline opacity-40">|</span>
                         <span>{dataIt}</span>
@@ -159,7 +176,7 @@ export default function ArticlePage() {
 
                 {/* --- FOTO D'APERTURA ---------------------------------------- */}
                 {imageOk && (
-                    <figure className="relative z-10 mx-5 sm:mx-10 mt-7 border-2 border-[#16100F]">
+                    <figure className="relative z-10 mx-5 sm:mx-10 mt-5 border-2 border-[#16100F]">
                         <Image
                             src={metadata.image}
                             alt={`Copertina per ${metadata.title}`}
@@ -181,7 +198,7 @@ export default function ArticlePage() {
                 {/* --- CORPO -------------------------------------------------- */}
                 <div className="relative z-10 px-5 sm:px-10 py-8">
                     <div className="giornale">
-                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{corpo}</ReactMarkdown>
                     </div>
                 </div>
 
