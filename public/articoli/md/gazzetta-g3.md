@@ -42,7 +42,6 @@ cover:
       - Campione|Bollicine25
       - Record|94.5 Bollicine25
       - Cucchiaio|OldLions 56
-draft: true
 ---
 # STAPPANO LE BOLLICINE, IL RECORD È 94.5
 
