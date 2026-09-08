@@ -94,6 +94,7 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-09-08 — Hermes: articolo Gazzetta senza titolo doppio — via description in testata e H1 markdown se == metadata.title (restano Giornata / cronaca / data / minuti, poi copertina, poi il pezzo). File: `app/gazzetta/[id]/page.tsx`.
 - 2026-08-30 — Hermes: partite Serie A in corso usavano `matchStatus` (campo inesistente) e risultavano «Finita»; ora `status`/`phase`/`time` + minuto live, Momento tagliato all'orologio, cache/poll più stretti. Fascia home senza montepremi/🍆. Footer senza `pb-24` (buco PWA). File: `lib/match-clock.ts`, `app/risultati-serie-a/*`, `app/api/football/route.ts`, `FasciaScorre.tsx`, `Footer.tsx`.
 - 2026-08-27 — Claude: aggiunto GA4 (`components/layout/GoogleAnalytics.tsx`,
   montato in `app/layout.tsx`). Legge `NEXT_PUBLIC_GA_ID` da env (vedi
