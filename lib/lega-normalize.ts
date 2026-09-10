@@ -30,6 +30,8 @@ export type NormalizedEvent = {
     description?: string | null;
     /** tipo specifico di cartellino */
     cardType?: 'yellow' | 'red';
+    /** 1 = primo tempo, 2 = secondo (dalla phase SDP, se c'è) */
+    half?: 1 | 2;
 };
 
 export type NormalizedPlayer = {
@@ -295,11 +297,27 @@ function minuteLabel(minute: number, extra: number): string {
  * altrimenti le ricaviamo dal ruolo distribuendo il reparto sulla larghezza.
  * In uscita: x = 0 sinistra → 1 destra, y = 0 porta propria → 1 porta avversaria.
  */
+function asCoord(v: unknown): number | null {
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
+    if (typeof v === 'string' && v.trim() !== '') {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : null;
+    }
+    return null;
+}
+
+function clamp01(n: number) {
+    return Math.min(1, Math.max(0, n));
+}
+
 function tacticalPosition(p: any, indexInRole: number, totalInRole: number): { x: number | null; y: number | null } {
-    const rawX = p?.tacticalXPosition;
-    const rawY = p?.tacticalYPosition;
-    if (typeof rawX === 'number' && typeof rawY === 'number') {
-        return { x: Math.min(1, Math.max(0, rawX)), y: Math.min(1, Math.max(0, rawY)) };
+    // SDP manda le coordinate come stringa ("0.5"); un check `typeof === number`
+    // le scartava e i titolari finivano in file per ruolo — un 3-4-2-1 sembrava un 4-3-3.
+    const rawX = asCoord(p?.tacticalXPosition ?? p?.averageXPosition);
+    const rawY = asCoord(p?.tacticalYPosition ?? p?.averageYPosition);
+    if (rawX != null && rawY != null) {
+        // SDP: y=1 porta propria. Qui y=0 porta propria (il campo attacca verso l'alto).
+        return { x: clamp01(rawX), y: clamp01(1 - rawY) };
     }
 
     const role = Number(p?.role) || 3;
@@ -375,32 +393,50 @@ function teamName(t: any, fallback: string): string {
 
 /** Estrae gli eventi dalla timeline, unendo entrata e uscita in una sola sostituzione. */
 function normalizeEvents(raw: any, homeTeamId: string, fallbackPlayers: { home: any[]; away: any[] }): NormalizedEvent[] {
-    const list: any[] = raw?.events?.events || raw?.events || [];
+    const list: any[] = Array.isArray(raw?.events?.events)
+        ? raw.events.events
+        : Array.isArray(raw?.events)
+          ? raw.events
+          : [];
     const collected: NormalizedEvent[] = [];
 
-    const push = (e: any, side: 'home' | 'away', playerLabel: string) => {
+    const names = new Map<string, string>();
+    (['home', 'away'] as const).forEach((side) => {
+        fallbackPlayers[side].forEach((p) => {
+            const id = shortId(p?.playerId || p?.id);
+            if (id) names.set(id, playerName(p));
+        });
+    });
+
+    const push = (e: any, side: 'home' | 'away', playerLabel: string, playerId?: string | null) => {
         const minute = Number(e?.time ?? e?.minute) || 0;
         const extra = Number(e?.additionalTime) || 0;
         const type = String(e?.type || '').toLowerCase();
-        // Estrai descrizione testuale se presente nei vari campi API
-        const desc = e?.description || e?.comment || e?.subtitle || e?.text || e?.detail || null;
+        const kind = eventKind(type);
+        const desc = e?.description || e?.comment || e?.subtitle || e?.text || e?.detail || e?.label || null;
+        const relId = shortId(e?.relatedPlayerId || e?.relatedPlayer?.playerId);
+        const relName = relId ? names.get(relId) || null : null;
+        const isGoal = kind === 'goal' || kind === 'penalty-goal' || kind === 'own-goal';
         collected.push({
             type,
-            kind: eventKind(type),
+            kind,
             minute,
             extra,
             label: minuteLabel(minute, extra),
             side,
-            playerId: shortId(e?.playerId || e?.player?.playerId) || null,
+            playerId: shortId(e?.playerId || e?.player?.playerId) || playerId || null,
             player: playerLabel,
             playerOut: e?.subOff ? playerName(e.subOff) : e?.subOffPlayer ? playerName(e.subOffPlayer) : null,
             assist: e?.assist
                 ? playerName(e.assist)
                 : e?.relatedPlayerName && !type.includes('sub')
                   ? playerName({ shortName: e.relatedPlayerName })
-                  : null,
+                  : isGoal && relName && relName !== playerLabel
+                    ? relName
+                    : null,
             description: typeof desc === 'string' && desc.length > 2 ? desc.trim() : null,
             cardType: type.includes('yellow') ? 'yellow' : type.includes('red') ? 'red' : undefined,
+            half: String(e?.phase || '').toUpperCase().includes('SECOND') ? 2 : minute > 45 ? 2 : 1,
         });
     };
 
@@ -417,7 +453,8 @@ function normalizeEvents(raw: any, homeTeamId: string, fallbackPlayers: { home: 
                     push(
                         { ...e, subOffPlayer: e?.subOffPlayer, relatedPlayerName: e?.relatedPlayerName },
                         side,
-                        playerName(p)
+                        playerName(p),
+                        shortId(p?.playerId || p?.id)
                     );
                 });
             });

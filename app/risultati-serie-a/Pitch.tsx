@@ -85,12 +85,10 @@ function PitchPlayer({
     player,
     accent,
     onSelect,
-    stagger,
 }: {
     player: NormalizedPlayer;
     accent: string;
     onSelect: (p: NormalizedPlayer) => void;
-    stagger: boolean;
 }) {
     const left = `${8 + (player.x ?? 0.5) * 84}%`;
     const top = `${9 + (1 - (player.y ?? 0.5)) * 78}%`;
@@ -101,7 +99,7 @@ function PitchPlayer({
             style={{ left, top }}
             aria-label={`${player.fullName}, ${player.roleLabel}`}
             className="absolute -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-1
-                       transition-all duration-300 hover:scale-125 hover:z-30 focus-visible:scale-125 focus-visible:z-30"
+                       transition-all duration-300 hover:scale-110 hover:z-30 focus-visible:scale-110 focus-visible:z-30"
         >
             <span className="relative">
                 <PlayerAvatar player={player} accent={accent} />
@@ -121,8 +119,7 @@ function PitchPlayer({
                 className={cn(
                     "max-w-[68px] md:max-w-[80px] truncate px-1.5 py-0.5 bg-[#061118]/85 backdrop-blur-sm",
                     "text-[9px] md:text-[10px] font-black uppercase tracking-tight leading-tight text-[#EDF2F1]",
-                    "shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
-                    stagger && "translate-y-1.5"
+                    "shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
                 )}
             >
                 {player.name}
@@ -200,21 +197,14 @@ function TeamPitch({
                 <PitchLines />
                 <span className="absolute inset-0 bg-gradient-to-b from-[color:var(--prato-ombra)] via-transparent to-[color:var(--prato-ombra)] pointer-events-none" />
 
-                {(team.starters ?? []).map((p) => {
-                    const line = team.starters
-                        .filter((o) => o.role === p.role)
-                        .sort((a, b) => (a.x ?? 0) - (b.x ?? 0));
-                    const idx = line.indexOf(p);
-                    return (
+                {(team.starters ?? []).map((p) => (
                         <PitchPlayer
                             key={p.id || p.name}
                             player={p}
                             accent={accent}
                             onSelect={onSelect}
-                            stagger={line.length > 2 && idx % 2 === 1}
                         />
-                    );
-                })}
+                    ))}
             </div>
 
             {/* Panchina stile Lega Serie A — lista orizzontale foto + nome */}

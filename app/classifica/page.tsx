@@ -12,6 +12,11 @@ import { SeasonBanner } from "@/components/ui/SeasonBanner";
 import { SeasonPill } from "@/components/ui/SeasonPill";
 import { SelettoreGiornata } from "@/components/ui/SelettoreGiornata";
 
+function dueDecimali(n: number) {
+    const c = Math.round(n * 100) / 100;
+    return Math.abs(c - Math.round(c)) < 0.005 ? String(Math.round(c)) : c.toFixed(2);
+}
+
 function ClassificaContent() {
     const searchParams = useSearchParams();
     const stagione = searchParams.get("stagione") || CURRENT_SEASON;
@@ -99,6 +104,19 @@ function ClassificaContent() {
 
     // Numeri delle giornate giocate, per il selettore
     const numeriGiocati = matchdaysGiocate.map((g) => parseInt(g.replace(/\D/g, ""), 10));
+
+    const extraDi = (team: any) => {
+        const scores = matchdaysGiocate
+            .map((g) => toNumber(team[g]))
+            .filter((n): n is number => n !== null);
+        const n = scores.length;
+        const media = n ? scores.reduce((a, b) => a + b, 0) / n : null;
+        return {
+            media,
+            last5: scores.slice(-5),
+            nick: String(team.NickName || team.Mister || "").trim(),
+        };
+    };
 
     // Colonna mostrata: quella scelta nel menu, altrimenti l'ultima giocata
     const colonnaGiornata =
@@ -198,13 +216,12 @@ function ClassificaContent() {
 
                     <div className="flex flex-col gap-2">
                         {(mobileView === "totale" ? leaderboard : giornataBoard)?.map((team, index) => {
+                            const extra = extraDi(team);
                             const value = stripDecorations(mobileView === "totale" ? team.Generale : team[colonnaGiornata]) || "-";
                             return (
                                 <div
                                     key={team.Team || index}
                                     className={cn(
-                                        // fondo pieno e sfocatura: sotto c'è la foto dello stadio,
-                                        // con una card troppo trasparente i numeri si perdono
                                         "relative flex items-center gap-3 p-3.5 rounded-[var(--ro-m)] border transition-colors",
                                         "shadow-[0_1px_2px_rgba(11,34,51,0.05),0_8px_20px_-14px_rgba(11,34,51,0.3)]",
                                         "bg-[color:var(--fondale)]",
@@ -228,7 +245,18 @@ function ClassificaContent() {
                                         {mobileView === "totale" ? team.rank : index + 1}
                                     </span>
 
-                                    <span className="stampino flex-1 min-w-0 text-[15px] text-[color:var(--calce)] truncate">{team.Team}</span>
+                                    <span className="flex-1 min-w-0">
+                                        <span className="stampino block text-[15px] text-[color:var(--calce)] truncate">{team.Team}</span>
+                                        {extra.nick ? (
+                                            <span className="block truncate text-[11px] text-[color:var(--fumo)]">{extra.nick}</span>
+                                        ) : null}
+                                        {mobileView === "totale" && extra.media != null && (
+                                            <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-wider text-[color:var(--fumo)]">
+                                                media {dueDecimali(extra.media)}
+                                                {extra.last5.length > 0 ? ` · u${extra.last5.length} ${extra.last5.map(dueDecimali).join(" · ")}` : ""}
+                                            </span>
+                                        )}
+                                    </span>
 
                                     <span className="text-right shrink-0">
                                         <span className="numerone block text-[color:var(--lario)] text-[26px]">
@@ -259,6 +287,12 @@ function ClassificaContent() {
                                     </th>
                                     <th className="sticky left-[calc(3.5rem+190px)] z-50 bg-[color:var(--secca)] p-3 text-center text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--lario)] border-b border-r border-[color:var(--filo-alto)]">
                                         Totale
+                                    </th>
+                                    <th className="p-3 min-w-[64px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-[color:var(--filo)] bg-[color:var(--pece)] text-[color:var(--fumo)]">
+                                        Media
+                                    </th>
+                                    <th className="p-3 min-w-[88px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-[color:var(--filo)] bg-[color:var(--pece)] text-[color:var(--fumo)]">
+                                        U5
                                     </th>
                                     {matchdays.map((g) => (
                                         <th
@@ -309,6 +343,12 @@ function ClassificaContent() {
                                             <span className="numerone text-[color:var(--lario)] text-[22px]">
                                                 {stripDecorations(team.Generale)}
                                             </span>
+                                        </td>
+                                        <td className="p-2.5 text-center border-b border-r border-[color:var(--filo)] tabular-nums text-[color:var(--fumo)]">
+                                            {extraDi(team).media != null ? dueDecimali(extraDi(team).media as number) : "–"}
+                                        </td>
+                                        <td className="p-2.5 text-center border-b border-r border-[color:var(--filo)] tabular-nums text-[11px] text-[color:var(--fumo)]">
+                                            {extraDi(team).last5.length ? extraDi(team).last5.map(dueDecimali).join(" · ") : "–"}
                                         </td>
 
                                         {matchdays.map((g) => {

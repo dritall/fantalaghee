@@ -59,11 +59,11 @@ function livePair(p?: Pair | null) {
 }
 
 function fmt(n: number, kind: "int" | "pct" | "xg" | "km" = "int") {
+    const capped = Math.round(n * 100) / 100;
     if (kind === "pct") return `${Math.round(n)}`;
-    if (kind === "xg") return (Math.round(n * 100) / 100).toFixed(2);
-    if (kind === "km") return (Math.round(n * 10) / 10).toFixed(1);
-    if (Math.abs(n - Math.round(n)) < 0.05) return String(Math.round(n));
-    return (Math.round(n * 100) / 100).toString();
+    if (kind === "xg") return capped.toFixed(2);
+    if (Math.abs(capped - Math.round(capped)) < 0.005) return String(Math.round(capped));
+    return capped.toFixed(2);
 }
 
 function split(total: number, weightA: number, weightB: number): [number, number] {
@@ -470,6 +470,7 @@ export function TeamStats({
             offsides: g(["totaloffside", "offsides"]),
             touchesBox: g(["touches-opponent-box", "touchesinoppbox"]),
             boxEntries: g(["penareaentries"]),
+            shotOnPct: g(["shotsongoalperc"]),
             assists: g(["goalassist", "assists"]),
             passes: g(["totalpass", "total-passes"]),
             passesOk: g(["passes-completed", "accuratepass", "accurate-pass"]),
@@ -650,6 +651,12 @@ export function TeamStats({
                     )}
                     {livePair(model.outBox) && (
                         <VsRow label="Tiri fuori area" home={model.outBox!.home} away={model.outBox!.away} colors={colors} />
+                    )}
+                    {livePair(model.boxEntries) && (
+                        <VsRow label="Entrate in area" home={model.boxEntries!.home} away={model.boxEntries!.away} colors={colors} />
+                    )}
+                    {livePair(model.shotOnPct) && (
+                        <VsRow label="Tiri in porta %" home={model.shotOnPct!.home} away={model.shotOnPct!.away} colors={colors} kind="pct" />
                     )}
                     {gruppo === "attacco" && livePair(model.xG) && (
                         <VsRow label="xG" home={model.xG!.home} away={model.xG!.away} colors={colors} kind="xg" />

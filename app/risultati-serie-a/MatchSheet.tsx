@@ -26,27 +26,17 @@ type TabId = (typeof TABS)[number]["id"];
 
 /* ------------------------------------------------------------------ eventi */
 
-const EVENT_ICON: Record<NormalizedEvent["kind"], { icon: string; size?: "lg" }> = {
-    goal: { icon: "⚽", size: "lg" },
-    "own-goal": { icon: "🥅" },
-    "penalty-goal": { icon: "⚽", size: "lg" },
-    "penalty-missed": { icon: "❌" },
-    yellow: { icon: "🟨" },
-    red: { icon: "🟥" },
-    sub: { icon: "🔄" },
-    var: { icon: "🖥️" },
-    other: { icon: "•" },
+const EVENT_KIND: Record<NormalizedEvent["kind"], { icon: string; text: string }> = {
+    goal: { icon: "⚽", text: "Gol" },
+    "own-goal": { icon: "🥅", text: "Autogol" },
+    "penalty-goal": { icon: "⚽", text: "Rigore" },
+    "penalty-missed": { icon: "❌", text: "Rigore sbagliato" },
+    yellow: { icon: "🟨", text: "Giallo" },
+    red: { icon: "🟥", text: "Rosso" },
+    sub: { icon: "🔄", text: "Cambio" },
+    var: { icon: "🖥️", text: "VAR" },
+    other: { icon: "•", text: "Evento" },
 };
-
-const EVENT_TAG: Partial<Record<NormalizedEvent["kind"], { text: string; className: string }>> = {
-    "penalty-goal": { text: "Rig.", className: "text-emerald-700 bg-emerald-500/12 border-emerald-500/30" },
-    "own-goal": { text: "Aut.", className: "text-red-600 bg-red-500/12 border-red-500/30" },
-    "penalty-missed": { text: "Rigore sbagliato", className: "text-orange-300 bg-orange-500/10 border-orange-400/25" },
-    var: { text: "VAR", className: "text-violet-300 bg-violet-500/10 border-violet-400/25" },
-};
-
-/* ========================================================= TIMELINE EVENTI */
-
 
 function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { home: string; away: string } }) {
     if (events.length === 0) {
@@ -57,149 +47,96 @@ function Timeline({ events, colors }: { events: NormalizedEvent[]; colors: { hom
         );
     }
 
-    return (
-        <div>
-            {/* Intestazione colonne */}
-            <div className="flex items-center pb-2 mb-2 border-b border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-[color:var(--fumo)]">
-                <span className="flex-1 text-left">CASA</span>
-                <span className="w-12 text-center shrink-0">MIN</span>
-                <span className="flex-1 text-right">TRASFERTA</span>
-            </div>
+    let hs = 0;
+    let as_ = 0;
+    const rows = events.map((e) => {
+        if (e.kind === "goal" || e.kind === "penalty-goal") {
+            if (e.side === "home") hs += 1;
+            else as_ += 1;
+        } else if (e.kind === "own-goal") {
+            if (e.side === "home") as_ += 1;
+            else hs += 1;
+        }
+        const isGoal = e.kind === "goal" || e.kind === "penalty-goal" || e.kind === "own-goal";
+        return { e, score: isGoal ? `${hs}–${as_}` : null as string | null };
+    });
 
-            <div className="relative">
-                {/* Linea verticale centrale */}
-                <span className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent -translate-x-1/2" />
+    const first = rows.filter(({ e }) => (e.half ?? (e.minute > 45 ? 2 : 1)) === 1);
+    const second = rows.filter(({ e }) => (e.half ?? (e.minute > 45 ? 2 : 1)) === 2);
 
-                <ol className="relative space-y-2">
-                    {events.map((e, i) => {
+    const Block = ({ title, items }: { title: string; items: typeof rows }) => {
+        if (items.length === 0) return null;
+        return (
+            <div className="space-y-1.5">
+                <div className="flex items-center gap-2 py-2">
+                    <span className="h-px flex-1 bg-[color:var(--filo)]" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--fumo)]">{title}</span>
+                    <span className="h-px flex-1 bg-[color:var(--filo)]" />
+                </div>
+                <ol className="space-y-1">
+                    {items.map(({ e, score }, i) => {
                         const isHome = e.side === "home";
-                        const tag = EVENT_TAG[e.kind];
                         const accent = isHome ? colors.home : colors.away;
-                        const icon = EVENT_ICON[e.kind];
-                        const isGoal = e.kind === "goal" || e.kind === "penalty-goal";
-                        const isCard = e.kind === "yellow" || e.kind === "red";
+                        const meta = EVENT_KIND[e.kind];
+                        const isGoal = e.kind === "goal" || e.kind === "penalty-goal" || e.kind === "own-goal";
                         const isSub = e.kind === "sub";
-                        const kind = e.kind;
-
-                        const iconCircle = (
-                            <span className="relative z-10 flex flex-col items-center shrink-0">
-                                <span
-                                    className={cn(
-                                        "rounded-full flex items-center justify-center border bg-[color:var(--fondale)]",
-                                        isGoal
-                                            ? "w-9 h-9 md:w-10 md:h-10 text-base md:text-lg"
-                                            : isCard
-                                              ? "w-7 h-7 text-xs md:text-sm"
-                                              : "w-7 h-7 text-xs",
-                                        isGoal ? "border-yellow-400/40" : "border-[color:var(--filo)]"
-                                    )}
-                                    style={
-                                        isGoal
-                                            ? { boxShadow: `0 0 20px ${accent}55` }
-                                            : isCard
-                                              ? { boxShadow: `0 0 10px ${kind === "red" ? "#ef4444" : "#eab308"}44` }
-                                              : undefined
-                                    }
-                                >
-                                    <span className={cn(isGoal && "animate-pulse drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]")}>
-                                        {icon.icon}
-                                    </span>
-                                </span>
-                            </span>
-                        );
-
-                        // Contenuto testuale
-                        const textContent = (
-                            <span className="min-w-0 flex flex-col">
-                                {isSub ? (
-                                    <>
-                                        <span className="text-[12px] md:text-[13px] font-black text-[color:var(--calce)] flex items-center gap-1 leading-tight">
-                                            <span className="text-emerald-600 text-xs">↑</span>
-                                            <span className="truncate">{e.player}</span>
-                                        </span>
-                                        {e.playerOut && (
-                                            <span className="text-[10px] font-bold text-[color:var(--fumo)] flex items-center gap-1 mt-0.5">
-                                                <span className="text-red-400 text-[10px]">↓</span>
-                                                <span className="truncate">{e.playerOut}</span>
-                                            </span>
-                                        )}
-                                    </>
-                                ) : (
-                                    <>
-                                        <span
-                                            className={cn(
-                                                "text-[color:var(--calce)] truncate max-w-full flex items-center gap-1 leading-tight",
-                                                isGoal ? "text-sm md:text-base font-black" : "text-[12px] font-bold"
-                                            )}
-                                        >
-                                            <span className="truncate">{e.player}</span>
-                                            {isGoal && (
-                                                <span className="drop-shadow-[0_0_8px_rgba(255,200,0,0.6)] text-base md:text-lg animate-pulse shrink-0">
-                                                    💥
-                                                </span>
-                                            )}
-                                        </span>
-                                        {e.assist && (
-                                            <span className="text-[9px] font-bold uppercase tracking-wider text-[color:var(--fumo)] mt-0.5">
-                                                {e.assist}
-                                            </span>
-                                        )}
-                                        {e.description && (
-                                            <span className="text-[9px] italic text-[color:var(--fumo)] mt-0.5 leading-snug max-w-[180px]">
-                                                {e.description}
-                                            </span>
-                                        )}
-                                    </>
-                                )}
-                                {tag && (
-                                    <span
-                                        className={cn(
-                                            "mt-1 w-fit rounded border px-1.5 py-[1px] text-[8px] font-black uppercase tracking-wider",
-                                            tag.className
-                                        )}
-                                    >
-                                        {tag.text}
-                                    </span>
-                                )}
-                            </span>
-                        );
-
                         return (
                             <li
                                 key={`${e.minute}-${e.player}-${i}`}
-                                className="relative flex items-start gap-2"
+                                className="flex items-stretch gap-2 rounded-xl border border-[color:var(--filo)] bg-[color:var(--velo)]/35 px-2.5 py-2"
+                                style={{ borderLeftColor: isHome ? accent : undefined, borderRightColor: !isHome ? accent : undefined, borderLeftWidth: isHome ? 3 : 1, borderRightWidth: !isHome ? 3 : 1 }}
                             >
-                                {/* Colonna home (sinistra) */}
-                                {isHome ? (
-                                    <span className="flex-1 flex items-start justify-end gap-2 text-right">
-                                        {textContent}
-                                        {iconCircle}
-                                    </span>
-                                ) : (
-                                    <span className="flex-1" />
-                                )}
-
-                                {/* Minuto centrale */}
-                                <span className="relative z-10 w-12 shrink-0 flex justify-center">
-                                    <span className="text-[9px] font-black text-[color:var(--fumo)] tabular-nums bg-[color:var(--fondale)] px-1.5 py-0.5 rounded-full border border-[color:var(--filo)]">
-                                        {e.label}
-                                    </span>
+                                <span className="w-10 shrink-0 self-center text-center text-[11px] font-black tabular-nums text-[color:var(--fumo)]">
+                                    {e.label}
                                 </span>
-
-                                {/* Colonna away (destra) */}
-                                {!isHome ? (
-                                    <span className="flex-1 flex items-start gap-2">
-                                        {iconCircle}
-                                        {textContent}
+                                <span
+                                    className="flex h-8 w-8 shrink-0 items-center justify-center self-center rounded-full text-sm"
+                                    style={{ backgroundColor: `${accent}22` }}
+                                    aria-hidden
+                                >
+                                    {meta.icon}
+                                </span>
+                                <span className={cn("min-w-0 flex-1", !isHome && "text-right")}>
+                                    {isSub ? (
+                                        <>
+                                            <span className="block text-[13px] font-black leading-tight text-[color:var(--calce)]">
+                                                <span className="text-emerald-600">↑</span> {e.player}
+                                            </span>
+                                            {e.playerOut && (
+                                                <span className="mt-0.5 block text-[11px] font-bold text-[color:var(--fumo)]">
+                                                    <span className="text-red-400">↓</span> {e.playerOut}
+                                                </span>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className={cn("block leading-tight text-[color:var(--calce)]", isGoal ? "text-[14px] font-black" : "text-[13px] font-bold")}>
+                                                {e.player}
+                                            </span>
+                                            <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-wider text-[color:var(--fumo)]">
+                                                {e.description && e.description.toLowerCase() !== meta.text.toLowerCase() ? e.description : meta.text}
+                                                {e.assist ? ` · assist ${e.assist}` : ""}
+                                            </span>
+                                        </>
+                                    )}
+                                </span>
+                                {score && (
+                                    <span className="self-center shrink-0 rounded-md px-1.5 py-0.5 text-[12px] font-black tabular-nums" style={{ backgroundColor: accent, color: "#fff" }}>
+                                        {score}
                                     </span>
-                                ) : (
-                                    <span className="flex-1" />
                                 )}
                             </li>
                         );
                     })}
                 </ol>
             </div>
+        );
+    };
+
+    return (
+        <div className="space-y-4 py-1">
+            <Block title="Primo tempo" items={first} />
+            <Block title="Secondo tempo" items={second} />
         </div>
     );
 }

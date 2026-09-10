@@ -461,18 +461,20 @@ function ScoutHubContent() {
             {activeTab === 'classifica' && (
               <div className="space-y-4">
                 <div className="surface rounded-[var(--ro-m)] p-3 md:p-5 overflow-x-auto custom-scrollbar">
-                  <div className="min-w-[620px]">
-                    <div className="grid grid-cols-12 items-center py-2.5 px-3 text-[9px] font-black uppercase text-[color:var(--fumo)] border-b border-[color:var(--filo)] tracking-[0.16em]">
-                      <span className="col-span-1 text-center">#</span>
-                      <span className="col-span-4">Squadra</span>
-                      <span className="col-span-1 text-center text-[color:var(--lario)]/80">Pt</span>
-                      <span className="col-span-1 text-center">G</span>
-                      <span className="col-span-1 text-center text-emerald-600/80">V</span>
-                      <span className="col-span-1 text-center">N</span>
-                      <span className="col-span-1 text-center text-red-500/80">P</span>
-                      <span className="col-span-1 text-center">DR</span>
-                      <span className="col-span-1 text-center">Forma</span>
-                    </div>
+                  <div className="min-w-[720px]">
+                  <div className="grid grid-cols-14 items-center py-2.5 px-3 text-[9px] font-black uppercase text-[color:var(--fumo)] border-b border-[color:var(--filo)] tracking-[0.16em]" style={{ gridTemplateColumns: 'repeat(13, minmax(0, 1fr))' }}>
+                    <span className="text-center">#</span>
+                    <span className="col-span-3">Squadra</span>
+                    <span className="text-center text-[color:var(--lario)]/80">Pt</span>
+                    <span className="text-center">G</span>
+                    <span className="text-center text-emerald-600/80">V</span>
+                    <span className="text-center">N</span>
+                    <span className="text-center text-red-500/80">P</span>
+                    <span className="text-center">GF</span>
+                    <span className="text-center">GS</span>
+                    <span className="text-center">DR</span>
+                    <span className="text-center">Forma</span>
+                  </div>
 
                     {loadingStandings ? (
                       <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-[color:var(--lario)] animate-spin" /></div>
@@ -489,35 +491,40 @@ function ScoutHubContent() {
                       return (
                         <div
                           key={t.id}
-                          className="relative grid grid-cols-12 items-center py-2.5 px-3 border-b border-[color:var(--filo)] last:border-0
+                          className="relative grid items-center py-2.5 px-3 border-b border-[color:var(--filo)] last:border-0
                                      hover:bg-[color:var(--velo)] rounded-[var(--ro-s)] transition-colors group"
+                          style={{ gridTemplateColumns: 'repeat(13, minmax(0, 1fr))' }}
                         >
                           <span className={`absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full ${zone}`} />
 
-                          <span className="col-span-1 text-center text-[11px] font-black text-[color:var(--fumo)] tabular-nums group-hover:text-[color:var(--lario)] transition-colors">
+                          <span className="text-center text-[11px] font-black text-[color:var(--fumo)] tabular-nums group-hover:text-[color:var(--lario)] transition-colors">
                             {i + 1}
                           </span>
 
-                          <div className="col-span-4 flex items-center gap-3 min-w-0">
+                          <div className="col-span-3 flex items-center gap-3 min-w-0">
                             <TeamLogo team={t} className="w-7 h-7 shrink-0" />
                             <span className="text-xs font-black uppercase tracking-tight truncate text-[color:var(--calce)]/80 group-hover:text-[color:var(--calce)] transition-colors">
                               {t.name}
                             </span>
                           </div>
 
-                          <span className="col-span-1 text-center font-score font-bold text-[color:var(--lario)] text-base tabular-nums">{t.points}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.played}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums text-emerald-600/90">{t.win}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.draw}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums text-red-500/90">{t.lose}</span>
-                          <span className="col-span-1 text-center text-xs tabular-nums font-bold text-[color:var(--fumo)]">
+                          <span className="text-center font-score font-bold text-[color:var(--lario)] text-base tabular-nums">{t.points}</span>
+                          <span className="text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.played}</span>
+                          <span className="text-center text-xs tabular-nums text-emerald-600/90">{t.win}</span>
+                          <span className="text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.draw}</span>
+                          <span className="text-center text-xs tabular-nums text-red-500/90">{t.lose}</span>
+                          <span className="text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.gf}</span>
+                          <span className="text-center text-xs tabular-nums text-[color:var(--fumo)]">{t.ga}</span>
+                          <span className="text-center text-xs tabular-nums font-bold text-[color:var(--fumo)]">
                             {t.gd > 0 ? `+${t.gd}` : t.gd}
                           </span>
 
-                          <div className="col-span-1 flex justify-center gap-1">
-                            {(t.form || []).slice(-3).map((f: string, fi: number) => (
-                              <FormDot key={fi} type={f} />
-                            ))}
+                          <div className="flex justify-center gap-1">
+                            {(t.form || []).length > 0
+                              ? (t.form as string[]).slice(-5).map((f: string, fi: number) => (
+                                  <FormDot key={fi} type={f} />
+                                ))
+                              : <span className="text-[10px] text-[color:var(--fumo)]">–</span>}
                           </div>
                         </div>
                       );
