@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { Loader2, AlertCircle, Trophy, CalendarDays } from "lucide-react";
+import { Loader2, AlertCircle, Trophy, CalendarDays, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WaitingFirstMatchday } from "@/components/ui/WaitingFirstMatchday";
 import { CURRENT_SEASON } from "@/lib/seasons";
@@ -17,6 +17,33 @@ function dueDecimali(n: number) {
     return Math.abs(c - Math.round(c)) < 0.005 ? String(Math.round(c)) : c.toFixed(2);
 }
 
+function UltimeCinque({ scores }: { scores: number[] }) {
+    if (scores.length === 0) return <span className="text-[color:var(--fumo)]">–</span>;
+    return (
+        <span className="inline-flex items-center gap-0.5">
+            {scores.map((s, i) => {
+                const tone =
+                    s >= 80
+                        ? "bg-[color:var(--viola)] text-[color:var(--su-colore)]"
+                        : s >= 70
+                          ? "bg-[color:var(--calce)] text-[color:var(--pece)]"
+                          : s < 66
+                            ? "bg-[color:var(--vermiglio)]/15 text-[color:var(--vermiglio)]"
+                            : "bg-[color:var(--velo-alto)] text-[color:var(--calce)]";
+                return (
+                    <span
+                        key={i}
+                        title={`G-${scores.length - 1 - i === 0 ? "ultima" : scores.length - i}`}
+                        className={`min-w-[2.1rem] rounded px-1 py-0.5 text-center text-[10px] font-black tabular-nums ${tone}`}
+                    >
+                        {dueDecimali(s)}
+                    </span>
+                );
+            })}
+        </span>
+    );
+}
+
 function ClassificaContent() {
     const searchParams = useSearchParams();
     const stagione = searchParams.get("stagione") || CURRENT_SEASON;
@@ -27,6 +54,7 @@ function ClassificaContent() {
     const [mobileView, setMobileView] = useState<"totale" | "giornata">("totale");
     /** giornata scelta nel selettore; null finché non si sceglie, e allora vale l'ultima giocata */
     const [giornataScelta, setGiornataScelta] = useState<number | null>(null);
+    const [mostraExtra, setMostraExtra] = useState(false);
     const tabellaRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -174,15 +202,31 @@ function ClassificaContent() {
                         <SeasonPill stagione={stagione} />
                     </div>
                     <div className="flex flex-col items-start sm:items-end gap-2">
-                        <SelettoreGiornata
-                            giornate={numeriGiocati}
-                            valore={giornataScelta}
-                            onChange={(g) => {
-                                setGiornataScelta(g);
-                                if (g !== null) setMobileView("giornata");
-                            }}
-                            etichettaGenerale={`Ultima giocata · ${lastPlayedMatchday}`}
-                        />
+                        <div className="flex flex-wrap items-center gap-2">
+                            <SelettoreGiornata
+                                giornate={numeriGiocati}
+                                valore={giornataScelta}
+                                onChange={(g) => {
+                                    setGiornataScelta(g);
+                                    if (g !== null) setMobileView("giornata");
+                                }}
+                                etichettaGenerale={`Ultima giocata · ${lastPlayedMatchday}`}
+                            />
+                            <button
+                                type="button"
+                                aria-pressed={mostraExtra}
+                                onClick={() => setMostraExtra((v) => !v)}
+                                className={cn(
+                                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider",
+                                    mostraExtra
+                                        ? "border-[color:var(--calce)] bg-[color:var(--calce)] text-[color:var(--pece)]"
+                                        : "border-[color:var(--filo)] text-[color:var(--fumo)]"
+                                )}
+                            >
+                                Media e U5
+                                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mostraExtra && "rotate-180")} />
+                            </button>
+                        </div>
                         <p className="text-[color:var(--fumo)] text-[11px] hidden sm:block">
                             Evidenziati il <span className="bg-[color:var(--viola)] text-[color:var(--su-colore)] px-1.5 py-0.5 font-black">1º</span> e il <span className="bg-[color:var(--calce)] text-[color:var(--pece)] px-1.5 py-0.5 font-black">2º</span> punteggio di ogni giornata
                         </p>
@@ -250,10 +294,12 @@ function ClassificaContent() {
                                         {extra.nick ? (
                                             <span className="block truncate text-[11px] text-[color:var(--fumo)]">{extra.nick}</span>
                                         ) : null}
-                                        {mobileView === "totale" && extra.media != null && (
-                                            <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-wider text-[color:var(--fumo)]">
-                                                media {dueDecimali(extra.media)}
-                                                {extra.last5.length > 0 ? ` · u${extra.last5.length} ${extra.last5.map(dueDecimali).join(" · ")}` : ""}
+                                        {mostraExtra && mobileView === "totale" && extra.media != null && (
+                                            <span className="mt-1 flex flex-col gap-1">
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--fumo)]">
+                                                    media {dueDecimali(extra.media)}
+                                                </span>
+                                                <UltimeCinque scores={extra.last5} />
                                             </span>
                                         )}
                                     </span>
@@ -288,12 +334,16 @@ function ClassificaContent() {
                                     <th className="sticky left-[calc(3.5rem+190px)] z-50 bg-[color:var(--secca)] p-3 text-center text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--lario)] border-b border-r border-[color:var(--filo-alto)]">
                                         Totale
                                     </th>
+                                    {mostraExtra && (
+                                    <>
                                     <th className="p-3 min-w-[64px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-[color:var(--filo)] bg-[color:var(--pece)] text-[color:var(--fumo)]">
                                         Media
                                     </th>
-                                    <th className="p-3 min-w-[88px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-[color:var(--filo)] bg-[color:var(--pece)] text-[color:var(--fumo)]">
-                                        U5
+                                    <th className="p-3 min-w-[148px] text-center text-[10px] font-black uppercase tracking-wider border-b border-r border-[color:var(--filo)] bg-[color:var(--pece)] text-[color:var(--fumo)]">
+                                        Ultime 5
                                     </th>
+                                    </>
+                                    )}
                                     {matchdays.map((g) => (
                                         <th
                                             key={g}
@@ -344,12 +394,16 @@ function ClassificaContent() {
                                                 {stripDecorations(team.Generale)}
                                             </span>
                                         </td>
+                                        {mostraExtra && (
+                                        <>
                                         <td className="p-2.5 text-center border-b border-r border-[color:var(--filo)] tabular-nums text-[color:var(--fumo)]">
                                             {extraDi(team).media != null ? dueDecimali(extraDi(team).media as number) : "–"}
                                         </td>
-                                        <td className="p-2.5 text-center border-b border-r border-[color:var(--filo)] tabular-nums text-[11px] text-[color:var(--fumo)]">
-                                            {extraDi(team).last5.length ? extraDi(team).last5.map(dueDecimali).join(" · ") : "–"}
+                                        <td className="p-2.5 text-center border-b border-r border-[color:var(--filo)]">
+                                            <UltimeCinque scores={extraDi(team).last5} />
                                         </td>
+                                        </>
+                                        )}
 
                                         {matchdays.map((g) => {
                                             const value = toNumber(team[g]);

@@ -94,6 +94,7 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-09-10 — Hermes: classifica, Media e ultime 5 nascoste di default (toggle «Media e U5»); U5 a pillole colorate, non stringa. File: `app/classifica/page.tsx`.
 - 2026-09-10 — Hermes: stats Sofascore-like live; eventi a card 1°/2° + assist da relatedPlayerId; formazioni usano tacticalX/Y (erano stringhe, sembravano un 4-3-3); classifica Serie A GF/GS; classifica lega media+U5. File: TeamStats, MatchSheet, Pitch, lega-normalize, classifica, risultati-serie-a/page.
 - 2026-09-10 — Hermes: statistiche Serie A in scheda match non più solo barre — card Sofascore-like (campo possesso a 4 fasce, tiri nested, donut passaggi, campo parate). File: `app/risultati-serie-a/TeamStats.tsx`, `MatchSheet.tsx`.
 - 2026-09-08 — Hermes: articolo Gazzetta senza titolo doppio — via description in testata e H1 markdown se == metadata.title (restano Giornata / cronaca / data / minuti, poi copertina, poi il pezzo). File: `app/gazzetta/[id]/page.tsx`.
