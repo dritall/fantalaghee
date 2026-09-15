@@ -41,7 +41,6 @@ cover:
       - Campione|Raga di Oporto
       - Record|94.5 Bollicine25
       - Cucchiaio|OldLions 56
-draft: true
 ---
 # IL TURNO SA DI PORTO, IL TRONO SA DI 77
 
