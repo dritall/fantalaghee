@@ -14,17 +14,14 @@ cover:
     Odioalserio vince G5 con 90. Rdds leader a 411, generale più corta del
     Laghèe.
   image_prompt: >-
-    Comic book modern style cover, Lake Como landscape background, golden hour
-    light. Six characters only, no extras. Center: Odioalserio as a grumpy
-    middle-aged Brianzolo man wearing a white t-shirt with ALSERIO printed and a
-    big red circle-slash NO symbol over it, arms crossed defiantly, standing by
-    the small lake of Alserio. Right: Rdds wearing a jersey with bold letters
-    RDDS on the chest, holding a golden scepter on a hilltop. Left group: Steven
-    Bradbury as an Australian athlete in old tracksuit triumphantly crossing a
-    finish line; StarsGravellona as a starry astrologer with a glowing celestial
-    sphere. Bottom corners: Cippalippa1418 as a mischievous character giving a
-    cheeky grin and a thumbs up; Caniggia Vola as a soccer star in 90s-style
-    windbreaker holding a trophy. No visible text or speech bubbles.
+    A grumpy middle-aged Brianzolo man standing by the small lake of Alserio in
+    Brianza, arms crossed, giving a defiant I hate this town look. Behind him
+    three characters: StarsGravellona as a starry astrologer holding a glowing
+    sphere, Steven Bradbury as an Australian athlete in old tracksuit
+    triumphantly crossing a finish line. In the distance on a hill, Rdds
+    character in a suit holding a scepter, looking over the lake. Comic book
+    modern style, late afternoon golden light, no visible text or speech
+    bubbles.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
@@ -45,7 +42,6 @@ cover:
       - Campione|Odioalserio
       - Record|94.5 Bollicine25
       - Cucchiaio|OldLions 56
-draft: true
 ---
 ### 🚗 ODIOALSERIO, ODIO ALSERIO
 
