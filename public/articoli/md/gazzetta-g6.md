@@ -14,15 +14,17 @@ cover:
     Stratosvarious chiude a 85 e torna primo. Atletico Selva argento dal fondo.
     Le Figurine terza a 78.5, AliAli pari. Rdds sesto con 63.
   image_prompt: >-
-    Fumetto moderno, lago di Como, pomeriggio. Tre personaggi soltanto. Al
-    centro un calciatore che ha appena fatto una papera clamorosa — pallone che
-    schizza alto, stelline di svarione — e atterra da re, corona storta appena
-    raccolta: l'aveva già avuta, l'ha persa una settimana, se l'è ripresa. A
-    sinistra un atleta-cervo che sprinta fuori dal bosco sul campo, bagliore
-    argento. A destra una figurina Panini col bordo dentellato che si stacca da
-    un album e alza le braccia: sulla figurina nessuna scritta. Vietato: altri
-    giocatori, cuccioli, lupi, cartelli, testata di giornale, testo leggibile,
-    maglia dello Stoke.
+    Tre personaggi soltanto, nessun altro. Fumetto moderno, lago di Como sullo
+    sfondo, pomeriggio, campo in riva al lago. Al centro un calciatore che ha
+    appena fatto una papera clamorosa: il pallone schizza alto, stelline di
+    svarione intorno, atterra da re con una corona storta appena raccolta da
+    terra. Niente maglia di un club, niente viola, niente stemma della
+    Fiorentina, niente sponsor. L'identità è la papera, non una divisa. A
+    sinistra un atleta-cervo che esce di corsa da un bosco e irrompe sul campo,
+    bagliore argento. A destra una figurina Panini col bordo dentellato che si
+    stacca da un album e alza le braccia: ritratto illeggibile, nessuna lettera.
+    Vietato: altri giocatori, cuccioli, lupi, cartelli, fumetti coi nomi,
+    testata di giornale, testo leggibile.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
