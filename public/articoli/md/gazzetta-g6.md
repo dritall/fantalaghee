@@ -45,7 +45,6 @@ cover:
       - Campione|Stratosvarious
       - Record|94.5 Bollicine25
       - Cucchiaio|OldLions 56
-draft: true
 ---
 # STAVOLTA CHI VINCE, COMANDA
 
