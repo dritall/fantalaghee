@@ -48,7 +48,6 @@ cover:
       - Campione|Atletico Selva
       - Record|96 Sove1907
       - Cucchiaio|OldLions 53.5
-draft: true
 ---
 # GRAVELLONA, PRIMA VOLTA. LA SELVA VINCE IL TURNO
 
