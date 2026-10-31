@@ -44,7 +44,6 @@ cover:
       - Campione|Skibidiboppi
       - Record|97.5 Skibidiboppi
       - Cucchiaio|OldLions 53.5
-draft: true
 ---
 # IL RECORD È IN DUE. LA VETTA ANCHE
 
