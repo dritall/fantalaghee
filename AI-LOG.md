@@ -94,6 +94,7 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-11-02 — Claude: pulizia repo. Via `api/` in radice (vecchie funzioni con `@vercel/kv`, non deployate da Next), `@vercel/kv` dalle dipendenze, `_OLD_BACKUP/`, `remove_bg_*.py`, `esplora_dojo_totale.js` (aveva una chiave RapidAPI in chiaro: va ruotata), e i 58 file di `node_modules/` committati per errore (erano già in `.gitignore`).
 - 2026-11-02 — Claude: audit consumi Vercel (avviso 75% Hobby). Tolto `middleware.ts` (girava su ogni richiesta solo per il redirect .live → .co): ora è un `redirects()` con `has: host` in `next.config.js`. Poll live di `risultati-serie-a` sospeso se la scheda non è visibile. Restano da fare a mano: PNG Gazzetta da 3-5 MB in `public/image/gazzetta/` (76 MB) da convertire in WebP.
 - 2026-09-10 — Hermes: classifica, Media e ultime 5 nascoste di default (toggle «Media e U5»); U5 a pillole colorate, non stringa. File: `app/classifica/page.tsx`.
 - 2026-09-10 — Hermes: stats Sofascore-like live; eventi a card 1°/2° + assist da relatedPlayerId; formazioni usano tacticalX/Y (erano stringhe, sembravano un 4-3-3); classifica Serie A GF/GS; classifica lega media+U5. File: TeamStats, MatchSheet, Pitch, lega-normalize, classifica, risultati-serie-a/page.
