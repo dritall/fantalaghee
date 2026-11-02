@@ -206,7 +206,9 @@ function ScoutHubContent() {
 
   useEffect(() => {
     if (!selectedRound || !anyLive) return;
+    // Niente poll con la scheda in background: chiamate API sprecate.
     const id = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
       loadRound(selectedRound, true);
     }, 20000);
     return () => window.clearInterval(id);
@@ -217,6 +219,7 @@ function ScoutHubContent() {
     const src = matchDetails?.header || modalFixture;
     if (!isLiveMatch(src)) return;
     const id = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
       openMatch(modalFixture, true);
     }, 20000);
     return () => window.clearInterval(id);
