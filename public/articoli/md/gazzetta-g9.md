@@ -5,7 +5,7 @@ description: >-
   G9: pari a 97.5 sul record, pari a 715 in vetta. Il turno non sceglie un solo
   nome.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/gazzetta-g9.png
+image: /image/gazzetta/gazzetta-g9.webp
 stagione: '2627'
 cover:
   giornata: 9

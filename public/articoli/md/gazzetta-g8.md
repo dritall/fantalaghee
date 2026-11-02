@@ -5,7 +5,7 @@ description: >-
   Atletico Selva vince la G8. StarsGravellona va in testa per la prima volta.
   Stratosvarious, primo fino alla G7, scende quinto.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/gazzetta-g8.png
+image: /image/gazzetta/gazzetta-g8.webp
 stagione: '2627'
 cover:
   giornata: 8

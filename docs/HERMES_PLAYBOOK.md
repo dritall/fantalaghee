@@ -231,7 +231,7 @@ Risposte:
 ### 5. Conferma dell'IMMAGINE (STOP 2 — OBBLIGATORIO)
 
 Attendi ~90–150 secondi (GitHub Action), poi controlla che `coverUrl` risponda 200 con
-body PNG valido (**max 4–5 tentativi, ~60s di distanza**). Se non arriva, avvisa che la
+body WebP valido (magic `RIFF`…`WEBP`, size >1KB; non è più un PNG). **Max 4–5 tentativi, ~60s di distanza**. Se non arriva, avvisa che la
 Action potrebbe essere fallita e fermati.
 
 ⛔ **Secondo stop vero — ancora niente go-live.** Quando la copertina è pronta:
@@ -258,7 +258,7 @@ Content-Type: application/json
 { "giornata": 7 }
 ```
 
-Poi ri-attendi la PNG, rimanda copertina + di nuovo i bottoni.
+Poi ri-attendi la copertina WebP, rimandala + di nuovo i bottoni.
 - `403` → token GitHub non avvia Action: riporta; se l'immagine attuale basta e l'utente
   la approva, prosegui al passo 6.
 
@@ -269,8 +269,8 @@ passi (come sotto) sulla bozza — niente go-live, niente WhatsApp.
 
 **Solo ora** pubblica online **senza** `preview` (stesso payload testo/cover, con
 `conferma: true`). Se esiste già la bozza draft, il server la promuove a live senza
-richiedere `force`. La copertina già generata resta (la Action non la rigenera se il PNG
-c'è già).
+richiedere `force`. La copertina già generata resta (la Action non la rigenera se il file
+indicato da `image:` c'è già).
 
 ```
 POST https://www.fantalaghee.live/api/gazzetta/publish
@@ -324,8 +324,8 @@ lettera).
    (slug e giornata). **Riporta questo messaggio all'utente e aspetta un secondo OK
    esplicito** — non basta il comando iniziale.
 2. **Solo dopo l'OK esplicito**, ripeti la stessa chiamata aggiungendo `"conferma": true`
-   nel body. Questa seconda chiamata cancella davvero il `.md` e la copertina (`.png` e
-   l'eventuale hero intermedio) da `main`.
+   nel body. Questa seconda chiamata cancella davvero il `.md`, la copertina (`.webp`,
+   e l'eventuale `.png` legacy) e l'hero intermedio da `main`.
 3. Risposta finale: `{ "ok": true, "giornataCancellata": N, "slug": "...", "fileRimossi": [...] }`.
    Conferma all'utente cosa è stato rimosso.
 4. `404` → non esiste nessun articolo per quella giornata (o nessun articolo pubblicato):

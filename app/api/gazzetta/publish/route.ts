@@ -292,8 +292,14 @@ export async function DELETE(request: NextRequest) {
 
     const slug = `gazzetta-g${giornata}`;
     const repoPathMd = `public/articoli/md/${slug}.md`;
-    const repoPathImg = `public/image/gazzetta/${slug}.png`;
-    const repoPathHero = `public/image/gazzetta/${slug}-hero.png`;
+    // Copertina attuale: .webp. Si prova anche il .png legacy e entrambi gli hero,
+    // così una giornata pubblicata prima del passaggio non lascia file orfani.
+    const assetPaths = [
+        `public/image/gazzetta/${slug}.webp`,
+        `public/image/gazzetta/${slug}.png`,
+        `public/image/gazzetta/${slug}-hero.webp`,
+        `public/image/gazzetta/${slug}-hero.png`,
+    ];
 
     let shaMd: string | null;
     try {
@@ -325,7 +331,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const fileRimossi = [repoPathMd];
-    for (const repoPathAsset of [repoPathImg, repoPathHero]) {
+    for (const repoPathAsset of assetPaths) {
         try {
             const shaAsset = await trovaShaEsistente(owner, repo, repoPathAsset, ghToken);
             if (shaAsset) {
@@ -486,7 +492,7 @@ export async function POST(request: NextRequest) {
         date: isoDate,
         description: payload.description,
         author: "L'Oracolo del Laghèe",
-        image: `/image/gazzetta/${slug}.png`,
+        image: `/image/gazzetta/${slug}.webp`,
         stagione,
         cover: {
             giornata,
@@ -529,7 +535,7 @@ export async function POST(request: NextRequest) {
             preview,
             pubblicato: !preview,
             liveUrl: `https://www.fantalaghee.live/gazzetta/${slug}`,
-            coverUrl: `https://www.fantalaghee.live/image/gazzetta/${slug}.png`,
+            coverUrl: `https://www.fantalaghee.live/image/gazzetta/${slug}.webp`,
             nota: preview
                 ? 'Bozza salvata come draft: non compare in elenco né è leggibile sul sito. Attendi la copertina, poi pubblica senza preview dopo OK immagine.'
                 : 'Articolo pubblicato online.',

@@ -5,7 +5,7 @@ description: >-
   Raga di Oporto chiude a 91, Stratosvarious sale in testa con 77. Gli 883 e
   Fantamagica sul podio. Il record resta a Bollicine25.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/gazzetta-g4.png
+image: /image/gazzetta/gazzetta-g4.webp
 stagione: '2627'
 cover:
   giornata: 4

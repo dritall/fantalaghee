@@ -5,7 +5,7 @@ description: >-
   Paz de Bindella fa 87 e il record passa di mano. In classifica sale Rdds,
   Brianza Boys sul podio, Bradbury non è più primo.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/gazzetta-g2.png
+image: /image/gazzetta/gazzetta-g2.webp
 stagione: '2627'
 cover:
   giornata: 2

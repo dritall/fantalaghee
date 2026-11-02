@@ -124,6 +124,6 @@ export async function POST(request: NextRequest) {
         slug,
         seed,
         messaggio: `Rigenerazione della copertina ${slug} avviata (seed ${seed}). `
-            + `Attendi ~90 secondi, poi ricontrolla https://www.fantalaghee.live/image/gazzetta/${slug}.png`,
+            + `Attendi ~90 secondi, poi ricontrolla https://www.fantalaghee.live/image/gazzetta/${slug}.webp`,
     });
 }

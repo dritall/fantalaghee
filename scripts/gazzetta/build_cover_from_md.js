@@ -3,15 +3,15 @@
  * Genera l'immagine di copertina leggendo i dati dal frontmatter di un articolo .md.
  *
  * È il pezzo eseguito dalla GitHub Action: quando Hermes committa un articolo con un
- * blocco `cover:` nel frontmatter e un `image:` che punta a un PNG non ancora esistente,
- * questo script rende il PNG e lo salva al percorso indicato da `image`.
+ * blocco `cover:` nel frontmatter e un `image:` che punta a un WebP non ancora esistente,
+ * questo script rende il WebP e lo salva al percorso indicato da `image`.
  *
  * Uso:
  *   node scripts/gazzetta/build_cover_from_md.js <file.md>     # un file specifico
  *   node scripts/gazzetta/build_cover_from_md.js --all         # tutti gli .md con immagine mancante
  *
  * Frontmatter atteso:
- *   image: /image/gazzetta/gazzetta-g31.png
+ *   image: /image/gazzetta/gazzetta-g31.webp
  *   cover:
  *     giornata: 31
  *     titolo_principale: "..."
@@ -33,11 +33,11 @@ const MD_DIR = path.join(REPO_ROOT, 'public', 'articoli', 'md');
 const PUBLIC_DIR = path.join(REPO_ROOT, 'public');
 
 function imageAbsPath(imageUrl) {
-    // imageUrl è tipo "/image/gazzetta/gazzetta-g31.png" -> lo mappo dentro /public
+    // imageUrl è tipo "/image/gazzetta/gazzetta-g31.webp" -> lo mappo dentro /public
     return path.join(PUBLIC_DIR, imageUrl.replace(/^\//, ''));
 }
 
-/** @returns {Promise<string|null>} percorso PNG generato, o null se saltato */
+/** @returns {Promise<string|null>} percorso immagine generato, o null se saltato */
 async function buildOne(mdPath, { force = false } = {}) {
     const raw = fs.readFileSync(mdPath, 'utf8');
     const { data } = matter(raw);
@@ -54,23 +54,34 @@ async function buildOne(mdPath, { force = false } = {}) {
 
     const c = data.cover;
 
-    // Risoluzione dell'HERO:
-    // 1) se Hermes ha già fornito/committato un file hero -> lo usiamo;
-    // 2) altrimenti, se c'è image_prompt -> lo generiamo qui e lo salviamo;
-    // 3) altrimenti -> nessun hero (placeholder).
+    // Risoluzione dell'HERO (WebP max 1600, vedi lib/cover-format.js):
+    // 1) path esplicito nel frontmatter, se il file c'è;
+    // 2) file già committato `${slug}-hero.webp` (o .png legacy), solo senza --force:
+    //    la rigenerazione (force + seed nuovo) deve produrre un'illustrazione nuova;
+    // 3) altrimenti, se c'è image_prompt -> lo generiamo e lo salviamo in .webp;
+    // 4) altrimenti -> nessun hero (placeholder).
+    const slug = path.basename(mdPath, '.md');
     let heroSrc = c.hero_image || c.img_principale || null;
+    if (!heroSrc && !force) {
+        for (const ext of ['.webp', '.png']) {
+            const rel = `/image/gazzetta/${slug}-hero${ext}`;
+            if (fs.existsSync(imageAbsPath(rel))) {
+                heroSrc = rel;
+                break;
+            }
+        }
+    }
     const heroFile = heroSrc && heroSrc.startsWith('/') ? imageAbsPath(heroSrc) : null;
     const heroMancante = !heroSrc || (heroFile && !fs.existsSync(heroFile));
 
-    if (heroMancante && c.image_prompt) {
-        const slug = path.basename(mdPath, '.md');
-        // heroUrl è la forma PUBBLICO-relativa (es. /image/gazzetta/gazzetta-g7-hero.png):
+    if ((heroMancante || force) && c.image_prompt) {
+        // heroUrl è la forma PUBBLICO-relativa (es. /image/gazzetta/gazzetta-g7-hero.webp):
         // è quella che renderCover/toImgSrc risolvono correttamente. genPath (assoluto)
         // serve SOLO per scrivere il file su disco. Attenzione: NON passare genPath come
         // img_principale, perché toImgSrc interpreta ogni stringa che inizia con "/" come
         // relativa a /public e con un path assoluto non troverebbe il file, rendendo il
         // placeholder al posto dell'illustrazione.
-        const heroUrl = heroSrc && heroSrc.startsWith('/') ? heroSrc : `/image/gazzetta/${slug}-hero.png`;
+        const heroUrl = `/image/gazzetta/${slug}-hero.webp`;
         const genPath = imageAbsPath(heroUrl);
         const seedEnv = process.env.IMAGE_SEED;
         const seed = seedEnv !== undefined && seedEnv !== '' ? Number(seedEnv) : (Number(c.giornata) || undefined);

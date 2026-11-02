@@ -67,6 +67,16 @@ non un import).
 - Commenti solo dove spiegano un PERCHÉ non ovvio (un vincolo nascosto, una
   formula del foglio che si comporta in modo strano); non descrivere cosa
   fa il codice quando i nomi già lo dicono.
+- **Immagini nuove: WebP subito, mai il PNG da convertire dopo.** Qualunque
+  immagine che entra in `public/image/` (copertina Gazzetta, hero, extra)
+  va committata già in WebP, qualità ~80, larghezza massima 1600 px,
+  proporzioni invariate. Non si mette il file grosso «e poi si ottimizza»:
+  è così che `public/image/gazzetta/` è arrivata a 70 MB. Eccezioni volute,
+  non copertine: `carta.jpg`, `carta-velo.png`, `masthead.svg`. I numeri
+  stanno in `scripts/gazzetta/lib/cover-format.js`. La pipeline
+  (`publish` → Action → `build_cover_from_md.js` / `imagegen.js` /
+  `renderCover`) scrive già `.webp`: non reintrodurre `.png` nel campo
+  `image:` né nel path dell'hero.
 
 ## Workflow di questo repo
 
@@ -94,6 +104,7 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-11-02 — Hermes: copertine e hero Gazzetta da PNG a WebP q80, max 1600px. `public/image/gazzetta` 70.5 → 8.7 MB (−61.8 nel checkout; la storia git tiene i blob vecchi, niente rewrite). Pipeline pubblica `.webp`. Carta-velo resta PNG. File: `public/image/gazzetta`, `image:` nei md, `publish/route.ts`, `rigenera-copertina`, `scripts/gazzetta`.
 - 2026-09-10 — Hermes: classifica, Media e ultime 5 nascoste di default (toggle «Media e U5»); U5 a pillole colorate, non stringa. File: `app/classifica/page.tsx`.
 - 2026-09-10 — Hermes: stats Sofascore-like live; eventi a card 1°/2° + assist da relatedPlayerId; formazioni usano tacticalX/Y (erano stringhe, sembravano un 4-3-3); classifica Serie A GF/GS; classifica lega media+U5. File: TeamStats, MatchSheet, Pitch, lega-normalize, classifica, risultati-serie-a/page.
 - 2026-09-10 — Hermes: statistiche Serie A in scheda match non più solo barre — card Sofascore-like (campo possesso a 4 fasce, tiri nested, donut passaggi, campo parate). File: `app/risultati-serie-a/TeamStats.tsx`, `MatchSheet.tsx`.

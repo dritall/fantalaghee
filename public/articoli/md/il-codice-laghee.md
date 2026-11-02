@@ -5,7 +5,7 @@ description: >-
   Extra allegato alla G1: regole e premi 26/27 senza sconti, più la mappa
   del sito. Da leggere prima di litigare nel gruppo.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/il-codice-laghee.png
+image: /image/gazzetta/il-codice-laghee.webp
 stagione: '2627'
 cover:
   giornata: extra

@@ -31,7 +31,7 @@ manda in bozza, e — dopo il tuo **OK** — genera la copertina e pubblica live
 |---|---|
 | `bot.js` | Bot Telegram: orchestrazione + flusso di approvazione |
 | `genera_articolo.js` | CLI di test (genera la bozza senza Telegram, ha `--mock`) |
-| `genera_gazzetta.js` | Rende la copertina "prima pagina" in PNG (Puppeteer) — esporta `renderCover()` |
+| `genera_gazzetta.js` | Rende la copertina "prima pagina" in WebP (Puppeteer, max 1600px, q80) — esporta `renderCover()` |
 | `template.html` | Template grafico della copertina (impaginato da quotidiano) |
 | `tools/build_masthead.py` | Rigenera la testata vettoriale `public/image/gazzetta/masthead.svg` |
 | `tools/build_paper.py` | Rigenera la texture della carta (`carta.jpg` + `carta-velo.png`) |
@@ -89,7 +89,7 @@ python3 scripts/gazzetta/tools/build_paper.py
 ```
 
 La testata **non è testo**: è `public/image/gazzetta/masthead.svg`, un tracciato
-vettoriale generato una volta sola da Playfair Display Black. Così la copertina PNG e
+vettoriale generato una volta sola da Playfair Display Black. Così la copertina e
 il sito mostrano lo stesso marchio anche se Google Fonts non risponde. Si rigenera solo
 se cambiano le parole o la crenatura:
 

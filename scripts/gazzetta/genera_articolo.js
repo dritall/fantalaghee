@@ -8,7 +8,7 @@
  *   node scripts/gazzetta/genera_articolo.js --mock     # usa una bozza finta (nessuna chiave necessaria)
  *   node scripts/gazzetta/genera_articolo.js --mock --cover   # ...e genera anche l'immagine di copertina
  *
- * Non committa nulla: stampa la bozza e, con --cover, salva solo il PNG di anteprima.
+ * Non committa nulla: stampa la bozza e, con --cover, salva solo il WebP di anteprima.
  */
 
 const path = require('path');
@@ -88,7 +88,7 @@ function bozzaMock(dati) {
     console.log(JSON.stringify(bozza, null, 2));
 
     if (DO_COVER) {
-        const out = path.join(__dirname, '../../public/image/gazzetta', `${bozza.slug}_preview.png`);
+        const out = path.join(__dirname, '../../public/image/gazzetta', `${bozza.slug}_preview.webp`);
         const coverData = {
             data: topBarDate(dati.numeroGiornata),
             titolo_principale: bozza.cover.titolo_principale,

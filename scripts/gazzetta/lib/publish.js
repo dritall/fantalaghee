@@ -48,7 +48,7 @@ async function preparaFile(bozza, dati) {
     const isoDate = new Date().toISOString().slice(0, 10);
 
     // 1. Immagine di copertina
-    const imgFilename = `${slug}.png`;
+    const imgFilename = `${slug}.webp`;
     const imgPath = path.join(IMG_DIR, imgFilename);
     const imageUrl = `/image/gazzetta/${imgFilename}`;
     const coverData = {

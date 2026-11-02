@@ -5,7 +5,7 @@ description: >-
   Odioalserio centra 90 e vince la G5 davanti a StarsGravellona (89) e Steven
   Bradbury (88). Rdds sale al comando della generale con 411.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/gazzetta-g5.png
+image: /image/gazzetta/gazzetta-g5.webp
 stagione: '2627'
 cover:
   giornata: 5

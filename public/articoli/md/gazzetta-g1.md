@@ -5,7 +5,7 @@ description: >-
   Il Fanta Laghèe 26/27 è aperto: 40 squadre, Steven Bradbury vince la G1. A
   breve i dettagli di premi e coppe.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/gazzetta-g1.png
+image: /image/gazzetta/gazzetta-g1.webp
 stagione: '2627'
 cover:
   giornata: 1

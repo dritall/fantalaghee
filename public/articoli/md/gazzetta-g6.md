@@ -5,7 +5,7 @@ description: >-
   Stratosvarious fa 85 e si riprende la vetta. Atletico Selva secondo dal fondo.
   Rdds scende sesto con 63.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/gazzetta-g6.png
+image: /image/gazzetta/gazzetta-g6.webp
 stagione: '2627'
 cover:
   giornata: 6

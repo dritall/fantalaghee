@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
+const { COVER_WEBP_QUALITY, coverScaleFactor } = require('./lib/cover-format');
 
 const REPO_ROOT = path.join(__dirname, '../..');
 const PUBLIC_DIR = path.join(REPO_ROOT, 'public');
@@ -48,7 +49,9 @@ function readMasthead() {
 }
 
 /**
- * Renderizza la copertina "prima pagina" della Gazzetta e la salva come PNG.
+ * Renderizza la copertina "prima pagina" della Gazzetta.
+ * Se outputPath finisce in .webp (il caso della pipeline) salva WebP qualità 80,
+ * largo al massimo 1600px. PNG/JPEG restano solo per anteprime locali.
  *
  * @param {object} datiGiornata
  *   - data                 stringa top-bar (es. "GIORNATA 38 — ...")
@@ -58,7 +61,7 @@ function readMasthead() {
  *   - img_principale        hero: URL / data URI / path repo (/image/...) / file locale
  *   - box1/box2/box3        { title: string, rows: string[] }  (Top5, Classifica, Verdetti)
  *                           righe nel formato "nome|valore", con "1." iniziale opzionale
- * @param {string} outputPath   percorso assoluto del PNG di destinazione
+ * @param {string} outputPath   percorso assoluto del file di destinazione (.webp in produzione)
  * @returns {Promise<string>} outputPath
  */
 async function renderCover(datiGiornata, outputPath) {
@@ -68,7 +71,8 @@ async function renderCover(datiGiornata, outputPath) {
     });
     try {
         const page = await browser.newPage();
-        await page.setViewport({ width: 1000, height: 2000, deviceScaleFactor: 2 });
+        // 900px CSS * (1600/900) = 1600px: stesso layout, file molto più leggero del vecchio 2x (1800px PNG).
+        await page.setViewport({ width: 1000, height: 2000, deviceScaleFactor: coverScaleFactor() });
 
         const htmlPath = path.join(__dirname, 'template.html');
         const htmlContent = fs.readFileSync(htmlPath, 'utf8');
@@ -234,7 +238,11 @@ async function renderCover(datiGiornata, outputPath) {
 
         fs.mkdirSync(path.dirname(outputPath), { recursive: true });
         const container = await page.$('.page-container');
-        await container.screenshot({ path: outputPath });
+        const ext = path.extname(outputPath).toLowerCase();
+        const type = ext === '.webp' ? 'webp' : (ext === '.jpg' || ext === '.jpeg' ? 'jpeg' : 'png');
+        const shot = { path: outputPath, type };
+        if (type !== 'png') shot.quality = COVER_WEBP_QUALITY;
+        await container.screenshot(shot);
         return outputPath;
     } finally {
         await browser.close();
@@ -254,7 +262,7 @@ if (require.main === module) {
         box2: { title: '📊 CLASSIFICA GENERALE', rows: ['1. Stoke Azzo|2935.5', '2. Raga di Oporto|2930.0', '3. Cuccioloni|2920.0', '4. Fantagiulia|2901.0', '5. Caniggia Vola|2889.0'] },
         box3: { title: '📌 I VERDETTI', rows: ['Campione|Stoke Azzo', 'Record|112.5 Cippalippa', 'Cucchiaio|Fantamagica 43'] },
     };
-    const out = path.join(__dirname, '../../public/image/gazzetta/gazzetta_test.png');
+    const out = path.join(__dirname, '../../public/image/gazzetta/gazzetta_test.webp');
     renderCover(datiDiProva, out)
         .then(p => console.log(`✓ Immagine generata: ${p}`))
         .catch(err => { console.error(err); process.exit(1); });

@@ -5,7 +5,7 @@ description: >-
   Bollicine25 vince la G3 con 94.5 e si prende il record. Stratosvarious e
   Caniggia Vola sul podio. In classifica Rdds e Stratosvarious pari in vetta.
 author: L'Oracolo del Laghèe
-image: /image/gazzetta/gazzetta-g3.png
+image: /image/gazzetta/gazzetta-g3.webp
 stagione: '2627'
 cover:
   giornata: 3

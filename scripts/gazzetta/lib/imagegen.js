@@ -23,11 +23,13 @@
  *   OPENROUTER_IMAGE_MODEL - default "google/gemini-3.1-flash-image"
  *
  * CLI di test (nessuna scrittura nel repo):
- *   GEMINI_API_KEY=... node scripts/gazzetta/lib/imagegen.js "<prompt>" /tmp/hero.png
+ *   GEMINI_API_KEY=... node scripts/gazzetta/lib/imagegen.js "<prompt>" /tmp/hero.webp
  */
 
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
+const { COVER_MAX_WIDTH, COVER_WEBP_QUALITY } = require('./cover-format');
 
 const REPO_ROOT = path.join(__dirname, '../../..');
 const PUBLIC_DIR = path.join(REPO_ROOT, 'public');
@@ -63,10 +65,10 @@ const OPENROUTER_MODEL = process.env.OPENROUTER_IMAGE_MODEL || 'google/gemini-3-
 // IMAGE_ALLOW_FALLBACK=true riabilita il degrado silenzioso.
 const ALLOW_FALLBACK = process.env.IMAGE_ALLOW_FALLBACK === 'true';
 
-// Risoluzione dell'immagine. Il riquadro hero del template è 900x520 renderizzato a 2x
-// (~1800px reali): a "1K" (~1024px) l'immagine viene ingrandita e risulta morbida, quindi
-// il default è "2K" per una copertina nitida. Override con GEMINI_IMAGE_SIZE / OPENROUTER_RESOLUTION
-// (rimetti "1K" se un modello non accetta "2K").
+// Risoluzione di generazione. Il riquadro hero è ~900px CSS, la copertina pubblicata
+// è larga al massimo 1600px: a "1K" (~1024px) l'immagine verrebbe ingrandita e morbida,
+// quindi si genera a "2K" e scriviImmagine la riduce a max 1600 in WebP prima del commit.
+// Override con GEMINI_IMAGE_SIZE / OPENROUTER_RESOLUTION (rimetti "1K" se un modello non accetta "2K").
 const GEMINI_IMAGE_SIZE = process.env.GEMINI_IMAGE_SIZE || '2K';
 const OPENROUTER_RESOLUTION = process.env.OPENROUTER_RESOLUTION || '2K';
 
@@ -151,6 +153,30 @@ function isValidImageBuffer(buf) {
     if (buf[0] === 0xff && buf[1] === 0xd8) return true; // JPEG
     if (buf.slice(0, 4).toString('ascii') === 'RIFF') return true; // WEBP
     return false;
+}
+
+/**
+ * Salva l'hero nel formato del path (la pipeline usa .webp), max 1600px, qualità 80.
+ * Il provider restituisce PNG/JPEG/WebP a 2K: senza questo passaggio il commit
+ * sarebbe di nuovo un PNG da ~3MB.
+ */
+async function scriviImmagine(buf, outPath) {
+    const ext = path.extname(outPath).toLowerCase();
+    let pipeline = sharp(buf, { failOn: 'none' }).rotate();
+    const meta = await pipeline.metadata();
+    if (meta.width && meta.width > COVER_MAX_WIDTH) {
+        pipeline = pipeline.resize({ width: COVER_MAX_WIDTH, withoutEnlargement: true });
+    }
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
+    if (ext === '.webp') {
+        await pipeline.webp({ quality: COVER_WEBP_QUALITY }).toFile(outPath);
+    } else if (ext === '.jpg' || ext === '.jpeg') {
+        await pipeline.jpeg({ quality: COVER_WEBP_QUALITY }).toFile(outPath);
+    } else if (ext === '.png') {
+        await pipeline.png({ compressionLevel: 9 }).toFile(outPath);
+    } else {
+        await pipeline.toFile(outPath);
+    }
 }
 
 // --- Provider: Google (Nano Banana 2 via Gemini API) ---
@@ -345,8 +371,7 @@ async function generateHero(prompt, outPath, opts = {}) {
                 if (!isValidImageBuffer(buf)) {
                     throw new Error(`buffer non valido (${buf ? buf.length : 0} byte)`);
                 }
-                fs.mkdirSync(path.dirname(outPath), { recursive: true });
-                fs.writeFileSync(outPath, buf);
+                await scriviImmagine(buf, outPath);
                 console.log(`✓ hero generato con ${nome} (tentativo ${i + 1}/${tentativi}, seed ${seed})`);
                 if (nome === 'pollinations') {
                     console.warn('⚠ ATTENZIONE: copertina prodotta dal provider gratuito di riserva, '
