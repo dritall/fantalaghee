@@ -1,11 +1,14 @@
 import Script from "next/script";
 
+/** Measurement ID GA4 della proprietà Fanta Laghèe (è pubblico, finisce comunque nell'HTML). */
+const GA_ID_PREDEFINITO = "G-PB1BCHVWP2";
+
 /**
- * Carica GA4 solo in produzione e solo se NEXT_PUBLIC_GA_ID è impostato,
- * così build locali/preview non sporcano le statistiche.
+ * Carica GA4 solo in produzione, così build locali e `next dev` non sporcano
+ * le statistiche. `NEXT_PUBLIC_GA_ID` (se impostato) sovrascrive l'ID predefinito.
  */
 export function GoogleAnalytics() {
-  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  const gaId = process.env.NEXT_PUBLIC_GA_ID || GA_ID_PREDEFINITO;
   if (!gaId || process.env.NODE_ENV !== "production") return null;
 
   return (

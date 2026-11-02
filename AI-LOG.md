@@ -94,6 +94,7 @@ bug del titolo doppio nell'articolo di Gazzetta (due sessioni diverse
 hanno tolto lo stesso H1 duplicato, senza sapere l'una dell'altra,
 cancellando l'unico titolo rimasto).
 
+- 2026-11-02 — Claude: GA4 attivo davvero — `GoogleAnalytics.tsx` ora usa `G-PB1BCHVWP2` come ID predefinito (prima non partiva perché `NEXT_PUBLIC_GA_ID` non era mai stato impostato su Vercel); la env var resta come override. Carica sempre e solo con `NODE_ENV === "production"`.
 - 2026-09-10 — Hermes: classifica, Media e ultime 5 nascoste di default (toggle «Media e U5»); U5 a pillole colorate, non stringa. File: `app/classifica/page.tsx`.
 - 2026-09-10 — Hermes: stats Sofascore-like live; eventi a card 1°/2° + assist da relatedPlayerId; formazioni usano tacticalX/Y (erano stringhe, sembravano un 4-3-3); classifica Serie A GF/GS; classifica lega media+U5. File: TeamStats, MatchSheet, Pitch, lega-normalize, classifica, risultati-serie-a/page.
 - 2026-09-10 — Hermes: statistiche Serie A in scheda match non più solo barre — card Sofascore-like (campo possesso a 4 fasce, tiri nested, donut passaggi, campo parate). File: `app/risultati-serie-a/TeamStats.tsx`, `MatchSheet.tsx`.
