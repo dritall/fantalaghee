@@ -53,7 +53,6 @@ cover:
       - Campione|SSC Appella
       - Record|97.5 Skibidiboppi
       - Cucchiaio|OldLions 53.5
-draft: true
 ---
 # DUE PUNTI IN VETTA. SECONDA DI COPPA
 
