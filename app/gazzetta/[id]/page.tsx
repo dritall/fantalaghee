@@ -137,7 +137,7 @@ export default function ArticlePage() {
                     <div className="flex items-baseline justify-between gap-3 border-b border-black/20 pb-1.5 font-testata text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#16100F]">
                         <span>{dataIt}</span>
                         <span className="hidden sm:inline opacity-55 tracking-[0.3em] font-medium">Edizione del Lario</span>
-                        <span className="text-[#C8102E]">fantalaghee.live</span>
+                        <span className="text-[#C8102E]">fantalaghee.co</span>
                     </div>
 
                     {/* Il marchio occupa la riga intera, come sulla prima pagina stampata */}
