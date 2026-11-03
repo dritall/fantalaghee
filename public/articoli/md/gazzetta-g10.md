@@ -14,21 +14,25 @@ cover:
     Quattro gironi, due giornate, otto a punteggio pieno. Nessuno è fuori. Il
     disegno, però, c'è.
   image_prompt: >-
-    Illustrazione divisa in due metà, solo nei due terzi di sinistra. Il terzo
-    destro è vuoto: solo lago e cielo, nessun personaggio, nessun arco, nessuna
-    stella, perché lì vanno i riquadri del giornale. Metà sinistra, campionato:
-    una cappella azzurra stile scudetto, sagoma un po' fallica, sola, in
-    trionfo, con un martelletto in mano. Mezzo passo sotto, due uomini adulti
-    rossi in faccia, sopracciglia a V, muso da rognati, infastiditi di essere
-    secondi. Nessun altro in questa metà. Metà destra del disegno, ancora a
-    sinistra del terzo vuoto, coppa: tre ragazzi giovani che vivono su una
-    banchina, barche ormeggiate dietro di loro, tutti e tre con la maglia del
-    Porto a strisce verticali blu e bianche. Tengono insieme una coppa piccola
-    da girone, non un trofeo da finale. Due candele accese sulla coppa. Sono tre
-    maschi adulti. Non una donna, non un bambino, non tre persone che brindano
-    col vino. Solo questi sei soggetti: la cappella, i due rognati, i tre del
-    Porto. Nessun altro personaggio. Niente scritte, niente numeri, niente
-    etichette, niente nomi.
+    Illustrazione unica divisa in due metà da una riga nera verticale spessa, da
+    bordo a bordo. I due fondi non si toccano: niente lago in comune, niente
+    molo in comune. Metà sinistra, giorno, solo lago di Como. In primo piano una
+    cappella azzurra stile scudetto, sagoma un po' fallica, sola, braccia
+    alzate, martelletto in mano. Ai suoi piedi due uomini adulti rossi in
+    faccia, sopracciglia a V, muso da rognati, un gradino sotto, infastiditi di
+    non essere primi. Sullo sfondo di questa metà soltanto, un paesino di
+    provincia con stelle cadenti, solo in cima a una collina. Due gradini più in
+    basso, un razzo a forma di melanzana con un alloro, che non arriva in cima.
+    Nessuna maglia da club in questa metà. Nessun altro personaggio. Metà
+    destra, notte, solo un porto. Quattro moli di legno uguali, uno accanto
+    all'altro, separati dall'acqua. Su ogni molo una coppa piccola da girone,
+    non un trofeo da finale, e due lanterne già accese. Sul molo più vicino, e
+    solo lì, tre ragazzi che vivono sulla banchina, maglia a strisce verticali
+    blu e bianche. Stanno sul molo, non brindano, non alzano bicchieri. Gli
+    altri tre moli non hanno persone. Nessuna donna, nessun bambino, nessun
+    calciatore extra. Solo questi soggetti: la cappella, i due rognati, il
+    paesino con le stelle, il razzo-melanzana, i tre del Porto. Nessun altro.
+    Niente scritte, niente numeri, niente nomi, niente etichette.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
