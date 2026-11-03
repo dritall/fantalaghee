@@ -14,16 +14,21 @@ cover:
     Quattro gironi, due giornate, otto a punteggio pieno. Nessuno è fuori. Il
     disegno, però, c'è.
   image_prompt: >-
-    Sul lago di Como, al centro una piccola cappella azzurra con le gambe, stile
-    scudetto, sola, che alza le braccia come in un ricorso accolto. In mano ha
-    un martelletto da giudice e una coppa piccola da girone, non un trofeo da
-    finale: sulla coppa due candele accese e sette spente. Dietro, quattro archi
-    sul lago, due stelle sopra ogni arco, senza alcuna scritta. Mezzo passo
-    sotto, due figure col mento altissimo e il naso all'insù, infastidite di non
-    essere prime. A lato, due o tre ragazzi festanti con calici di vino Porto e
-    case colorate alle spalle, che brindano da terzi, anche loro con due stelle.
-    Il terzo destro della scena resta vuoto, lago e cielo, senza personaggi.
-    Niente scritte, niente numeri, niente etichette, niente nomi.
+    Illustrazione divisa in due metà, solo nei due terzi di sinistra. Il terzo
+    destro è vuoto: solo lago e cielo, nessun personaggio, nessun arco, nessuna
+    stella, perché lì vanno i riquadri del giornale. Metà sinistra, campionato:
+    una cappella azzurra stile scudetto, sagoma un po' fallica, sola, in
+    trionfo, con un martelletto in mano. Mezzo passo sotto, due uomini adulti
+    rossi in faccia, sopracciglia a V, muso da rognati, infastiditi di essere
+    secondi. Nessun altro in questa metà. Metà destra del disegno, ancora a
+    sinistra del terzo vuoto, coppa: tre ragazzi giovani che vivono su una
+    banchina, barche ormeggiate dietro di loro, tutti e tre con la maglia del
+    Porto a strisce verticali blu e bianche. Tengono insieme una coppa piccola
+    da girone, non un trofeo da finale. Due candele accese sulla coppa. Sono tre
+    maschi adulti. Non una donna, non un bambino, non tre persone che brindano
+    col vino. Solo questi sei soggetti: la cappella, i due rognati, i tre del
+    Porto. Nessun altro personaggio. Niente scritte, niente numeri, niente
+    etichette, niente nomi.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
