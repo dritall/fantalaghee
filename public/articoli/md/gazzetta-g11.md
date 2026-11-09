@@ -67,7 +67,6 @@ cover:
       - Campione|Raga di Oporto
       - Record|97.5 Skibidiboppi
       - Cucchiaio|OldLions 53.5
-draft: true
 ---
 # LA TESTA NON ERA MAI STATA SUA
 
