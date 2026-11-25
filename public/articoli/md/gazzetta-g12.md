@@ -14,16 +14,24 @@ cover:
     Record di stagione a 115, dal diciassettesimo al quinto. Stoke Azzo passa
     primo. Nove sopra i 100. In coppa, tre ancora imbattute.
   image_prompt: >-
-    Sinistra, giorno, un campo da calcio. Un gigante enorme, la testa sopra la
-    traversa. In vita un barile di legno che copre tutto il basso ventre: niente
-    di anatomico visibile. Dal bordo del barile parte un arco di liquido chiaro
-    che cade in testa a un gruppo di calciatori piccoli, ai suoi piedi. Niente
-    fumetti, niente scritte, niente numeri. Sullo sfondo della stessa metà,
-    piccolo e staccato, un razzo appoggiato su un trono basso. Destra, un porto
-    di notte, taglio netto, niente lago in comune con la sinistra. Quattro moli
-    uguali. Su ciascuno una coppa piccola, da girone, e una lanterna accesa:
-    quattro luci in tutto. Sul molo più vicino tre ragazzi con la maglia a
-    strisce verticali blu e bianche. Gli altri tre moli senza gente.
+    Taglio netto in due metà, rettangoli, fondi che non si toccano. Niente
+    scritte, niente numeri, niente fumetti, niente etichette. Sinistra, giorno,
+    un campo. Un gigante enorme, la testa sopra la traversa. Il pene è visibile,
+    senza barile e senza nuvole a coprirlo. Un getto chiaro e pesante parte da
+    lì e cade in testa a una folla di calciatori piccoli, ammassati ai suoi
+    piedi: si deve capire subito che sta pisciando in testa a tutti, non un arco
+    educato su tre persone. Niente maglie di club riconoscibili su quella folla.
+    Sullo sfondo della stessa metà, piccolo e staccato, un razzo su un trono
+    basso. Niente lago. Destra, notte, un altro luogo, un tavolo di coppe, non
+    un porto e non dei moli. Il soggetto sono le coppe, grandi e leggibili.
+    Quattro lanterne già accese. Tre coppe alzate e lucide, in alto: sotto la
+    prima, tre ragazzi con la stessa maglia a strisce verticali blu e bianche,
+    identica, senza lettere sulla maglia, che tengono la coppa insieme; sotto la
+    seconda, due sosia di un numero dieci un po' matti, con una coppa alzata;
+    sotto la terza, una melanzana con una corona d'alloro che tiene una coppa.
+    In basso, due coppe buie e vuote per terra: accanto a una un vulcano piccolo
+    che fuma, accanto all'altra un cervo. Il posto si legge dall'altezza, non da
+    un'etichetta.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
