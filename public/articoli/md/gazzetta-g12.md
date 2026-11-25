@@ -14,24 +14,22 @@ cover:
     Record di stagione a 115, dal diciassettesimo al quinto. Stoke Azzo passa
     primo. Nove sopra i 100. In coppa, tre ancora imbattute.
   image_prompt: >-
-    Taglio netto in due metà, rettangoli, fondi che non si toccano. Niente
-    scritte, niente numeri, niente fumetti, niente etichette. Sinistra, giorno,
-    un campo. Un gigante enorme, la testa sopra la traversa. Il pene è visibile,
-    senza barile e senza nuvole a coprirlo. Un getto chiaro e pesante parte da
-    lì e cade in testa a una folla di calciatori piccoli, ammassati ai suoi
-    piedi: si deve capire subito che sta pisciando in testa a tutti, non un arco
-    educato su tre persone. Niente maglie di club riconoscibili su quella folla.
-    Sullo sfondo della stessa metà, piccolo e staccato, un razzo su un trono
-    basso. Niente lago. Destra, notte, un altro luogo, un tavolo di coppe, non
-    un porto e non dei moli. Il soggetto sono le coppe, grandi e leggibili.
-    Quattro lanterne già accese. Tre coppe alzate e lucide, in alto: sotto la
-    prima, tre ragazzi con la stessa maglia a strisce verticali blu e bianche,
-    identica, senza lettere sulla maglia, che tengono la coppa insieme; sotto la
-    seconda, due sosia di un numero dieci un po' matti, con una coppa alzata;
-    sotto la terza, una melanzana con una corona d'alloro che tiene una coppa.
-    In basso, due coppe buie e vuote per terra: accanto a una un vulcano piccolo
-    che fuma, accanto all'altra un cervo. Il posto si legge dall'altezza, non da
-    un'etichetta.
+    Taglio netto in due metà. Niente scritte, niente fumetti, niente etichette,
+    niente numeri tranne il simbolo descritto. Sinistra, giorno, sponda del lago
+    di Como: acqua, montagne, un campo sull'argine. Un gigante enorme, la testa
+    sopra la traversa. Il pene è visibile. Sopra, come un adesivo, un cerchio
+    rosso con il numero 18 barrato in diagonale, il divieto ai minori di 18. Un
+    getto chiaro e pesante parte da lì e cade in testa a una folla di calciatori
+    piccoli ammassati ai suoi piedi: si capisce subito che sta pisciando in
+    testa a tutti. Niente maglie di club su quella folla. Sullo sfondo della
+    stessa metà, piccolo, un razzo su un trono basso. Destra, notte, la stessa
+    acqua e le stesse montagne, un altro punto della sponda, non un porto e non
+    una fila di moli. Un tavolo di coppe in riva al lago. Tre coppe alzate e
+    lucide: tre ragazzi con la stessa maglia a strisce verticali blu e bianche,
+    identica, senza lettere, che tengono le coppe; e una melanzana con una
+    corona d'alloro che ne tiene una. In basso, due coppe buie e vuote: accanto
+    a una un vulcano piccolo che fuma, accanto all'altra un cervo. Il posto si
+    legge dall'altezza delle coppe, non da un'etichetta.
   box1:
     title: "\U0001F3C6 TOP 5 DI GIORNATA"
     rows:
