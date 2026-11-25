@@ -50,7 +50,6 @@ cover:
       - Campione|Il Gigante
       - Record|115 Il Gigante
       - Cucchiaio|OldLions 53.5
-draft: true
 ---
 # IL GIGANTE PISCIA IN TESTA A TUTTI
 
